@@ -16,7 +16,13 @@
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BeautySalon","name":"QAMAR Blowdry Lounge","alternateName":"قمر","description":"Walk-in blowdry lounge opening soon in Dubai, open every day until midnight.","areaServed":"Dubai","openingHours":"Mo-Su 08:00-24:00"}</script>
 <meta name="theme-color" content="#FCE6EC">
-<link rel="icon" href="assets/logo-qamar.webp">
+<link rel="icon" href="assets/app/favicon-32.png" type="image/png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/app/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="QAMAR">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -824,7 +830,7 @@
   <div class="wrap">
     <p class="note" data-i18n="foot_p">Qamar means “moon”. In Arabic, the most beautiful compliment is “you're as beautiful as the moon”. Prices shown are indicative and include VAT. Opening offers apply on opening day only.</p>
     <div class="cols">
-      <div><h5 data-i18n="foot_lounge">Lounge</h5><a href="queue.html" data-i18n="cta_join">Join the queue</a><a href="#looks" data-i18n="nav_looks">Looks</a><a href="#menu" data-i18n="nav_menu">Menu</a></div>
+      <div><h5 data-i18n="foot_lounge">Lounge</h5><a href="queue.html" data-i18n="cta_join">Join the queue</a><a href="#" data-install-app data-i18n="get_app">Get the app</a><a href="#looks" data-i18n="nav_looks">Looks</a><a href="#menu" data-i18n="nav_menu">Menu</a></div>
       <div><h5 data-i18n="foot_exp">Experience</h5><a href="#rituals" data-i18n="nav_rituals">Rituals</a><a href="#night" data-i18n="nav_night">Night</a><a href="#private" data-i18n="foot_private">Private events</a></div>
       <div><h5 data-i18n="foot_rew">Offers</h5><a href="#rewards" data-i18n="foot_squad">Squad & referral</a><a href="#rewards" data-i18n="foot_packs">Packs & membership</a></div>
       <div><h5 data-i18n="foot_follow">Follow</h5><a href="https://instagram.com/qamar.dubai" target="_blank" rel="noopener">Instagram</a><a href="https://tiktok.com/@qamar.dubai" target="_blank" rel="noopener">TikTok</a><a href="https://snapchat.com/add/qamar.dubai" target="_blank" rel="noopener">Snapchat</a></div>
@@ -933,7 +939,7 @@
     v_addr_t: { en: 'Dubai', ar: 'دبي' }, v_addr: { en: 'Exact location announced very soon.', ar: 'الموقع الدقيق يُعلن قريباً جداً.' },
     foot_p: { en: 'Qamar means “moon”. In Arabic, the most beautiful compliment is “you\'re as beautiful as the moon”. Prices shown are indicative and include VAT. Opening offers apply on opening day only.', ar: 'قمر، لأن أجمل مديح بالعربية هو «زي القمر». الأسعار المعروضة إرشادية وشاملة الضريبة. عروض الافتتاح صالحة يوم الافتتاح فقط.' },
     foot_privacy: { en: 'Privacy', ar: 'الخصوصية' }, foot_legal: { en: 'Legal notice', ar: 'إشعار قانوني' }, cta_private: { en: 'Book a private night', ar: 'احجزي ليلة خاصة' },
-    foot_lounge: { en: 'Lounge', ar: 'الصالون' }, foot_exp: { en: 'Experience', ar: 'التجربة' }, foot_rew: { en: 'Offers', ar: 'العروض' }, foot_follow: { en: 'Follow', ar: 'تابعينا' },
+    foot_lounge: { en: 'Lounge', ar: 'الصالون' }, get_app: { en: 'Get the app', ar: 'حمّلي التطبيق' }, foot_exp: { en: 'Experience', ar: 'التجربة' }, foot_rew: { en: 'Offers', ar: 'العروض' }, foot_follow: { en: 'Follow', ar: 'تابعينا' },
     foot_private: { en: 'Private events', ar: 'مناسبات خاصة' }, foot_squad: { en: 'Squad & referral', ar: 'سكواد ودعوة صديقة' }, foot_packs: { en: 'Packs & membership', ar: 'الباقات والعضوية' }, foot_staff: { en: 'Staff area', ar: 'مساحة الفريق' },
     toast_contest: { en: 'Thank you, your name is in the running', ar: 'شكراً، اقتراحك دخل المسابقة' },
     wa_bride: { en: 'Hello QAMAR! I would like to book the lounge after 10 PM.', ar: 'مرحباً قمر! أرغب في حجز الصالون بعد الساعة ١٠ مساءً.' },
@@ -1122,5 +1128,6 @@
 <script src="assets/rituals-fx.js"></script>
 <script src="assets/looks-fx.js"></script>
 <script src="assets/cursor-fx.js"></script>
+<script src="assets/app.js"></script>
 </body>
 </html>
