@@ -4,11 +4,14 @@
    - iPhone / Safari : fiche qui montre « Partager → Sur l'écran d'accueil » (Apple n'autorise pas d'invite automatique) ;
    - tout lien [data-install-app] ouvre la fiche ; un rappel discret apparaît une fois sur mobile. */
 (function () {
-  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  // application native (Google Play / App Store, via Capacitor) : pas de service worker ni de fiche d'installation, pas de lien « espace personnel »
+  const native = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  const standalone = native || matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   if (standalone) document.documentElement.classList.add('is-app');
+  if (native) document.documentElement.classList.add('is-native');
 
   // Service worker : seulement sur un vrai site https (pas dans un aperçu intégré)
-  if ('serviceWorker' in navigator && location.protocol === 'https:' && window.top === window) {
+  if ('serviceWorker' in navigator && location.protocol === 'https:' && window.top === window && !native) {
     addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
   }
 
@@ -44,7 +47,8 @@
   .qa-sheet .qa-ios { grid-column: 1 / -1; margin-top: 10px; padding: 12px 14px; border-radius: 16px; background: rgba(252, 230, 236, .7); color: #4B2D35; font-size: 14px; }
   .qa-sheet .qa-ios svg { vertical-align: -3px; margin: 0 3px; }
   html[dir="rtl"] .qa-sheet { direction: rtl; }
-  html.is-app [data-install-app] { display: none !important; }`;
+  html.is-app [data-install-app] { display: none !important; }
+  html.is-native a[href="admin.html"] { display: none !important; }`;
   document.head.appendChild(css);
 
   let sheet = null;

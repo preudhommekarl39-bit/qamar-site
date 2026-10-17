@@ -1,0 +1,8 @@
+{
+  "appId": "com.qamarlounge.app",
+  "appName": "QAMAR",
+  "webDir": "www",
+  "backgroundColor": "#FFF7F9",
+  "android": { "allowMixedContent": false },
+  "ios": { "contentInset": "never", "backgroundColor": "#FFF7F9" }
+}
