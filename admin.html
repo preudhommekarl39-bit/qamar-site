@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>QAMAR — Manager</title>
+<link rel="icon" href="assets/logo-qamar.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/qamar.css">
+<style>
+  body { background: #FBF4F1; }
+  .layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100svh; }
+  aside { background: var(--night); color: var(--blush); padding: 26px 20px; position: sticky; top: 0; height: 100svh; display: flex; flex-direction: column; gap: 6px; }
+  aside .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 26px; color: var(--gold-soft); }
+  aside .brand .logo-word { color: var(--gold-soft); font-size: 1.1rem; }
+  aside a { text-decoration: none; padding: 10px 12px; border-radius: 12px; font-size: .92rem; opacity: .75; }
+  aside a:hover, aside a.on { background: rgba(255, 255, 255, .06); opacity: 1; }
+  aside .grp { font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin: 18px 12px 4px; }
+  main { padding: 28px 32px 80px; min-width: 0; }
+  .top { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
+  .top h1 { font-family: var(--serif); font-weight: 400; font-size: 2.4rem; margin: 0; color: var(--cocoa); }
+  .top .sp { flex: 1; }
+  .kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 22px; }
+  .kpi { background: #fff; border-radius: 18px; padding: 16px 18px; border: 1px solid rgba(184, 122, 98, .12); }
+  .kpi small { display: block; font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .kpi b { font-family: var(--serif); font-size: 2rem; font-weight: 500; color: var(--cocoa); line-height: 1.2; }
+  .grid2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 18px; margin-bottom: 18px; }
+  .box { background: #fff; border-radius: 20px; padding: 22px; border: 1px solid rgba(184, 122, 98, .12); min-width: 0; }
+  .box h2 { font-family: var(--serif); font-weight: 500; font-size: 1.5rem; margin: 0 0 14px; color: var(--cocoa); display: flex; align-items: center; gap: 10px; }
+  .box h2 .sp { flex: 1; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  th { text-align: start; font-weight: 500; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  td { padding: 10px; border-bottom: 1px solid rgba(184, 122, 98, .1); vertical-align: middle; }
+  tr:last-child td { border-bottom: 0; }
+  .tbl { overflow-x: auto; }
+  .floor { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .seat { border-radius: 16px; padding: 14px; background: var(--pearl); border: 1px solid var(--line); min-height: 130px; display: flex; flex-direction: column; gap: 4px; }
+  .seat .n { font-family: var(--serif); font-size: 1.8rem; color: var(--gold); line-height: 1; }
+  .seat b { font-weight: 500; color: var(--cocoa); }
+  .seat small { color: var(--muted); font-size: .78rem; }
+  .seat.off { opacity: .45; }
+  .seat.busy { background: linear-gradient(160deg, #fff, var(--blush)); }
+  .seat a { margin-top: auto; font-size: .75rem; color: var(--rose); }
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: .72rem; background: var(--blush); color: var(--cocoa); }
+  .badge.wa { background: #DDF7E6; color: #1E7A43; }
+  .badge.qr { background: #EFE7FB; color: #5B3E8C; }
+  .mini { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 5px 11px; font-size: .75rem; color: var(--cocoa); }
+  .bars { display: grid; gap: 10px; }
+  .bars div { display: grid; grid-template-columns: 130px 1fr 80px; gap: 10px; align-items: center; font-size: .88rem; }
+  .bars i { display: block; height: 10px; border-radius: 10px; background: linear-gradient(90deg, var(--gold), var(--rose)); }
+  .review { padding: 12px 0; border-bottom: 1px solid rgba(184, 122, 98, .1); }
+  .review:last-child { border: 0; }
+  .review .st { color: var(--gold); letter-spacing: 2px; }
+  .wa-sim { background: #ECE5DD; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px; min-height: 220px; max-height: 340px; overflow-y: auto; }
+  .bubble { max-width: 82%; padding: 8px 12px; border-radius: 12px; font-size: .88rem; white-space: pre-line; box-shadow: 0 1px 1px rgba(0, 0, 0, .08); }
+  .bubble.in { background: #fff; align-self: flex-start; }
+  .bubble.out { background: #DCF8C6; align-self: flex-end; }
+  .wa-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .wa-form .full { grid-column: 1 / -1; display: flex; gap: 8px; }
+  .switch { width: 50px; height: 30px; border-radius: 999px; background: #E6D5CF; position: relative; border: 0; flex: none; }
+  .switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: left .2s; }
+  .switch.on { background: var(--rose); }
+  .switch.on::after { left: 23px; }
+  .setting { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid rgba(184, 122, 98, .1); }
+  .setting:last-child { border: 0; }
+  .launch-meter { height: 12px; border-radius: 12px; background: var(--blush); overflow: hidden; margin: 8px 0; }
+  .launch-meter i { display: block; height: 100%; background: linear-gradient(90deg, var(--gold), var(--rose)); }
+  .screens { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .screens a { text-decoration: none; padding: 14px; border-radius: 14px; background: var(--pearl); border: 1px solid var(--line); color: var(--cocoa); font-size: .9rem; }
+  .screens a b { display: block; font-family: var(--serif); font-size: 1.2rem; font-weight: 500; }
+  @media (max-width: 1200px) { .kpis { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } aside { position: static; height: auto; flex-direction: row; flex-wrap: wrap; } aside .grp, aside .brand { display: none; } .grid2 { grid-template-columns: 1fr; } .floor { grid-template-columns: repeat(2, 1fr); } main { padding: 20px 16px 60px; } }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <div class="brand"><span id="logo"></span><span class="logo-word">QAMAR</span></div>
+    <div class="grp">Manager</div>
+    <a href="#live" class="on">Live floor</a>
+    <a href="#queue">Queue</a>
+    <a href="#team">Team & clock-in</a>
+    <a href="#money">Revenue & tips</a>
+    <a href="#reviews">Reviews</a>
+    <a href="#history">History</a>
+    <a href="#whatsapp">WhatsApp queue</a>
+    <a href="#settings">Opening & settings</a>
+    <div class="grp">Screens</div>
+    <a href="entrance.html" >Entrance screen ↗</a>
+    <a href="queue.html" >Client page ↗</a>
+    <a href="index.html" >Website ↗</a>
+  </aside>
+
+  <main>
+    <div class="top">
+      <h1>Good <span id="greet">day</span> ☾</h1>
+      <span class="chip" id="dateChip"></span>
+      <span class="sp"></span>
+      <button class="btn btn-ghost" id="seedBtn" style="padding:.7em 1.2em;font-size:.75rem">Load demo day</button>
+      <button class="btn btn-ghost" id="resetBtn" style="padding:.7em 1.2em;font-size:.75rem">Reset</button>
+    </div>
+    <div id="memWarn"></div>
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="box" id="live" style="margin-bottom:18px"><h2>Live floor <span class="sp"></span><span class="dot live"></span><small class="muted" style="font-family:var(--sans);font-size:.8rem">real time</small></h2><div class="floor" id="floor"></div></div>
+
+    <div class="grid2">
+      <div class="box" id="queue"><h2>Queue <span class="sp"></span><span class="badge" id="qCount"></span></h2><div class="tbl"><table><thead><tr><th>#</th><th>Client</th><th>Look</th><th>Asked for</th><th>Source</th><th>Waiting</th><th>ETA</th><th></th></tr></thead><tbody id="qBody"></tbody></table></div></div>
+      <div class="box" id="whatsapp"><h2>WhatsApp queue <span class="sp"></span><span class="badge wa">simulator</span></h2>
+        <div class="wa-sim" id="waSim"><div class="bubble out">Hello ✦ Welcome to QAMAR. Text us “I want a blow-dry” and we'll save your place in line.</div></div>
+        <form class="wa-form" id="waForm">
+          <input class="input" name="name" placeholder="Client name" required>
+          <input class="input" name="phone" placeholder="+971 5X XXX XXXX" required>
+          <div class="full"><input class="input" name="msg" value="I want a blow-dry" required><button class="btn btn-primary" style="padding:.8em 1.2em">Send</button></div>
+        </form>
+        <p class="muted" style="font-size:.8rem;margin:8px 0 0">In production, this is the WhatsApp Business API (Meta Cloud API): the client texts, the bot replies with her place, and texts her again when it's her turn.</p>
+      </div>
+    </div>
+
+    <div class="box" id="team" style="margin-bottom:18px"><h2>Team & clock-in <span class="sp"></span><button class="mini" id="csvBtn">Copy timesheet (CSV)</button></h2>
+      <div class="tbl"><table><thead><tr><th>Stylist</th><th>Status</th><th>Clocked in</th><th>Worked today</th><th>Clients</th><th>Revenue</th><th>Tips balance</th><th>Rating</th><th>Instagram</th></tr></thead><tbody id="teamBody"></tbody></table></div>
+      <h2 style="margin-top:22px;font-size:1.2rem">Timesheet log</h2>
+      <div class="tbl"><table><thead><tr><th>Stylist</th><th>In</th><th>Out</th><th>Duration</th></tr></thead><tbody id="shiftBody"></tbody></table></div>
+    </div>
+
+    <div class="grid2">
+      <div class="box" id="money"><h2>Revenue by look</h2><div class="bars" id="bars"></div>
+        <h2 style="margin-top:22px;font-size:1.2rem">Payment methods</h2><div class="bars" id="methods"></div></div>
+      <div class="box" id="reviews"><h2>Latest reviews <span class="sp"></span><span class="badge" id="avgRating"></span></h2><div id="revList"></div></div>
+    </div>
+
+    <div class="box" id="history" style="margin-bottom:18px"><h2>History <span class="sp"></span>
+      <select class="mini" id="fPeriod" aria-label="Period"><option value="today">Today</option><option value="7">Last 7 days</option><option value="all">All</option></select>
+      <select class="mini" id="fStylist" aria-label="Stylist"><option value="">All stylists</option></select>
+      <select class="mini" id="fStatus" aria-label="Status"><option value="">All statuses</option><option value="done">Done</option><option value="paid">Paid</option><option value="noshow">No-show</option><option value="cancelled">Cancelled</option><option value="waiting">Waiting</option></select>
+      <button class="mini" id="histCsv">Copy (CSV)</button></h2>
+      <div class="tbl"><table><thead><tr><th>#</th><th>Client</th><th>Look</th><th>Stylist</th><th>Status</th><th>Promo</th><th>Paid</th><th>Tip</th><th>Method</th><th>Time</th></tr></thead><tbody id="histBody"></tbody></table></div>
+      <p class="muted" style="font-size:.8rem;margin:10px 0 0">Client phone numbers are never exported. Amounts are counted on the payment date (Dubai time).</p>
+    </div>
+
+    <div class="grid2" id="settings">
+      <div class="box"><h2>Grand opening</h2>
+        <div class="setting"><div><b style="font-weight:500">Opening-day pricing</b><br><small class="muted">First <span id="lf"></span> clients −<span id="lp1"></span>%, then −<span id="lp2"></span>% all day</small></div><button class="switch" id="launchSw"></button></div>
+        <div style="padding:12px 0"><small class="muted" id="launchTxt"></small><div class="launch-meter"><i id="launchBar"></i></div><button class="mini" id="launchReset">Reset counter</button></div>
+      </div>
+      <div class="box"><h2>Screens to install</h2>
+        <div class="screens">
+          <a href="entrance.html" ><b>Entrance</b>TV + QR code</a>
+          <a href="station.html#seat1" ><b>Seat 1</b>Station screen</a>
+          <a href="station.html#seat2" ><b>Seat 2</b>Station screen</a>
+          <a href="station.html#seat3" ><b>Seat 3</b>Station screen</a>
+          <a href="station.html#seat4" ><b>Seat 4</b>Station screen</a>
+          <a href="station.html#seat5" ><b>Seat 5</b>Station screen</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="assets/config.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/store.js"></script>
+<script>
+(function () {
+  const D = Q.D;
+  document.getElementById('logo').innerHTML = Q.logo('logo-mark');
+  const h = new Date().getHours();
+  document.getElementById('greet').textContent = h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening';
+  document.getElementById('dateChip').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  const methodName = { applepay: 'Apple Pay', card: 'Card', cash: 'Cash' };
+
+  function render() {
+    const S = Q.state, st = Q.stats();
+    document.getElementById('memWarn').innerHTML = Q.memoryOnly ? '<p class="chip" style="margin-bottom:14px">⚠ Storage blocked in this browser — data will not persist.</p>' : '';
+    document.getElementById('kpis').innerHTML = [
+      ['Served today', st.served], ['Waiting now', st.waiting], ['In the chair', st.inChair], ['Discounts given', Q.fmt(st.discounts)], ['No-shows', st.noshows], ['Cancelled', st.cancelled],
+      ['Revenue today', Q.fmt(st.revenue)], ['Tips today', Q.fmt(st.tips)], ['Avg. wait', st.avgWait != null ? Math.round(st.avgWait) + ' min' : '—']
+    ].map(([l, v]) => `<div class="kpi"><small>${l}</small><b>${v}</b></div>`).join('');
+
+    const plan = Q.schedule();
+    document.getElementById('floor').innerHTML = S.stylists.map(s => {
+      const on = Q.openShift(s.id), cur = Q.currentOf(s.id);
+      const queued = Object.values(plan).filter(p => p.stylistId === s.id).length;
+      let txt = '<small>Off duty</small>';
+      if (on && !cur) txt = '<small style="color:var(--ok)">● Free</small>';
+      if (cur) { const sv = Q.service(cur.serviceId); const label = { called: 'Calling', in_service: 'Styling', checkout: 'Paying', paid: 'Rating' }[cur.status]; txt = `<small>${label} · <b>${Q.esc(cur.name)}</b></small><small>${Q.esc(sv.look.en)}${cur.startedAt ? ' · ' + Math.round((Date.now() - cur.startedAt) / 60000) + '/' + Q.duration(cur) + ' min' : ''}</small>`; }
+      return `<div class="seat ${on ? (cur ? 'busy' : '') : 'off'}"><span class="n">${s.seat}</span><b>${Q.esc(s.name)}</b>${txt}${queued ? `<small>${queued} in her line</small>` : ''}<a href="station.html#seat${s.seat}" >Open station ↗</a></div>`;
+    }).join('');
+
+    const waiting = S.tickets.filter(t => t.status === 'waiting').sort((a, b) => a.createdAt - b.createdAt);
+    document.getElementById('qCount').textContent = waiting.length + ' waiting';
+    document.getElementById('qBody').innerHTML = waiting.map(t => {
+      const p = plan[t.id];
+      return `<tr><td class="serif" style="color:var(--gold)">${Q.ticketCode(t)}</td><td><b style="font-weight:500">${Q.esc(t.name)}</b><br><small class="muted">${Q.flagFor(t.phone)} ${Q.esc(t.phone)}</small></td><td>${Q.esc(Q.service(t.serviceId).look.en)}${t.extraLong ? ' · XL' : ''}</td><td>${t.pref === 'any' ? 'Anyone' : Q.esc(Q.stylist(t.pref)?.name)}</td><td><span class="badge ${t.channel === 'whatsapp' ? 'wa' : 'qr'}">${t.channel === 'whatsapp' ? 'WhatsApp' : 'QR'}</span></td><td>${Math.round((Date.now() - t.createdAt) / 60000)} min</td><td>${p && p.startAt ? '~' + Q.minsUntil(p.startAt) + ' min · ' + Q.esc(Q.stylist(p.stylistId)?.name) : '—'}</td><td><button class="mini" data-cancel="${t.id}">Remove</button></td></tr>`;
+    }).join('') || '<tr><td colspan="8" class="muted">Nobody waiting.</td></tr>';
+
+    document.getElementById('teamBody').innerHTML = S.stylists.map(s => {
+      const on = Q.openShift(s.id), x = Q.stylistStats(s.id);
+      return `<tr><td><b style="font-weight:500">${Q.esc(s.name)}</b> <small class="muted">· seat ${s.seat}</small></td><td>${on ? '<span class="badge" style="background:#DDF0E2;color:#2F6B40">On shift</span>' : '<span class="badge">Off</span>'}</td><td>${on ? Q.clock(on.in) : '—'}</td><td>${Q.hm(x.workedMin)}</td><td>${x.served}</td><td>${Q.fmt(x.revenue)}</td><td><b style="font-weight:500">${Q.fmt(x.tipsAll)}</b></td><td>${x.rating ? x.rating.toFixed(1) + ' ★ <small class="muted">(' + x.ratings + ')</small>' : '—'}</td><td><a href="https://instagram.com/${s.ig}" target="_blank" rel="noopener">@${s.ig}</a></td></tr>`;
+    }).join('');
+
+    const shifts = [...S.shifts].sort((a, b) => b.in - a.in).slice(0, 20);
+    document.getElementById('shiftBody').innerHTML = shifts.map(sh => `<tr><td>${Q.esc(Q.stylist(sh.stylistId)?.name)}</td><td>${new Date(sh.in).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</td><td>${sh.out ? Q.clock(sh.out) : '<span class="badge" style="background:#DDF0E2;color:#2F6B40">in progress</span>'}</td><td>${Q.hm(Math.round(((sh.out || Date.now()) - sh.in) / 60000))}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">No shifts yet — stylists clock in by logging into their station.</td></tr>';
+
+    const paid = S.tickets.filter(t => t.payment && t.createdAt >= Q.startOfDay());
+    const byLook = {}; paid.forEach(t => byLook[t.serviceId] = (byLook[t.serviceId] || 0) + t.payment.total);
+    const maxL = Math.max(1, ...Object.values(byLook));
+    document.getElementById('bars').innerHTML = Object.entries(byLook).sort((a, b) => b[1] - a[1]).map(([id, v]) => `<div><span>${Q.esc(Q.service(id).look.en)}</span><i style="width:${v / maxL * 100}%"></i><span style="text-align:end">${Q.fmt(v)}</span></div>`).join('') || '<p class="muted">No sales yet today.</p>';
+    const byM = {}; paid.forEach(t => byM[t.payment.method] = (byM[t.payment.method] || 0) + 1);
+    const maxM = Math.max(1, ...Object.values(byM));
+    document.getElementById('methods').innerHTML = Object.entries(byM).map(([m, n]) => `<div><span>${methodName[m]}</span><i style="width:${n / maxM * 100}%"></i><span style="text-align:end">${n}</span></div>`).join('') + (st.matchas ? `<div><span>Matchas sold</span><i style="width:0"></i><span style="text-align:end">${st.matchas}</span></div>` : '');
+
+    document.getElementById('avgRating').textContent = st.rating ? st.rating.toFixed(2) + ' ★ · ' + st.ratings + ' reviews' : 'no reviews yet';
+    const revs = S.tickets.filter(t => t.rating).sort((a, b) => b.doneAt - a.doneAt).slice(0, 8);
+    document.getElementById('revList').innerHTML = revs.map(t => `<div class="review"><span class="st">${'★'.repeat(t.rating)}${'☆'.repeat(5 - t.rating)}</span> <b style="font-weight:500">${Q.esc(Q.publicName(t.name))}</b> ${t.seeded ? '<span class="badge">demo example</span> ' : ''}<small class="muted">→ ${Q.esc(Q.stylist(t.assignedTo)?.name)} · ${Q.esc(Q.service(t.serviceId).look.en)} · ${Q.clock(t.doneAt)}</small>${t.comment ? `<div style="margin-top:4px">“${Q.esc(t.comment)}”</div>` : ''}</div>`).join('') || '<p class="muted">Ratings appear here as soon as clients rate on the station screen.</p>';
+
+    const s = S.settings;
+    document.getElementById('launchSw').classList.toggle('on', s.launchMode);
+    document.getElementById('lf').textContent = s.launchFirst; document.getElementById('lp1').textContent = s.launchFirstPct; document.getElementById('lp2').textContent = s.launchRestPct;
+    const used = Math.min(Q.launchUsed(), s.launchFirst);
+    document.getElementById('launchTxt').textContent = `${used}/${s.launchFirst} clients have had −${s.launchFirstPct}% · ${Math.max(0, (S.launchServed || 0) - used)} at −${s.launchRestPct}% (cancelled and no-show tickets free their spot)`;
+    document.getElementById('launchBar').style.width = (used / s.launchFirst * 100) + '%';
+
+    document.querySelectorAll('[data-cancel]').forEach(b => b.onclick = () => Q.twoTap(b, () => Q.cancel(b.dataset.cancel), 'Confirm'));
+  }
+
+  document.getElementById('launchSw').onclick = () => Q.setSetting('launchMode', !Q.state.settings.launchMode);
+  const lr = document.getElementById('launchReset'); lr.onclick = () => Q.twoTap(lr, () => Q.resetLaunchCounter());
+  const sb = document.getElementById('seedBtn'); sb.onclick = () => Q.twoTap(sb, () => { Q.seedDemo(); Q.toast('Demo day loaded ✦'); }, 'Tap again to load');
+  const rb = document.getElementById('resetBtn'); rb.onclick = () => Q.twoTap(rb, () => { Q.reset(); Q.toast('Everything reset'); }, 'Tap again to erase');
+
+  // Copie le pointage au format CSV (à coller dans Excel / Google Sheets)
+  document.getElementById('csvBtn').onclick = async () => {
+    const rows = [['Stylist', 'Clock in', 'Clock out', 'Minutes']].concat(Q.state.shifts.map(sh => [Q.stylist(sh.stylistId)?.name, new Date(sh.in).toISOString(), sh.out ? new Date(sh.out).toISOString() : '', Math.round(((sh.out || Date.now()) - sh.in) / 60000)]));
+    try { await navigator.clipboard.writeText(Q.toCSV(rows)); Q.toast('Timesheet copied — paste it into Excel or Google Sheets'); }
+    catch (e) { Q.toast('Copy blocked by this browser'); }
+  };
+
+  // Simulateur de file WhatsApp
+  const sim = document.getElementById('waSim');
+  const bubble = (txt, cls) => { const d = document.createElement('div'); d.className = 'bubble ' + cls; d.textContent = txt; sim.appendChild(d); sim.scrollTop = sim.scrollHeight; };
+  const matchService = msg => {
+    const m = msg.toLowerCase();
+    if (/sos|fringe|frange|braid|ponytail|ضفيرة|غرة/.test(m)) return 'sos';
+    if (/wave|curl|كيرلي|تموج/.test(m)) return 'waves';
+    if (/sleek|straight|فرد/.test(m)) return 'sleek';
+    if (/cut|coupe|قص/.test(m)) return 'cut';
+    if (/root|colou?r|صبغ/.test(m)) return 'root';
+    if (/kid|enfant|بنت|طفلة/.test(m)) return 'mini';
+    return 'express';
+  };
+  document.getElementById('waForm').onsubmit = e => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const msg = f.get('msg');
+    bubble(msg, 'in');
+    const sid = matchService(msg);
+    const t = Q.joinQueue({ name: f.get('name'), phone: Q.normalizePhone(f.get('phone')) || f.get('phone'), serviceId: sid, pref: 'any', channel: 'whatsapp' });
+    const eta = Q.ticketEta(t.id);
+    const link = Q.baseUrl() + 'queue.html?t=' + t.id;
+    setTimeout(() => bubble(`Hi ${t.name} ✦ You're in! Ticket ${Q.ticketCode(t)} for “${Q.service(sid).look.en}”.\nYou are #${Q.position(t.id)} in line — about ${eta && eta.minutes != null ? eta.minutes + ' min' : 'a few min'}.\n${t.discountPct ? 'Opening offer: −' + t.discountPct + '% ✦\n' : ''}Follow your place live: ${link}\nWe'll text you when it's almost your turn ☾`, 'out'), 600);
+    e.target.reset(); e.target.msg.value = 'I want a blow-dry';
+  };
+
+  // Historique filtrable (période / coiffeuse / statut)
+  const methodLabel = { applepay: 'Apple Pay', card: 'Card', cash: 'Cash' };
+  document.getElementById('fStylist').innerHTML += Q.state.stylists.map(s => `<option value="${s.id}">${Q.esc(s.name)}</option>`).join('');
+  function histRows() {
+    const p = document.getElementById('fPeriod').value, sid = document.getElementById('fStylist').value, stt = document.getElementById('fStatus').value;
+    const from = p === 'today' ? Q.startOfDay() : p === '7' ? Q.startOfDay() - 6 * 86400000 : 0;
+    return Q.state.tickets.filter(t => (t.payment ? t.payment.paidAt : t.createdAt) >= from && (!sid || t.assignedTo === sid || t.pref === sid) && (!stt || t.status === stt))
+      .sort((a, b) => b.createdAt - a.createdAt);
+  }
+  function renderHistory() {
+    const rows = histRows();
+    document.getElementById('histBody').innerHTML = rows.slice(0, 80).map(t => `<tr><td class="serif" style="color:var(--gold)">${Q.ticketCode(t)}</td><td>${Q.esc(Q.publicName(t.name))}${t.seeded ? ' <span class="badge">demo</span>' : ''}</td><td>${Q.esc(Q.service(t.serviceId).look.en)}</td><td>${Q.esc(Q.stylist(t.assignedTo)?.name || '—')}</td><td><span class="badge">${t.status}</span></td><td>${t.promo ? '−' + t.promo.pct + '%' : '—'}</td><td>${t.payment ? Q.fmt(t.payment.total) : '—'}</td><td>${t.payment ? Q.fmt(t.payment.tip) : '—'}</td><td>${t.payment ? methodLabel[t.payment.method] : '—'}</td><td>${new Date(t.createdAt).toLocaleString('en-GB', { timeZone: 'Asia/Dubai', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</td></tr>`).join('') || '<tr><td colspan="10" class="muted">Nothing for these filters.</td></tr>';
+  }
+  ['fPeriod', 'fStylist', 'fStatus'].forEach(id => document.getElementById(id).addEventListener('change', renderHistory));
+  document.getElementById('histCsv').onclick = async () => {
+    const rows = [['Ticket', 'Client', 'Look', 'Stylist', 'Status', 'Promo %', 'Paid AED', 'Tip AED', 'Method', 'Created (Dubai)']].concat(histRows().map(t => [Q.ticketCode(t), Q.publicName(t.name), Q.service(t.serviceId).look.en, Q.stylist(t.assignedTo)?.name || '', t.status, t.promo ? t.promo.pct : 0, t.payment ? t.payment.total : '', t.payment ? t.payment.tip : '', t.payment ? t.payment.method : '', new Date(t.createdAt).toLocaleString('en-GB', { timeZone: 'Asia/Dubai' })]));
+    try { await navigator.clipboard.writeText(Q.toCSV(rows)); Q.toast('History copied (no phone numbers)'); } catch (e) { Q.toast('Copy blocked by this browser'); }
+  };
+  Q.on(renderHistory);
+
+  Q.on(render);
+  Q.showDemoBanner();
+  Q.watchNewClients(Q.newClientAlert);
+  setInterval(render, 30000);
+})();
+</script>
+<script src="assets/cursor-fx.js"></script>
+</body>
+</html>

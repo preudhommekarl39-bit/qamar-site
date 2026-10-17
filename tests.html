@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>QAMAR Engine Tests</title>
+<style>
+  body { font: 15px/1.5 Helvetica, Arial, sans-serif; margin: 0; padding: 30px 20px; background: #FBF4F6; color: #1F1417; }
+  h1 { margin: 0 0 6px; } .sum { margin: 0 0 20px; font-weight: 600; }
+  li { padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,.06); list-style: none; }
+  .ok::before { content: '✓ '; color: #3E8E5A; font-weight: 700; } .ko::before { content: '✗ '; color: #B5523F; font-weight: 700; } .ko { color: #B5523F; }
+  ul { padding: 0; max-width: 900px; }
+</style>
+</head>
+<body>
+<h1>QAMAR — engine tests</h1>
+<p class="sum" id="sum">Running…</p>
+<ul id="out"></ul>
+<script>window.QAMAR_TEST = true;</script>
+<script src="assets/config.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/store.js"></script>
+<script>
+(function () {
+  const out = document.getElementById('out'); let pass = 0, failN = 0;
+  const test = (name, fn) => { let ok = false, msg = ''; try { const r = fn(); ok = r === true; if (!ok) msg = ' — got ' + JSON.stringify(r); } catch (e) { msg = ' — ' + e.message; }
+    const li = document.createElement('li'); li.className = ok ? 'ok' : 'ko'; li.textContent = name + msg; out.appendChild(li); ok ? pass++ : failN++; };
+  const fresh = () => { Q.reset(); };
+  const D = Q.D;
+
+  test('every service lasts 45 min or less', () => D.services.every(s => s.duration <= 45));
+  test('extra long hair never pushes a service past 45 min', () => { fresh(); return D.services.every(s => Q.quote(s.id, true).duration <= 45); });
+  test('opening offer: first ticket gets −70%', () => { fresh(); const q = Q.quote('express'); return q.promo.id === 'launch-first' && q.total === 39; });
+  test('a cancelled ticket frees its −70% spot', () => { fresh(); const t = Q.joinQueue({ name: 'A', phone: '+971500000001', serviceId: 'express' }); const before = Q.launchUsed(); Q.cancel(t.id); return before === 1 && Q.launchUsed() === 0; });
+  test('after 30 active −70% tickets the next one gets −50%', () => { fresh(); for (let i = 0; i < 30; i++) Q.joinQueue({ name: 'G' + i, phone: '+9715000001' + String(i).padStart(2, '0'), serviceId: 'sos' }); const t = Q.joinQueue({ name: 'Z', phone: '+971500009999', serviceId: 'sos' }); return t.promo.id === 'launch' && t.promo.pct === 50; });
+  test('happy hours apply Mon–Fri 10:00–15:00 Dubai, only when launch is off', () => { fresh(); Q.setSetting('launchMode', false); const mon11 = Date.UTC(2026, 9, 19, 7, 0); const sat11 = Date.UTC(2026, 9, 17, 7, 0); const mon16 = Date.UTC(2026, 9, 19, 12, 0); return Q.bestPromo(mon11)?.id === 'happy-hours' && Q.bestPromo(sat11) === null && Q.bestPromo(mon16) === null; });
+  test('only one discount applies (the best one)', () => { fresh(); const mon11 = Date.UTC(2026, 9, 19, 7, 0); return Q.bestPromo(mon11).pct === 70; });
+  test('one active ticket per phone number', () => { fresh(); const a = Q.joinQueue({ name: 'A', phone: '+33612345678', serviceId: 'express' }); const b = Q.joinQueue({ name: 'B', phone: '+33612345678', serviceId: 'glow' }); return a.id === b.id; });
+  test('names are cleaned of HTML characters and limited to 40', () => { fresh(); const t = Q.joinQueue({ name: '<img src=x onerror=alert(1)>' + 'x'.repeat(60), phone: '+971500000002', serviceId: 'express' }); return !/[<>]/.test(t.name) && t.name.length <= 40; });
+  test('Night Glow cannot be booked before 20:00 Dubai', () => { fresh(); const s = Q.service('night'); return Q.available(s, Date.UTC(2026, 9, 17, 12, 0)) === false && Q.available(s, Date.UTC(2026, 9, 17, 17, 0)) === true; });
+  test('a stylist must be clocked in to call a client', () => { fresh(); Q.joinQueue({ name: 'A', phone: '+971500000003', serviceId: 'express' }); return Q.call('layla') === null; });
+  test('a stylist cannot call a second client while busy', () => { fresh(); Q.clockIn('layla', '1111'); Q.joinQueue({ name: 'A', phone: '+971500000004', serviceId: 'express' }); Q.joinQueue({ name: 'B', phone: '+971500000005', serviceId: 'express' }); return !!Q.call('layla') && Q.call('layla') === null; });
+  test('a client who asked for Noor cannot be called by Layla', () => { fresh(); Q.clockIn('layla', '1111'); const t = Q.joinQueue({ name: 'A', phone: '+971500000006', serviceId: 'express', pref: 'noor' }); return Q.call('layla', t.id) === null; });
+  test('5 wrong PINs lock the station', () => { fresh(); for (let i = 0; i < 5; i++) Q.clockIn('sara', '0000'); return Q.clockIn('sara', '3333').error === 'locked'; });
+  test('clocking in twice does not create two shifts', () => { fresh(); Q.clockIn('noor', '2222'); Q.clockIn('noor', '2222'); return Q.state.shifts.filter(s => s.stylistId === 'noor' && !s.out).length === 1; });
+  test('status transitions are enforced (no start before call)', () => { fresh(); const t = Q.joinQueue({ name: 'A', phone: '+971500000007', serviceId: 'express' }); return Q.start(t.id) === false && Q.toCheckout(t.id) === false; });
+  test('35-min guarantee: express over 35 min of service is free (drinks still charged)', () => { fresh(); Q.clockIn('layla', '1111'); const t = Q.joinQueue({ name: 'A', phone: '+971500000008', serviceId: 'express' }); Q.call('layla'); Q.start(t.id); Q.addAddon(t.id, 'matcha-iced'); Q.ticket(t.id).startedAt -= 36 * 60000; Q.toCheckout(t.id); const p = Q.pricing(Q.ticket(t.id)); return p.guarantee === true && p.total === 25; });
+  test('guarantee does not apply to other looks', () => { fresh(); Q.clockIn('layla', '1111'); const t = Q.joinQueue({ name: 'A', phone: '+971500000009', serviceId: 'glow' }); Q.call('layla'); Q.start(t.id); Q.ticket(t.id).startedAt -= 60 * 60000; Q.toCheckout(t.id); return Q.pricing(Q.ticket(t.id)).guarantee === false; });
+  test('Night Glow includes one free matcha only', () => { fresh(); const t = { serviceId: 'night', addons: ['matcha-latte', 'matcha-iced'], discountPct: 0 }; const p = Q.pricing(t); return p.addonsTotal === 25; });
+  test('tips are capped and cash tips are not recorded as card tips', () => { fresh(); Q.clockIn('layla', '1111'); const t = Q.joinQueue({ name: 'A', phone: '+971500000010', serviceId: 'express' }); Q.call('layla'); Q.start(t.id); Q.toCheckout(t.id); const p = Q.pay(t.id, { method: 'card', tip: 99999 }); return p.tip <= p.total && p.tip <= D.limits.tipMaxAed; });
+  test('revenue is counted once, on the payment date', () => { fresh(); Q.clockIn('layla', '1111'); const t = Q.joinQueue({ name: 'A', phone: '+971500000011', serviceId: 'sos' }); Q.call('layla'); Q.start(t.id); Q.toCheckout(t.id); Q.pay(t.id, { method: 'cash' }); Q.rate(t.id, 5, 'Great'); return Q.stats().revenue === Q.ticket(t.id).payment.total && Q.stats().served === 1; });
+  test('ratings only after payment, 1 to 5, comment ≤ 500', () => { fresh(); Q.clockIn('layla', '1111'); const t = Q.joinQueue({ name: 'A', phone: '+971500000012', serviceId: 'sos' }); Q.rate(t.id, 5); const before = Q.ticket(t.id).rating; Q.call('layla'); Q.start(t.id); Q.toCheckout(t.id); Q.pay(t.id, { method: 'cash' }); Q.rate(t.id, 9, 'x'.repeat(900)); const tk = Q.ticket(t.id); return before === undefined && tk.rating === undefined && tk.status === 'done'; });
+  test('phone numbers: French 06 → +33, 00 prefix, too short rejected', () => Q.normalizePhone('06 12 34 56 78', '+33') === '+33612345678' && Q.normalizePhone('0044 7700 900123') === '+447700900123' && Q.normalizePhone('123', '+33') === null);
+  test('CSV export neutralises formulas', () => Q.toCSV([['=HYPERLINK("x")', '+1', 'ok']]) === '"\'=HYPERLINK(""x"")","\'+1","ok"');
+  test('public name never shows the full last name', () => Q.publicName('Fatima Al Mansoori') === 'Fatima A.');
+  test('requeue puts a called client back in line', () => { fresh(); Q.clockIn('layla', '1111'); const t = Q.joinQueue({ name: 'A', phone: '+971500000013', serviceId: 'sos' }); Q.call('layla'); return Q.requeue(t.id) === true && Q.ticket(t.id).status === 'waiting' && !Q.ticket(t.id).assignedTo; });
+
+  Q.reset();
+  document.getElementById('sum').textContent = `${pass} passed · ${failN} failed`;
+  document.title = (failN ? '✗ ' : '✓ ') + document.title;
+})();
+</script>
+</body>
+</html>

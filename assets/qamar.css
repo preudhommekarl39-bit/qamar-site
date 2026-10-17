@@ -1,0 +1,129 @@
+/* QAMAR — Blowdry Lounge · Dubai — design system */
+:root {
+  --blush: #F8E1DC;
+  --blush-2: #F2D2CA;
+  --blush-3: #EBC2B7;
+  --cream: #FFF8F4;
+  --pearl: #FDF1EC;
+  --rose: #B87A62;
+  --rose-deep: #9A5F4A;
+  --gold: #C49A5A;
+  --gold-soft: #E3C99A;
+  --cocoa: #4B2D25;
+  --ink: #2B1A16;
+  --muted: #8A6A60;
+  --night: #1B1117;
+  --night-2: #2A1A22;
+  --night-3: #3A2630;
+  --ok: #5E8C6A;
+  --warn: #C98A3A;
+  --bad: #B5523F;
+  --line: rgba(184, 122, 98, .28);
+  --shadow: 0 18px 50px -20px rgba(75, 45, 37, .35);
+  --radius: 22px;
+  --serif: 'Cormorant Garamond', 'Amiri', Georgia, serif;
+  --sans: 'Jost', 'Tajawal', system-ui, sans-serif;
+}
+html[dir="rtl"] { --serif: 'Amiri', 'Cormorant Garamond', serif; --sans: 'Tajawal', 'Jost', system-ui, sans-serif; }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { margin: 0; font-family: var(--sans); color: var(--ink); background: var(--cream); line-height: 1.6; font-weight: 400; -webkit-font-smoothing: antialiased; }
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; }
+button { font: inherit; cursor: pointer; }
+input, textarea, select { font: inherit; color: inherit; }
+
+.serif { font-family: var(--serif); }
+.eyebrow { font-size: .74rem; letter-spacing: .32em; text-transform: uppercase; color: var(--rose); font-weight: 500; }
+html[dir="rtl"] .eyebrow { letter-spacing: 0; font-size: .9rem; }
+.h-display { font-family: var(--serif); font-weight: 400; line-height: 1.05; letter-spacing: .01em; margin: 0; }
+.muted { color: var(--muted); }
+.gold { color: var(--gold); }
+.center { text-align: center; }
+.wrap { width: min(1180px, 100% - 40px); margin-inline: auto; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .6em; border: 0; border-radius: 999px; padding: .95em 1.7em; font-size: .92rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 500; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, background .2s ease; white-space: nowrap; }
+html[dir="rtl"] .btn { letter-spacing: 0; font-size: 1rem; }
+.btn:active { transform: scale(.97); }
+.btn-primary { background: linear-gradient(135deg, var(--rose) 0%, var(--rose-deep) 100%); color: #fff; box-shadow: 0 12px 30px -12px rgba(154, 95, 74, .7); }
+.btn-primary:hover { box-shadow: 0 16px 36px -12px rgba(154, 95, 74, .85); transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--cocoa); box-shadow: inset 0 0 0 1px var(--rose); }
+.btn-ghost:hover { background: rgba(184, 122, 98, .08); }
+.btn-gold { background: linear-gradient(135deg, #D8B57A, var(--gold) 55%, #A9803F); color: var(--night); }
+.btn-light { background: #fff; color: var(--cocoa); }
+.btn-dark { background: var(--night); color: var(--gold-soft); }
+.btn-block { width: 100%; }
+.btn[disabled] { opacity: .45; pointer-events: none; }
+
+.chip { display: inline-flex; align-items: center; gap: .45em; padding: .35em .85em; border-radius: 999px; font-size: .78rem; background: rgba(255, 255, 255, .7); color: var(--cocoa); border: 1px solid var(--line); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); display: inline-block; flex: none; }
+.dot.off { background: #C9B5AE; }
+.dot.busy { background: var(--warn); }
+.dot.live { animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(94, 140, 106, .55); } 50% { box-shadow: 0 0 0 7px rgba(94, 140, 106, 0); } }
+
+.card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid rgba(184, 122, 98, .12); }
+
+/* Arch — reprend la forme du menu */
+.arch { border-radius: 999px 999px 26px 26px; }
+.arch-frame { position: relative; border: 1px solid var(--gold); border-radius: 999px 999px 18px 18px; }
+.arch-frame::before { content: ''; position: absolute; inset: 10px; border: 1px solid rgba(196, 154, 90, .45); border-radius: inherit; pointer-events: none; }
+
+/* Fields */
+.field { display: grid; gap: .4rem; }
+.field label { font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+html[dir="rtl"] .field label { letter-spacing: 0; font-size: .95rem; }
+.input { width: 100%; padding: .95em 1.1em; border-radius: 14px; border: 1px solid var(--line); background: #fff; outline: none; transition: border-color .2s, box-shadow .2s; font-size: 1rem; }
+.input:focus { border-color: var(--rose); box-shadow: 0 0 0 4px rgba(184, 122, 98, .15); }
+
+/* Language switch */
+.lang { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: rgba(255, 255, 255, .6); }
+.lang button { border: 0; background: transparent; padding: .35em .85em; border-radius: 999px; font-size: .8rem; color: var(--cocoa); }
+.lang button.on { background: var(--cocoa); color: #fff; }
+
+/* Toast */
+.toast { position: fixed; inset-inline: 0; bottom: 24px; margin-inline: auto; width: max-content; max-width: calc(100% - 32px); background: var(--night); color: var(--gold-soft); padding: .9em 1.4em; border-radius: 999px; box-shadow: var(--shadow); z-index: 999; font-size: .95rem; opacity: 0; transform: translateY(20px); transition: .35s ease; pointer-events: none; }
+.toast.show { opacity: 1; transform: none; }
+
+/* Moon logo */
+.logo-mark { width: 34px; height: auto; color: var(--rose); }
+.logo-word { font-family: 'Cormorant Garamond', serif; letter-spacing: .38em; font-size: 1.25rem; color: var(--cocoa); font-weight: 500; }
+
+/* Stars */
+.stars { display: inline-flex; gap: 6px; direction: ltr; }
+.stars button { background: none; border: 0; padding: 0; font-size: 2.6rem; line-height: 1; color: #E7D3CC; transition: transform .15s, color .15s; }
+.stars button.on { color: var(--gold); }
+.stars button:hover { transform: scale(1.12); }
+
+/* Reveal on scroll */
+.reveal.in { animation: rise .8s ease both; }
+@keyframes rise { from { transform: translateY(18px); } to { transform: none; } }
+
+@media (prefers-reduced-motion: reduce) { .reveal.in { animation: none; } html { scroll-behavior: auto; } }
+
+.grain::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .18; mix-blend-mode: multiply; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .38 0 0 0 0 .32 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+html[dir="rtl"] .h-display { line-height: 1.35; letter-spacing: 0; }
+
+/* ---------- Charte v3 : Helvetica + verre, partagée par tous les écrans ---------- */
+:root {
+  --helv: "Helvetica Neue", Helvetica, Arial, "Tajawal", ui-sans-serif, system-ui, sans-serif;
+  --serif: var(--helv);
+  --sans: var(--helv);
+  --page: #F3ECEA;
+}
+html[dir="rtl"] { --helv: "Tajawal", "Helvetica Neue", Helvetica, Arial, sans-serif; --serif: var(--helv); --sans: var(--helv); }
+body { font-family: var(--helv); }
+h1, h2, .h-display { letter-spacing: -.025em; font-weight: 400; }
+html[dir="rtl"] h1, html[dir="rtl"] h2 { letter-spacing: 0; }
+.btn { text-transform: none; letter-spacing: 0; font-size: .95rem; font-weight: 400; padding: .9em 1.6em; }
+.btn-primary { background: rgba(75, 45, 37, .88); box-shadow: none; }
+.btn-primary:hover { background: rgba(75, 45, 37, 1); box-shadow: none; }
+.btn-ghost { box-shadow: inset 0 0 0 1px rgba(75, 45, 37, .2); }
+.eyebrow { letter-spacing: .14em; }
+.field label { letter-spacing: .06em; }
+.chip { background: rgba(255, 255, 255, .6); border-color: rgba(255, 255, 255, .7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.card { border-radius: 2rem; box-shadow: 0 24px 50px -32px rgba(75, 45, 37, .45); }
+.toast { font-family: var(--helv); }
+.wait-big, .timer, .now .n, .kpi b, .seat-row .num, .call .seat, .called .seat, .pay .total, .tips button { font-weight: 300; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }

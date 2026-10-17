@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>QAMAR — Welcome screen</title>
+<link rel="icon" href="assets/logo-qamar.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/qamar.css">
+<style>
+  html, body { height: 100%; overflow: hidden; }
+  body { background: radial-gradient(90% 120% at 20% 10%, #FCEAE5, var(--blush) 45%, var(--blush-3)); display: grid; grid-template-columns: 1.1fr .9fr; font-size: clamp(14px, 1.15vw, 22px); }
+  .left { padding: 5vh 4vw; display: flex; flex-direction: column; position: relative; }
+  .brand { display: flex; align-items: center; gap: 1rem; }
+  .brand svg { width: 2.6rem; color: var(--rose); }
+  .brand .logo-word { font-size: 1.6rem; }
+  .clock { margin-inline-start: auto; font-family: var(--serif); font-size: 2rem; color: var(--cocoa); }
+  .sync { display: inline-flex; align-items: center; gap: 6px; margin-inline-start: 1rem; font-size: .85rem; color: var(--muted); }
+  .sync.lost { color: var(--bad); font-weight: 600; }
+  .welcome { margin: auto 0; }
+  .welcome .ar { font-family: 'Amiri', serif; font-size: 3.4rem; color: var(--rose); direction: rtl; line-height: 1.3; }
+  .welcome h1 { font-family: var(--serif); font-weight: 400; font-size: 5.6rem; line-height: .98; margin: .2em 0 .3em; color: var(--cocoa); }
+  .welcome h1 em { color: var(--rose); }
+  .steps { display: flex; gap: 2.2rem; color: var(--cocoa); font-size: 1.15rem; }
+  .steps span { display: flex; align-items: center; gap: .7rem; }
+  .steps b { width: 2.2rem; height: 2.2rem; border-radius: 50%; background: var(--cocoa); color: var(--blush); display: grid; place-items: center; font-weight: 500; font-size: 1rem; }
+  .qr-wrap { display: flex; align-items: center; gap: 2.4rem; margin-top: 3.4rem; }
+  .qr { background: #fff; padding: 1.2rem; border-radius: 26px; box-shadow: var(--shadow); position: relative; }
+  .qr::after { content: ''; position: absolute; inset: -10px; border: 1px solid var(--gold); border-radius: 32px; animation: breathe 3s ease-in-out infinite; }
+  @keyframes breathe { 0%, 100% { opacity: .3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.02); } }
+  .qr-text b { font-family: var(--serif); font-weight: 500; font-size: 2.4rem; color: var(--cocoa); display: block; line-height: 1.05; }
+  .qr-text span { color: var(--muted); font-size: 1.1rem; }
+  .qr-text .wa { margin-top: 1rem; display: inline-flex; gap: .6rem; align-items: center; background: linear-gradient(150deg, #F6BCCB 0%, #E08AA3 55%, #B8607B 100%); box-shadow: inset 0 0 0 1.5px rgba(232, 199, 140, .85); color: #fff; border-radius: 999px; padding: .5rem 1.1rem; font-size: 1rem; }
+  .launch { position: absolute; bottom: 4vh; inset-inline-start: 4vw; background: var(--night); color: var(--gold-soft); border-radius: 999px; padding: .7rem 1.4rem; font-size: 1.05rem; letter-spacing: .06em; }
+  .launch b { color: #fff; font-weight: 500; }
+
+  .right { background: var(--night); color: var(--blush); padding: 5vh 3vw; display: flex; flex-direction: column; gap: 2.2vh; border-radius: 48px 0 0 48px; position: relative; overflow: hidden; }
+  .right::before { content: ''; position: absolute; width: 30rem; height: 30rem; border-radius: 50%; top: -12rem; right: -10rem; box-shadow: inset -4rem 1rem 0 0 rgba(243, 221, 176, .12); }
+  .lbl { font-size: .85rem; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); }
+  .now { display: flex; align-items: baseline; gap: 1.2rem; }
+  .now .n { font-family: var(--serif); font-size: 7.5rem; line-height: .9; color: #fff; }
+  .now .u { font-size: 1.4rem; color: var(--gold-soft); }
+  .calling { display: grid; gap: .8rem; }
+  .call { display: flex; align-items: center; gap: 1.2rem; background: linear-gradient(120deg, var(--rose), var(--rose-deep)); border-radius: 20px; padding: 1rem 1.4rem; color: #fff; animation: flash 1.6s ease-in-out infinite; }
+  .call .c { font-family: var(--serif); font-size: 1.8rem; letter-spacing: .1em; }
+  .call .who { flex: 1; font-size: 1.2rem; }
+  .call .seat { font-family: var(--serif); font-size: 2.6rem; line-height: 1; }
+  .call .seat small { font-family: var(--sans); font-size: .8rem; display: block; opacity: .8; text-align: center; }
+  @keyframes flash { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.15); } }
+  .seats { display: grid; gap: .7rem; }
+  .seat-row { display: grid; grid-template-columns: 3.2rem 1fr auto; align-items: center; gap: 1rem; padding: .9rem 1.1rem; border-radius: 18px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(196, 154, 90, .18); }
+  .seat-row .num { font-family: var(--serif); font-size: 2rem; color: var(--gold-soft); text-align: center; }
+  .seat-row b { display: block; font-weight: 500; color: #fff; font-size: 1.15rem; }
+  .seat-row small { color: rgba(248, 225, 220, .6); font-size: .9rem; }
+  .seat-row .st { text-align: end; font-size: .95rem; }
+  .seat-row.off { opacity: .35; }
+  .queue-line { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .queue-line span { padding: .35rem .9rem; border-radius: 999px; background: rgba(255, 255, 255, .07); font-size: .95rem; }
+  .empty { color: rgba(248, 225, 220, .5); font-size: 1rem; }
+  @media (max-width: 900px) { html, body { overflow: auto; height: auto; } body { grid-template-columns: 1fr; font-size: 14px; } .right { border-radius: 32px 32px 0 0; } .welcome h1 { font-size: 3.4rem; } .qr-wrap { flex-direction: column; align-items: flex-start; } .launch { position: static; margin-top: 2rem; align-self: flex-start; } .steps { flex-wrap: wrap; gap: 1rem; } }
+</style>
+</head>
+<body>
+  <div class="left">
+    <div class="brand"><span id="logo"></span><span class="logo-word">QAMAR</span><span class="clock" id="clock"></span><span class="sync" id="sync" role="status" aria-live="polite"></span><a href="admin.html" class="chip" style="text-decoration:none;margin-inline-start:1rem;opacity:.6">← Dashboard</a></div>
+    <div class="welcome">
+      <div class="ar">أهلاً بكِ في قمر</div>
+      <h1>Welcome,<br><em>beautiful.</em></h1>
+      <div class="steps"><span><b>1</b>Scan</span><span><b>2</b>Choose your look & stylist</span><span><b>3</b>We'll call your phone</span></div>
+      <div class="qr-wrap">
+        <div class="qr" id="qr"></div>
+        <div class="qr-text">
+          <b>Scan to join<br>the queue</b>
+          <span>امسحي الرمز للانضمام للطابور</span><br>
+          <span class="wa">WhatsApp: “I want a blow-dry”</span>
+        </div>
+      </div>
+    </div>
+    <div class="launch" id="launch"></div>
+  </div>
+
+  <div class="right">
+    <div>
+      <div class="lbl">Current wait · الانتظار الحالي</div>
+      <div class="now"><span class="n" id="wait">—</span><span class="u" id="waitU"></span></div>
+    </div>
+    <div>
+      <div class="lbl" style="margin-bottom:.8rem">Now calling · نناديكِ الآن</div>
+      <div class="calling" id="calling"></div>
+    </div>
+    <div>
+      <div class="lbl" style="margin-bottom:.8rem">Our stylists · مصففاتنا</div>
+      <div class="seats" id="seats"></div>
+    </div>
+    <div>
+      <div class="lbl" style="margin-bottom:.8rem">In line · في الطابور</div>
+      <div class="queue-line" id="line"></div>
+    </div>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/store.js"></script>
+<script>
+(function () {
+  document.getElementById('logo').innerHTML = Q.logo('');
+  const siteUrl = (window.QAMAR_CONFIG && window.QAMAR_CONFIG.siteUrl) ? window.QAMAR_CONFIG.siteUrl.replace(/\/?$/, '/') : Q.baseUrl();
+  Q.qr(document.getElementById('qr'), siteUrl + 'queue.html', Math.round(Math.min(innerWidth, innerHeight) * .26));
+  const tick = () => document.getElementById('clock').textContent = Q.clock(Date.now());
+  tick(); setInterval(tick, 10000);
+  let seenCalls = new Set();
+
+  function render() {
+    const st = Q.state.settings;
+    document.getElementById('launch').innerHTML = st.launchMode
+      ? (Q.state.launchServed < st.launchFirst ? `☾ Grand opening · <b>${st.launchFirst - Q.state.launchServed}</b> spots left at <b>−${st.launchFirstPct}%</b>` : `☾ Grand opening · <b>−${st.launchRestPct}%</b> all day`)
+      : (new Date().getHours() >= 20 ? '☾ Night Glow · any blow-dry + free matcha · 179 AED' : '☾ Open until midnight · 35 min or it\'s on us');
+
+    const on = Q.online();
+    const e = Q.estimate('express', 'any');
+    document.getElementById('wait').textContent = !on.length ? '—' : !e || e.minutes <= 1 ? 'Now' : e.minutes;
+    document.getElementById('waitU').textContent = on.length && e && e.minutes > 1 ? 'min · first available' : on.length ? 'walk right in' : 'opening soon';
+
+    const calls = Q.state.tickets.filter(t => t.status === 'called').sort((a, b) => b.calledAt - a.calledAt);
+    if (calls.some(c => !seenCalls.has(c.id))) Q.beep();
+    seenCalls = new Set(calls.map(c => c.id));
+    document.getElementById('calling').innerHTML = calls.length ? calls.map(t => `<div class="call"><span class="c">${Q.ticketCode(t)}</span><span class="who">${Q.esc(Q.publicName(t.name))} → ${Q.esc(Q.stylist(t.assignedTo)?.name)}</span><span class="seat"><small>SEAT</small>${t.seat}</span></div>`).join('') : '<div class="empty">—</div>';
+
+    const plan = Q.schedule();
+    document.getElementById('seats').innerHTML = Q.state.stylists.map(s => {
+      const onShift = !!Q.openShift(s.id);
+      const cur = Q.currentOf(s.id);
+      const left = cur && cur.startedAt ? Math.max(1, Math.round((cur.startedAt + Q.duration(cur) * 60000 - Date.now()) / 60000)) : null;
+      const queued = Object.values(plan).filter(p => p.stylistId === s.id).length;
+      let status = 'Off duty';
+      if (onShift) status = cur ? (cur.status === 'called' ? 'Calling…' : cur.status === 'in_service' ? `Styling · ~${left} min left` : 'Finishing') : 'Available now';
+      return `<div class="seat-row ${onShift ? '' : 'off'}"><span class="num">${s.seat}</span><span><b>${Q.esc(s.name)} <span class="dot ${onShift ? (cur ? 'busy' : 'live') : 'off'}"></span></b><small>${Q.esc(s.specialty.en)}${queued ? ` · ${queued} waiting` : ''}</small></span><span class="st">${status}</span></div>`;
+    }).join('');
+
+    const waiting = Q.state.tickets.filter(t => t.status === 'waiting').sort((a, b) => a.createdAt - b.createdAt);
+    document.getElementById('line').innerHTML = waiting.length ? waiting.map(t => `<span>${Q.ticketCode(t)} · ${Q.esc(Q.publicName(t.name))}</span>`).join('') : '<div class="empty">No one waiting — walk right in ✦</div>';
+  }
+  Q.on(render);
+  Q.showDemoBanner("DEMO — not connected to the live lounge");
+  // Indicateur de synchronisation : passe en « Reconnecting… » si aucune mise à jour depuis 90 s
+  let lastSync = Date.now();
+  Q.on(() => { lastSync = Date.now(); });
+  const syncTick = () => { const el = document.getElementById('sync'); const lost = Date.now() - lastSync > 90000; el.className = 'sync' + (lost ? ' lost' : ''); el.innerHTML = lost ? 'Reconnecting… / جارٍ إعادة الاتصال' : `<span class="dot live"></span>${Q.isDemo ? 'Demo' : 'Live'}`; if (lost && !Q.isDemo) setTimeout(() => location.reload(), 30000); };
+  syncTick(); setInterval(syncTick, 10000);
+  setInterval(render, 15000);
+})();
+</script>
+<script src="assets/cursor-fx.js"></script>
+</body>
+</html>

@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>QAMAR — Join the queue</title>
+<meta name="theme-color" content="#F8E1DC">
+<link rel="icon" href="assets/logo-qamar.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/qamar.css">
+<style>
+  body { background: radial-gradient(130% 60% at 50% 0%, #FCEAE5, var(--blush) 50%, var(--blush-2)); min-height: 100svh; }
+  .app { width: min(560px, 100%); margin: 0 auto; padding: 18px 16px 120px; }
+  .top { display: flex; align-items: center; justify-content: space-between; padding: 6px 0 18px; }
+  .top a { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .progress { display: flex; gap: 6px; margin-bottom: 26px; }
+  .progress i { flex: 1; height: 3px; border-radius: 3px; background: rgba(184, 122, 98, .2); transition: background .3s; }
+  .progress i.on { background: var(--rose); }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: 2.4rem; line-height: 1.05; margin: 0 0 6px; color: var(--cocoa); }
+  .sub { color: var(--muted); margin: 0 0 22px; }
+  .launch-pill { display: inline-flex; gap: 8px; align-items: center; background: var(--night); color: var(--gold-soft); border-radius: 999px; padding: 6px 14px; font-size: .8rem; margin-bottom: 18px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .opt { position: relative; text-align: start; border: 1.5px solid transparent; background: #fff; border-radius: 20px; padding: 0; overflow: hidden; box-shadow: 0 10px 30px -18px rgba(75, 45, 37, .4); transition: transform .15s, border-color .15s; color: var(--ink); }
+  .opt:active { transform: scale(.98); }
+  .opt.sel { border-color: var(--rose); box-shadow: 0 0 0 4px rgba(184, 122, 98, .18); }
+  .opt .ph { aspect-ratio: 4 / 3.2; position: relative; display: grid; place-items: center; }
+  .opt .ph { overflow: hidden; } .opt .ph .look-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .opt .ph .t { position: absolute; top: 10px; inset-inline-start: 10px; font-size: .72rem; background: rgba(255, 255, 255, .8); border-radius: 999px; padding: 3px 9px; color: var(--cocoa); }
+  .opt .bd { padding: 12px 14px 14px; }
+  .opt b { display: block; font-family: var(--serif); font-size: 1.3rem; font-weight: 500; line-height: 1.1; color: var(--cocoa); }
+  .opt small { display: block; color: var(--muted); font-size: .8rem; margin-top: 2px; }
+  .opt .pr { margin-top: 8px; font-size: .9rem; display: flex; gap: 8px; align-items: baseline; }
+  .opt .pr s { color: var(--muted); font-size: .8rem; }
+  .opt .pr b { display: inline; font-family: var(--sans); font-size: .95rem; color: var(--rose-deep); }
+  .opt[disabled] { opacity: .45; }
+  .toggle { display: flex; align-items: center; justify-content: space-between; gap: 14px; background: #fff; border-radius: 16px; padding: 14px 16px; margin-top: 14px; }
+  .switch { width: 50px; height: 30px; border-radius: 999px; background: #E6D5CF; position: relative; border: 0; flex: none; transition: background .2s; }
+  .switch::after { content: ''; position: absolute; top: 3px; inset-inline-start: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: inset-inline-start .2s; box-shadow: 0 2px 6px rgba(0, 0, 0, .15); }
+  .switch.on { background: var(--rose); }
+  .switch.on::after { inset-inline-start: 23px; }
+  .sty { display: flex; align-items: center; gap: 14px; width: 100%; background: #fff; border: 1.5px solid transparent; border-radius: 18px; padding: 14px 16px; margin-bottom: 10px; text-align: start; box-shadow: 0 10px 30px -20px rgba(75, 45, 37, .4); color: var(--ink); }
+  .sty.sel { border-color: var(--rose); box-shadow: 0 0 0 4px rgba(184, 122, 98, .18); }
+  .sty .av { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; font-family: var(--serif); font-size: 1.4rem; color: #fff; flex: none; }
+  .sty .nm { flex: 1; }
+  .sty .nm b { display: block; font-weight: 500; color: var(--cocoa); }
+  .sty .nm small { color: var(--muted); }
+  .sty .w { text-align: end; font-family: var(--serif); font-size: 1.5rem; color: var(--cocoa); line-height: 1; }
+  .sty .w small { display: block; font-family: var(--sans); font-size: .7rem; color: var(--muted); }
+  .sty[disabled] { opacity: .5; }
+  .bar { position: fixed; bottom: 0; inset-inline: 0; padding: 14px 16px calc(14px + env(safe-area-inset-bottom)); background: linear-gradient(0deg, var(--blush-2) 60%, rgba(242, 210, 202, 0)); }
+  .bar .in { width: min(560px, 100%); margin: 0 auto; display: flex; gap: 10px; }
+  .bar .btn { flex: 1; padding: 1.1em; }
+  .back { flex: 0 0 auto !important; width: 56px; padding: 0 !important; }
+  .summary { background: #fff; border-radius: 20px; padding: 18px; margin-bottom: 18px; display: grid; gap: 6px; }
+  .summary div { display: flex; justify-content: space-between; gap: 10px; }
+  .summary span:first-child { color: var(--muted); }
+  form .field { margin-bottom: 14px; }
+  .phone-row { display: flex; gap: 8px; direction: ltr; }
+  .phone-row .cc { flex: 0 0 auto; width: 132px; padding-inline: 10px; }
+  .phone-row input { flex: 1; min-width: 0; }
+  .field .muted { font-size: .8rem; }
+  .field.err .input { border-color: var(--bad); box-shadow: 0 0 0 4px rgba(181, 82, 63, .12); }
+  .field.err #phoneHint { color: var(--bad); }
+  .steps-done { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 10px; background: rgba(255, 255, 255, .6); border-radius: 20px; padding: 18px; }
+  .steps-done li { display: flex; gap: 12px; align-items: flex-start; font-size: .93rem; color: var(--cocoa); line-height: 1.45; }
+  .steps-done .ck { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; flex: none; font-size: .75rem; border: 1px solid var(--line); color: var(--muted); background: #fff; }
+  .steps-done li.done .ck { background: var(--cocoa); color: #fff; border-color: var(--cocoa); }
+  .steps-done li.now .ck { border-color: var(--rose); color: var(--rose); animation: ckPulse 1.6s ease-in-out infinite; }
+  .steps-done small { display: block; color: var(--muted); font-size: .8rem; }
+  @keyframes ckPulse { 50% { box-shadow: 0 0 0 6px rgba(184, 122, 98, .15); } }
+  .demo-strip { margin-top: 14px; padding: 14px 16px; border-radius: 16px; border: 1px dashed rgba(75, 45, 37, .25); font-size: .85rem; color: var(--muted); display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .demo-strip a { color: var(--cocoa); font-weight: 500; }
+  .ring .wait-big svg { position: static; inset: auto; transform: none; width: 100%; height: auto; }
+  .wait-big .idle { font-size: 1.1rem; font-weight: 400; letter-spacing: 0; display: block; line-height: 1.3; max-width: 150px; margin: 0 auto; color: var(--muted); }
+
+  /* Ticket */
+  .ticket-card { background: #fff; border-radius: 999px 999px 28px 28px; padding: 64px 26px 28px; text-align: center; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .ticket-card::before { content: ''; position: absolute; inset: 10px; border: 1px solid rgba(196, 154, 90, .4); border-radius: inherit; pointer-events: none; }
+  .code { font-family: var(--serif); font-size: 1rem; letter-spacing: .3em; color: var(--gold); }
+  .wait-big { font-family: var(--serif); font-size: 6.5rem; line-height: .9; color: var(--cocoa); margin: 12px 0 4px; }
+  .wait-big small { font-size: 1.6rem; }
+  .ring { width: 220px; height: 220px; margin: 10px auto 6px; position: relative; display: grid; place-items: center; }
+  .ring svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+  .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 18px 0 6px; }
+  .meta div { background: var(--pearl); border-radius: 14px; padding: 10px 6px; }
+  .meta b { display: block; font-family: var(--serif); font-size: 1.3rem; font-weight: 500; color: var(--cocoa); }
+  .meta small { color: var(--muted); font-size: .72rem; }
+  .called { background: linear-gradient(160deg, var(--rose), var(--rose-deep)); color: #fff; }
+  .called .code, .called .muted { color: rgba(255, 255, 255, .8); }
+  .called h2 { font-family: var(--serif); font-weight: 400; font-size: 2.6rem; line-height: 1.05; margin: 10px 0; }
+  .called .seat { font-family: var(--serif); font-size: 7rem; line-height: 1; margin: 10px 0; }
+  .called::before { border-color: rgba(255, 255, 255, .35); }
+  .pulse-bg { animation: callPulse 1.4s ease-in-out infinite; }
+  @keyframes callPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(184, 122, 98, .5), var(--shadow); } 50% { box-shadow: 0 0 0 18px rgba(184, 122, 98, 0), var(--shadow); } }
+  .tip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+  .tip-grid button { border: 1.5px solid var(--line); background: #fff; border-radius: 14px; padding: 14px 4px; font-weight: 500; color: var(--cocoa); }
+  .tip-grid button small { display: block; font-weight: 400; color: var(--muted); font-size: .72rem; }
+  .tip-grid button.sel { border-color: var(--rose); background: var(--blush); }
+  .apple { background: #000; color: #fff; font-size: 1.1rem; letter-spacing: 0; text-transform: none; }
+  .extras { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .extras button { border: 1px solid var(--line); background: #fff; border-radius: 14px; padding: 12px; color: var(--cocoa); text-align: start; }
+  .extras button small { display: block; color: var(--muted); }
+  .note { background: rgba(255, 255, 255, .6); border-radius: 16px; padding: 14px 16px; font-size: .9rem; color: var(--cocoa); margin-top: 14px; display: flex; gap: 10px; }
+  .total { display: flex; justify-content: space-between; font-family: var(--serif); font-size: 1.6rem; color: var(--cocoa); border-top: 1px solid var(--line); padding-top: 10px; margin-top: 6px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <a href="index.html" aria-label="Back to the website"><span style="font-size:1.3rem;color:var(--cocoa)">←</span><span id="logo"></span><span class="logo-word" style="font-size:1.05rem">QAMAR</span></a>
+    <div class="lang"><button data-lang="en">EN</button><button data-lang="ar">عربي</button></div>
+  </div>
+
+  <!-- Parcours d'inscription -->
+  <div id="flow">
+    <div class="progress"><i></i><i></i><i></i></div>
+
+    <section data-step="1">
+      <div id="launchPill"></div>
+      <h1 data-i18n="s1_title">Choose your look</h1>
+      <p class="sub" data-i18n="s1_sub">Tap the look you want — no need to explain.</p>
+      <div class="grid" id="looks"></div>
+      <div class="toggle"><div><b style="font-weight:500" data-i18n="long_t">Extra long or thick hair</b><br><small class="muted" data-i18n="long_s">+40 AED · same time, 45 min max</small></div><button class="switch" id="longSw" aria-label="Extra long hair"></button></div>
+    </section>
+
+    <section data-step="2" class="hidden">
+      <h1 data-i18n="s2_title">Choose your stylist</h1>
+      <p class="sub" data-i18n="s2_sub">Live wait times — updated every second.</p>
+      <div id="stylists"></div>
+    </section>
+
+    <section data-step="3" class="hidden">
+      <h1 data-i18n="s3_title">Almost there</h1>
+      <p class="sub" data-i18n="s3_sub">We'll message you on WhatsApp when it's your turn.</p>
+      <div class="summary" id="summary"></div>
+      <form id="joinForm">
+        <div class="field"><label for="fname" data-i18n="f_name">First name</label><input class="input" id="fname" name="name" required autocomplete="given-name" maxlength="40"></div>
+        <div class="field">
+          <label for="phone" data-i18n="f_phone">WhatsApp number</label>
+          <div class="phone-row">
+            <select class="input cc" id="cc" name="cc" aria-label="Country code"></select>
+            <input class="input" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="50 123 4567" required>
+          </div>
+          <small class="muted" id="phoneHint" data-i18n="phone_hint">Any country works. You can also type the full number starting with +.</small>
+          <small class="muted" style="display:block;margin-top:8px"><span data-i18n="privacy_note">We only use your number to tell you when it is your turn.</span> <a href="privacy.html" data-i18n="privacy_link">Privacy policy</a></small>
+        </div>
+      </form>
+    </section>
+
+    <div class="bar"><div class="in">
+      <button class="btn btn-ghost back" id="backBtn" aria-label="Back">←</button>
+      <button class="btn btn-primary" id="nextBtn" disabled data-i18n="next">Continue</button>
+    </div></div>
+  </div>
+
+  <!-- Ticket vivant -->
+  <div id="ticket" class="hidden"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/store.js"></script>
+<script src="assets/sakura.js"></script>
+<script src="assets/looks-fx.js"></script>
+<script src="assets/cursor-fx.js"></script>
+<script>
+(function () {
+  const D = Q.D;
+  const dict = {
+    s1_title: { en: 'Choose your look', ar: 'اختاري إطلالتك' }, s1_sub: { en: 'Tap the look you want — no need to explain.', ar: 'اضغطي على الإطلالة التي تريدينها — بدون شرح.' },
+    long_t: { en: 'Extra long or thick hair', ar: 'شعر طويل جداً أو كثيف' }, long_s: { en: '+40 AED · same time, 45 min max', ar: '+٤٠ درهم · نفس المدة، ٤٥ دقيقة كحد أقصى' },
+    s2_title: { en: 'Choose your stylist', ar: 'اختاري مصففتك' }, s2_sub: { en: 'Estimated waits, updated as the lounge moves.', ar: 'أوقات انتظار تقديرية تتحدّث مع حركة الصالون.' },
+    nobody: { en: 'No stylist has started her shift yet. You can still join: your place is saved and you will be first when the team opens.', ar: 'لم تبدأ أي مصففة دوامها بعد. يمكنك الانضمام: مكانك محفوظ وستكونين الأولى عند افتتاح الفريق.' },
+    est_note: { en: 'Waits are estimates based on the services in progress and the people ahead of you. They can change.', ar: 'أوقات الانتظار تقديرية حسب الخدمات الجارية والأشخاص قبلك، وقد تتغير.' },
+    pay_after: { en: 'Nothing to pay now. You pay after your service, at the station or on your phone.', ar: 'لا شيء للدفع الآن. تدفعين بعد الخدمة، عند المحطة أو من هاتفك.' },
+    joining: { en: 'Joining…', ar: 'جارٍ الانضمام…' }, join_err: { en: 'This look is not available right now. Please choose another one.', ar: 'هذه الإطلالة غير متاحة الآن. يرجى اختيار أخرى.' },
+    privacy_note: { en: 'We only use your number to tell you when it is your turn. It is never shared or used for marketing without your consent.', ar: 'نستخدم رقمك فقط لإبلاغك بدورك. لا نشاركه ولا نستخدمه للتسويق دون موافقتك.' }, privacy_link: { en: 'Privacy policy', ar: 'سياسة الخصوصية' },
+    demo_pay: { en: 'Demo mode: no real payment is taken.', ar: 'وضع تجريبي: لا يتم أي دفع حقيقي.' }, tip_line: { en: 'Tip', ar: 'إكرامية' }, to_pay: { en: 'To pay', ar: 'المبلغ المستحق' },
+    s3_title: { en: 'Almost there', ar: 'أوشكتِ' }, s3_sub: { en: "We'll message you on WhatsApp when it's your turn.", ar: 'سنراسلك على واتساب عندما يحين دورك.' },
+    f_name: { en: 'First name', ar: 'الاسم الأول' }, f_phone: { en: 'WhatsApp number', ar: 'رقم واتساب' },
+    next: { en: 'Continue', ar: 'متابعة' }, join: { en: 'Join the queue', ar: 'انضمي للطابور' },
+    any: { en: 'First available', ar: 'أول مصففة متاحة' }, any_s: { en: 'Fastest option', ar: 'الخيار الأسرع' },
+    offline: { en: 'Not on shift', ar: 'خارج الدوام' }, min: { en: 'min', ar: 'د' }, now: { en: 'Now', ar: 'الآن' }, wait: { en: 'wait', ar: 'انتظار' },
+    look: { en: 'Look', ar: 'الإطلالة' }, stylist: { en: 'Stylist', ar: 'المصففة' }, est: { en: 'Estimated wait', ar: 'الانتظار المتوقع' }, price: { en: 'Price', ar: 'السعر' },
+    launch: { en: 'Grand opening · −{p}% on your look', ar: 'الافتتاح الكبير · خصم {p}٪ على إطلالتك' },
+    your_wait: { en: 'Your estimated wait', ar: 'وقت انتظارك المتوقع' }, pos: { en: 'In line', ar: 'دورك' }, with: { en: 'With', ar: 'مع' }, ready_at: { en: 'Ready at', ar: 'جاهزة الساعة' },
+    waiting_note: { en: "Relax, grab a matcha or take a photo in the arches — we'll ping this phone and WhatsApp you when your chair is ready.", ar: 'استرخي، خذي ماتشا أو التقطي صورة تحت الأقواس — سننبّه هذا الهاتف ونرسل لكِ على واتساب عندما يجهز كرسيك.' },
+    notify_on: { en: 'Turn on notifications', ar: 'فعّلي الإشعارات' }, cancel: { en: 'Leave the queue', ar: 'مغادرة الطابور' }, cancel_q: { en: 'Leave the queue?', ar: 'مغادرة الطابور؟' },
+    called_t: { en: 'Your wait is over', ar: 'انتهى انتظارك' }, called_go: { en: 'Go to seat', ar: 'توجّهي إلى المقعد' }, called_with: { en: 'with', ar: 'مع' },
+    in_t: { en: 'Enjoy your glow', ar: 'استمتعي بتألّقك' }, in_s: { en: 'Want something while you relax?', ar: 'هل ترغبين بشيء أثناء الاسترخاء؟' }, perfume_t: { en: 'Your hair perfume', ar: 'عطر شعرك' },
+    added: { en: 'Added — it\'s coming to your chair ✦', ar: 'تمت الإضافة — في الطريق إلى كرسيك ✦' }, free: { en: 'free', ar: 'مجاناً' },
+    pay_t: { en: 'Your glow is ready', ar: 'تألّقك جاهز' }, pay_s: { en: 'Pay from your phone or on the station screen.', ar: 'ادفعي من هاتفك أو من شاشة المحطة.' },
+    service: { en: 'Service', ar: 'الخدمة' }, launch_disc: { en: 'Opening discount', ar: 'خصم الافتتاح' }, guarantee: { en: '35-min guarantee — on us', ar: 'ضمان ٣٥ دقيقة — مجاناً' }, total: { en: 'Total', ar: 'المجموع' },
+    tip_t: { en: 'Add a tip for {n}?', ar: 'إضافة إكرامية لـ{n}؟' }, tip_s: { en: '100% goes directly to her.', ar: '١٠٠٪ تذهب مباشرة إليها.' }, no_tip: { en: 'No tip', ar: 'بدون' }, custom: { en: 'Custom', ar: 'مبلغ آخر' },
+    pay_apple: { en: ' Pay', ar: ' Pay' }, pay_card: { en: 'Pay by card', ar: 'الدفع بالبطاقة' }, processing: { en: 'Processing…', ar: 'جارٍ الدفع…' },
+    rate_t: { en: 'How was your glow?', ar: 'كيف كانت تجربتك؟' }, rate_ph: { en: 'A word for {n}? (optional)', ar: 'كلمة لـ{n}؟ (اختياري)' }, send: { en: 'Send', ar: 'إرسال' }, skip: { en: 'Skip', ar: 'تخطي' },
+    done_t: { en: 'Thank you, {n} ✦', ar: 'شكراً {n} ✦' }, done_s: { en: 'You look as beautiful as the moon.', ar: 'زي القمر.' },
+    done_1: { en: 'Free touch-up within 48h — just come back.', ar: 'تعديل مجاني خلال ٤٨ ساعة — فقط عودي.' }, done_2: { en: 'Share your photobooth shot and tag @qamar.dubai', ar: 'شاركي صورتك من الكابينة واذكري @qamar.dubai' },
+    done_3: { en: 'Bring a friend: you both get 50 AED', ar: 'ادعي صديقة: ٥٠ درهم لكل واحدة منكما' }, share: { en: 'Share my invite link', ar: 'شاركي رابط الدعوة' }, again: { en: 'New visit', ar: 'زيارة جديدة' },
+    cancelled: { en: 'You left the queue.', ar: 'غادرتِ الطابور.' }, noshow: { en: 'We called you but you were not there — join again anytime.', ar: 'ناديناكِ ولم تكوني موجودة — يمكنك الانضمام مجدداً في أي وقت.' },
+    night_only: { en: '8 PM – midnight', ar: '٨م – منتصف الليل' }, notif_title: { en: 'QAMAR — your wait is over', ar: 'قمر — انتهى انتظارك' }, notif_body: { en: 'Go to seat {s} with {n}', ar: 'توجّهي إلى المقعد {s} مع {n}' },
+    phone_hint: { en: 'Any country works. You can also type the full number starting with +.', ar: 'أي دولة. يمكنك أيضاً كتابة الرقم كاملاً بدءاً بـ +.' },
+    phone_bad: { en: 'This number looks incomplete. Check it, or type it in full starting with +.', ar: 'يبدو الرقم ناقصاً. تحققي منه أو اكتبيه كاملاً بدءاً بـ +.' },
+    st_in: { en: "You're in line", ar: 'أنتِ في الطابور' }, st_in_s: { en: 'Ticket {c} · you are #{p}', ar: 'التذكرة {c} · دورك رقم {p}' },
+    st_wa: { en: "We'll WhatsApp you before your turn", ar: 'سنراسلك على واتساب قبل دورك' }, st_wa_s: { en: 'On {n}, about 10 minutes before. Keep this page open too.', ar: 'على {n}، قبل حوالي ١٠ دقائق. أبقي هذه الصفحة مفتوحة أيضاً.' },
+    st_seat: { en: 'Go to your seat', ar: 'توجّهي إلى مقعدك' }, st_seat_s: { en: 'This page turns pink and tells you the seat and your stylist.', ar: 'تتحول هذه الصفحة إلى اللون الوردي وتخبرك بالمقعد ومصففتك.' },
+    idle_t: { en: 'Queue not open yet', ar: 'الطابور لم يُفتح بعد' }, idle_s: { en: 'No stylist has started her shift yet. Your place is saved: you\'ll be first when the team opens.', ar: 'لم تبدأ أي مصففة دوامها بعد. مكانك محفوظ: ستكونين الأولى عند افتتاح الفريق.' },
+    demo: { en: 'Demo: see what the salon sees', ar: 'تجربة: شاهدي ما يراه الصالون' }, demo_open: { en: 'Open the dashboard', ar: 'افتحي لوحة التحكم' },
+    paid_cash: { en: 'Cash with your stylist', ar: 'نقداً مع مصففتك' }, opening: { en: 'The team is getting ready — your place is saved.', ar: 'الفريق يستعد — مكانك محفوظ.' }
+  };
+  const t = (k, v = {}) => Q.t(k).replace(/\{(\w)\}/g, (_, x) => v[x] ?? '');
+
+  document.getElementById('logo').innerHTML = Q.logo('logo-mark');
+  const savedCc = (() => { try { return localStorage.getItem('qamar:cc'); } catch (e) { return null; } })() || '+971';
+  document.getElementById('cc').innerHTML = Q.countries.map(([f, code, name]) => `<option value="${code}" ${code === savedCc ? 'selected' : ''}>${f} ${code} · ${name}</option>`).join('');
+  document.getElementById('phone').addEventListener('input', () => document.getElementById('phone').closest('.field').classList.remove('err'));
+  const params = new URLSearchParams(location.search);
+  const sel = { serviceId: params.get('look') || null, pref: params.get('stylist') || null, extraLong: false };
+  let step = 1;
+  let myId = params.get('t') || (() => { try { return localStorage.getItem('qamar:myTicket'); } catch (e) { return null; } })();
+  let lastStatus = null, lastPings = 0, tipChoice = null, payMode = 'card', stars = 0;
+
+  const nightOk = s => Q.available(s);
+  const tones = ['#D9A08C', '#8E6A6A', '#B87A62', '#C49A5A', '#A97964'];
+  let submitting = false;
+
+  /* ---------- Étape 1 : looks ---------- */
+  function renderLooks() {
+    const promo = Q.bestPromo();
+    const pill = document.getElementById('launchPill');
+    pill.textContent = '';
+    if (promo) { const sp = document.createElement('span'); sp.className = 'launch-pill'; sp.textContent = `☾ ${Q.L(promo.label)} · −${promo.pct}%`; pill.appendChild(sp); }
+    document.getElementById('looks').innerHTML = D.services.map(s => {
+      const ok = nightOk(s);
+      const q = Q.quote(s.id, sel.extraLong);
+      return `<button class="opt ${sel.serviceId === s.id ? 'sel' : ''}" data-id="${s.id}" ${ok ? '' : 'disabled aria-disabled="true"'} aria-pressed="${sel.serviceId === s.id}">
+        <div class="ph" style="background:radial-gradient(120% 90% at 50% 10%, ${s.tone[0]}, ${s.tone[1]})"><canvas class="look-canvas" data-look="${s.id}" aria-hidden="true"></canvas><span class="t">${q.duration} ${t('min')}</span></div>
+        <div class="bd"><b>${Q.esc(Q.L(s.look))}</b><small>${ok ? Q.esc(Q.L(s.name)) : t('night_only')}</small>
+        <div class="pr">${q.discount ? `<s>${q.base}</s><b>${q.total} AED</b>` : `<b>${q.total} AED</b>`}</div></div>
+      </button>`;
+    }).join('');
+    document.querySelectorAll('#looks .opt').forEach(b => b.onclick = () => { if (b.disabled) return; sel.serviceId = b.dataset.id; renderLooks(); updateBar(); });
+    if (sel.serviceId && !Q.available(Q.service(sel.serviceId))) { sel.serviceId = null; updateBar(); }
+    document.getElementById('longSw').classList.toggle('on', sel.extraLong);
+    document.getElementById('longSw').setAttribute('aria-pressed', sel.extraLong);
+  }
+  document.getElementById('longSw').onclick = () => { sel.extraLong = !sel.extraLong; renderLooks(); };
+
+  /* ---------- Étape 2 : coiffeuses ---------- */
+  function waitLabel(e) { if (!e) return `<small>${t('offline')}</small>—`; return e.minutes <= 1 ? t('now') : `~${e.minutes}<small>${t('min')} ${t('wait')}</small>`; }
+  function renderStylists() {
+    if (!sel.serviceId) return;
+    const anyE = Q.estimate(sel.serviceId, 'any', sel.extraLong);
+    const nobody = !Q.online().length;
+    let html = nobody ? `<div class="note" role="status" style="margin:0 0 12px"><span>☾</span><span>${t('nobody')}</span></div>` : '';
+    html += `<button class="sty ${sel.pref === 'any' ? 'sel' : ''}" data-id="any"><span class="av" style="background:var(--night);color:var(--gold-soft)">☾</span><span class="nm"><b>${t('any')}</b><small>${t('any_s')}</small></span><span class="w">${anyE ? waitLabel(anyE) : '<small>' + t('opening') + '</small>'}</span></button>`;
+    html += Q.state.stylists.map((s, i) => {
+      const on = !!Q.openShift(s.id);
+      const e = on ? Q.estimate(sel.serviceId, s.id, sel.extraLong) : null;
+      return `<button class="sty ${sel.pref === s.id ? 'sel' : ''}" data-id="${s.id}" ${on ? '' : 'disabled aria-disabled="true"'}><span class="av" style="background:${tones[i % 5]}">${Q.esc(s.name[0])}</span><span class="nm"><b>${Q.esc(s.name)} <span class="dot ${on ? '' : 'off'}"></span></b><small>${Q.esc(Q.L(s.specialty))}</small></span><span class="w">${waitLabel(e)}</span></button>`;
+    }).join('');
+    html += `<p class="muted" style="font-size:.82rem;margin:10px 4px 0">${t('est_note')}</p>`;
+    document.getElementById('stylists').innerHTML = html;
+    document.querySelectorAll('#stylists .sty').forEach(b => b.onclick = () => { sel.pref = b.dataset.id; renderStylists(); updateBar(); });
+  }
+
+  /* ---------- Étape 3 : récap ---------- */
+  function renderSummary() {
+    const s = Q.service(sel.serviceId); if (!s) return;
+    const e = Q.estimate(sel.serviceId, sel.pref, sel.extraLong);
+    const q = Q.quote(sel.serviceId, sel.extraLong);
+    const sty = sel.pref === 'any' ? t('any') : Q.stylist(sel.pref)?.name;
+    document.getElementById('summary').innerHTML = `
+      <div><span>${t('look')}</span><b>${Q.esc(Q.L(s.look))}</b></div>
+      <div><span>${t('stylist')}</span><b>${Q.esc(sty)}</b></div>
+      <div><span>${t('est')}</span><b>${e ? (e.minutes <= 1 ? t('now') : '~' + e.minutes + ' ' + t('min')) : '—'}</b></div>
+      <div><span>${t('price')}</span><b>${q.discount ? `<s class="muted" style="font-weight:400">${q.base}</s> ` : ''}${q.total} AED</b></div>
+      ${q.promo ? `<div><span>${Q.esc(Q.L(q.promo.label))}</span><span>−${q.promo.pct}%</span></div>` : ''}
+      <div style="display:block;color:var(--muted);font-size:.8rem">${t('pay_after')}</div>`;
+  }
+
+  function showStep(n) {
+    step = n;
+    document.querySelectorAll('[data-step]').forEach(s => s.classList.toggle('hidden', +s.dataset.step !== n));
+    document.querySelectorAll('.progress i').forEach((i, k) => i.classList.toggle('on', k < n));
+    if (n === 2) renderStylists();
+    if (n === 3) renderSummary();
+    updateBar();
+    scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function updateBar() {
+    const b = document.getElementById('nextBtn');
+    b.textContent = step === 3 ? (submitting ? t('joining') : t('join')) : t('next');
+    b.disabled = submitting || (step === 1 && !sel.serviceId) || (step === 2 && !sel.pref);
+  }
+  document.getElementById('backBtn').onclick = () => { if (step === 1) location.href = 'index.html'; else showStep(step - 1); };
+  document.getElementById('nextBtn').onclick = () => {
+    if (submitting) return;
+    if (step < 3) return showStep(step + 1);
+    const f = document.getElementById('joinForm');
+    if (!f.reportValidity()) return;
+    const fd = new FormData(f);
+    const phone = Q.normalizePhone(fd.get('phone'), fd.get('cc'));
+    const field = document.getElementById('phone').closest('.field');
+    if (!phone) { field.classList.add('err'); document.getElementById('phoneHint').textContent = t('phone_bad'); document.getElementById('phone').focus(); return; }
+    field.classList.remove('err');
+    submitting = true; updateBar();                       // empêche les doubles envois
+    try { localStorage.setItem('qamar:cc', fd.get('cc')); } catch (e) { /* ignore */ }
+    const tk = Q.joinQueue({ name: fd.get('name'), phone, serviceId: sel.serviceId, pref: sel.pref, extraLong: sel.extraLong, channel: 'qr' });
+    submitting = false;
+    if (!tk) { updateBar(); Q.toast(t('join_err')); return; }
+    myId = tk.id;
+    try { localStorage.setItem('qamar:myTicket', myId); } catch (e) { /* ignore */ }
+    history.replaceState(null, '', '?t=' + myId);
+    render();
+  };
+
+  /* ---------- Ticket vivant ---------- */
+  function ring(frac) {
+    const r = 100, c = 2 * Math.PI * r;
+    return `<svg viewBox="0 0 220 220"><circle cx="110" cy="110" r="${r}" fill="none" stroke="#F3E1DB" stroke-width="6"/><circle cx="110" cy="110" r="${r}" fill="none" stroke="url(#g)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - frac)}" style="transition:stroke-dashoffset 1s"/><defs><linearGradient id="g"><stop offset="0" stop-color="#C49A5A"/><stop offset="1" stop-color="#B87A62"/></linearGradient></defs></svg>`;
+  }
+
+  function notifyCalled(tk) {
+    const s = Q.stylist(tk.assignedTo);
+    Q.beep();
+    if (navigator.vibrate) navigator.vibrate([300, 120, 300, 120, 600]);
+    try { if ('Notification' in window && Notification.permission === 'granted') new Notification(t('notif_title'), { body: t('notif_body', { s: tk.seat, n: s?.name }), icon: 'assets/logo-qamar.webp' }); } catch (e) { /* ignore */ }
+  }
+
+  function renderTicket(tk) {
+    const el = document.getElementById('ticket');
+    const s = Q.service(tk.serviceId);
+    const sty = tk.assignedTo ? Q.stylist(tk.assignedTo) : null;
+    const code = Q.ticketCode(tk);
+
+    if (tk.status === 'waiting') {
+      const e = Q.ticketEta(tk.id) || {};
+      const total = Math.max(1, Math.round((Date.now() - tk.createdAt) / 60000) + (e.minutes || 0));
+      const frac = e.minutes == null ? 0 : 1 - e.minutes / total;
+      const who = e.stylistId ? Q.stylist(e.stylistId)?.name : (tk.pref === 'any' ? t('any') : Q.stylist(tk.pref)?.name);
+      const readyAt = e.minutes != null ? Q.clock(Date.now() + e.minutes * 60000) : '—';
+      const idle = e.minutes == null;
+      const pos = Q.position(tk.id);
+      el.innerHTML = `
+        <div class="ticket-card">
+          <div class="code">${code}</div>
+          <div class="muted" style="margin-top:6px">${idle ? t('idle_t') : t('your_wait')}</div>
+          <div class="ring">${ring(frac)}<div class="wait-big">${idle ? `<span style="display:block;width:48px;margin:0 auto 8px;color:var(--gold)">${Q.logo('')}</span><span class="idle">#${pos}</span>` : e.minutes <= 1 ? '<small>' + t('now') + '</small>' : e.minutes + '<small>' + t('min') + '</small>'}</div></div>
+          <div class="serif" style="font-size:1.5rem;color:var(--cocoa)">${Q.esc(Q.L(s.look))}</div>
+          <div class="meta"><div><b>#${pos}</b><small>${t('pos')}</small></div><div><b>${Q.esc(who || '—')}</b><small>${t('with')}</small></div><div><b>${readyAt}</b><small>${t('ready_at')}</small></div></div>
+          ${idle ? `<p class="muted" style="font-size:.9rem;margin:10px 0 0">${t('idle_s')}</p>` : ''}
+        </div>
+        <ol class="steps-done">
+          <li class="done"><span class="ck">✓</span><span>${t('st_in')}<small>${t('st_in_s', { c: code, p: pos })}</small></span></li>
+          <li class="now"><span class="ck">2</span><span>${t('st_wa')}<small>${t('st_wa_s', { n: Q.esc(tk.phone || '—') })}</small></span></li>
+          <li><span class="ck">3</span><span>${t('st_seat')}<small>${t('st_seat_s')}</small></span></li>
+        </ol>
+        <div class="note"><span>☾</span><span>${t('waiting_note')}</span></div>
+        <div class="demo-strip"><span>${t('demo')}</span><a href="admin.html">${t('demo_open')} →</a></div>
+        ${'Notification' in window && Notification.permission === 'default' ? `<button class="btn btn-light btn-block" style="margin-top:12px" id="notifBtn">🔔 ${t('notify_on')}</button>` : ''}
+        <button class="btn btn-ghost btn-block" style="margin-top:12px" id="cancelBtn">${t('cancel')}</button>`;
+      const cb = document.getElementById('cancelBtn'); cb.onclick = () => Q.twoTap(cb, () => Q.cancel(tk.id), t('cancel_q'));
+      const nb = document.getElementById('notifBtn'); if (nb) nb.onclick = () => Notification.requestPermission().then(render);
+    } else if (tk.status === 'called') {
+      el.innerHTML = `<div class="ticket-card called pulse-bg">
+          <div class="code">${code}</div>
+          <h2>${t('called_t')}</h2>
+          <div class="muted">${t('called_go')}</div>
+          <div class="seat">${tk.seat}</div>
+          <div style="font-size:1.2rem">${t('called_with')} <b>${Q.esc(sty?.name)}</b></div>
+        </div>`;
+    } else if (tk.status === 'in_service') {
+      const free = s.freeMatcha && !(tk.addons || []).some(a => Q.addon(a)?.kind === 'matcha');
+      el.innerHTML = `<div class="ticket-card">
+          <div class="code">${code} · ${t('with')} ${Q.esc(sty?.name)}</div>
+          <h1 style="margin-top:12px">${t('in_t')}</h1>
+          <p class="sub">${t('in_s')}</p>
+          <div class="extras">${D.addons.map(a => `<button data-add="${a.id}">🍵 ${Q.esc(Q.L(a.name))}<small>${free ? t('free') : a.price + ' AED'}</small></button>`).join('')}</div>
+          <p class="muted" style="margin:22px 0 8px">${t('perfume_t')}</p>
+          <div class="extras" style="grid-template-columns:repeat(3,1fr)">${D.perfumes.map(p => `<button data-perf="${p.id}" style="${tk.perfume === p.id ? 'border-color:var(--rose);background:var(--blush)' : ''};text-align:center">${Q.esc(Q.L(p.name))}</button>`).join('')}</div>
+        </div>`;
+      el.querySelectorAll('[data-add]').forEach(b => b.onclick = () => { Q.addAddon(tk.id, b.dataset.add); Q.toast(t('added')); });
+      el.querySelectorAll('[data-perf]').forEach(b => b.onclick = () => Q.setPerfume(tk.id, b.dataset.perf));
+    } else if (tk.status === 'checkout') {
+      const pr = Q.pricing(tk);
+      const tipBase = pr.total;
+      const tipAmt = tipChoice === 'custom' ? (+document.getElementById('customTip')?.value || 0) : tipChoice ? Math.round(tipBase * tipChoice / 100) : 0;
+      el.innerHTML = `<div class="ticket-card" style="padding-top:56px">
+          <div class="code">${code}</div>
+          <h1 style="margin-top:10px">${t('pay_t')}</h1>
+          <p class="sub">${t('pay_s')}</p>
+          <div class="summary" style="background:var(--pearl);text-align:start">
+            <div><span>${Q.esc(Q.L(s.look))}${tk.extraLong ? ' + XL' : ''}</span><span>${pr.base} AED</span></div>
+            ${pr.discount ? `<div><span>${t('launch_disc')} −${tk.discountPct}%</span><span>−${pr.discount} AED</span></div>` : ''}
+            ${pr.guarantee ? `<div><span>${t('guarantee')}</span><span>−${pr.base - pr.discount} AED</span></div>` : ''}
+            ${pr.addons.map(a => `<div><span>${Q.esc(Q.L(a.name))}</span><span>${a.price ? a.price + ' AED' : t('free')}</span></div>`).join('')}
+            <div class="total"><span>${t('total')}</span><span>${pr.total} AED</span></div>
+          </div>
+          <p style="margin:18px 0 0;color:var(--cocoa)"><b style="font-weight:500">${t('tip_t', { n: sty?.name })}</b><br><small class="muted">${t('tip_s')}</small></p>
+          <div class="tip-grid">${[10, 25, 75].map(p => `<button data-tip="${p}" class="${tipChoice === p ? 'sel' : ''}">${p}%<small>${Math.round(tipBase * p / 100)} AED</small></button>`).join('')}<button data-tip="custom" class="${tipChoice === 'custom' ? 'sel' : ''}">${t('custom')}<small>AED</small></button></div>
+          ${tipChoice === 'custom' ? `<input class="input" id="customTip" type="number" min="0" inputmode="numeric" placeholder="AED" style="margin-bottom:10px">` : ''}
+          <button class="btn btn-ghost btn-block" data-tip="0" style="margin-bottom:14px;${tipChoice === 0 ? 'background:var(--blush)' : ''}">${t('no_tip')}</button>
+          <div class="summary" style="background:var(--pearl);text-align:start;margin-top:4px"><div><span>${t('tip_line')}</span><span id="tipVal">${tipAmt} AED</span></div><div class="total"><span>${t('to_pay')}</span><span id="payVal">${pr.total + tipAmt} AED</span></div></div>
+          <button class="btn apple btn-block" id="payApple"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.7-1-2.7-4.1zM13.9 5c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5z"/></svg>${t('pay_apple')} · ${pr.total + tipAmt} AED</button>
+          <button class="btn btn-ghost btn-block" id="payCard" style="margin-top:10px">${t('pay_card')}</button>
+          ${Q.isDemo ? `<p class="muted" style="font-size:.8rem;margin:12px 0 0">${t('demo_pay')}</p>` : ''}
+        </div>`;
+      el.querySelectorAll('[data-tip]').forEach(b => b.onclick = () => { tipChoice = b.dataset.tip === 'custom' ? 'custom' : +b.dataset.tip; renderTicket(Q.ticket(myId)); if (tipChoice === 'custom') setTimeout(() => document.getElementById('customTip')?.focus(), 30); });
+      const ct = document.getElementById('customTip');
+      if (ct) ct.oninput = () => { const v = Math.max(0, Math.round(+ct.value || 0)); document.getElementById('tipVal').textContent = v + ' AED'; document.getElementById('payVal').textContent = (pr.total + v) + ' AED'; };
+      const doPay = method => {
+        const tip = tipChoice === 'custom' ? (+document.getElementById('customTip')?.value || 0) : tipChoice ? Math.round(tipBase * tipChoice / 100) : 0;
+        const btn = document.getElementById(method === 'applepay' ? 'payApple' : 'payCard');
+        btn.textContent = t('processing'); btn.disabled = true;
+        setTimeout(() => Q.pay(tk.id, { method, tip }), 1200);
+      };
+      document.getElementById('payApple').onclick = () => doPay('applepay');
+      document.getElementById('payCard').onclick = () => doPay('card');
+    } else if (tk.status === 'paid') {
+      el.innerHTML = `<div class="ticket-card">
+          <div class="code">${code}</div>
+          <h1 style="margin-top:12px">${t('rate_t')}</h1>
+          <div class="stars" id="stars" style="margin:14px 0 18px">${[1, 2, 3, 4, 5].map(n => `<button data-s="${n}" class="${n <= stars ? 'on' : ''}" aria-label="${n}">★</button>`).join('')}</div>
+          <textarea class="input" id="comment" rows="3" maxlength="500" placeholder="${Q.esc(t('rate_ph', { n: sty?.name }))}"></textarea>
+          <button class="btn btn-primary btn-block" id="sendRate" style="margin-top:14px" ${stars ? '' : 'disabled'}>${t('send')}</button>
+          <button class="btn btn-ghost btn-block" id="skipRate" style="margin-top:10px">${t('skip')}</button>
+        </div>`;
+      el.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { stars = +b.dataset.s; el.querySelectorAll('[data-s]').forEach(x => x.classList.toggle('on', +x.dataset.s <= stars)); document.getElementById('sendRate').disabled = false; });
+      document.getElementById('sendRate').onclick = () => Q.rate(tk.id, stars, document.getElementById('comment').value);
+      document.getElementById('skipRate').onclick = () => Q.rate(tk.id, 0);
+    } else if (tk.status === 'done') {
+      const link = Q.baseUrl() + 'index.html?ref=' + encodeURIComponent(tk.name.toLowerCase());
+      el.innerHTML = `<div class="ticket-card">
+          <div style="width:60px;margin:0 auto;color:var(--gold)">${Q.logo('')}</div>
+          <h1 style="margin-top:14px">${t('done_t', { n: Q.esc(tk.name) })}</h1>
+          <p class="serif" style="font-size:1.4rem;color:var(--rose);margin:0 0 18px">${t('done_s')}</p>
+          <div class="summary" style="background:var(--pearl);text-align:start">
+            <div><span>✦</span><span style="flex:1;color:var(--cocoa)">${t('done_1')}</span></div>
+            <div><span>✦</span><span style="flex:1;color:var(--cocoa)">${t('done_2')}</span></div>
+            <div><span>✦</span><span style="flex:1;color:var(--cocoa)">${t('done_3')}</span></div>
+          </div>
+          <button class="btn btn-primary btn-block" id="shareBtn">${t('share')}</button>
+          <button class="btn btn-ghost btn-block" id="againBtn" style="margin-top:10px">${t('again')}</button>
+        </div>`;
+      document.getElementById('shareBtn').onclick = async () => {
+        try { if (navigator.share) await navigator.share({ title: 'QAMAR', text: 'Glow with me at QAMAR — 50 AED off your first blow-dry ✦', url: link }); else { await navigator.clipboard.writeText(link); Q.toast('✓ ' + link); } } catch (e) { /* annulé */ }
+      };
+      document.getElementById('againBtn').onclick = resetFlow;
+    } else {
+      el.innerHTML = `<div class="ticket-card"><div class="code">${code}</div><p style="margin:20px 0">${t(tk.status === 'noshow' ? 'noshow' : 'cancelled')}</p><button class="btn btn-primary btn-block" id="againBtn">${t('join')}</button></div>`;
+      document.getElementById('againBtn').onclick = resetFlow;
+    }
+  }
+
+  function resetFlow() {
+    myId = null; lastStatus = null; tipChoice = null; stars = 0;
+    try { localStorage.removeItem('qamar:myTicket'); } catch (e) { /* ignore */ }
+    history.replaceState(null, '', location.pathname);
+    sel.serviceId = null; sel.pref = null;
+    render(); showStep(1);
+  }
+
+  function render() {
+    const tk = myId ? Q.ticket(myId) : null;
+    document.getElementById('flow').classList.toggle('hidden', !!tk);
+    document.getElementById('ticket').classList.toggle('hidden', !tk);
+    if (tk) {
+      if (tk.status === 'called' && lastStatus && (lastStatus !== 'called' || (tk.pings || 0) !== lastPings)) notifyCalled(tk);
+      lastPings = tk.pings || 0;
+      if (tk.status === 'checkout' && lastStatus !== 'checkout') tipChoice = null;
+      // ne pas écraser la saisie en cours (pourboire libre, commentaire)
+      const typing = document.activeElement && ['customTip', 'comment'].includes(document.activeElement.id);
+      if (!(typing && lastStatus === tk.status)) renderTicket(tk);
+      lastStatus = tk.status;
+    } else {
+      renderLooks();
+      if (step === 2) renderStylists();
+      if (step === 3) renderSummary();
+      updateBar();
+    }
+  }
+
+  document.addEventListener('qamar:lang', render);
+  Q.i18n(dict);
+  if (sel.serviceId && Q.service(sel.serviceId)) showStep(1);
+  Q.on(render);
+  setInterval(() => { const tk = myId && Q.ticket(myId); if (tk && tk.status === 'waiting') renderTicket(tk); }, 5000);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /station.html
+Disallow: /entrance.html
+# Ajouter « Sitemap: https://<domaine définitif>/sitemap.xml » quand le domaine est confirmé (voir DEPLOY.md).

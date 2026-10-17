@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>QAMAR — Station</title>
+<link rel="icon" href="assets/logo-qamar.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/qamar.css">
+<style>
+  html, body { min-height: 100%; }
+  body { background: linear-gradient(160deg, #FCEDE9, var(--blush) 60%, var(--blush-2)); min-height: 100svh; }
+  .shell { width: min(1100px, 100%); margin: 0 auto; padding: 20px; }
+  .head { display: flex; align-items: center; gap: 16px; padding-bottom: 18px; }
+  .head .brand { display: flex; align-items: center; gap: 10px; }
+  .seat-tag { background: var(--night); color: var(--gold-soft); border-radius: 999px; padding: 6px 16px; font-size: .85rem; letter-spacing: .14em; }
+  .head .sp { flex: 1; }
+  .me { display: flex; align-items: center; gap: 12px; }
+  .av { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-family: var(--serif); font-size: 1.3rem; background: var(--rose); flex: none; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+  .kpi { background: rgba(255, 255, 255, .75); border-radius: 18px; padding: 14px 18px; }
+  .kpi small { display: block; color: var(--muted); font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; }
+  .kpi b { font-family: var(--serif); font-size: 1.9rem; font-weight: 500; color: var(--cocoa); }
+  .main { display: grid; grid-template-columns: 1.6fr 1fr; gap: 18px; align-items: start; }
+  .panel { background: #fff; border-radius: 26px; padding: 30px; box-shadow: var(--shadow); }
+  .panel h2 { font-family: var(--serif); font-weight: 400; font-size: 2.4rem; margin: 0 0 6px; color: var(--cocoa); line-height: 1.05; }
+  .panel .lbl { font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--rose); }
+  .bigbtn { width: 100%; padding: 1.4em; font-size: 1.1rem; border-radius: 22px; }
+  .client { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 18px; background: var(--pearl); margin: 16px 0; }
+  .client .av { width: 56px; height: 56px; font-size: 1.6rem; background: var(--cocoa); }
+  .client b { display: block; font-size: 1.25rem; font-weight: 500; color: var(--cocoa); }
+  .client small { color: var(--muted); }
+  .timer { font-family: var(--serif); font-size: 5rem; line-height: 1; color: var(--cocoa); font-variant-numeric: tabular-nums; }
+  .timer.over { color: var(--bad); }
+  .pbar { height: 8px; border-radius: 8px; background: var(--blush); overflow: hidden; margin: 12px 0 6px; }
+  .pbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--gold), var(--rose)); transition: width 1s; }
+  .pbar.over i { background: var(--bad); }
+  .upsell { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+  .upsell button, .seg button { border: 1px solid var(--line); background: #fff; border-radius: 14px; padding: 12px; color: var(--cocoa); text-align: start; position: relative; }
+  .upsell button small { display: block; color: var(--muted); }
+  .upsell .cnt { position: absolute; top: 8px; inset-inline-end: 10px; background: var(--rose); color: #fff; border-radius: 999px; min-width: 22px; height: 22px; display: grid; place-items: center; font-size: .75rem; }
+  .seg { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .seg button { flex: 1; text-align: center; }
+  .seg button.on { background: var(--cocoa); color: #fff; border-color: var(--cocoa); }
+  .row-btns { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+  .row-btns .btn { flex: 1; }
+  .qlist { display: grid; gap: 8px; margin-top: 12px; }
+  .qitem { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--pearl); }
+  .qitem .c { font-family: var(--serif); color: var(--gold); letter-spacing: .1em; }
+  .qitem .n { flex: 1; }
+  .qitem .n b { display: block; font-weight: 500; color: var(--cocoa); }
+  .qitem .n small { color: var(--muted); }
+  .qitem button { border: 0; background: var(--cocoa); color: #fff; border-radius: 999px; padding: 8px 14px; font-size: .8rem; }
+  .sec-t { font-size: .78rem; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin: 22px 0 4px; }
+
+  /* Login */
+  .login { max-width: 640px; margin: 6vh auto 0; text-align: center; }
+  .login h1 { font-family: var(--serif); font-weight: 400; font-size: 3rem; color: var(--cocoa); margin: 10px 0 24px; }
+  .who { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .who button { border: 1.5px solid transparent; background: #fff; border-radius: 20px; padding: 18px 8px; color: var(--cocoa); box-shadow: 0 10px 30px -18px rgba(75, 45, 37, .4); }
+  .who button.sel { border-color: var(--rose); }
+  .who .av { margin: 0 auto 8px; }
+  .pin-dots { display: flex; justify-content: center; gap: 14px; margin: 26px 0 18px; }
+  .pin-dots i { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--rose); }
+  .pin-dots i.on { background: var(--rose); }
+  .pad { display: grid; grid-template-columns: repeat(3, 84px); gap: 12px; justify-content: center; }
+  .pad button { height: 84px; border-radius: 50%; border: 0; background: #fff; font-size: 1.8rem; font-family: var(--serif); color: var(--cocoa); box-shadow: 0 8px 20px -14px rgba(75, 45, 37, .5); }
+  .pad button:active { background: var(--blush); }
+  .shake { animation: shake .4s; }
+  @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+  /* Écran client (paiement / note) */
+  .pay { text-align: center; }
+  .pay .total { font-family: var(--serif); font-size: 4.4rem; color: var(--cocoa); line-height: 1; margin: 10px 0; }
+  .lines { text-align: start; background: var(--pearl); border-radius: 18px; padding: 16px 18px; display: grid; gap: 6px; margin: 16px 0; }
+  .lines div { display: flex; justify-content: space-between; gap: 10px; }
+  .lines span:first-child { color: var(--muted); }
+  .methods { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .methods button { border: 0; border-radius: 20px; padding: 26px 12px; font-size: 1.1rem; display: grid; gap: 6px; place-items: center; }
+  .methods small { font-size: .8rem; opacity: .7; }
+  .m-apple { background: #000; color: #fff; }
+  .m-card { background: var(--cocoa); color: #fff; }
+  .m-cash { background: var(--pearl); color: var(--cocoa); border: 1px solid var(--line) !important; }
+  .m-qr { background: #fff; color: var(--cocoa); border: 1px solid var(--line) !important; }
+  .tips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 22px 0; }
+  .tips button { border: 1.5px solid var(--line); background: #fff; border-radius: 20px; padding: 26px 6px; font-size: 1.6rem; font-family: var(--serif); color: var(--cocoa); }
+  .tips button small { display: block; font-family: var(--sans); font-size: .85rem; color: var(--muted); }
+  .tips button.sel { border-color: var(--rose); background: var(--blush); }
+  .spinner { width: 70px; height: 70px; border-radius: 50%; border: 4px solid var(--blush); border-top-color: var(--rose); margin: 30px auto; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .modal { position: fixed; inset: 0; background: rgba(27, 17, 23, .55); display: grid; place-items: center; z-index: 100; padding: 20px; }
+  .modal .panel { max-width: 440px; width: 100%; text-align: center; }
+  .hidden { display: none !important; }
+  @media (max-width: 860px) { .main { grid-template-columns: 1fr; } .kpis { grid-template-columns: repeat(2, 1fr); } .who { grid-template-columns: repeat(3, 1fr); } .tips { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="head">
+    <div class="brand"><span id="logo"></span><span class="logo-word">QAMAR</span></div>
+    <span class="seat-tag" id="seatTag">SEAT</span>
+    <a href="admin.html" class="chip" style="text-decoration:none">← Dashboard</a>
+    <span class="sp"></span>
+    <div class="me hidden" id="me"></div>
+  </div>
+  <div id="view"></div>
+</div>
+<div id="modal"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/store.js"></script>
+<script>
+(function () {
+  const D = Q.D;
+  const params = new URLSearchParams(location.search);
+  const seat = Math.min(5, Math.max(1, +params.get('seat') || +(location.hash.match(/seat(\d)/) || [])[1] || 1));
+  window.addEventListener('hashchange', () => location.reload());
+  const KEY = 'qamar:station:' + seat;
+  const tones = ['#D9A08C', '#8E6A6A', '#B87A62', '#C49A5A', '#A97964'];
+  const tone = sid => tones[Q.state.stylists.findIndex(s => s.id === sid) % 5];
+  document.getElementById('logo').innerHTML = Q.logo('logo-mark');
+  document.getElementById('seatTag').textContent = 'SEAT ' + seat;
+  document.title = `QAMAR — Seat ${seat}`;
+
+  let sid = (() => { try { return localStorage.getItem(KEY); } catch (e) { return null; } })();
+  let pick = null, pin = '';
+  let ui = { step: 'summary', tip: null, method: null, stars: 0, thanks: null, lastTicket: null };
+  const view = document.getElementById('view');
+
+  const mmss = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; };
+  const waited = t => Math.round(((t.calledAt || Date.now()) - t.createdAt) / 60000);
+
+  /* ---------- Connexion = pointage ---------- */
+  function renderLogin() {
+    document.getElementById('me').classList.add('hidden');
+    const s = pick && Q.stylist(pick);
+    view.innerHTML = `<div class="login">
+      <div class="eyebrow">Good to see you</div>
+      <h1>Who's at seat ${seat}?</h1>
+      <div class="who">${Q.state.stylists.map(st => `<button data-id="${st.id}" class="${pick === st.id ? 'sel' : ''}"><span class="av" style="background:${tone(st.id)}">${st.name[0]}</span>${Q.esc(st.name)}</button>`).join('')}</div>
+      ${s ? `<div id="pinBox"><div class="pin-dots">${[0, 1, 2, 3].map(i => `<i class="${i < pin.length ? 'on' : ''}"></i>`).join('')}</div>
+        <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0, '⌫'].map(k => k === '' ? '<span></span>' : `<button data-k="${k}">${k}</button>`).join('')}</div>
+        <p class="muted" style="margin-top:18px;font-size:.9rem">Entering your PIN clocks you in automatically.${Q.isDemo ? ` <b>Demo only</b>: test PIN ${s.pin}. Real staff accounts use secure sign-in (see SECURITY.md).` : ''}</p></div>` : '<p class="muted" style="margin-top:24px">Tap your name, then your PIN — your shift starts the moment you log in.</p>'}
+    </div>`;
+    view.querySelectorAll('.who button').forEach(b => b.onclick = () => { pick = b.dataset.id; pin = ''; renderLogin(); });
+    view.querySelectorAll('.pad button').forEach(b => b.onclick = () => {
+      const k = b.dataset.k;
+      if (k === '⌫') pin = pin.slice(0, -1); else if (pin.length < 4) pin += k;
+      if (pin.length === 4) {
+        const res = Q.clockIn(pick, pin);
+        if (res.ok) {
+          sid = pick; pin = ''; pick = null;
+          try { localStorage.setItem(KEY, sid); } catch (e) { /* ignore */ }
+          Q.toast(`Clocked in at ${Q.clock(Date.now())} ✦`);
+          return render();
+        }
+        pin = ''; renderLogin(); document.getElementById('pinBox').classList.add('shake');
+        Q.toast(res.error === 'locked' ? 'Too many attempts. Try again in 5 minutes or ask the manager.' : 'Wrong PIN. Please try again.'); return;
+      }
+      renderLogin();
+    });
+  }
+
+  function logout() {
+    const sh = Q.openShift(sid);
+    const st = Q.stylistStats(sid);
+    const cur = Q.currentOf(sid);
+    if (cur) return Q.toast('Finish your current client before clocking out');
+    modal(`<div class="panel"><div class="lbl">Clock out</div><h2>See you soon, ${Q.esc(Q.stylist(sid).name)}</h2>
+      <div class="lines"><div><span>Started</span><b>${sh ? Q.clock(sh.in) : '—'}</b></div><div><span>Worked today</span><b>${Q.hm(st.workedMin)}</b></div><div><span>Clients today</span><b>${st.served}</b></div><div><span>Tips today</span><b>${Q.fmt(st.tips)}</b></div></div>
+      <div class="row-btns"><button class="btn btn-ghost" data-close>Cancel</button><button class="btn btn-primary" id="confirmOut">Clock out</button></div></div>`);
+    document.getElementById('confirmOut').onclick = () => {
+      Q.clockOut(sid); try { localStorage.removeItem(KEY); } catch (e) { /* ignore */ }
+      sid = null; closeModal(); Q.toast('Clocked out — have a lovely evening ☾'); render();
+    };
+  }
+  function modal(html) { const m = document.getElementById('modal'); m.innerHTML = `<div class="modal">${html}</div>`; m.querySelectorAll('[data-close]').forEach(b => b.onclick = closeModal); }
+  function closeModal() { document.getElementById('modal').innerHTML = ''; }
+
+  /* ---------- Tableau de bord du poste ---------- */
+  function renderHeader() {
+    const s = Q.stylist(sid), sh = Q.openShift(sid), st = Q.stylistStats(sid);
+    const me = document.getElementById('me');
+    me.classList.remove('hidden');
+    me.innerHTML = `<span class="av" style="background:${tone(sid)}">${s.name[0]}</span><span><b style="font-weight:500">${Q.esc(s.name)}</b><br><small class="muted">On shift since ${sh ? Q.clock(sh.in) : '—'}</small></span><button class="btn btn-ghost" id="outBtn" style="padding:.6em 1.1em;font-size:.75rem">Clock out</button>`;
+    document.getElementById('outBtn').onclick = logout;
+    return `<div class="kpis">
+      <div class="kpi"><small>Shift</small><b>${Q.hm(st.workedMin)}</b></div>
+      <div class="kpi"><small>Clients today</small><b>${st.served}</b></div>
+      <div class="kpi"><small>My tips today</small><b>${Q.fmt(st.tips)}</b></div>
+      <div class="kpi"><small>My rating</small><b>${st.rating ? st.rating.toFixed(1) + ' ★' : '—'}</b></div>
+    </div>`;
+  }
+
+  function myQueue() {
+    const plan = Q.schedule();
+    return Q.state.tickets.filter(t => t.status === 'waiting' && (plan[t.id]?.stylistId === sid || t.pref === sid)).sort((a, b) => (plan[a.id]?.startAt || 0) - (plan[b.id]?.startAt || 0));
+  }
+  function sideQueue() {
+    const mine = myQueue();
+    const all = Q.state.tickets.filter(t => t.status === 'waiting').sort((a, b) => a.createdAt - b.createdAt);
+    const others = all.filter(t => !mine.includes(t));
+    const item = t => { const s = Q.service(t.serviceId); return `<div class="qitem"><span class="c">${Q.ticketCode(t)}</span><span class="n"><b>${Q.esc(t.name)}</b><small>${Q.esc(s.look.en)} · ${Q.duration(t)} min · waiting ${Math.round((Date.now() - t.createdAt) / 60000)} min${t.pref !== 'any' ? ' · asked for ' + Q.esc(Q.stylist(t.pref)?.name) : ''}</small></span>${(t.pref === 'any' || t.pref === sid) ? `<button data-call="${t.id}">Call</button>` : ''}</div>`; };
+    return `<div class="panel"><div class="lbl">Queue</div>
+      <div class="sec-t">For you (${mine.length})</div><div class="qlist">${mine.map(item).join('') || '<span class="muted">No one yet</span>'}</div>
+      <div class="sec-t">Everyone waiting (${all.length})</div><div class="qlist">${others.slice(0, 8).map(item).join('') || '<span class="muted">—</span>'}</div>
+      <div class="sec-t">Screens</div><p class="muted" style="font-size:.85rem;margin:6px 0 0">The client pays and rates on this screen. Card & Apple Pay tips go straight to your tips balance.</p></div>`;
+  }
+
+  function renderIdle() {
+    const next = Q.nextFor(sid);
+    const s = next && Q.service(next.serviceId);
+    return `<div class="panel">
+      <div class="lbl">Ready</div><h2>Your chair is free</h2>
+      ${next ? `<p class="muted" style="margin:0">Next client</p><div class="client"><span class="av">${Q.esc(next.name[0])}</span><span><b>${Q.esc(next.name)} · ${Q.ticketCode(next)}</b><small>${Q.esc(s.look.en)} · ${Q.duration(next)} min${next.extraLong ? ' · XL hair' : ''} · waiting ${Math.round((Date.now() - next.createdAt) / 60000)} min</small></span></div>
+        <button class="btn btn-primary bigbtn" id="callBtn">Call ${Q.esc(next.name)} to seat ${seat} 🔔</button>
+        <p class="muted" style="font-size:.85rem;margin-top:10px">She'll get a notification on her phone: “Your wait is over — go to seat ${seat} with ${Q.esc(Q.stylist(sid).name)}”.</p>`
+      : `<p class="muted">No one in the queue right now. Time for a matcha ☾</p>`}
+    </div>`;
+  }
+
+  function renderCalled(t) {
+    const s = Q.service(t.serviceId);
+    return `<div class="panel">
+      <div class="lbl">Notification sent · ${mmss(Date.now() - t.calledAt)} ago</div><h2>${Q.esc(t.name)} is on her way</h2>
+      <div class="client"><span class="av">${Q.esc(t.name[0])}</span><span><b>${Q.ticketCode(t)} · ${Q.esc(s.look.en)}</b><small>${Q.duration(t)} min · waited ${waited(t)} min${t.phone ? ' · ' + Q.esc(t.phone) : ''}</small></span></div>
+      <button class="btn btn-primary bigbtn" id="startBtn">She's seated — start ✦</button>
+      <div class="row-btns"><button class="btn btn-ghost" id="renotify">Notify again</button><button class="btn btn-ghost" id="requeue">Back to queue</button><button class="btn btn-ghost" id="noshow">No-show</button></div>
+    </div>`;
+  }
+
+  function renderService(t) {
+    const s = Q.service(t.serviceId);
+    const target = Q.duration(t) * 60000;
+    const el = Date.now() - t.startedAt;
+    const over = el > target;
+    const counts = {}; (t.addons || []).forEach(a => counts[a] = (counts[a] || 0) + 1);
+    const freeLeft = s.freeMatcha && !(t.addons || []).some(a => Q.addon(a)?.kind === 'matcha');
+    return `<div class="panel">
+      <div class="lbl">In the chair</div>
+      <div class="client" style="margin-top:10px"><span class="av">${Q.esc(t.name[0])}</span><span><b>${Q.esc(t.name)} · ${Q.esc(s.look.en)}</b><small>${Q.esc(s.name.en)}${t.discountPct ? ' · opening −' + t.discountPct + '%' : ''}</small></span></div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px"><div class="timer ${over ? 'over' : ''}" id="timer">${mmss(el)}</div><div class="muted">target ${Q.duration(t)}:00${t.serviceId === 'express' ? '<br><b style="color:var(--rose)">35-min guarantee</b>' : ''}</div></div>
+      <div class="pbar ${over ? 'over' : ''}"><i id="pbar" style="width:${Math.min(100, el / target * 100)}%"></i></div>
+      <div class="sec-t">Offer a matcha ${freeLeft ? '<span class="chip" style="margin-inline-start:6px">1 free with Night Glow</span>' : ''}</div>
+      <div class="upsell">${D.addons.map(a => `<button data-add="${a.id}">🍵 ${Q.esc(a.name.en)}<small>${a.price} AED</small>${counts[a.id] ? `<span class="cnt">${counts[a.id]}</span>` : ''}</button>`).join('')}</div>
+      ${(t.addons || []).length ? `<button class="btn btn-ghost" id="undoAdd" style="margin-top:8px;padding:.5em 1em;font-size:.72rem">Remove last drink</button>` : ''}
+      <div class="sec-t">Hair perfume</div>
+      <div class="seg">${D.perfumes.map(p => `<button data-perf="${p.id}" class="${t.perfume === p.id ? 'on' : ''}">${p.name.en}</button>`).join('')}</div>
+      <div class="sec-t">Extras</div>
+      <div class="seg"><button id="hijabBtn" class="${t.hijab ? 'on' : ''}">☾ Hijab steamed + magnet</button><button id="xlBtn" class="${t.extraLong ? 'on' : ''}">Extra long hair +40</button></div>
+      <button class="btn btn-primary bigbtn" id="finishBtn" style="margin-top:22px">Finish & checkout</button>
+    </div>`;
+  }
+
+  /* ---------- Écran tourné vers la cliente ---------- */
+  function renderCheckout(t) {
+    const s = Q.service(t.serviceId);
+    const p = Q.pricing(t);
+    const name = Q.stylist(sid).name;
+    const lines = `<div class="lines">
+      <div><span>${Q.esc(s.look.en)}${t.extraLong ? ' + extra long' : ''}</span><span>${p.base} AED</span></div>
+      ${p.discount ? `<div><span>Opening discount −${t.discountPct}%</span><span>−${p.discount} AED</span></div>` : ''}
+      ${p.guarantee ? `<div><span>Over 35 min — on us ✦</span><span>−${p.base - p.discount} AED</span></div>` : ''}
+      ${p.addons.map(a => `<div><span>${Q.esc(a.name.en)}</span><span>${a.price ? a.price + ' AED' : 'free'}</span></div>`).join('')}
+    </div>`;
+    if (ui.step === 'processing') return `<div class="panel pay"><div class="lbl">Payment</div><div class="spinner"></div><h2>Hold your phone near the reader</h2><p class="muted">${ui.method === 'applepay' ? 'Apple Pay' : 'Card'} · ${p.total + (ui.tipAmt || 0)} AED</p></div>`;
+    if (ui.step === 'tip') {
+      const amt = pc => Math.round(p.total * pc / 100);
+      return `<div class="panel pay"><div class="lbl">Thank you for choosing ${Q.esc(name)}</div><h2>Would you like to add a tip?</h2><p class="muted">100% goes directly to ${Q.esc(name)}.</p>
+        <div class="tips">${[10, 25, 75].map(pc => `<button data-tip="${pc}" class="${ui.tip === pc ? 'sel' : ''}">${pc}%<small>${amt(pc)} AED</small></button>`).join('')}<button data-tip="custom" class="${ui.tip === 'custom' ? 'sel' : ''}">Custom<small>any amount</small></button></div>
+        ${ui.tip === 'custom' ? `<input class="input" id="customTip" type="number" min="0" inputmode="numeric" placeholder="Amount in AED" style="max-width:260px;margin:0 auto 16px;text-align:center;font-size:1.3rem">` : ''}
+        <div class="row-btns"><button class="btn btn-ghost" id="noTip">No tip</button><button class="btn btn-primary" id="tipPay" ${ui.tip == null ? 'disabled' : ''}>Pay with tip</button></div></div>`;
+    }
+    if (ui.step === 'qr') return `<div class="panel pay"><div class="lbl">Pay on your phone</div><h2>Scan to pay</h2><div id="payQr" style="display:inline-block;background:#fff;padding:14px;border-radius:18px;margin:14px auto;box-shadow:var(--shadow)"></div><p class="muted">Apple Pay, card & tip on your phone — this screen updates by itself.</p><button class="btn btn-ghost" id="backPay">Back</button></div>`;
+    if (ui.step === 'cash') return `<div class="panel pay"><div class="lbl">Cash</div><h2>Collect ${p.total} AED</h2>${lines}<p class="muted">Cash tips go directly to you, by hand.</p><div class="row-btns"><button class="btn btn-ghost" id="backPay">Back</button><button class="btn btn-primary" id="cashOk">Cash received</button></div></div>`;
+    return `<div class="panel pay"><div class="lbl">Your glow is ready, ${Q.esc(t.name)}</div><div class="total">${p.total} AED</div>${lines}
+      <div class="methods">
+        <button class="m-apple" data-m="applepay"><span style="font-size:1.4rem"> Pay</span><small>Tap your phone or watch</small></button>
+        <button class="m-card" data-m="card"><span>💳 Card</span><small>Tap or insert</small></button>
+        <button class="m-qr" data-m="qr"><span>📱 Pay on my phone</span><small>Scan a QR code</small></button>
+        <button class="m-cash" data-m="cash"><span>💵 Cash</span><small>With your stylist</small></button>
+      </div></div>`;
+  }
+
+  function renderRate(t) {
+    const name = Q.stylist(sid).name;
+    return `<div class="panel pay"><div class="lbl">Payment received ✓</div><h2>How was your glow with ${Q.esc(name)}?</h2>
+      <div class="stars" style="margin:22px 0">${[1, 2, 3, 4, 5].map(n => `<button data-s="${n}" class="${n <= ui.stars ? 'on' : ''}" style="font-size:3.6rem">★</button>`).join('')}</div>
+      <textarea class="input" id="comment" rows="3" placeholder="A word for ${Q.esc(name)}? (optional)" style="max-width:520px"></textarea>
+      <div class="row-btns" style="max-width:520px;margin-inline:auto"><button class="btn btn-ghost" id="skipRate">Skip</button><button class="btn btn-primary" id="sendRate" ${ui.stars ? '' : 'disabled'}>Send</button></div></div>`;
+  }
+
+  function render() {
+    if (!sid || !Q.openShift(sid)) { sid = null; return renderLogin(); }
+    const typing = document.activeElement && ['customTip', 'comment'].includes(document.activeElement.id);
+    if (typing) return;
+    const cur = Q.currentOf(sid);
+    // fin de cliente → message de remerciement
+    if (!cur && ui.lastTicket) {
+      const done = Q.ticket(ui.lastTicket);
+      if (done && done.status === 'done') { ui.thanks = { name: done.name, until: Date.now() + 4000 }; }
+      ui = { ...ui, step: 'summary', tip: null, method: null, stars: 0, lastTicket: null, tipAmt: 0 };
+    }
+    if (cur) ui.lastTicket = cur.id;
+    let main;
+    if (ui.thanks && ui.thanks.until > Date.now() && !cur) main = `<div class="panel pay"><div style="width:64px;margin:10px auto;color:var(--gold)">${Q.logo('')}</div><h2>Thank you, ${Q.esc(ui.thanks.name)} ✦</h2><p class="serif" style="font-size:1.5rem;color:var(--rose)">You look as beautiful as the moon.</p><p class="muted">Free touch-up within 48h · Don't forget the photobooth on your way out</p></div>`;
+    else if (!cur) main = renderIdle();
+    else if (cur.status === 'called') main = renderCalled(cur);
+    else if (cur.status === 'in_service') main = renderService(cur);
+    else if (cur.status === 'checkout') main = renderCheckout(cur);
+    else if (cur.status === 'paid') main = renderRate(cur);
+    const clientFacing = cur && ['checkout', 'paid'].includes(cur.status);
+    view.innerHTML = renderHeader() + `<div class="main" style="${clientFacing ? 'grid-template-columns:1fr' : ''}">${main}${clientFacing ? '' : sideQueue()}</div>`;
+    bind(cur);
+  }
+
+  function bind(t) {
+    const $ = id => document.getElementById(id);
+    view.querySelectorAll('[data-call]').forEach(b => b.onclick = () => { if (Q.currentOf(sid)) return Q.toast('Finish your current client first'); const tk = Q.call(sid, b.dataset.call); Q.toast(tk ? `🔔 ${tk.name} notified — seat ${seat}` : 'This client is no longer available (already called or left).'); });
+    if ($('callBtn')) $('callBtn').onclick = () => { const b = $('callBtn'); b.disabled = true; const tk = Q.call(sid); Q.toast(tk ? `🔔 ${tk.name} notified — seat ${seat}` : 'Nobody to call right now.'); };
+    if (!t) return;
+    if ($('startBtn')) $('startBtn').onclick = () => Q.start(t.id);
+    if ($('requeue')) $('requeue').onclick = () => Q.twoTap($('requeue'), () => { Q.requeue(t.id); Q.toast('Client put back in the queue at her original place'); }, 'Tap again to confirm');
+    if ($('renotify')) $('renotify').onclick = () => { Q.renotify(t.id); Q.toast('🔔 Notified again'); };
+    if ($('noshow')) $('noshow').onclick = () => Q.twoTap($('noshow'), () => Q.noShow(t.id), 'Tap again: no-show');
+    view.querySelectorAll('[data-add]').forEach(b => b.onclick = () => Q.addAddon(t.id, b.dataset.add));
+    if ($('undoAdd')) $('undoAdd').onclick = () => Q.removeAddon(t.id, t.addons[t.addons.length - 1]);
+    view.querySelectorAll('[data-perf]').forEach(b => b.onclick = () => Q.setPerfume(t.id, b.dataset.perf));
+    if ($('hijabBtn')) $('hijabBtn').onclick = () => Q.setHijab(t.id, !t.hijab);
+    if ($('xlBtn')) $('xlBtn').onclick = () => Q.toggleExtraLong(t.id);
+    if ($('finishBtn')) $('finishBtn').onclick = () => { ui.step = 'summary'; Q.toCheckout(t.id); };
+    view.querySelectorAll('[data-m]').forEach(b => b.onclick = () => {
+      const m = b.dataset.m;
+      if (m === 'qr' || m === 'cash') { ui.step = m; render(); if (m === 'qr') Q.qr($('payQr'), Q.baseUrl() + 'queue.html?t=' + t.id, 220); return; }
+      ui.method = m; ui.step = 'tip'; render();
+    });
+    if ($('backPay')) $('backPay').onclick = () => { ui.step = 'summary'; render(); };
+    if ($('cashOk')) $('cashOk').onclick = () => Q.pay(t.id, { method: 'cash', tip: 0 });
+    view.querySelectorAll('[data-tip]').forEach(b => b.onclick = () => { ui.tip = b.dataset.tip === 'custom' ? 'custom' : +b.dataset.tip; render(); if (ui.tip === 'custom') setTimeout(() => $('customTip')?.focus(), 30); });
+    const process = tipAmt => { ui.tipAmt = tipAmt; ui.step = 'processing'; render(); setTimeout(() => Q.pay(t.id, { method: ui.method, tip: tipAmt }), 1600); };
+    if ($('noTip')) $('noTip').onclick = () => process(0);
+    if ($('tipPay')) $('tipPay').onclick = () => { const p = Q.pricing(t); process(ui.tip === 'custom' ? Math.max(0, +($('customTip')?.value || 0)) : Math.round(p.total * ui.tip / 100)); };
+    view.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { ui.stars = +b.dataset.s; view.querySelectorAll('[data-s]').forEach(x => x.classList.toggle('on', +x.dataset.s <= ui.stars)); $('sendRate').disabled = false; });
+    if ($('sendRate')) $('sendRate').onclick = () => Q.rate(t.id, ui.stars, $('comment').value);
+    if ($('skipRate')) $('skipRate').onclick = () => Q.rate(t.id, 0);
+  }
+
+  // Le chrono tourne sans tout redessiner
+  setInterval(() => {
+    const t = sid && Q.currentOf(sid);
+    if (t && t.status === 'in_service') {
+      const el = Date.now() - t.startedAt, target = Q.duration(t) * 60000;
+      const tm = document.getElementById('timer'), pb = document.getElementById('pbar');
+      if (tm) { tm.textContent = mmss(el); tm.classList.toggle('over', el > target); }
+      if (pb) { pb.style.width = Math.min(100, el / target * 100) + '%'; pb.parentElement.classList.toggle('over', el > target); }
+    }
+    if (ui.thanks && ui.thanks.until < Date.now()) { ui.thanks = null; render(); }
+  }, 1000);
+
+  Q.on(render);
+  Q.showDemoBanner();
+  Q.watchNewClients(t => { if (sid && Q.openShift(sid) && (t.pref === "any" || t.pref === sid)) Q.newClientAlert(t); });
+})();
+</script>
+<script src="assets/cursor-fx.js"></script>
+</body>
+</html>
