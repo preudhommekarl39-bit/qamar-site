@@ -1,0 +1,54 @@
+# QAMAR — construit les applications Android et iPhone dans le cloud GitHub (aucun outil à installer sur le PC).
+# - Android : APK de test installable directement sur un téléphone Android (artefact « qamar-android-test »).
+# - iPhone  : vérifie que le projet Xcode compile (simulateur). La version signée pour l'App Store
+#             sera ajoutée quand le compte Apple Developer existera (certificats à mettre dans les secrets).
+name: Apps
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: npm install --no-audit --no-fund
+      - run: npm run www
+      - run: npx cap add android
+      - run: npx capacitor-assets generate --assetPath resources --android --iconBackgroundColor '#F7D3DD' --iconBackgroundColorDark '#F7D3DD' --splashBackgroundColor '#FFF7F9' --splashBackgroundColorDark '#FFF7F9'
+      - run: npx cap sync android
+      - name: Build APK de test
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qamar-android-test
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+
+  ios:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-audit --no-fund
+      - run: npm run www
+      - run: npx cap add ios
+      - run: npx capacitor-assets generate --assetPath resources --ios --splashBackgroundColor '#FFF7F9' --splashBackgroundColorDark '#FFF7F9'
+      - run: npx cap sync ios
+      - name: Compilation iPhone (simulateur, sans signature)
+        run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build | tail -n 40
