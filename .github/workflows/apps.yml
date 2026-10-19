@@ -20,6 +20,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Tests et garde-fous
+        run: node scripts/run-tests.mjs
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

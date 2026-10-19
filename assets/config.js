@@ -4,11 +4,15 @@
    - backend: 'supabase'  → nécessite supabaseUrl + supabaseAnonKey (clé publique « anon ») et les politiques RLS
                             de supabase/migrations appliquées. Voir DEPLOY.md. */
 window.QAMAR_CONFIG = {
+  environment: 'demo',    // 'demo' | 'staging' | 'production' — en 'production', le mode démo est signalé comme une erreur
   backend: 'demo',
   supabaseUrl: '',
   supabaseAnonKey: '',
   siteUrl: 'https://preudhommekarl39-bit.github.io/qamar-site/',            // URL définitive (ex. https://qamar.ae) — sert aux balises canoniques et au QR d'entrée
   timeZone: 'Asia/Dubai', // UTC+4, pas d'heure d'été
   payments: { provider: null },  // ex. 'network-international' | 'checkout' | 'stripe' — aucun n'est branché
-  whatsapp: { connected: false } // passe à true seulement quand l'API WhatsApp Business est réellement connectée
+  whatsapp: { connected: false }, // passe à true seulement quand l'API WhatsApp Business est réellement connectée
+  // Mesure d'audience : désactivée tant que la propriété GA4 et le bandeau de consentement ne sont pas validés.
+  // Les événements sont documentés dans docs/ANALYTICS.md ; assets/track.js ne charge rien si enabled = false.
+  analytics: { enabled: false, ga4Id: '' }
 };

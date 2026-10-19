@@ -1,0 +1,55 @@
+# QAMAR — contrôle puis publication du site (GitHub Pages).
+# 1. test   : tests du moteur et des règles, traductions EN/AR, liens internes, garde-fous (lieux interdits, secrets…)
+# 2. deploy : construit _site/ (page arabe, canonical, hreflang, sitemap, robots, données structurées) et le publie
+# Une erreur à l'étape 1 bloque la publication : la version en ligne reste la précédente.
+# Domaine définitif acheté ? Changer SITE_URL ci-dessous (et config.js → siteUrl), rien d'autre.
+name: Site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  SITE_URL: https://preudhommekarl39-bit.github.io/qamar-site/
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Tests et garde-fous
+        run: node scripts/run-tests.mjs
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Construction du site
+        run: node scripts/build-site.mjs
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

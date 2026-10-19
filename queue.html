@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>QAMAR — Join the queue</title>
+<title>Join the queue · QAMAR Blowdry Lounge Dubai</title>
+<meta name="description" content="Pick your look, choose your stylist and follow your place in the QAMAR walk-in queue from your phone.">
+<meta name="robots" content="noindex, follow">
 <meta name="theme-color" content="#F8E1DC">
 <link rel="icon" href="assets/app/favicon-32.png" type="image/png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -14,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/qamar.css">
 <style>
   body { background: radial-gradient(130% 60% at 50% 0%, #FCEAE5, var(--blush) 50%, var(--blush-2)); min-height: 100svh; }
@@ -76,6 +78,7 @@
   .steps-done li.now .ck { border-color: var(--rose); color: var(--rose); animation: ckPulse 1.6s ease-in-out infinite; }
   .steps-done small { display: block; color: var(--muted); font-size: .8rem; }
   @keyframes ckPulse { 50% { box-shadow: 0 0 0 6px rgba(184, 122, 98, .15); } }
+  .demo-note { margin: -6px 0 18px; padding: 10px 14px; border-radius: 14px; background: rgba(255, 255, 255, .7); border: 1px dashed rgba(75, 45, 37, .28); color: #5C3A40; font-size: .82rem; line-height: 1.45; }
   .demo-strip { margin-top: 14px; padding: 14px 16px; border-radius: 16px; border: 1px dashed rgba(75, 45, 37, .25); font-size: .85rem; color: var(--muted); display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
   .demo-strip a { color: var(--cocoa); font-weight: 500; }
   .ring .wait-big svg { position: static; inset: auto; transform: none; width: 100%; height: auto; }
@@ -164,6 +167,7 @@
 
   <!-- Ticket vivant -->
   <div id="ticket" class="hidden"></div>
+  <p id="srStatus" class="sr-only" role="status" aria-live="assertive"></p>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -174,6 +178,7 @@
 <script src="assets/looks-fx.js"></script>
 <script src="assets/cursor-fx.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/track.js"></script>
 <script>
 (function () {
   const D = Q.D;
@@ -187,7 +192,7 @@
     joining: { en: 'Joining…', ar: 'جارٍ الانضمام…' }, join_err: { en: 'This look is not available right now. Please choose another one.', ar: 'هذه الإطلالة غير متاحة الآن. يرجى اختيار أخرى.' },
     privacy_note: { en: 'We only use your number to tell you when it is your turn. It is never shared or used for marketing without your consent.', ar: 'نستخدم رقمك فقط لإبلاغك بدورك. لا نشاركه ولا نستخدمه للتسويق دون موافقتك.' }, privacy_link: { en: 'Privacy policy', ar: 'سياسة الخصوصية' },
     demo_pay: { en: 'Demo mode: no real payment is taken.', ar: 'وضع تجريبي: لا يتم أي دفع حقيقي.' }, tip_line: { en: 'Tip', ar: 'إكرامية' }, to_pay: { en: 'To pay', ar: 'المبلغ المستحق' },
-    s3_title: { en: 'Almost there', ar: 'أوشكتِ' }, s3_sub: { en: "We'll message you on WhatsApp when it's your turn.", ar: 'سنراسلك على واتساب عندما يحين دورك.' },
+    s3_title: { en: 'Almost there', ar: 'أوشكتِ' }, s3_sub_off: { en: 'This page will show your place and tell you when it’s your turn.', ar: 'ستعرض هذه الصفحة مكانك وتخبرك عندما يحين دورك.' }, s3_sub: { en: "We'll message you on WhatsApp when it's your turn.", ar: 'سنراسلك على واتساب عندما يحين دورك.' },
     f_name: { en: 'First name', ar: 'الاسم الأول' }, f_phone: { en: 'WhatsApp number', ar: 'رقم واتساب' },
     next: { en: 'Continue', ar: 'متابعة' }, join: { en: 'Join the queue', ar: 'انضمي للطابور' },
     any: { en: 'First available', ar: 'أول مصففة متاحة' }, any_s: { en: 'Fastest option', ar: 'الخيار الأسرع' },
@@ -214,9 +219,12 @@
     phone_bad: { en: 'This number looks incomplete. Check it, or type it in full starting with +.', ar: 'يبدو الرقم ناقصاً. تحققي منه أو اكتبيه كاملاً بدءاً بـ +.' },
     st_in: { en: "You're in line", ar: 'أنتِ في الطابور' }, st_in_s: { en: 'Ticket {c} · you are #{p}', ar: 'التذكرة {c} · دورك رقم {p}' },
     st_wa: { en: "We'll WhatsApp you before your turn", ar: 'سنراسلك على واتساب قبل دورك' }, st_wa_s: { en: 'On {n}, about 10 minutes before. Keep this page open too.', ar: 'على {n}، قبل حوالي ١٠ دقائق. أبقي هذه الصفحة مفتوحة أيضاً.' },
+    st_wa_off: { en: 'Keep this page open', ar: 'أبقي هذه الصفحة مفتوحة' }, st_wa_off_s: { en: 'This page shows when it’s your turn. WhatsApp alerts are not active yet: no message will be sent.', ar: 'تُظهر هذه الصفحة موعد دورك. تنبيهات واتساب غير مفعّلة بعد: لن تُرسل أي رسالة.' },
+    waiting_note_off: { en: 'Relax, grab a matcha or take a photo in the arches — this page will tell you when your chair is ready.', ar: 'استرخي، خذي ماتشا أو التقطي صورة تحت الأقواس — ستخبرك هذه الصفحة عندما يجهز مقعدك.' },
     st_seat: { en: 'Go to your seat', ar: 'توجّهي إلى مقعدك' }, st_seat_s: { en: 'This page turns pink and tells you the seat and your stylist.', ar: 'تتحول هذه الصفحة إلى اللون الوردي وتخبرك بالمقعد ومصففتك.' },
     idle_t: { en: 'Queue not open yet', ar: 'الطابور لم يُفتح بعد' }, idle_s: { en: 'No stylist has started her shift yet. Your place is saved: you\'ll be first when the team opens.', ar: 'لم تبدأ أي مصففة دوامها بعد. مكانك محفوظ: ستكونين الأولى عند افتتاح الفريق.' },
     demo: { en: 'Demo: see what the salon sees', ar: 'تجربة: شاهدي ما يراه الصالون' }, demo_open: { en: 'Open the dashboard', ar: 'افتحي لوحة التحكم' },
+    demo_note: { en: 'Preview — QAMAR is not open yet. A ticket created here stays on this phone: the salon does not receive it, no message or payment is sent.', ar: 'معاينة — قمر لم يفتح بعد. التذكرة التي تُنشأ هنا تبقى على هذا الهاتف: لا يستلمها الصالون ولا تُرسل أي رسالة أو دفعة.' },
     demo_next: { en: 'Demo · simulate the next step', ar: 'تجربة · محاكاة الخطوة التالية' }, demo_next_s: { en: 'On a single phone, plays the salon’s part so you can see the whole journey.', ar: 'على هاتف واحد، يقوم بدور الصالون لتشاهدي الرحلة كاملة.' },
     paid_cash: { en: 'Cash with your stylist', ar: 'نقداً مع مصففتك' }, opening: { en: 'The team is getting ready — your place is saved.', ar: 'الفريق يستعد — مكانك محفوظ.' }
   };
@@ -319,6 +327,7 @@
     submitting = true; updateBar();                       // empêche les doubles envois
     try { localStorage.setItem('qamar:cc', fd.get('cc')); } catch (e) { /* ignore */ }
     const tk = Q.joinQueue({ name: fd.get('name'), phone, serviceId: sel.serviceId, pref: sel.pref, extraLong: sel.extraLong, channel: 'qr' });
+    if (tk && window.QamarTrack) QamarTrack('join_queue', { service: sel.serviceId, stylist_choice: sel.pref === 'any' ? 'first_free' : 'chosen', demo: Q.isDemo }); // aucune donnée personnelle
     submitting = false;
     if (!tk) { updateBar(); Q.toast(t('join_err')); return; }
     myId = tk.id;
@@ -350,7 +359,15 @@
   }
   const demoBtn = () => Q.isDemo ? `<button class="btn btn-light btn-block demo-next" type="button" style="margin-top:12px">▶ ${t('demo_next')}</button><p class="muted" style="font-size:.78rem;margin:6px 4px 0;text-align:center">${t('demo_next_s')}</p>` : '';
   document.addEventListener('click', e => { if (e.target.closest('.demo-next')) demoNext(myId); });
+  const waOn = !!(window.QAMAR_CONFIG && QAMAR_CONFIG.whatsapp && QAMAR_CONFIG.whatsapp.connected); // vrai seulement si l'API WhatsApp est réellement branchée
+  // Annonce vocale (lecteurs d'écran) uniquement quand l'état du ticket change — pas à chaque rafraîchissement
+  let spoken = '';
+  function announce(tk) {
+    const msg = tk.status === 'called' ? `${t('called_t')}. ${t('called_go')} ${tk.seat}.` : tk.status === 'in_service' ? t('in_t') : tk.status === 'checkout' ? t('pay_t') : '';
+    const key = tk.status + tk.seat; if (key !== spoken) { spoken = key; document.getElementById('srStatus').textContent = msg; }
+  }
   function renderTicket(tk) {
+    announce(tk);
     const el = document.getElementById('ticket');
     const s = Q.service(tk.serviceId);
     const sty = tk.assignedTo ? Q.stylist(tk.assignedTo) : null;
@@ -375,10 +392,10 @@
         </div>
         <ol class="steps-done">
           <li class="done"><span class="ck">✓</span><span>${t('st_in')}<small>${t('st_in_s', { c: code, p: pos })}</small></span></li>
-          <li class="now"><span class="ck">2</span><span>${t('st_wa')}<small>${t('st_wa_s', { n: Q.esc(tk.phone || '—') })}</small></span></li>
+          <li class="now"><span class="ck">2</span><span>${waOn ? t('st_wa') : t('st_wa_off')}<small>${waOn ? t('st_wa_s', { n: Q.esc(tk.phone || '—') }) : t('st_wa_off_s')}</small></span></li>
           <li><span class="ck">3</span><span>${t('st_seat')}<small>${t('st_seat_s')}</small></span></li>
         </ol>
-        <div class="note"><span>☾</span><span>${t('waiting_note')}</span></div>
+        <div class="note"><span>☾</span><span>${waOn ? t('waiting_note') : t('waiting_note_off')}</span></div>
         ${demoBtn()}
         <div class="demo-strip"><span>${t('demo')}</span><a href="admin.html">${t('demo_open')} →</a></div>
         ${'Notification' in window && Notification.permission === 'default' ? `<button class="btn btn-light btn-block" style="margin-top:12px" id="notifBtn">🔔 ${t('notify_on')}</button>` : ''}
@@ -505,6 +522,9 @@
   }
 
   document.addEventListener('qamar:lang', render);
+  if (!(window.QAMAR_CONFIG && QAMAR_CONFIG.whatsapp && QAMAR_CONFIG.whatsapp.connected)) document.querySelector('[data-i18n="s3_sub"]').dataset.i18n = 's3_sub_off'; // pas de promesse WhatsApp tant que l'API n'est pas branchée
+  // Aperçu avant ouverture : dit clairement que le salon ne reçoit pas ces tickets
+  if (Q.isDemo) { const n = document.createElement('p'); n.className = 'demo-note'; n.setAttribute('role', 'note'); n.dataset.i18n = 'demo_note'; document.querySelector('.top').after(n); }
   Q.i18n(dict);
   if (sel.serviceId && Q.service(sel.serviceId)) showStep(1);
   Q.on(render);

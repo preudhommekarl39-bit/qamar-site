@@ -3,18 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>QAMAR Blowdry Lounge</title>
-<meta name="description" content="QAMAR is a walk-in blowdry lounge opening soon in Dubai, open every day until midnight. No appointment: scan, choose your look and get called on WhatsApp.">
-<meta name="robots" content="index, follow">
+<title>QAMAR Blowdry Lounge Dubai | Walk-in Blow-Dry & Styling</title>
+<meta name="description" content="A walk-in blow-dry lounge opening soon in Dubai. No appointment: pick your look — express blow-dry, Hollywood waves, sleek straight — and follow your place in line from your phone.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<!-- canonical, hreflang, og:url et images absolues : ajoutés par scripts/build-site.mjs à partir de l'URL du site publié -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="QAMAR Blowdry Lounge">
-<meta property="og:title" content="QAMAR — Walk in. Glow out.">
-<meta property="og:description" content="The walk-in blowdry lounge opening soon in Dubai. Open until midnight, no appointment.">
-<meta property="og:image" content="assets/logo-qamar.webp">
+<meta property="og:title" content="QAMAR Blowdry Lounge Dubai — Walk in. Glow out.">
+<meta property="og:description" content="The walk-in blow-dry lounge opening soon in Dubai. No appointment, every look in 45 minutes or less.">
+<meta property="og:image" content="assets/og-qamar.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="QAMAR Blowdry Lounge, Dubai — gold crescent moon and arches on pale pink">
 <meta property="og:locale" content="en_AE">
 <meta property="og:locale:alternate" content="ar_AE">
 <meta name="twitter:card" content="summary_large_image">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"BeautySalon","name":"QAMAR Blowdry Lounge","alternateName":"قمر","description":"Walk-in blowdry lounge opening soon in Dubai, open every day until midnight.","areaServed":"Dubai","openingHours":"Mo-Su 08:00-24:00"}</script>
+<!-- Données structurées : uniquement des informations vérifiées (pas d'adresse, d'horaires, de prix ni d'avis tant qu'ils ne sont pas confirmés) -->
+<script type="application/ld+json" id="ldjson">{"@context":"https://schema.org","@type":"HairSalon","name":"QAMAR Blowdry Lounge","alternateName":"قمر","description":"Walk-in blow-dry lounge opening soon in Dubai.","areaServed":{"@type":"City","name":"Dubai"},"knowsLanguage":["en","ar"]}</script>
 <meta name="theme-color" content="#FCE6EC">
 <link rel="icon" href="assets/app/favicon-32.png" type="image/png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -25,7 +30,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/qamar.css">
 <style>
   /* Mise en page « à la Apple » : sections pleine largeur qui alternent blanc et rose très pâle,
@@ -37,14 +42,14 @@
     --black: #120B0F;
     --ink: #1F1417;
     --ink-2: #6B4A52;
-    --ink-3: #86757A;
+    --ink-3: #74626A; /* foncé pour un contraste ≥ 4,5:1 sur blanc et rose pâle */
     --rose: #C9788F;
-    --rose-deep: #A85B72;
+    --rose-deep: #964A62; /* foncé pour un contraste ≥ 4,5:1 sur blanc et rose pâle */
     --gold: #C49A5A;
     --gold-soft: #E8CFA0;
     --line: rgba(31, 20, 23, .1);
     --glass-ink: rgba(75, 45, 37, .9);
-    --glass-ink-2: rgba(75, 45, 37, .6);
+    --glass-ink-2: rgba(75, 45, 37, .78);
     --helv: "Helvetica Neue", Helvetica, Arial, "Tajawal", ui-sans-serif, system-ui, sans-serif;
     --serif: var(--helv);
     --menu-serif: 'Cormorant Garamond', 'Amiri', Georgia, serif;
@@ -54,7 +59,9 @@
   @media (min-width: 768px) { :root { --r-stage: 3rem; } }
   body { font-family: var(--helv); background: var(--page); color: var(--ink); -webkit-font-smoothing: antialiased; padding-top: env(safe-area-inset-top, 0px); }
   ::selection { background: var(--rose); color: #fff; }
-  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--rose); outline-offset: 3px; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--rose-deep); outline-offset: 3px; border-radius: 6px; }
+  .skip { position: absolute; left: 12px; top: -60px; z-index: 100; background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 999px; text-decoration: none; font-weight: 600; }
+  .skip:focus { top: calc(env(safe-area-inset-top, 0px) + 12px); }
   .ic { width: 1em; height: 1em; flex: none; }
   html[dir="rtl"] .bub .ic, html[dir="rtl"] .ic.flip { transform: scaleX(-1); }
 
@@ -480,6 +487,9 @@
   /* ---------- Formulaires ---------- */
   .forms { display: grid; grid-template-columns: 1fr 1px 1fr; gap: 70px; margin-top: 30px; }
   .forms .divider { background: var(--line); }
+  .form-soon { margin: 14px 0 0; font-size: .85rem; color: var(--ink-2); background: var(--s2); border-radius: 14px; padding: 10px 14px; }
+  .forms input:disabled, .forms button:disabled { opacity: .55; cursor: not-allowed; }
+  a[aria-disabled="true"] { opacity: .6; cursor: default; pointer-events: none; }
   .forms h3 { font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 600; letter-spacing: -.035em; line-height: 1.08; margin: 0; }
   .forms > div > p { font-size: 1.1rem; line-height: 1.45; color: var(--ink-3); margin: 12px 0 28px; }
   .forms form { display: grid; gap: 14px; }
@@ -490,6 +500,14 @@
   @media (max-width: 860px) { .forms { grid-template-columns: 1fr; gap: 60px; } .forms .divider { display: none; } .two { grid-template-columns: 1fr; } }
 
   /* ---------- Contact ---------- */
+  /* ---------- FAQ ---------- */
+  .faq { max-width: 760px; margin: 56px auto 0; border-top: 1px solid var(--line); }
+  .faq details { border-bottom: 1px solid var(--line); }
+  .faq summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 22px 4px; font-size: clamp(1.05rem, 1.6vw, 1.2rem); font-weight: 600; letter-spacing: -.015em; color: var(--ink); }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--s2); color: var(--rose-deep); font-weight: 400; font-size: 1.2rem; transition: transform .3s; }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq details p { margin: -6px 4px 22px; max-width: 62ch; color: var(--ink-2); line-height: 1.6; }
   .facts { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 70px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
   .facts div { padding: 30px 24px; text-align: center; }
   .facts div + div { border-inline-start: 1px solid var(--line); }
@@ -564,6 +582,7 @@
 </style>
 </head>
 <body>
+<a class="skip" href="#main" data-i18n="skip">Skip to content</a>
 
 <div class="announce" id="announce"></div>
 
@@ -585,7 +604,7 @@
         </ul>
         <div class="side end">
           <div class="lang glass-lang" role="group" aria-label="Language"><button data-lang="en">EN</button><button data-lang="ar">عربي</button></div>
-          <a class="pill-btn" href="queue.html"><span class="bub"><i data-icon="arrow"></i></span><span data-i18n="cta_join">Join the queue</span></a>
+          <a class="pill-btn" href="queue.html" data-track="join_queue_click" data-track-loc="hero_nav"><span class="bub"><i data-icon="arrow"></i></span><span data-i18n="cta_join">Join the queue</span></a>
           <button class="menu-btn glass" type="button" aria-label="Menu" aria-controls="mnav" aria-expanded="false" data-menu><span></span><span></span></button>
         </div>
       </nav>
@@ -622,7 +641,7 @@
       <a href="#contact" data-i18n="nav_contact">Contact</a>
     </nav>
     <div class="lang" role="group" aria-label="Language"><button data-lang="en">EN</button><button data-lang="ar">عربي</button></div>
-    <a class="cta" href="queue.html" data-i18n="cta_join">Join the queue</a>
+    <a class="cta" href="queue.html" data-track="join_queue_click" data-track-loc="top_bar" data-i18n="cta_join">Join the queue</a>
     <button class="menu-btn" type="button" aria-label="Menu" aria-controls="mnav" aria-expanded="false" data-menu><span></span><span></span></button>
   </div>
 </div>
@@ -643,20 +662,22 @@
       <a href="#rewards" data-close data-i18n="foot_rew">Offers</a>
       <a href="#team" data-close data-i18n="nav_team">Stylists</a>
       <a href="#private" data-close data-i18n="foot_private">Private events</a>
+      <a href="#faq" data-close data-i18n="faq_kicker">Questions</a>
       <a href="#contact" data-close data-i18n="nav_contact">Contact</a>
     </nav>
     <div class="mnav-foot">
       <div class="lang" role="group" aria-label="Language"><button data-lang="en">EN</button><button data-lang="ar">عربي</button></div>
-      <a class="mnav-cta" href="queue.html" data-i18n="cta_join">Join the queue</a>
+      <a class="mnav-cta" href="queue.html" data-track="join_queue_click" data-track-loc="mobile_menu" data-i18n="cta_join">Join the queue</a>
       <div class="mnav-row">
         <a href="#" data-install-app data-close data-i18n="get_app">Get the app</a>
-        <a id="mnavWa" target="_blank" rel="noopener">WhatsApp</a>
+        <a id="mnavWa" data-track="whatsapp_click" data-track-loc="mobile_menu" target="_blank" rel="noopener">WhatsApp</a>
         <a href="https://instagram.com/qamar.dubai" target="_blank" rel="noopener">Instagram</a>
       </div>
     </div>
   </div>
 </div>
 
+<main id="main">
 <section class="sec" id="manifesto">
   <div class="wrap center">
     <span class="kicker reveal" data-i18n="m_kicker">Blowdry, reinvented</span>
@@ -749,7 +770,7 @@
     <div class="menu-card reveal">
       <div class="mh"><span data-logo></span><div class="t">QAMAR</div><div class="s">— Blowdry Lounge —</div></div>
       <div id="menuList"></div>
-      <p class="menu-note" data-i18n="menu_note">Extra long or thick hair +40 AED · Matcha 25 AED · Prices in AED incl. VAT</p>
+      <p class="menu-note" data-i18n="menu_note">Extra long or thick hair +40 AED · Matcha 25 AED · Indicative prices in AED, VAT treatment to be confirmed</p>
     </div>
     <div>
       <span class="kicker" data-i18n="incl_kicker">Included with every look</span>
@@ -863,7 +884,11 @@
           <div class="f"><label for="cName" data-i18n="f_name">Name</label><input id="cName" name="name" required></div>
           <div class="f"><label for="cIg" data-i18n="f_insta">Instagram</label><input id="cIg" name="ig" placeholder="@"></div>
         </div>
-        <div class="actions" style="margin-top:12px"><button class="btn-a" type="submit" data-i18n="contest_cta">Submit</button></div>
+        <div class="actions" style="margin-top:12px">
+          <button class="btn-a" type="submit" data-i18n="contest_cta">Submit</button>
+          <a class="more" id="contestLink" hidden target="_blank" rel="noopener"><span data-i18n="bride_open">Send it on WhatsApp</span> ›</a>
+        </div>
+        <p class="form-soon" data-i18n="form_soon">This form opens with our WhatsApp line, shortly before launch. Nothing is sent from this page yet.</p>
       </form>
     </div>
     <div class="divider"></div>
@@ -881,7 +906,28 @@
           <button class="btn-a" type="submit" data-i18n="bride_cta">Prepare my request</button>
           <a class="more" id="brideLink" hidden target="_blank" rel="noopener"><span data-i18n="bride_open">Send it on WhatsApp</span> ›</a>
         </div>
+        <p class="form-soon" data-i18n="form_soon">This form opens with our WhatsApp line, shortly before launch. Nothing is sent from this page yet.</p>
       </form>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="faq">
+  <div class="wrap faq-wrap">
+    <div class="center">
+      <span class="kicker" data-i18n="faq_kicker">Questions</span>
+      <h2 class="title sm" data-i18n="faq_title">Everything you want to know.</h2>
+    </div>
+    <div class="faq">
+      <details><summary data-i18n="faq_q1">Do I need to book?</summary><p data-i18n="faq_a1">No. QAMAR is walk-in only: when you arrive, scan the code at the entrance or open this website, pick your look and follow your place in line on your phone.</p></details>
+      <details><summary data-i18n="faq_q2">How long does a blow-dry take?</summary><p data-i18n="faq_a2">Every look on the menu takes 45 minutes or less. Qamar Express takes 35 minutes, SOS 15 takes 15 minutes. Your estimated wait is shown before you join.</p></details>
+      <details><summary data-i18n="faq_q3">How much does a blow-dry cost in Dubai at QAMAR?</summary><p data-i18n="faq_a3">Each look on our menu shows an indicative price in AED. Final prices, and whether they include VAT, will be confirmed before opening.</p></details>
+      <details><summary data-i18n="faq_q4">How does the walk-in queue work?</summary><p data-i18n="faq_a4">Choose your look and a stylist, or the first one free. The page shows your place and estimated wait, then tells you your seat and stylist when it is your turn, so you can relax, have a matcha or take photos meanwhile.</p></details>
+      <details><summary data-i18n="faq_q5">Which payment methods will you accept?</summary><p data-i18n="faq_a5">Card, Apple Pay and cash are planned, with instalments for packs. The final list will be confirmed before opening.</p></details>
+      <details><summary data-i18n="faq_q6">What are your opening hours?</summary><p data-i18n="faq_a6">We plan to open every day from 8 AM to midnight. Final opening hours will be confirmed before launch.</p></details>
+      <details><summary data-i18n="faq_q7">Where is QAMAR?</summary><p data-i18n="faq_a7">In Dubai. The exact address will be announced here before opening.</p></details>
+      <details><summary data-i18n="faq_q8">How do offers and discounts work?</summary><p data-i18n="faq_a8">Only one discount applies per visit: the best one you are eligible for. Discounts apply to the service, never to drinks or tips. Offer conditions will be published before they start.</p></details>
+      <details><summary data-i18n="faq_q9">Do you have services for girls and kids?</summary><p data-i18n="faq_a9">Yes: Mini Glow is a mini blow-dry or braids for little girls, in 25 minutes.</p></details>
     </div>
   </div>
 </section>
@@ -891,7 +937,7 @@
     <span class="kicker" data-i18n="soon_chip">Opening soon</span>
     <h2 class="title"><span data-i18n="soon_t1">Dubai.</span><br><span class="grad" data-i18n="soon_t2">Very soon.</span></h2>
     <p class="sub" data-i18n="soon_p">Message us to get the address and opening date first, and a shot at the first 30 spots at −70%.</p>
-    <div class="actions"><a class="btn-a" id="waLink" target="_blank" rel="noopener" data-i18n="v_wa_cta">Message us on WhatsApp</a><a class="more" href="queue.html"><span data-i18n="cta_join">Join the queue</span> ›</a></div>
+    <div class="actions"><a class="btn-a" id="waLink" data-track="whatsapp_click" data-track-loc="contact" target="_blank" rel="noopener" data-i18n="v_wa_cta">Message us on WhatsApp</a><a class="more" href="queue.html"><span data-i18n="cta_join">Join the queue</span> ›</a></div>
     <div class="facts">
       <div><b data-i18n="v_hours_t">Every day</b><span data-i18n="v_hours">8 AM to midnight. Happy hours 10 AM to 3 PM on weekdays.</span></div>
       <div><b>WhatsApp</b><span data-i18n="v_wa">Text “I want a blow-dry” to join the queue.</span></div>
@@ -900,11 +946,13 @@
   </div>
 </section>
 
+</main>
+
 <footer>
   <div class="wrap">
-    <p class="note" data-i18n="foot_p">Qamar means “moon”. In Arabic, the most beautiful compliment is “you're as beautiful as the moon”. Prices shown are indicative and include VAT. Opening offers apply on opening day only.</p>
+    <p class="note" data-i18n="foot_p">Qamar means “moon”. In Arabic, the most beautiful compliment is “you're as beautiful as the moon”. Prices shown are indicative and may change before opening; whether they include VAT will be confirmed. Opening offers apply on opening day only.</p>
     <div class="cols">
-      <div><h5 data-i18n="foot_lounge">Lounge</h5><a href="queue.html" data-i18n="cta_join">Join the queue</a><a href="#" data-install-app data-i18n="get_app">Get the app</a><a href="#looks" data-i18n="nav_looks">Looks</a><a href="#menu" data-i18n="nav_menu">Menu</a></div>
+      <div><h5 data-i18n="foot_lounge">Lounge</h5><a href="queue.html" data-i18n="cta_join">Join the queue</a><a href="#" data-install-app data-i18n="get_app">Get the app</a><a href="#looks" data-i18n="nav_looks">Looks</a><a href="#menu" data-i18n="nav_menu">Menu</a><a href="#faq" data-i18n="faq_kicker">Questions</a></div>
       <div><h5 data-i18n="foot_exp">Experience</h5><a href="#rituals" data-i18n="nav_rituals">Rituals</a><a href="#night" data-i18n="nav_night">Night</a><a href="#private" data-i18n="foot_private">Private events</a></div>
       <div><h5 data-i18n="foot_rew">Offers</h5><a href="#rewards" data-i18n="foot_squad">Squad & referral</a><a href="#rewards" data-i18n="foot_packs">Packs & membership</a></div>
       <div><h5 data-i18n="foot_follow">Follow</h5><a href="https://instagram.com/qamar.dubai" target="_blank" rel="noopener">Instagram</a><a href="https://tiktok.com/@qamar.dubai" target="_blank" rel="noopener">TikTok</a><a href="https://snapchat.com/add/qamar.dubai" target="_blank" rel="noopener">Snapchat</a></div>
@@ -913,7 +961,7 @@
   </div>
 </footer>
 
-<a class="wa-fab" id="waFab" target="_blank" rel="noopener" aria-label="WhatsApp"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zm0-21.6A11.8 11.8 0 0 0 1.9 17.8L.2 24l6.3-1.7A11.8 11.8 0 1 0 12 .2z"/></svg></a>
+<a class="wa-fab" id="waFab" data-track="whatsapp_click" data-track-loc="floating" target="_blank" rel="noopener" aria-label="WhatsApp"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zm0-21.6A11.8 11.8 0 0 0 1.9 17.8L.2 24l6.3-1.7A11.8 11.8 0 1 0 12 .2z"/></svg></a>
 
 <script src="assets/config.js"></script>
 <script src="assets/data.js"></script>
@@ -950,6 +998,25 @@
   const paintLogos = () => document.querySelectorAll('[data-logo]').forEach(el => { el.innerHTML = Q.logo('logo-mark'); });
 
   const dict = {
+    skip: { en: 'Skip to content', ar: 'انتقلي إلى المحتوى' }, faq_kicker: { en: 'Questions', ar: 'أسئلة شائعة' }, faq_title: { en: 'Everything you want to know.', ar: 'كل ما تودّين معرفته.' },
+    faq_q1: { en: 'Do I need to book?', ar: 'هل أحتاج إلى حجز موعد؟' },
+    faq_a1: { en: 'No. QAMAR is walk-in only: when you arrive, scan the code at the entrance or open this website, pick your look and follow your place in line on your phone.', ar: 'لا. قمر بدون مواعيد: عند وصولك امسحي الرمز عند المدخل أو افتحي هذا الموقع، اختاري إطلالتك وتابعي دورك في الطابور من هاتفك.' },
+    faq_q2: { en: 'How long does a blow-dry take?', ar: 'كم يستغرق السشوار؟' },
+    faq_a2: { en: 'Every look on the menu takes 45 minutes or less. Qamar Express takes 35 minutes, SOS 15 takes 15 minutes. Your estimated wait is shown before you join.', ar: 'كل إطلالة في القائمة تستغرق ٤٥ دقيقة أو أقل. قمر إكسبريس ٣٥ دقيقة، وإس أو إس ١٥ خمس عشرة دقيقة. يظهر وقت الانتظار المتوقع قبل انضمامك.' },
+    faq_q3: { en: 'How much does a blow-dry cost in Dubai at QAMAR?', ar: 'كم سعر السشوار في قمر دبي؟' },
+    faq_a3: { en: 'Each look on our menu shows an indicative price in AED. Final prices, and whether they include VAT, will be confirmed before opening.', ar: 'تعرض كل إطلالة في قائمتنا سعراً إرشادياً بالدرهم. سيتم تأكيد الأسعار النهائية وشمولها لضريبة القيمة المضافة قبل الافتتاح.' },
+    faq_q4: { en: 'How does the walk-in queue work?', ar: 'كيف يعمل الطابور بدون موعد؟' },
+    faq_a4: { en: 'Choose your look and a stylist, or the first one free. The page shows your place and estimated wait, then tells you your seat and stylist when it is your turn, so you can relax, have a matcha or take photos meanwhile.', ar: 'اختاري إطلالتك ومصففتك أو أول مصففة متاحة. تعرض الصفحة مكانك ووقت الانتظار المتوقع، ثم تخبرك بمقعدك ومصففتك عندما يحين دورك، فتستطيعين الاسترخاء أو تناول الماتشا أو التقاط الصور في الأثناء.' },
+    faq_q5: { en: 'Which payment methods will you accept?', ar: 'ما طرق الدفع المقبولة؟' },
+    faq_a5: { en: 'Card, Apple Pay and cash are planned, with instalments for packs. The final list will be confirmed before opening.', ar: 'نخطط لقبول البطاقات وApple Pay والدفع النقدي، مع التقسيط للباقات. سيتم تأكيد القائمة النهائية قبل الافتتاح.' },
+    faq_q6: { en: 'What are your opening hours?', ar: 'ما ساعات العمل؟' },
+    faq_a6: { en: 'We plan to open every day from 8 AM to midnight. Final opening hours will be confirmed before launch.', ar: 'نخطط لفتح أبوابنا يومياً من ٨ صباحاً حتى منتصف الليل. سيتم تأكيد ساعات العمل النهائية قبل الافتتاح.' },
+    faq_q7: { en: 'Where is QAMAR?', ar: 'أين يقع قمر؟' },
+    faq_a7: { en: 'In Dubai. The exact address will be announced here before opening.', ar: 'في دبي. سيُعلن العنوان الدقيق هنا قبل الافتتاح.' },
+    faq_q8: { en: 'How do offers and discounts work?', ar: 'كيف تعمل العروض والخصومات؟' },
+    faq_a8: { en: 'Only one discount applies per visit: the best one you are eligible for. Discounts apply to the service, never to drinks or tips. Offer conditions will be published before they start.', ar: 'يُطبَّق خصم واحد فقط في كل زيارة: الأفضل من بين الخصومات المتاحة لكِ. يشمل الخصم الخدمة فقط، ولا يشمل المشروبات أو الإكرامية. تُنشر شروط العروض قبل بدئها.' },
+    faq_q9: { en: 'Do you have services for girls and kids?', ar: 'هل لديكم خدمات للفتيات الصغيرات؟' },
+    faq_a9: { en: 'Yes: Mini Glow is a mini blow-dry or braids for little girls, in 25 minutes.', ar: 'نعم: ميني جلو سشوار صغير أو ضفائر للأميرات الصغيرات، خلال ٢٥ دقيقة.' },
     nav_how: { en: 'How it works', ar: 'كيف يعمل' }, nav_looks: { en: 'Looks', ar: 'الإطلالات' }, nav_menu: { en: 'Menu', ar: 'القائمة' }, nav_rituals: { en: 'Rituals', ar: 'الطقوس' }, nav_night: { en: 'Night', ar: 'الليل' }, nav_contact: { en: 'Contact', ar: 'تواصل' },
     cta_join: { en: 'Join the queue', ar: 'انضمي للطابور' }, cta_join_now: { en: 'Join the queue now', ar: 'انضمي للطابور الآن' },
     hero_badge: { en: 'Walk-in blowdry lounge · Dubai', ar: 'صالون سشوار بدون موعد · دبي' }, hc_city: { en: 'Dubai', ar: 'دبي' }, hc_hours: { en: 'Every day, 8 AM to midnight', ar: 'يومياً من ٨ صباحاً حتى منتصف الليل' }, hc_staff: { en: '{n} of 5 stylists on the floor', ar: '{n} من ٥ مصففات متواجدات' },
@@ -973,7 +1040,7 @@
     looks_kicker: { en: 'The look menu', ar: 'قائمة الإطلالات' }, looks_title: { en: "Don't explain it. Choose it.", ar: 'لا تشرحيها. اختاريها.' }, looks_sub: { en: 'Every look has a name and a picture. None takes more than 45 minutes.', ar: 'لكل إطلالة اسم وصورة. لا تتجاوز أي منها ٤٥ دقيقة.' },
     f_all: { en: 'All', ar: 'الكل' }, f_blowdry: { en: 'Blow-dry', ar: 'سشوار' }, f_quick: { en: 'Under 20 min', ar: 'أقل من ٢٠ د' }, f_night: { en: 'Night', ar: 'الليل' }, f_care: { en: 'Care', ar: 'عناية' }, f_colour: { en: 'Cut & colour', ar: 'قص وصبغة' }, f_kids: { en: 'Kids', ar: 'للصغيرات' },
     from: { en: 'From', ar: 'من' }, choose: { en: 'Choose', ar: 'اختاري' },
-    menu_note: { en: 'Extra long or thick hair +40 AED · Matcha 25 AED · Prices in AED incl. VAT', ar: 'شعر طويل جداً أو كثيف +٤٠ درهم · ماتشا ٢٥ درهم · الأسعار بالدرهم شاملة الضريبة' },
+    menu_note: { en: 'Extra long or thick hair +40 AED · Matcha 25 AED · Indicative prices in AED, VAT treatment to be confirmed', ar: 'شعر طويل جداً أو كثيف +٤٠ درهم · ماتشا ٢٥ درهم · أسعار إرشادية بالدرهم، ومعاملة ضريبة القيمة المضافة قيد التأكيد' },
     incl_kicker: { en: 'Included with every look', ar: 'مشمول مع كل إطلالة' }, incl_title: { en: 'The little things are on us.', ar: 'التفاصيل الصغيرة علينا.' },
     i4t: { en: "35 minutes, or it's free.", ar: '٣٥ دقيقة، أو مجاناً.' }, i4p: { en: "If your express blow-dry runs longer, you don't pay for it.", ar: 'إذا تأخر السشوار السريع، لا تدفعين.' },
     i1t: { en: 'Free touch-up for 48 hours.', ar: 'تعديل مجاني لمدة ٤٨ ساعة.' }, i1p: { en: 'Humidity got to it? Come back, we fix it.', ar: 'أفسدته الرطوبة؟ عودي ونصلحه.' },
@@ -1011,11 +1078,14 @@
     v_hours_t: { en: 'Every day', ar: 'كل يوم' }, v_hours: { en: '8 AM to midnight. Happy hours 10 AM to 3 PM on weekdays.', ar: 'من ٨ صباحاً حتى منتصف الليل. ساعات السعادة ١٠ص – ٣م أيام الأسبوع.' },
     v_wa: { en: 'Text “I want a blow-dry” to join the queue.', ar: 'أرسلي «أريد سشوار» للانضمام للطابور.' },
     v_addr_t: { en: 'Dubai', ar: 'دبي' }, v_addr: { en: 'Exact location announced very soon.', ar: 'الموقع الدقيق يُعلن قريباً جداً.' },
-    foot_p: { en: 'Qamar means “moon”. In Arabic, the most beautiful compliment is “you\'re as beautiful as the moon”. Prices shown are indicative and include VAT. Opening offers apply on opening day only.', ar: 'قمر، لأن أجمل مديح بالعربية هو «زي القمر». الأسعار المعروضة إرشادية وشاملة الضريبة. عروض الافتتاح صالحة يوم الافتتاح فقط.' },
+    foot_p: { en: 'Qamar means “moon”. In Arabic, the most beautiful compliment is “you\'re as beautiful as the moon”. Prices shown are indicative and may change before opening; whether they include VAT will be confirmed. Opening offers apply on opening day only.', ar: 'قمر، لأن أجمل مديح بالعربية هو «زي القمر». الأسعار المعروضة إرشادية وقد تتغير قبل الافتتاح، وسيتم تأكيد شمولها لضريبة القيمة المضافة. عروض الافتتاح صالحة يوم الافتتاح فقط.' },
     foot_privacy: { en: 'Privacy', ar: 'الخصوصية' }, foot_legal: { en: 'Legal notice', ar: 'إشعار قانوني' }, cta_private: { en: 'Book a private night', ar: 'احجزي ليلة خاصة' },
     foot_lounge: { en: 'Lounge', ar: 'الصالون' }, get_app: { en: 'Get the app', ar: 'حمّلي التطبيق' }, foot_exp: { en: 'Experience', ar: 'التجربة' }, foot_rew: { en: 'Offers', ar: 'العروض' }, foot_follow: { en: 'Follow', ar: 'تابعينا' },
     foot_private: { en: 'Private events', ar: 'مناسبات خاصة' }, nav_team: { en: 'Stylists', ar: 'المصففات' }, foot_squad: { en: 'Squad & referral', ar: 'سكواد ودعوة صديقة' }, foot_packs: { en: 'Packs & membership', ar: 'الباقات والعضوية' }, foot_staff: { en: 'Staff area', ar: 'مساحة الفريق' },
     toast_contest: { en: 'Thank you, your name is in the running', ar: 'شكراً، اقتراحك دخل المسابقة' },
+    wa_soon: { en: 'WhatsApp line opens soon', ar: 'خط واتساب يفتح قريباً' },
+    form_soon: { en: 'This form opens with our WhatsApp line, shortly before launch. Nothing is sent from this page yet.', ar: 'يُفعَّل هذا النموذج مع خط واتساب الخاص بنا قبيل الافتتاح. لا يُرسَل أي شيء من هذه الصفحة حالياً.' },
+    wa_contest: { en: 'Hello QAMAR, my idea for your next look:', ar: 'مرحباً قمر، اقتراحي لإطلالتكم القادمة:' },
     wa_bride: { en: 'Hello QAMAR! I would like to book the lounge after 10 PM.', ar: 'مرحباً قمر! أرغب في حجز الصالون بعد الساعة ١٠ مساءً.' },
     wa_join: { en: 'I want a blow-dry', ar: 'أريد سشوار' }
   };
@@ -1114,11 +1184,20 @@
     addEventListener('resize', () => { if (innerWidth >= 1080) close(); });
   })();
 
-  const wa = text => `https://wa.me/${D.brand.whatsapp}?text=${encodeURIComponent(text)}`;
+  const wa = text => Q.waLink(text);
+  // Tant qu'aucun vrai numéro WhatsApp n'est configuré (data.js), on n'affiche aucun lien et les formulaires restent fermés
   function renderLinks() {
-    document.getElementById('waLink').href = wa(Q.t('wa_join'));
-    document.getElementById('waFab').href = wa(Q.t('wa_join'));
-    document.getElementById('mnavWa').href = wa(Q.t('wa_join'));
+    const join = wa(Q.t('wa_join')), on = !!join;
+    document.documentElement.classList.toggle('no-wa', !on);
+    const waLink = document.getElementById('waLink');
+    if (on) { waLink.href = join; waLink.removeAttribute('aria-disabled'); waLink.textContent = Q.t('v_wa_cta'); }
+    else { waLink.removeAttribute('href'); waLink.setAttribute('aria-disabled', 'true'); waLink.textContent = Q.t('wa_soon'); }
+    document.getElementById('waFab').hidden = !on; if (on) document.getElementById('waFab').href = join;
+    document.getElementById('mnavWa').hidden = !on; if (on) document.getElementById('mnavWa').href = join;
+    document.querySelectorAll('#contestForm, #brideForm').forEach(f => {
+      f.querySelectorAll('input, button').forEach(el => el.disabled = !on);
+      f.querySelector('.form-soon').hidden = on;
+    });
     const a = document.getElementById('announce');
     const launchOn = Q.D.promotions.launch.enabled && Q.state.settings.launchMode;
     a.innerHTML = launchOn ? Q.t('announce') : ''; a.hidden = !launchOn;
@@ -1210,13 +1289,18 @@
   addEventListener('resize', checkHero);
   checkHero();
 
-  document.getElementById('contestForm').addEventListener('submit', e => { e.preventDefault(); e.target.reset(); Q.toast(Q.t('toast_contest')); });
+  // Les deux formulaires ne stockent rien : ils préparent un message que la cliente envoie elle-même sur WhatsApp
+  document.getElementById('contestForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const f = new FormData(e.target), href = wa(`${Q.t('wa_contest')}\n${f.get('look')} · ${f.get('name')}${f.get('ig') ? ' · ' + f.get('ig') : ''}`);
+    if (!href) return;
+    const link = document.getElementById('contestLink'); link.href = href; link.hidden = false; link.focus();
+  });
   document.getElementById('brideForm').addEventListener('submit', e => {
     e.preventDefault();
-    const f = new FormData(e.target);
-    const link = document.getElementById('brideLink');
-    link.href = wa(`${Q.t('wa_bride')}\n${f.get('name')} · ${f.get('date')} · ${f.get('guests')}`);
-    link.hidden = false; link.focus();
+    const f = new FormData(e.target), href = wa(`${Q.t('wa_bride')}\n${f.get('name')} · ${f.get('date')} · ${f.get('guests')}`);
+    if (!href) return;
+    const link = document.getElementById('brideLink'); link.href = href; link.hidden = false; link.focus();
   });
 
   const io = new IntersectionObserver(entries => entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }), { threshold: .12 });
@@ -1229,5 +1313,6 @@
 <script src="assets/looks-fx.js"></script>
 <script src="assets/cursor-fx.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/track.js"></script>
 </body>
 </html>

@@ -163,8 +163,17 @@
 
   const Q = {
     D, get state() { return state; }, get memoryOnly() { return memoryOnly; },
-    mode: (window.QAMAR_CONFIG && window.QAMAR_CONFIG.backend) || 'demo',
+    // Ce moteur stocke tout dans le navigateur : il reste en mode démo tant que le connecteur Supabase n'a pas
+    // réellement pris le relais (window.QAMAR_BACKEND_READY). Une config « supabase » incomplète n'efface jamais le mot « démo ».
+    mode: (window.QAMAR_CONFIG && window.QAMAR_CONFIG.backend === 'supabase' && window.QAMAR_BACKEND_READY === true) ? 'supabase' : 'demo',
     get isDemo() { return this.mode !== 'supabase'; },
+    get configError() {
+      const c = window.QAMAR_CONFIG || {};
+      if (c.backend === 'supabase' && (!c.supabaseUrl || !c.supabaseAnonKey)) return 'Configuration error: backend "supabase" needs supabaseUrl and supabaseAnonKey.';
+      if (c.backend === 'supabase' && window.QAMAR_BACKEND_READY !== true) return 'Configuration error: the Supabase connector is not loaded. Running in demo mode.';
+      if (c.environment === 'production' && this.mode !== 'supabase') return 'Configuration error: production environment is running in demo mode. Nothing is saved for the salon.';
+      return '';
+    },
     on(fn) { listeners.push(fn); fn(state); },
     service, addon, stylist, ticket, openShift, online, duration, currentOf, schedule, estimate, ticketEta, position, pricing, fmt, ticketCode, minsUntil, startOfDay,
     quote, bestPromo, launchUsed, available, dubai,
@@ -452,6 +461,7 @@
   Q.publicName = (name) => { const p = String(name || '').trim().split(/\s+/); return p[0] ? p[0].slice(0, 14) + (p[1] ? ' ' + p[1][0].toUpperCase() + '.' : '') : 'Guest'; };
   // Bandeau « mode démo » pour les écrans du personnel : rien n'est réel tant que le backend n'est pas branché
   Q.showDemoBanner = (text) => {
+    if (Q.configError) { console.error('[QAMAR]', Q.configError); text = Q.configError; }
     if (!Q.isDemo || document.getElementById('demoBanner')) return;
     const b = document.createElement('div');
     b.id = 'demoBanner'; b.setAttribute('role', 'note');
@@ -475,6 +485,8 @@
     setTimeout(() => { if (btn.isConnected) { btn.textContent = old; delete btn.dataset.armed; } }, 3000);
   };
   Q.clock = ts => new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  // Lien WhatsApp vers le salon — null tant qu'aucun vrai numéro n'est configuré (jamais de numéro fictif)
+  Q.waLink = text => { const n = String(Q.D.brand.whatsapp || '').replace(/\D/g, ''); return n.length >= 9 ? `https://wa.me/${n}?text=${encodeURIComponent(text || '')}` : null; };
   Q.hm = min => `${Math.floor(min / 60)}h${String(min % 60).padStart(2, '0')}`;
   Q.baseUrl = () => location.href.replace(/[^/]*([?#].*)?$/, '');
   Q.qr = (el, text, size = 220, dark = '#4B2D25') => {
@@ -484,9 +496,19 @@
   };
 
   /* i18n minimal : data-i18n="clé" sur les éléments, dictionnaire par page */
-  Q.lang = (() => { try { return localStorage.getItem('qamar:lang') || 'en'; } catch (e) { return 'en'; } })();
+  // Sur le site publié, l'accueil existe en deux pages indexables (/ en anglais, ar.html en arabe) :
+  // la langue de la page l'emporte et le sélecteur navigue vers l'autre version (attributs ajoutés par scripts/build-site.mjs).
+  // Ailleurs (app native, aperçu, autres pages), la langue change sur place et la préférence est mémorisée.
+  const pageLang = document.documentElement.dataset.pageLang;
+  Q.lang = pageLang || (() => { try { return localStorage.getItem('qamar:lang') || 'en'; } catch (e) { return 'en'; } })();
   Q.i18n = function (dict) {
     Q.dict = dict;
+    const altHref = lang => document.documentElement.dataset['langHref' + lang.charAt(0).toUpperCase() + lang.slice(1)];
+    const go = lang => {
+      const href = lang !== pageLang && altHref(lang);
+      if (href) { try { localStorage.setItem('qamar:lang', lang); } catch (e) { /* ignore */ } location.href = href + location.hash; return; }
+      apply(lang);
+    };
     const apply = lang => {
       Q.lang = lang;
       try { localStorage.setItem('qamar:lang', lang); } catch (e) { /* ignore */ }
@@ -494,10 +516,10 @@
       document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
       document.querySelectorAll('[data-i18n]').forEach(el => { const v = dict[el.dataset.i18n]?.[lang]; if (v != null) el.innerHTML = v; });
       document.querySelectorAll('[data-i18n-ph]').forEach(el => { const v = dict[el.dataset.i18nPh]?.[lang]; if (v != null) el.placeholder = v; });
-      document.querySelectorAll('.lang button').forEach(b => b.classList.toggle('on', b.dataset.lang === lang));
+      document.querySelectorAll('.lang button').forEach(b => { b.classList.toggle('on', b.dataset.lang === lang); b.setAttribute('aria-pressed', String(b.dataset.lang === lang)); });
       document.dispatchEvent(new CustomEvent('qamar:lang', { detail: lang }));
     };
-    document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => apply(b.dataset.lang)));
+    document.querySelectorAll('.lang button').forEach(b => { b.type = 'button'; b.setAttribute('lang', b.dataset.lang); b.addEventListener('click', () => go(b.dataset.lang)); });
     apply(Q.lang);
     return apply;
   };

@@ -6,8 +6,9 @@ window.QAMAR_DATA = {
     tagline: { en: 'Walk in. Glow out. Open until midnight.', ar: 'ادخلي. تألّقي. مفتوح حتى منتصف الليل.' },
     area: { en: 'Dubai · location announced soon', ar: 'دبي · الموقع يُعلن قريباً' },
     hours: { open: 8, close: 24 },
-    whatsapp: '971500000000', // à remplacer par le vrai numéro WhatsApp Business
-    instagram: 'qamar.dubai'
+    whatsapp: '', // numéro WhatsApp Business au format international sans + (ex. 9715XXXXXXXX). Vide = pas encore confirmé : aucun lien WhatsApp n'est affiché
+    instagram: 'qamar.dubai', // compte à confirmer avant publication des liens
+    hoursConfirmed: false, // passer à true quand les horaires 8h–minuit sont définitifs (active les horaires dans les données structurées)
   },
 
   // look = nom signature affiché aux clientes, name = nom de la prestation
