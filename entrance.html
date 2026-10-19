@@ -61,6 +61,8 @@
   .queue-line span { padding: .35rem .9rem; border-radius: 999px; background: rgba(255, 255, 255, .07); font-size: .95rem; }
   .empty { color: rgba(248, 225, 220, .5); font-size: 1rem; }
   @media (max-width: 900px) { html, body { overflow: auto; height: auto; } body { grid-template-columns: 1fr; font-size: 14px; } .right { border-radius: 32px 32px 0 0; } .welcome h1 { font-size: 3.4rem; } .qr-wrap { flex-direction: column; align-items: flex-start; } .launch { position: static; margin-top: 2rem; align-self: flex-start; } .steps { flex-wrap: wrap; gap: 1rem; } }
+  .left, .right { min-width: 0; }
+  @media (max-width: 560px) { .brand { flex-wrap: wrap; gap: .6rem; } .left { padding: 28px 20px; } .welcome h1 { font-size: 2.5rem; } .qr-text b { font-size: 1.8rem; } .qr img, .qr canvas { max-width: 58vw; height: auto; } }
 </style>
 </head>
 <body>

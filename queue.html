@@ -217,6 +217,7 @@
     st_seat: { en: 'Go to your seat', ar: 'توجّهي إلى مقعدك' }, st_seat_s: { en: 'This page turns pink and tells you the seat and your stylist.', ar: 'تتحول هذه الصفحة إلى اللون الوردي وتخبرك بالمقعد ومصففتك.' },
     idle_t: { en: 'Queue not open yet', ar: 'الطابور لم يُفتح بعد' }, idle_s: { en: 'No stylist has started her shift yet. Your place is saved: you\'ll be first when the team opens.', ar: 'لم تبدأ أي مصففة دوامها بعد. مكانك محفوظ: ستكونين الأولى عند افتتاح الفريق.' },
     demo: { en: 'Demo: see what the salon sees', ar: 'تجربة: شاهدي ما يراه الصالون' }, demo_open: { en: 'Open the dashboard', ar: 'افتحي لوحة التحكم' },
+    demo_next: { en: 'Demo · simulate the next step', ar: 'تجربة · محاكاة الخطوة التالية' }, demo_next_s: { en: 'On a single phone, plays the salon’s part so you can see the whole journey.', ar: 'على هاتف واحد، يقوم بدور الصالون لتشاهدي الرحلة كاملة.' },
     paid_cash: { en: 'Cash with your stylist', ar: 'نقداً مع مصففتك' }, opening: { en: 'The team is getting ready — your place is saved.', ar: 'الفريق يستعد — مكانك محفوظ.' }
   };
   const t = (k, v = {}) => Q.t(k).replace(/\{(\w)\}/g, (_, x) => v[x] ?? '');
@@ -335,10 +336,20 @@
   function notifyCalled(tk) {
     const s = Q.stylist(tk.assignedTo);
     Q.beep();
-    if (navigator.vibrate) navigator.vibrate([300, 120, 300, 120, 600]);
+    if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) navigator.vibrate([300, 120, 300, 120, 600]);
     try { if ('Notification' in window && Notification.permission === 'granted') new Notification(t('notif_title'), { body: t('notif_body', { s: tk.seat, n: s?.name }), icon: 'assets/logo-qamar.webp' }); } catch (e) { /* ignore */ }
   }
 
+  // Mode démo : joue le rôle du salon sur le même téléphone (pointage + appel → début → fin de prestation)
+  function demoNext(id) {
+    const tk = Q.ticket(id); if (!Q.isDemo || !tk) return;
+    if (tk.status === 'waiting') {
+      for (const s of D.stylists.filter(s => tk.pref === 'any' || tk.pref === s.id)) { Q.clockIn(s.id, s.pin); if (Q.call(s.id, tk.id)) break; }
+    } else if (tk.status === 'called') Q.start(tk.id);
+    else if (tk.status === 'in_service') Q.toCheckout(tk.id);
+  }
+  const demoBtn = () => Q.isDemo ? `<button class="btn btn-light btn-block demo-next" type="button" style="margin-top:12px">▶ ${t('demo_next')}</button><p class="muted" style="font-size:.78rem;margin:6px 4px 0;text-align:center">${t('demo_next_s')}</p>` : '';
+  document.addEventListener('click', e => { if (e.target.closest('.demo-next')) demoNext(myId); });
   function renderTicket(tk) {
     const el = document.getElementById('ticket');
     const s = Q.service(tk.serviceId);
@@ -368,6 +379,7 @@
           <li><span class="ck">3</span><span>${t('st_seat')}<small>${t('st_seat_s')}</small></span></li>
         </ol>
         <div class="note"><span>☾</span><span>${t('waiting_note')}</span></div>
+        ${demoBtn()}
         <div class="demo-strip"><span>${t('demo')}</span><a href="admin.html">${t('demo_open')} →</a></div>
         ${'Notification' in window && Notification.permission === 'default' ? `<button class="btn btn-light btn-block" style="margin-top:12px" id="notifBtn">🔔 ${t('notify_on')}</button>` : ''}
         <button class="btn btn-ghost btn-block" style="margin-top:12px" id="cancelBtn">${t('cancel')}</button>`;
@@ -380,7 +392,7 @@
           <div class="muted">${t('called_go')}</div>
           <div class="seat">${tk.seat}</div>
           <div style="font-size:1.2rem">${t('called_with')} <b>${Q.esc(sty?.name)}</b></div>
-        </div>`;
+        </div>${demoBtn()}`;
     } else if (tk.status === 'in_service') {
       const free = s.freeMatcha && !(tk.addons || []).some(a => Q.addon(a)?.kind === 'matcha');
       el.innerHTML = `<div class="ticket-card">
@@ -390,7 +402,7 @@
           <div class="extras">${D.addons.map(a => `<button data-add="${a.id}">🍵 ${Q.esc(Q.L(a.name))}<small>${free ? t('free') : a.price + ' AED'}</small></button>`).join('')}</div>
           <p class="muted" style="margin:22px 0 8px">${t('perfume_t')}</p>
           <div class="extras" style="grid-template-columns:repeat(3,1fr)">${D.perfumes.map(p => `<button data-perf="${p.id}" style="${tk.perfume === p.id ? 'border-color:var(--rose);background:var(--blush)' : ''};text-align:center">${Q.esc(Q.L(p.name))}</button>`).join('')}</div>
-        </div>`;
+        </div>${demoBtn()}`;
       el.querySelectorAll('[data-add]').forEach(b => b.onclick = () => { Q.addAddon(tk.id, b.dataset.add); Q.toast(t('added')); });
       el.querySelectorAll('[data-perf]').forEach(b => b.onclick = () => Q.setPerfume(tk.id, b.dataset.perf));
     } else if (tk.status === 'checkout') {
