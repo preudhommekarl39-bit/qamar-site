@@ -8,7 +8,7 @@ window.QAMAR_CONFIG = {
   backend: 'demo',
   supabaseUrl: '',
   supabaseAnonKey: '',
-  siteUrl: 'https://preudhommekarl39-bit.github.io/qamar-site/',            // URL définitive (ex. https://qamar.ae) — sert aux balises canoniques et au QR d'entrée
+  siteUrl: 'https://qamarlounge.com/',            // URL définitive (ex. https://qamar.ae) — sert aux balises canoniques et au QR d'entrée
   timeZone: 'Asia/Dubai', // UTC+4, pas d'heure d'été
   payments: { provider: null },  // ex. 'network-international' | 'checkout' | 'stripe' — aucun n'est branché
   whatsapp: { connected: false }, // passe à true seulement quand l'API WhatsApp Business est réellement connectée

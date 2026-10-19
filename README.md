@@ -1,7 +1,7 @@
 # QAMAR — Blowdry Lounge · Dubaï
 
 Site public, parcours cliente, écrans du salon et applications mobiles. HTML/CSS/JavaScript natif, sans framework, bilingue anglais/arabe.
-**Site en ligne :** https://preudhommekarl39-bit.github.io/qamar-site/ (version arabe : `ar.html`, générée au build).
+**Site en ligne :** https://qamarlounge.com/ (version arabe : `ar.html`, générée au build).
 
 > ⚠ **Mode démonstration.** Aucun serveur n'est branché : les tickets restent dans le navigateur, aucun paiement réel, aucun message WhatsApp. Prix, horaires, adresse et équipe sont provisoires.
 
