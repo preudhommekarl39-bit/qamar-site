@@ -107,6 +107,8 @@
   @media (min-width: 768px) { .hnav { padding: 24px 40px; } }
   @media (min-width: 1080px) { .hnav ul { display: flex; } }
   @media (max-width: 560px) { .hnav .glass-lang { display: none; } .hnav .pill-btn { font-size: .78rem; padding-inline: 6px 14px; gap: 8px; } .hnav .pill-btn .bub { width: 26px; height: 26px; } }
+  /* Petits écrans : le mot QAMAR laisse la place au bouton (le texte arabe du bouton est plus long) */
+  @media (max-width: 420px) { html[dir="rtl"] .hnav .logo-word { display: none; } .hnav .brand .logo-word { letter-spacing: .3em; } }
   .htext { width: 100%; max-width: 56rem; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 28px 24px 0; }
   .htext .label { margin-bottom: 16px; animation: up .6s ease-out both; }
   .htext h1 { font-weight: 400; font-size: clamp(2.5rem, 6.6vw, 84px); line-height: 1.02; letter-spacing: -.035em; color: var(--ink-2); margin: 0 0 12px; text-wrap: balance; animation: pop .8s .15s both; }
@@ -487,6 +489,7 @@
   /* ---------- Formulaires ---------- */
   .forms { display: grid; grid-template-columns: 1fr 1px 1fr; gap: 70px; margin-top: 30px; }
   .forms .divider { background: var(--line); }
+  .team-note { margin: 14px auto 0; max-width: 46ch; font-size: .85rem; color: var(--ink-2); }
   .form-soon { margin: 14px 0 0; font-size: .85rem; color: var(--ink-2); background: var(--s2); border-radius: 14px; padding: 10px 14px; }
   .forms input:disabled, .forms button:disabled { opacity: .55; cursor: not-allowed; }
   a[aria-disabled="true"] { opacity: .6; cursor: default; pointer-events: none; }
@@ -671,7 +674,7 @@
       <div class="mnav-row">
         <a href="#" data-install-app data-close data-i18n="get_app">Get the app</a>
         <a id="mnavWa" data-track="whatsapp_click" data-track-loc="mobile_menu" target="_blank" rel="noopener">WhatsApp</a>
-        <a href="https://instagram.com/qamar.dubai" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://instagram.com/qamar.dubai" target="_blank" rel="noopener" data-social>Instagram</a>
       </div>
     </div>
   </div>
@@ -864,9 +867,10 @@
 <section class="sec alt" id="team">
   <div class="wrap">
     <div class="center">
-      <span class="kicker">@qamar.dubai</span>
+      <span class="kicker" data-social>@qamar.dubai</span>
       <h2 class="title sm" data-i18n="com_title">Meet the stylists.</h2>
       <p class="sub" data-i18n="com_p">Follow her, ask for her, tag her.</p>
+      <p class="team-note" id="teamNote" data-i18n="team_note" hidden>Our team is being recruited: the names below are placeholders until opening.</p>
     </div>
     <div class="team" id="teamGrid"></div>
   </div>
@@ -955,7 +959,7 @@
       <div><h5 data-i18n="foot_lounge">Lounge</h5><a href="queue.html" data-i18n="cta_join">Join the queue</a><a href="#" data-install-app data-i18n="get_app">Get the app</a><a href="#looks" data-i18n="nav_looks">Looks</a><a href="#menu" data-i18n="nav_menu">Menu</a><a href="#faq" data-i18n="faq_kicker">Questions</a></div>
       <div><h5 data-i18n="foot_exp">Experience</h5><a href="#rituals" data-i18n="nav_rituals">Rituals</a><a href="#night" data-i18n="nav_night">Night</a><a href="#private" data-i18n="foot_private">Private events</a></div>
       <div><h5 data-i18n="foot_rew">Offers</h5><a href="#rewards" data-i18n="foot_squad">Squad & referral</a><a href="#rewards" data-i18n="foot_packs">Packs & membership</a></div>
-      <div><h5 data-i18n="foot_follow">Follow</h5><a href="https://instagram.com/qamar.dubai" target="_blank" rel="noopener">Instagram</a><a href="https://tiktok.com/@qamar.dubai" target="_blank" rel="noopener">TikTok</a><a href="https://snapchat.com/add/qamar.dubai" target="_blank" rel="noopener">Snapchat</a></div>
+      <div data-social><h5 data-i18n="foot_follow">Follow</h5><a href="https://instagram.com/qamar.dubai" target="_blank" rel="noopener">Instagram</a><a href="https://tiktok.com/@qamar.dubai" target="_blank" rel="noopener">TikTok</a><a href="https://snapchat.com/add/qamar.dubai" target="_blank" rel="noopener">Snapchat</a></div>
     </div>
     <div class="legal"><span>© 2026 QAMAR Blowdry Lounge · Dubai</span><span><a href="privacy.html" data-i18n="foot_privacy">Privacy</a> · <a href="legal.html" data-i18n="foot_legal">Legal notice</a> · <a href="admin.html" data-i18n="foot_staff">Staff area</a></span></div>
   </div>
@@ -998,7 +1002,7 @@
   const paintLogos = () => document.querySelectorAll('[data-logo]').forEach(el => { el.innerHTML = Q.logo('logo-mark'); });
 
   const dict = {
-    skip: { en: 'Skip to content', ar: 'انتقلي إلى المحتوى' }, faq_kicker: { en: 'Questions', ar: 'أسئلة شائعة' }, faq_title: { en: 'Everything you want to know.', ar: 'كل ما تودّين معرفته.' },
+    skip: { en: 'Skip to content', ar: 'انتقلي إلى المحتوى' }, team_note: { en: 'Our team is being recruited: the names below are placeholders until opening.', ar: 'نحن بصدد اختيار فريقنا: الأسماء أدناه مؤقتة حتى الافتتاح.' }, faq_kicker: { en: 'Questions', ar: 'أسئلة شائعة' }, faq_title: { en: 'Everything you want to know.', ar: 'كل ما تودّين معرفته.' },
     faq_q1: { en: 'Do I need to book?', ar: 'هل أحتاج إلى حجز موعد؟' },
     faq_a1: { en: 'No. QAMAR is walk-in only: when you arrive, scan the code at the entrance or open this website, pick your look and follow your place in line on your phone.', ar: 'لا. قمر بدون مواعيد: عند وصولك امسحي الرمز عند المدخل أو افتحي هذا الموقع، اختاري إطلالتك وتابعي دورك في الطابور من هاتفك.' },
     faq_q2: { en: 'How long does a blow-dry take?', ar: 'كم يستغرق السشوار؟' },
@@ -1128,14 +1132,18 @@
   const tones = ['#E8A9B6', '#B88A94', '#D99AA8', '#D4B38A', '#C08C8C'];
   // Le statut « au salon » n'est affiché que si les données sont réellement en direct (mode connecté)
   function renderTeam() {
-    const live = !Q.isDemo;
+    const live = !Q.isDemo, real = !!D.brand.teamConfirmed;
+    // Équipe pas encore recrutée : prénoms présentés comme provisoires, aucun lien vers des comptes Instagram qui ne sont pas les nôtres
+    document.getElementById('teamNote').hidden = real;
     document.getElementById('teamGrid').innerHTML = Q.state.stylists.map((s, i) => {
       const on = live && !!Q.openShift(s.id);
-      return `<a class="member" href="https://instagram.com/${encodeURIComponent(s.ig)}" target="_blank" rel="noopener noreferrer" aria-label="${Q.esc(s.name)} on Instagram">
-        <span class="av" style="background:linear-gradient(150deg, ${tones[i % 5]}, #7A4D58)" aria-hidden="true">${Q.esc(s.name[0])}${live ? `<span class="dot ${on ? 'live' : 'off'}" title="${Q.t(on ? 'on_shift' : 'off_shift')}"></span>` : ''}</span>
-        <b>${Q.esc(s.name)}</b><small>${Q.esc(Q.L(s.specialty))}</small><span class="ig">@${Q.esc(s.ig)}</span>
-      </a>`;
+      const inner = `<span class="av" style="background:linear-gradient(150deg, ${tones[i % 5]}, #7A4D58)" aria-hidden="true">${Q.esc(s.name[0])}${live ? `<span class="dot ${on ? 'live' : 'off'}" title="${Q.t(on ? 'on_shift' : 'off_shift')}"></span>` : ''}</span>
+        <b>${Q.esc(s.name)}</b><small>${Q.esc(Q.L(s.specialty))}</small>`;
+      return real
+        ? `<a class="member" href="https://instagram.com/${encodeURIComponent(s.ig)}" target="_blank" rel="noopener noreferrer" aria-label="${Q.esc(s.name)} on Instagram">${inner}<span class="ig">@${Q.esc(s.ig)}</span></a>`
+        : `<div class="member">${inner}</div>`;
     }).join('');
+    document.querySelectorAll('[data-social]').forEach(el => el.hidden = !D.brand.instagramConfirmed);
   }
 
   // Carte du hero : vraie attente en mode connecté, sinon une carte d'ouverture honnête (aucun chiffre inventé)

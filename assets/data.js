@@ -9,6 +9,10 @@ window.QAMAR_DATA = {
     whatsapp: '', // numéro WhatsApp Business au format international sans + (ex. 9715XXXXXXXX). Vide = pas encore confirmé : aucun lien WhatsApp n'est affiché
     instagram: 'qamar.dubai', // compte à confirmer avant publication des liens
     hoursConfirmed: false, // passer à true quand les horaires 8h–minuit sont définitifs (active les horaires dans les données structurées)
+    instagramConfirmed: false, // passer à true quand les comptes officiels Instagram/TikTok/Snapchat existent (liens affichés + données structurées)
+    teamConfirmed: false, // passer à true quand les vraies coiffeuses sont recrutées (prénoms et Instagram affichés comme réels)
+    phoneConfirmed: false, // passer à true avec le vrai numéro (ajouté aux données structurées)
+    address: null, // { streetAddress, addressLocality: 'Dubai' } — uniquement l'adresse réelle du local signé
   },
 
   // look = nom signature affiché aux clientes, name = nom de la prestation
