@@ -119,6 +119,10 @@
   }
   @keyframes titleShine { 0% { background-position: 100% 0; } 60%, 100% { background-position: 0% 0; } }
   .htext p { font-size: clamp(.95rem, 1.35vw, 1.125rem); color: var(--ink-2); opacity: .85; max-width: 36rem; line-height: 1.65; margin: 0; animation: fade .8s .3s both; }
+  .hproof { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 18px 0 0; padding: 0; animation: fade .8s .45s both; }
+  .hproof li { font-size: .8rem; font-weight: 500; color: var(--ink-2); background: rgba(255, 255, 255, .55); border: 1px solid rgba(255, 255, 255, .7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 999px; padding: 6px 12px; }
+  .hproof li::before { content: "☾"; color: var(--gold); margin-inline-end: 6px; }
+  @media (max-width: 420px) { .hproof { gap: 6px; } .hproof li { font-size: .72rem; padding: 5px 10px; } }
   @keyframes up { from { transform: translateY(16px); } }
   @keyframes pop { from { transform: scale(.98); } }
   @keyframes fade { from { transform: translateY(6px); } }
@@ -615,7 +619,8 @@
       <div class="htext">
         <span class="h-eyebrow" data-i18n="hero_badge">Walk-in blowdry lounge · Dubai</span>
         <h1 data-i18n="hero_title">Walk in. Glow out.</h1>
-        <p data-i18n="hero_lead">No appointment, ever. Scan, pick your look and your stylist, and we'll call you on WhatsApp the moment your chair is ready.</p>
+        <p data-i18n="hero_lead">No appointment, ever. Scan, pick your look and your stylist, then relax: your phone shows your place and tells you the moment your chair is ready.</p>
+        <ul class="hproof" aria-label="QAMAR"><li data-i18n="hp1">No appointment</li><li data-i18n="hp2">Live queue on your phone</li><li data-i18n="hp3">Every look in 45 min or less</li></ul>
       </div>
       <div class="hcard" aria-live="polite">
         <span class="hc-k"><span class="dot off" id="liveDot"></span><span id="liveLabel">—</span></span>
@@ -1026,7 +1031,8 @@
     cta_join: { en: 'Join the queue', ar: 'انضمي للطابور' }, cta_join_now: { en: 'Join the queue now', ar: 'انضمي للطابور الآن' },
     hero_badge: { en: 'Walk-in blowdry lounge · Dubai', ar: 'صالون سشوار بدون موعد · دبي' }, hc_city: { en: 'Dubai', ar: 'دبي' }, hc_hours: { en: 'Every day, 8 AM to midnight', ar: 'يومياً من ٨ صباحاً حتى منتصف الليل' }, hc_staff: { en: '{n} of 5 stylists on the floor', ar: '{n} من ٥ مصففات متواجدات' },
     hero_title: { en: 'Walk in. Glow out.', ar: 'ادخلي. واخرجي متألقة.' },
-    hero_lead: { en: "No appointment, ever. Scan, pick your look and your stylist, and we'll call you on WhatsApp the moment your chair is ready.", ar: 'بدون موعد أبداً. امسحي الرمز، اختاري إطلالتك ومصففتك، وسنرسل لكِ على واتساب لحظة جاهزية كرسيك.' },
+    hero_lead: { en: 'No appointment, ever. Scan, pick your look and your stylist, then relax: your phone shows your place and tells you the moment your chair is ready.', ar: 'بدون موعد أبداً. امسحي الرمز، اختاري إطلالتك ومصففتك، ثم استرخي: يعرض هاتفك مكانك ويخبرك لحظة جاهزية كرسيك.' },
+    hp1: { en: 'No appointment', ar: 'بدون موعد' }, hp2: { en: 'Live queue on your phone', ar: 'طابور مباشر على هاتفك' }, hp3: { en: 'Every look in 45 min or less', ar: 'كل إطلالة خلال ٤٥ دقيقة أو أقل' },
     live_label: { en: 'Live wait', ar: 'الانتظار الآن' }, live_open: { en: 'Stylists on the floor', ar: 'مصففات متواجدات' },
     corner_t: { en: 'The look menu', ar: 'قائمة الإطلالات' }, corner_s: { en: 'Prices and durations', ar: 'الأسعار والمدة' },
     min: { en: 'min', ar: 'د' }, walk_in: { en: 'Walk in', ar: 'ادخلي الآن' }, live_soon: { en: 'Opening soon', ar: 'قريباً' }, closed_now: { en: 'Closed now', ar: 'مغلق الآن' },
@@ -1218,6 +1224,15 @@
   }
   function renderAll() { renderMarquee(); paintIcons(); paintLogos(); renderLinks(); renderFilters(); renderLooks(); renderMenu(); renderTeam(); renderLive(); renderPhoneTiles(); }
   document.addEventListener('qamar:lang', renderAll);
+  // Préouverture (config.js → phase) : mêmes pages, textes qui ne promettent aucun service déjà disponible.
+  // Au lancement : phase = 'open', rien d'autre à réécrire. scripts/build-site.mjs applique la même règle à la page arabe.
+  const dictPre = {
+    cta_join: { en: 'Preview the queue', ar: 'معاينة الطابور' },
+    cta_join_now: { en: 'See how the queue works', ar: 'شاهدي كيف يعمل الطابور' },
+    announce: { en: '<span class="tag">Opening soon</span>Planned opening offer: the first 30 guests <b>−70%</b>, then <b>−50%</b> all day. Conditions published before launch.', ar: '<span class="tag">قريباً</span>عرض الافتتاح المخطط: أول ٣٠ ضيفة <b>خصم ٧٠٪</b>، ثم <b>خصم ٥٠٪</b> طوال اليوم. تُنشر الشروط قبل الافتتاح.' },
+    hc_hours: { en: 'Planned: every day, 8 AM to midnight', ar: 'مخطط: يومياً من ٨ صباحاً حتى منتصف الليل' }
+  };
+  if ((window.QAMAR_CONFIG || {}).phase !== 'open') Object.assign(dict, dictPre);
   Q.i18n(dict);
   Q.on(() => { renderLive(); renderTeam(); renderLooks(); renderLinks(); });
 

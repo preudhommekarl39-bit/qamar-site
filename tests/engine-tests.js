@@ -54,6 +54,8 @@ window.QAMAR_ENGINE_TESTS = function (test, Q) {
   test('the demo engine stays in demo mode even if config says supabase', () => { const c = window.QAMAR_CONFIG, keep = { ...c }; c.backend = 'supabase'; c.supabaseUrl = ''; const r = Q.isDemo === true && /supabaseUrl/.test(Q.configError); Object.assign(c, keep); return r; });
   test('production environment in demo mode is reported as an error', () => { const c = window.QAMAR_CONFIG, keep = c.environment; c.environment = 'production'; const r = /production/.test(Q.configError); c.environment = keep; return r; });
   test('the current config has no configuration error', () => Q.configError === '');
+  test('demo PINs are refused in a production environment', () => { fresh(); const c = window.QAMAR_CONFIG, keep = c.environment; c.environment = 'production'; const r = Q.clockIn('layla', '1111'); c.environment = keep; return r.ok === false && r.error === 'demo_pin_disabled' && Q.state.shifts.length === 0; });
+  test('the site is in pre-opening mode until the owner switches it to open', () => ['preopening', 'open'].includes(window.QAMAR_CONFIG.phase));
   test('analytics is off until explicitly configured', () => window.QAMAR_CONFIG.analytics && window.QAMAR_CONFIG.analytics.enabled === false);
 
   // ---- Bilinguisme ----

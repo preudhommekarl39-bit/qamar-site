@@ -5,6 +5,7 @@
                             de supabase/migrations appliquées. Voir DEPLOY.md. */
 window.QAMAR_CONFIG = {
   environment: 'demo',    // 'demo' | 'staging' | 'production' — en 'production', le mode démo est signalé comme une erreur
+  phase: 'preopening',    // 'preopening' (salon pas encore ouvert : textes « aperçu », horaires « prévus ») | 'open' (salon ouvert, infos confirmées)
   backend: 'demo',
   supabaseUrl: '',
   supabaseAnonKey: '',

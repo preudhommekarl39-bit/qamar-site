@@ -24,6 +24,8 @@ for (const d of PUBLIC_DIRS) cpSync(d, `${OUT}/${d}`, { recursive: true });
 const sandbox = { window: {} };
 vm.runInNewContext(readFileSync('assets/data.js', 'utf8'), sandbox);
 const D = sandbox.window.QAMAR_DATA;
+vm.runInNewContext(readFileSync('assets/config.js', 'utf8'), sandbox);
+const CFG = sandbox.window.QAMAR_CONFIG;
 const B = D.brand;
 
 const abs = p => SITE + p.replace(/^\.?\//, '');
@@ -58,7 +60,8 @@ function seoHead(html, lang, url) {
 // ---- Accueil anglais ----
 const indexSrc = readFileSync('index.html', 'utf8');
 const dict = extractDict(indexSrc);
-let en = indexSrc.replace(/<html lang="en" dir="ltr">/, '<html lang="en" dir="ltr" data-page-lang="en" data-lang-href-ar="ar.html">');
+if (CFG.phase !== 'open') Object.assign(dict, extractDict(indexSrc, 'dictPre')); // même règle que la page : textes de préouverture
+let en = translateHtml(indexSrc, dict, 'en').html.replace(/<html lang="en" dir="ltr">/, '<html lang="en" dir="ltr" data-page-lang="en" data-lang-href-ar="ar.html">');
 en = seoHead(en, 'en', URLS.en);
 writeFileSync(`${OUT}/index.html`, en);
 

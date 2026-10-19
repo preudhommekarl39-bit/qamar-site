@@ -160,7 +160,7 @@
           return render();
         }
         pin = ''; renderLogin(); document.getElementById('pinBox').classList.add('shake');
-        Q.toast(res.error === 'locked' ? 'Too many attempts. Try again in 5 minutes or ask the manager.' : 'Wrong PIN. Please try again.'); return;
+        Q.toast(res.error === 'demo_pin_disabled' ? 'Demo PINs are disabled in production. Sign in with your staff account.' : res.error === 'locked' ? 'Too many attempts. Try again in 5 minutes or ask the manager.' : 'Wrong PIN. Please try again.'); return;
       }
       renderLogin();
     });

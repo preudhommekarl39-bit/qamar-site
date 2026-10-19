@@ -198,6 +198,9 @@
     noShow(id) { const t = ticket(id); if (t && t.status === 'called') { t.status = 'noshow'; t.doneAt = Date.now(); commit(); return true; } return false; },
 
     clockIn(sid, pin) {
+      // Les PIN de data.js sont des codes de démonstration : refusés dès que l'environnement est « production »
+      // (en production, la connexion passe par Supabase Auth et les fonctions SQL vérifient le rôle côté serveur)
+      if ((window.QAMAR_CONFIG || {}).environment === 'production') return fail('demo_pin_disabled');
       const s = stylist(sid); if (!s) return fail('unknown');
       const f = pinFails[sid] || { n: 0, until: 0 };
       if (f.until > Date.now()) return fail('locked');

@@ -2,8 +2,8 @@
 // Volontairement en pur traitement de texte pour pouvoir aussi être testées dans un navigateur.
 
 // Extrait l'objet `const dict = { … }` d'une page (dictionnaire EN/AR) en comptant les accolades hors chaînes.
-export function extractDict(html) {
-  const start = html.indexOf('const dict = {');
+export function extractDict(html, name = 'dict') {
+  const start = html.indexOf(`const ${name} = {`);
   if (start < 0) return null;
   let i = html.indexOf('{', start), depth = 0, q = null, esc = false;
   const from = i;

@@ -20,6 +20,10 @@
     window.gtag('event', event, Object.assign({ page_language: document.documentElement.lang || 'en' }, params || {}));
   };
   document.addEventListener('click', e => {
+    const lang = e.target.closest('.lang button[data-lang]');
+    if (lang) return window.QamarTrack('select_language', { language: lang.dataset.lang });
+    const tile = e.target.closest('a.tile-look, #looks .opt[data-id]');
+    if (tile) return window.QamarTrack('select_look', { look: tile.dataset.id || new URL(tile.href, location.href).searchParams.get('look') || '', location: tile.matches('a') ? 'site' : 'queue' });
     const el = e.target.closest('[data-track]'); if (!el) return;
     window.QamarTrack(el.dataset.track, { location: el.dataset.trackLoc || '' });
   });

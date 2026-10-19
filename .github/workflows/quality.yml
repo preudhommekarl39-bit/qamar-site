@@ -1,0 +1,68 @@
+# QAMAR — contrôle du site PUBLIÉ après chaque mise en ligne (et à la demande).
+# 1. e2e        : parcours réels dans Chromium (5 largeurs, EN/AR, menu mobile, langue, file complète, noindex)
+#                 + contrôles HTTP des domaines (https, www, .ae, ancienne adresse, 404, sitemap, robots, hreflang)
+# 2. lighthouse : mesures de laboratoire (performance, accessibilité, bonnes pratiques, SEO) mobile et ordinateur
+# Les rapports Lighthouse complets sont téléchargeables dans l'onglet Actions (artefact « lighthouse »).
+name: Quality
+
+on:
+  workflow_run:
+    workflows: [Site]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Attendre la propagation du déploiement
+        run: sleep 45
+      - run: npm install --no-save --no-audit --no-fund playwright@1.47.2
+      - run: npx playwright install --with-deps chromium
+      - name: Parcours réels + domaines
+        env:
+          BASE: https://qamarlounge.com
+        run: node scripts/e2e.mjs | tee e2e.txt
+      - if: always()
+        run: echo '```' >> $GITHUB_STEP_SUMMARY && cat e2e.txt >> $GITHUB_STEP_SUMMARY && echo '```' >> $GITHUB_STEP_SUMMARY
+
+  lighthouse:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: sleep 45
+      - name: Lighthouse (mobile puis ordinateur, EN et AR)
+        run: |
+          for page in "" "ar.html"; do
+            name=${page:-home}; name=${name%.html}
+            npx --yes lighthouse@12.2.1 "https://qamarlounge.com/$page" --quiet --chrome-flags="--headless=new --no-sandbox" --output=json --output-path="lh-$name-mobile.json" || true
+            npx --yes lighthouse@12.2.1 "https://qamarlounge.com/$page" --quiet --preset=desktop --chrome-flags="--headless=new --no-sandbox" --output=json --output-path="lh-$name-desktop.json" || true
+          done
+      - name: Résumé des scores
+        run: |
+          node -e '
+            const fs = require("fs");
+            const rows = fs.readdirSync(".").filter(f => /^lh-.*\.json$/.test(f)).map(f => {
+              const j = JSON.parse(fs.readFileSync(f, "utf8")); const c = j.categories, a = j.audits;
+              const s = k => c[k] ? Math.round(c[k].score * 100) : "-";
+              return `| ${f.replace(/^lh-|\.json$/g, "")} | ${s("performance")} | ${s("accessibility")} | ${s("best-practices")} | ${s("seo")} | ${a["largest-contentful-paint"].displayValue} | ${a["cumulative-layout-shift"].displayValue} | ${a["total-blocking-time"].displayValue} |`;
+            });
+            const out = ["| Page | Perf | Accessibilité | Bonnes pratiques | SEO | LCP | CLS | TBT |", "|---|---|---|---|---|---|---|---|", ...rows].join("\n");
+            console.log(out); fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, out + "\n");
+          '
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse
+          path: lh-*.json
+          retention-days: 30
