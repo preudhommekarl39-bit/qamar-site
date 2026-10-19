@@ -75,6 +75,6 @@
 
   document.addEventListener('click', e => { const a = e.target.closest('[data-install-app]'); if (a) { e.preventDefault(); open(); } });
   // rappel discret, une seule fois toutes les 2 semaines, sur mobile uniquement
-  if (isMobile && !standalone && !seen()) setTimeout(() => { if (!sheet) { remember(); open(); } }, 9000);
+  if (isMobile && !standalone && !seen() && !/queue.html/.test(location.pathname)) setTimeout(() => { if (!sheet) { remember(); open(); } }, 9000);
   window.QamarApp = { open };
 })();

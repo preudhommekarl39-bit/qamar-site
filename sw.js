@@ -1,7 +1,7 @@
 /* QAMAR — service worker : l'app s'ouvre instantanément et fonctionne même sans réseau.
    Pages : réseau d'abord (contenu à jour), cache en secours. Fichiers statiques : cache d'abord, mis à jour en arrière-plan.
    Changer VERSION à chaque mise en ligne pour forcer le rafraîchissement. */
-const VERSION = 'qamar-v6';
+const VERSION = 'qamar-v7';
 const CORE = [
   './', 'index.html', 'queue.html', 'privacy.html', 'legal.html', 'manifest.webmanifest',
   'assets/qamar.css', 'assets/config.js', 'assets/data.js', 'assets/store.js', 'assets/app.js', 'assets/track.js',

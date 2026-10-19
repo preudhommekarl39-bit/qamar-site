@@ -30,7 +30,7 @@ jobs:
       - name: Parcours réels + domaines
         env:
           BASE: https://qamarlounge.com
-        run: node scripts/e2e.mjs | tee e2e.txt
+        run: set -o pipefail; node scripts/e2e.mjs | tee e2e.txt
       - if: always()
         run: echo '```' >> $GITHUB_STEP_SUMMARY && cat e2e.txt >> $GITHUB_STEP_SUMMARY && echo '```' >> $GITHUB_STEP_SUMMARY
 

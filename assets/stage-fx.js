@@ -8,7 +8,9 @@
   const ctx = cv.getContext('2d');
   const stage = cv.closest('.stage') || cv.parentElement;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let W = 0, H = 0, dpr = 1, running = true, raf = 0, last = 0;
+  let W = 0, H = 0, dpr = 1, running = true, raf = 0, last = 0, ready = false, tick = 0;
+  // Téléphones et tablettes : moins de pixels, 30 images/s, sans ombres portées — même rendu, beaucoup moins de calcul
+  const lite = matchMedia('(pointer: coarse)').matches || innerWidth < 768;
   const rnd = (a, b) => a + Math.random() * (b - a);
   const TAU = Math.PI * 2;
   const pointer = { x: -9999, y: -9999, active: false };
@@ -179,13 +181,13 @@
   }
 
   function resize() {
-    dpr = Math.min(2, window.devicePixelRatio || 1);
+    dpr = Math.min(lite ? 1.5 : 2, window.devicePixelRatio || 1);
     W = cv.clientWidth; H = cv.clientHeight;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const n = W < 700 ? 34 : 70;
+    const n = lite ? 26 : W < 700 ? 34 : 70;
     flowers = Array.from({ length: n }, () => newFlower(true)).sort((a, b) => a.z - b.z);
-    bokeh = Array.from({ length: W < 700 ? 10 : 18 }, () => ({ x: rnd(0, W), y: rnd(0, H), r: rnd(40, W < 700 ? 90 : 160), vx: rnd(-5, 5), vy: rnd(-6, -2), a: rnd(.25, .5), ph: rnd(0, TAU), white: Math.random() < .5 }));
+    bokeh = Array.from({ length: lite ? 6 : W < 700 ? 10 : 18 }, () => ({ x: rnd(0, W), y: rnd(0, H), r: rnd(40, W < 700 ? 90 : 160), vx: rnd(-5, 5), vy: rnd(-6, -2), a: rnd(.25, .5), ph: rnd(0, TAU), white: Math.random() < .5 }));
     buildBranch();
     buildFloor();
   }
@@ -239,7 +241,7 @@
       const fg = ctx.createLinearGradient(cx - w / 2, baseY - h, cx + w / 2, baseY);
       fg.addColorStop(0, '#FFF3EE'); fg.addColorStop(.35, '#F6D9CF'); fg.addColorStop(.7, '#EDC3B7'); fg.addColorStop(1, '#E3B0A4');
       ctx.fillStyle = fg;
-      if (depth > .35) { ctx.shadowColor = 'rgba(160, 80, 95, .18)'; ctx.shadowBlur = s * .05; ctx.shadowOffsetY = s * .012; }
+      if (depth > .35 && !lite) { ctx.shadowColor = 'rgba(160, 80, 95, .18)'; ctx.shadowBlur = s * .05; ctx.shadowOffsetY = s * .012; }
       ctx.fill('evenodd');
       ctx.shadowColor = 'transparent';
       // arête extérieure éclairée
@@ -358,8 +360,8 @@
 
   // Boucle protégée : une erreur de dessin ne doit jamais figer toute l'animation
   function frame(ms) {
-    try { draw(ms); }
-    catch (e) { console.error('[QAMAR stage-fx]', e); try { ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.setLineDash([]); } catch (_) {} }
+    if (!lite || (tick++ & 1) === 0) { try { draw(ms); }
+    catch (e) { console.error('[QAMAR stage-fx]', e); try { ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.setLineDash([]); } catch (_) {} } }
     if (running && !reduce) raf = requestAnimationFrame(frame);
   }
 
@@ -384,8 +386,11 @@
   resize();
   let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { resize(); if (reduce || !running) frame(performance.now()); }, 150); });
   new IntersectionObserver(([en]) => {
-    if (en.isIntersecting && !running) { running = true; last = 0; raf = requestAnimationFrame(frame); }
+    if (en.isIntersecting && !running && ready) { running = true; last = 0; raf = requestAnimationFrame(frame); }
     if (!en.isIntersecting) { running = false; cancelAnimationFrame(raf); }
   }).observe(cv);
-  raf = requestAnimationFrame(frame);
+  // Image fixe tout de suite, animation lancée une fois la page chargée : le site s'affiche et répond d'abord
+  running = false; try { draw(performance.now()); } catch (e) { /* le premier dessin ne doit jamais bloquer la page */ }
+  const start = () => { ready = true; if (!running && !reduce) { running = true; last = 0; raf = requestAnimationFrame(frame); } };
+  if (document.readyState === 'complete') setTimeout(start, 1200); else addEventListener('load', () => setTimeout(start, 1200), { once: true });
 })();
