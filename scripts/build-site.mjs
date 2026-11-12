@@ -56,10 +56,6 @@ function jsonLd(lang) {
 
 // Vidéos (balisage VideoObject + sitemap vidéo) : la page arabe pointe vers les versions arabes
 const VIDEOS = [
-  { id: 'walk-in', dur: { en: 'PT26S', ar: 'PT28S' },
-    name: { en: 'QAMAR: Walk in tired. Walk out ready.', ar: 'قمر: ادخلي متعبة. اخرجي جاهزة.' },
-    desc: { en: 'From work to dinner in 45 minutes at QAMAR, the women-only walk-in blow-dry lounge off Sheikh Zayed Road, Dubai: private shower, outfit steamed and perfumed, blow-dry, nails if needed and a drink on us. Opening March 2027.',
-            ar: 'من العمل إلى العشاء في ٤٥ دقيقة في قمر، صالون السشوار للنساء بدون موعد قرب شارع الشيخ زايد في دبي: دش خاص، ملابس بالبخار ومعطّرة، سشوار، أظافر عند الحاجة ومشروب على حسابنا. الافتتاح مارس ٢٠٢٧.' } },
   { id: 'opening', dur: { en: 'PT28S', ar: 'PT29S' },
     name: { en: 'The QAMAR ritual: walk-in blow-dry lounge in Dubai', ar: 'طقوس قمر: صالون سشوار بدون موعد في دبي' },
     desc: { en: 'No appointment, just walk in: a private shower while your clothes and hijab are steamed and perfumed, a blow-dry in 45 minutes or less and a matcha on us. QAMAR Blowdry Lounge, opening March 2027 in Dubai.',
