@@ -69,11 +69,11 @@ writeFileSync(`${OUT}/index.html`, en);
 const { html: arBody, missing } = translateHtml(indexSrc, dict, 'ar');
 if (missing.length) { console.error('Arabic translation missing for:', [...new Set(missing)].join(', ')); process.exit(1); }
 let ar = arBody.replace(/<html lang="en" dir="ltr">/, '<html lang="ar" dir="rtl" data-page-lang="ar" data-lang-href-en="./">');
-ar = ar.replace(/<title>[^<]*<\/title>/, '<title>قمر بلودراي لاونج دبي | سشوار بدون موعد وتسريحات شعر</title>');
-ar = setMeta(ar, 'name', 'description', 'صالون سشوار بدون موعد يفتح قريباً في دبي. اختاري إطلالتك — سشوار سريع، تموجات هوليوود، فرد ناعم — وتابعي دورك في الطابور من هاتفك.');
-ar = setMeta(ar, 'property', 'og:title', 'قمر بلودراي لاونج دبي — ادخلي. تألّقي.');
-ar = setMeta(ar, 'property', 'og:description', 'صالون السشوار بدون موعد يفتح قريباً في دبي. كل إطلالة خلال ٤٥ دقيقة أو أقل.');
-ar = setMeta(ar, 'property', 'og:image:alt', 'قمر بلودراي لاونج دبي — هلال ذهبي وأقواس على خلفية وردية');
+ar = ar.replace(/<title>[^<]*<\/title>/, '<title>قمر دبي | دش، ملابس مكوية بالبخار وسشوار في ٤٥ دقيقة</title>');
+ar = setMeta(ar, 'name', 'description', 'صالون للنساء فقط يفتح في دبي في مارس ٢٠٢٧ قرب شارع الشيخ زايد. دش، ملابسك مكوية بالبخار ومعطّرة، سشوار ومشروب في ٤٥ دقيقة، بدون موعد.');
+ar = setMeta(ar, 'property', 'og:title', 'قمر دبي — ادخلي متعبة. اخرجي جاهزة.');
+ar = setMeta(ar, 'property', 'og:description', 'دش، ملابس بالبخار ومعطّرة، سشوار ومشروب في ٤٥ دقيقة. للنساء فقط، بدون موعد. الافتتاح مارس ٢٠٢٧.');
+ar = setMeta(ar, 'property', 'og:image:alt', 'قمر بلودراي لاونج، دبي');
 ar = ar.replace('<meta property="og:locale" content="en_AE">', '<meta property="og:locale" content="ar_AE">').replace('<meta property="og:locale:alternate" content="ar_AE">', '<meta property="og:locale:alternate" content="en_AE">');
 ar = seoHead(ar, 'ar', URLS.ar);
 writeFileSync(`${OUT}/ar.html`, ar);
