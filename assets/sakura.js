@@ -107,11 +107,12 @@
     let W = 0, H = 0, dpr = 1, items = [], raf = 0, last = 0, on = !hasHero;
     const make = top => ({ x: rnd(0, W), y: top ? rnd(-80, -20) : rnd(-H, H), b: Math.random() < .35, pal: Math.floor(rnd(0, 4)), s: rnd(.55, 1.05), vy: rnd(22, 42), sway: rnd(18, 46), ph: rnd(0, TAU), rot: rnd(0, TAU), vr: rnd(-1.4, 1.4), fl: rnd(0, TAU), vf: rnd(1.4, 3) });
     function size() {
-      dpr = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight;
+      dpr = 1; W = innerWidth; H = innerHeight;
       cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       items = Array.from({ length: W < 700 ? 9 : 16 }, () => make(false));
     }
     function frame(ms) {
+      if (last && ms - last < 33) { if (on && !document.hidden) raf = requestAnimationFrame(frame); return; }
       const dt = Math.min(.05, last ? (ms - last) / 1000 : .016); last = ms;
       const t = ms / 1000, wind = Math.sin(t * .2) * 10;
       ctx.clearRect(0, 0, W, H);

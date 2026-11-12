@@ -34,15 +34,15 @@ const hreflang = `<link rel="alternate" hreflang="en" href="${URLS.en}">\n<link 
 
 function jsonLd(lang) {
   const ld = {
-    '@context': 'https://schema.org', '@type': 'HairSalon',
+    '@context': 'https://schema.org', '@type': 'HairSalon', '@id': SITE + '#salon', mainEntityOfPage: URLS[lang],
     name: 'QAMAR Blowdry Lounge', alternateName: 'قمر',
     description: lang === 'ar' ? 'صالون سشوار بدون موعد يفتح قريباً في دبي.' : 'Walk-in blow-dry lounge opening soon in Dubai.',
-    url: URLS[lang], logo: abs('assets/app/icon-512.png'), image: abs('assets/og-qamar.png'),
+    url: SITE, logo: abs('assets/app/icon-512.png'), image: abs('assets/og-qamar.png'),
     areaServed: { '@type': 'City', name: 'Dubai' }, knowsLanguage: ['en', 'ar'], inLanguage: lang,
     slogan: lang === 'ar' ? 'ادخلي متعبة. اخرجي جاهزة.' : 'Walk in tired. Walk out ready.',
-    knowsAbout: ['blow-dry', 'blowout', 'hair styling', 'women-only salon', 'walk-in salon', 'Dubai'],
+    knowsAbout: ['blow-dry', 'blowout', 'hair styling', 'women-only salon', 'walk-in salon'],
     hasOfferCatalog: { '@type': 'OfferCatalog', name: lang === 'ar' ? 'الخدمات' : 'Services', itemListElement: (lang === 'ar'
-      ? ['سشوار بدون موعد', 'دش خاص', 'كيّ الملابس والعباية والحجاب بالبخار وتعطيرها', 'تسريحات للمناسبات', 'أظافر', 'مشروب على حسابنا']
+      ? ['سشوار بدون موعد', 'دشّ خاص', 'كيّ الملابس والعباية والحجاب بالبخار وتعطيرها', 'تسريحات للمناسبات', 'أظافر', 'مشروب مجاني']
       : ['Walk-in blow-dry', 'Private shower', 'Outfit, abaya and hijab steaming and perfuming', 'Event hairstyling', 'Nails', 'Complimentary drink']
     ).map(n => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: n } })) }
   };
@@ -60,7 +60,7 @@ const VIDEOS = [
     name: { en: 'QAMAR: Walk in tired. Walk out ready.', ar: 'قمر: ادخلي متعبة. اخرجي جاهزة.' },
     desc: { en: 'From work to dinner in 45 minutes at QAMAR, the women-only walk-in blow-dry lounge off Sheikh Zayed Road, Dubai: private shower, outfit steamed and perfumed, blow-dry, nails if needed and a drink on us. Opening March 2027.',
             ar: 'من العمل إلى العشاء في ٤٥ دقيقة في قمر، صالون السشوار للنساء بدون موعد قرب شارع الشيخ زايد في دبي: دش خاص، ملابس بالبخار ومعطّرة، سشوار، أظافر عند الحاجة ومشروب على حسابنا. الافتتاح مارس ٢٠٢٧.' } },
-  { id: 'opening', dur: { en: 'PT28S', ar: 'PT28S' },
+  { id: 'opening', dur: { en: 'PT28S', ar: 'PT29S' },
     name: { en: 'The QAMAR ritual: walk-in blow-dry lounge in Dubai', ar: 'طقوس قمر: صالون سشوار بدون موعد في دبي' },
     desc: { en: 'No appointment, just walk in: a private shower while your clothes and hijab are steamed and perfumed, a blow-dry in 45 minutes or less and a matcha on us. QAMAR Blowdry Lounge, opening March 2027 in Dubai.',
             ar: 'بدون موعد، فقط ادخلي: دش خاص بينما نكوي ملابسكِ وحجابكِ بالبخار ونعطّرها، سشوار في ٤٥ دقيقة أو أقل وماتشا على حسابنا. قمر بلودراي لاونج، الافتتاح مارس ٢٠٢٧ في دبي.' } }
@@ -68,14 +68,20 @@ const VIDEOS = [
 const vfile = (v, lang, ext) => `assets/video/qamar-${v.id}${lang === 'ar' ? '-ar' : ''}${ext}`;
 const UPLOAD = '2026-11-12T12:00:00+04:00';
 function extraLd(lang) {
-  const videos = VIDEOS.map(v => ({ '@type': 'VideoObject', name: v.name[lang], description: v.desc[lang], thumbnailUrl: abs(vfile(v, lang, '-poster.jpg')), contentUrl: abs(vfile(v, lang, '.mp4')), uploadDate: UPLOAD, duration: v.dur[lang], inLanguage: lang, publisher: { '@type': 'Organization', name: 'QAMAR Blowdry Lounge', logo: { '@type': 'ImageObject', url: abs('assets/app/icon-512.png') } } }));
+  const videos = VIDEOS.map(v => ({ '@type': 'VideoObject', name: v.name[lang], description: v.desc[lang], thumbnailUrl: abs(vfile(v, lang, '-poster.jpg')), contentUrl: abs(vfile(v, lang, '.mp4')), uploadDate: UPLOAD, duration: v.dur[lang], inLanguage: lang, about: { '@id': SITE + '#salon' }, publisher: { '@type': 'Organization', name: 'QAMAR Blowdry Lounge', logo: { '@type': 'ImageObject', url: abs('assets/app/icon-512.png') } } }));
   const faq = Object.keys(dict).filter(k => /^faq_q\d+$/.test(k)).sort((a, b) => +a.slice(5) - +b.slice(5)).filter(k => dict['faq_a' + k.slice(5)])
     .map(k => ({ '@type': 'Question', name: dict[k][lang], acceptedAnswer: { '@type': 'Answer', text: dict['faq_a' + k.slice(5)][lang].replace(/<[^>]+>/g, '') } }));
-  const graph = [...videos, { '@type': 'FAQPage', inLanguage: lang, mainEntity: faq }, { '@type': 'WebSite', name: 'QAMAR Blowdry Lounge', alternateName: 'قمر', url: SITE, inLanguage: ['en', 'ar'] }];
+  const graph = [...videos, { '@type': 'FAQPage', inLanguage: lang, mainEntity: faq }, { '@type': 'WebSite', name: 'QAMAR Blowdry Lounge', alternateName: 'قمر', url: SITE, inLanguage: ['en', 'ar'], publisher: { '@id': SITE + '#salon' } }];
   return `<script type="application/ld+json" id="ldjson-extra">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph })}</script>`;
 }
 
+function stripSocial(html) {
+  if (B.instagramConfirmed) return html;
+  return html.replace(/<div data-social>[\s\S]*?<\/div>/g, '').replace(/<a [^>]*data-social>[^<]*<\/a>/g, '').replace(/<span class="kicker" data-social>[^<]*<\/span>/g, '');
+}
+
 function seoHead(html, lang, url) {
+  html = stripSocial(html);
   html = setHeadTag(html, /<link rel="canonical"[^>]*>/, `<link rel="canonical" href="${url}">`);
   html = html.replace(/(<link rel="canonical"[^>]*>)/, `$1\n${hreflang}`);
   html = setMeta(html, 'property', 'og:url', url);
@@ -96,12 +102,18 @@ writeFileSync(`${OUT}/index.html`, en);
 const { html: arBody, missing } = translateHtml(indexSrc, dict, 'ar');
 if (missing.length) { console.error('Arabic translation missing for:', [...new Set(missing)].join(', ')); process.exit(1); }
 let ar = arBody.replace(/<html lang="en" dir="ltr">/, '<html lang="ar" dir="rtl" data-page-lang="ar" data-lang-href-en="./">');
-ar = ar.replace(/<title>[^<]*<\/title>/, '<title>قمر بلودراي لاونج دبي | سشوار للنساء بدون موعد</title>');
-ar = setMeta(ar, 'name', 'description', 'صالون سشوار بدون موعد يفتح قريباً في دبي. اختاري إطلالتك — سشوار سريع، تموجات هوليوود، فرد ناعم — وتابعي دورك في الطابور من هاتفك.');
-ar = setMeta(ar, 'property', 'og:title', 'قمر بلودراي لاونج دبي — ادخلي. تألّقي.');
+ar = ar.replace(/<title>[^<]*<\/title>/, '<title>سشوار دبي بدون موعد | صالون نسائي قرب الشيخ زايد – قمر</title>');
+ar = setMeta(ar, 'name', 'description', 'قمر بلودراي لاونج: صالون سشوار نسائي بدون موعد قرب شارع الشيخ زايد في دبي. تسريحتكِ في ٤٥ دقيقة أو أقل، دشّ خاص ومشروب على حسابنا. الافتتاح مارس ٢٠٢٧.');
+ar = setMeta(ar, 'property', 'og:title', 'قمر بلودراي لاونج دبي — ادخلي… واخرجي متألقة.');
 ar = setMeta(ar, 'property', 'og:description', 'صالون السشوار بدون موعد يفتح قريباً في دبي. كل إطلالة خلال ٤٥ دقيقة أو أقل.');
 ar = setMeta(ar, 'property', 'og:image:alt', 'قمر بلودراي لاونج دبي — هلال ذهبي وأقواس على خلفية وردية');
 ar = ar.replace('<meta property="og:locale" content="en_AE">', '<meta property="og:locale" content="ar_AE">').replace('<meta property="og:locale:alternate" content="ar_AE">', '<meta property="og:locale:alternate" content="en_AE">');
+ar = ar.replace(/<video src="([^"]+)" poster="([^"]+)" data-src-ar="([^"]+)" data-poster-ar="([^"]+)"/g, '<video src="$3" poster="$4" data-src-ar="$3" data-poster-ar="$4"');
+ar = ar.replace(/href="guides\/([a-z-]+)\.html" data-guide=/g, 'href="guides/ar/$1.html" data-guide=');
+ar = ar.replace('family=Cormorant+Garamond:wght@400;500&family=Tajawal:wght@400;500;700&display=swap', 'family=Cormorant+Garamond:wght@400;500&family=Tajawal:wght@400;500;700&family=Amiri&display=swap');
+ar = setMeta(ar, 'name', 'twitter:title', 'قمر بلودراي لاونج دبي — ادخلي… واخرجي متألقة.');
+ar = setMeta(ar, 'name', 'twitter:description', 'صالون سشوار نسائي بدون موعد قرب شارع الشيخ زايد في دبي: دشّ خاص، ملابسكِ بالبخار، وسشوار في ٤٥ دقيقة. الافتتاح مارس ٢٠٢٧.');
+ar = setMeta(ar, 'property', 'og:description', 'صالون سشوار نسائي بدون موعد قرب شارع الشيخ زايد في دبي: دشّ خاص، ملابسكِ بالبخار، وسشوار في ٤٥ دقيقة. الافتتاح مارس ٢٠٢٧.');
 ar = seoHead(ar, 'ar', URLS.ar);
 writeFileSync(`${OUT}/ar.html`, ar);
 
@@ -128,9 +140,7 @@ writeFileSync(`${OUT}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>
   </url>
   <url><loc>${URLS.ar}</loc><lastmod>${today}</lastmod>${alt}${vsm('ar')}
   </url>
-${readdirSync('guides').filter(f => f.endsWith('.html')).map(f => `  <url><loc>${abs('guides/' + f)}</loc><lastmod>${today}</lastmod></url>\n`).join('')}  <url><loc>${abs('privacy.html')}</loc><lastmod>${today}</lastmod></url>
-  <url><loc>${abs('legal.html')}</loc><lastmod>${today}</lastmod></url>
-</urlset>
+${readdirSync('guides').filter(f => f.endsWith('.html')).map(f => { const en = abs('guides/' + f), arU = abs('guides/ar/' + f); const has = existsSync('guides/ar/' + f); const a = has ? `\n    <xhtml:link rel="alternate" hreflang="en" href="${en}"/>\n    <xhtml:link rel="alternate" hreflang="ar" href="${arU}"/>` : ''; return `  <url><loc>${en}</loc><lastmod>${today}</lastmod>${a}\n  </url>\n` + (has ? `  <url><loc>${arU}</loc><lastmod>${today}</lastmod>${a}\n  </url>\n` : ''); }).join('')}</urlset>
 `);
 
 console.log(`Built ${OUT}/ for ${SITE}:`, readdirSync(OUT).join(', '));

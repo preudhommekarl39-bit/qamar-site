@@ -181,7 +181,7 @@
   }
 
   function resize() {
-    dpr = Math.min(lite ? 1.5 : 2, window.devicePixelRatio || 1);
+    dpr = Math.min(lite ? 1.25 : 1.5, window.devicePixelRatio || 1);
     W = cv.clientWidth; H = cv.clientHeight;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -359,8 +359,9 @@
   }
 
   // Boucle protégée : une erreur de dessin ne doit jamais figer toute l'animation
+  let nextDraw = 0;
   function frame(ms) {
-    if (!lite || (tick++ & 1) === 0) { try { draw(ms); }
+    if (ms >= nextDraw) { nextDraw = ms + 33; try { draw(ms); }
     catch (e) { console.error('[QAMAR stage-fx]', e); try { ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.setLineDash([]); } catch (_) {} } }
     if (running && !reduce) raf = requestAnimationFrame(frame);
   }

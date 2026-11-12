@@ -25,7 +25,7 @@ G = [
    ('h2','During the evening'),
    ('ul',['Keep a small claw clip in your bag for the walk outside.','Do not touch your hair too often. Hands add moisture.','Go from car to inside quickly in summer: five minutes outdoors at night can be enough to lift the roots.']),
    ('h2','At QAMAR'),
-   ('p','Our four signature looks (Midnight Sleek, Qamar Glow, Marina Waves and Desert Curls) are done by an all-female team, in 45 minutes at most, without an appointment. Opening March 2027 off Sheikh Zayed Road.')]),
+   ('p','Our blow-dry looks (Qamar Express, Qamar Glow, Marina Waves and Midnight Sleek) are done by an all-female team, in 45 minutes at most, without an appointment. Opening March 2027 off Sheikh Zayed Road.')]),
  dict(slug='steam-abaya-hijab', title='Steaming vs Ironing Your Abaya and Hijab: What Works Best',
   desc='Should you steam or iron your abaya and hijab? Which fabrics need what, how to remove creases fast, and how to keep a light scent without staining.',
   h1='Steaming vs ironing your abaya and hijab', img='step-outfit.webp',
@@ -39,40 +39,91 @@ G = [
    ('h2','At QAMAR'),
    ('p','While you shower, we steam your abaya, dress or hijab and give it a light scent, so you leave with everything fresh at the same time. Women only, opening March 2027 off Sheikh Zayed Road.')]),
 ]
+GA = [
+ dict(slug='get-ready-after-work-dubai', title='أين تتجهزين بعد العمل في دبي قرب شارع الشيخ زايد',
+  desc='عشاء مباشرة بعد الدوام؟ كيف تنتقلين من المكتب إلى السهرة في أقل من ساعة في دبي: دشّ، ملابس بلا تجاعيد وسشوار، قرب شارع الشيخ زايد.',
+  h1='أين تتجهزين بعد العمل في دبي؟',
+  body=[('p','العشاء في الثامنة، وتخرجين من المكتب في السابعة. الذهاب إلى البيت في البرشاء أو المارينا والعودة يأخذ الساعة كلها، وزحمة شارع الشيخ زايد تتكفل بالباقي.'),
+   ('h2','ما تحتاجينه فعلاً في ساعة واحدة'),
+   ('ul',['دشّ منعش بعد يوم كامل في الحرّ.','ملابس بلا تجاعيد، فالفستان المطوي في الحقيبة طوال اليوم يحتاج إلى البخار.','تسريحة جاهزة، فالسشوار يغيّر الإطلالة كلها.','خمس دقائق هادئة ومشروب قبل الخروج.']),
+   ('h2','الخيارات المعتادة، وأين تقصر'),
+   ('p','غرفة تبديل الملابس في النادي الرياضي توفّر الدشّ بلا تسريحة. والصالون يوفّر السشوار غالباً بلا دشّ، وكثير منها يحتاج إلى موعد. أما سبا الفنادق فيجمع الاثنين، لكن بسعر ووقت السبا.'),
+   ('h2','كيف يفعلها قمر'),
+   ('p','قمر صالون نسائي يفتح في مارس ٢٠٢٧ قرب شارع الشيخ زايد، بين مول الإمارات ومركز دبي المالي العالمي. تدخلين بدون موعد. أثناء الدشّ نكوي فستانكِ أو عباءتكِ أو شيلتكِ بالبخار ونعطّرها، ثم تجلسين للسشوار ومشروبكِ، في ٤٥ دقيقة أو أقل.'),
+   ('h2','نصائح للسهرة'),
+   ('ul',['احتفظي بحقيبة صغيرة في المكتب: ملابس داخلية، مزيل عرق، حذاء، وطبقة خفيفة لمكيّفات المطاعم.','لفّي الفستان بدل طيّه، فيتجعد أقل.','اطلبي سشواراً ناعماً أو بحجم إذا كنتِ ستخرجين، فهما يصمدان في الرطوبة أكثر من التموجات.'])]),
+ dict(slug='blow-dry-dubai-humidity', title='كيف يدوم السشوار في رطوبة دبي',
+  desc='الرطوبة في دبي تفسد السشوار بسرعة. نصائح عملية ليبقى شعركِ ناعماً أطول: أي تسريحة تختارين، وماذا تطلبين من مصففتكِ، وما الذي تتجنبينه.',
+  h1='كيف يدوم السشوار في رطوبة دبي',
+  body=[('p','من مايو إلى أكتوبر، قد تفسد رطوبة دبي سشواراً جديداً في الطريق من السيارة إلى المطعم. إليكِ ما يساعد.'),
+   ('h2','اختاري تسريحة تصمد'),
+   ('ul',['الشعر الناعم المفرود يدوم أطول، بشرط أن تجفّ الجذور تماماً.','السشوار بالفرشاة الدائرية مع حجم يحافظ على شكله أكثر من التموجات الخفيفة.','التموجات المحددة تتحمل الرطوبة جيداً لأنها قريبة من شكل الشعر الطبيعي.']),
+   ('h2','ماذا تطلبين من مصففتكِ'),
+   ('ul',['تجفيف الجذور بالكامل، فالرطوبة تبدأ من هناك.','رذاذ خفيف مضاد للرطوبة في النهاية، بدل الزيوت الثقيلة.','دفعة هواء باردة لتثبيت الشكل.']),
+   ('h2','بعد الخروج'),
+   ('ul',['احملي مشبك شعر صغير في حقيبتكِ للمشي في الخارج.','لا تلمسي شعركِ كثيراً، فاليدان تضيفان رطوبة.','في الصيف انتقلي من السيارة إلى الداخل بسرعة، فخمس دقائق في الخارج ليلاً قد تكفي لرفع الجذور.']),
+   ('p','تسريحاتنا (قمر إكسبريس، قمر جلو، أمواج المارينا، ميدنايت سليك) ينفذها فريق نسائي بالكامل، في ٤٥ دقيقة كحد أقصى، بدون موعد. الافتتاح مارس ٢٠٢٧ قرب شارع الشيخ زايد.')]),
+ dict(slug='steam-abaya-hijab', title='كيّ العباية والشيلة: بالبخار أم بالمكواة؟',
+  desc='هل تكوين عباءتكِ وشيلتكِ بالبخار أم بالمكواة؟ أي قماش يحتاج ماذا، وكيف تزيلين التجاعيد بسرعة، وكيف تحتفظين برائحة خفيفة بلا بقع.',
+  h1='كيّ العباية والشيلة: بالبخار أم بالمكواة؟',
+  body=[('p','عباءة قضت اليوم مطوية في الحقيبة، أو شيلة تجعدت من مقعد السيارة، قد تجعل الإطلالة كلها متعبة. البخار يصلحها عادة أسرع من المكواة وبلطف أكبر.'),
+   ('h2','متى تستخدمين البخار'),
+   ('ul',['عبايات الكريب والندى والشيفون: البخار يرخي التجاعيد بلا لمعة.','شيلات الشيفون والجيرسيه: البخار يحافظ على انسدالها الناعم.','القطع المطرزة: بخّري من الداخل حتى لا تُضغط الخرز والتطريزات.']),
+   ('h2','متى تستخدمين المكواة'),
+   ('ul',['القطن والكتان عندما تحتاجين خطاً حاداً.','دائماً على حرارة منخفضة مع قطعة قماش فوق الأقمشة الداكنة لتجنب اللمعان.']),
+   ('h2','عطر بلا بقع'),
+   ('p','رشّي العطر من مسافة ٣٠ سم على الأقل، على الجهة الداخلية للقماش أو في الهواء ثم امشي خلاله. الزيوت ودخان البخور جميلة لكنها قد تترك أثراً على الحرير الفاتح، فجرّبي على طرف مخفي أولاً.'),
+   ('h2','في قمر'),
+   ('p','أثناء الدشّ نكوي عباءتكِ أو فستانكِ أو شيلتكِ بالبخار ونعطّرها برائحة خفيفة، فتخرجين وكل شيء منعش في الوقت نفسه. للنساء فقط، الافتتاح مارس ٢٠٢٧ قرب شارع الشيخ زايد.')]),
+]
 CSS = """:root{--night:#120B0F;--rose:#C9788F;--gold:#C49A5A;--cream:#FAF5F0;--ink:#1F1417;--ink2:#5E4A50}*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:300 18px/1.7 Jost,system-ui,sans-serif}a{color:var(--rose)}header,footer{background:linear-gradient(120deg,#F8E1DC,#F3D3D6 60%,#EFC6CC);color:var(--ink)}header .w,footer .w{display:flex;justify-content:space-between;align-items:center;min-height:68px}.w{width:min(760px,100% - 40px);margin:auto}.brand{color:var(--ink);text-decoration:none;font:500 22px 'Cormorant Garamond',serif;letter-spacing:.3em}h1,h2{font-family:'Cormorant Garamond',serif;font-weight:500;line-height:1.15}h1{font-size:clamp(36px,6vw,54px);margin:48px 0 16px}h2{font-size:30px;margin:40px 0 8px}.lead{color:var(--ink2)}li{margin:6px 0}.cta{display:inline-flex;align-items:center;min-height:52px;padding:0 28px;border-radius:999px;background:var(--rose);color:#fff;text-decoration:none;font-weight:500;margin:32px 0}.more{border-top:1px solid rgba(196,154,90,.35);margin-top:48px;padding-top:24px}footer{margin-top:64px;font-size:15px}footer a{color:var(--ink);min-height:44px;display:inline-flex;align-items:center}:focus-visible{outline:2px solid var(--gold);outline-offset:3px}"""
 def block(t, v):
     if t == 'ul': return '<ul>' + ''.join(f'<li>{html.escape(x)}</li>' for x in v) + '</ul>'
     return f'<{t}>{html.escape(v)}</{t}>'
-for g in G:
-    url = SITE + 'guides/' + g['slug'] + '.html'
-    ld = {"@context":"https://schema.org","@type":"Article","headline":g['h1'],"description":g['desc'],"inLanguage":"en","image":SITE+'assets/og-qamar.png',"datePublished":"2026-11-12","author":{"@type":"Organization","name":"QAMAR Blowdry Lounge","url":SITE},"publisher":{"@type":"Organization","name":"QAMAR Blowdry Lounge"},"mainEntityOfPage":url}
-    others = ''.join(f'<li><a href="{o["slug"]}.html">{html.escape(o["h1"])}</a></li>' for o in G if o is not g)
-    page = f'''<!doctype html>
-<html lang="en" dir="ltr">
+import os
+os.makedirs('guides/ar', exist_ok=True)
+UI = {'en': dict(dir='ltr', loc='en_AE', home='Home', cta='Discover QAMAR', more='More guides', contact='Contact', pre='../', crumb='QAMAR', sign='© QAMAR Blowdry Lounge · Dubai'),
+      'ar': dict(dir='rtl', loc='ar_AE', home='الرئيسية', cta='اكتشفي قمر', more='أدلة أخرى', contact='تواصلي معنا', pre='../../', crumb='قمر', sign='© قمر بلودراي لاونج · دبي')}
+def page(g, lang, lst):
+    u = UI[lang]; P = u['pre']
+    url = SITE + ('guides/ar/' if lang == 'ar' else 'guides/') + g['slug'] + '.html'
+    en_url = SITE + 'guides/' + g['slug'] + '.html'; ar_url = SITE + 'guides/ar/' + g['slug'] + '.html'
+    home = SITE + ('ar.html' if lang == 'ar' else '')
+    ld = {"@context":"https://schema.org","@graph":[
+      {"@type":"Article","headline":g['h1'],"description":g['desc'],"inLanguage":lang,"image":SITE+'assets/og-qamar.png',"datePublished":"2026-11-12","dateModified":"2026-11-12","author":{"@type":"Organization","name":"QAMAR Blowdry Lounge","url":SITE},"publisher":{"@id":SITE+"#salon"},"about":{"@id":SITE+"#salon"},"mainEntityOfPage":url},
+      {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":u['crumb'],"item":home},{"@type":"ListItem","position":2,"name":g['h1'],"item":url}]}]}
+    others = ''.join(f'<li><a href="{o["slug"]}.html">{html.escape(o["h1"])}</a></li>' for o in lst if o is not g)
+    t = html.escape(g['title']); d = html.escape(g['desc'])
+    return f'''<!doctype html>
+<html lang="{lang}" dir="{u['dir']}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{html.escape(g['title'])} | QAMAR</title>
-<meta name="description" content="{html.escape(g['desc'])}">
+<title>{t} | {'قمر' if lang == 'ar' else 'QAMAR'}</title>
+<meta name="description" content="{d}">
 <link rel="canonical" href="{url}">
-<meta property="og:type" content="article"><meta property="og:title" content="{html.escape(g['title'])}"><meta property="og:description" content="{html.escape(g['desc'])}"><meta property="og:image" content="{SITE}assets/og-qamar.png"><meta property="og:url" content="{url}">
+<link rel="alternate" hreflang="en" href="{en_url}"><link rel="alternate" hreflang="ar" href="{ar_url}"><link rel="alternate" hreflang="x-default" href="{en_url}">
+<meta property="og:type" content="article"><meta property="og:site_name" content="QAMAR Blowdry Lounge"><meta property="og:locale" content="{u['loc']}"><meta property="og:title" content="{t}"><meta property="og:description" content="{d}"><meta property="og:image" content="{SITE}assets/og-qamar.png"><meta property="og:url" content="{url}">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{t}"><meta name="twitter:description" content="{d}">
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
-<link rel="icon" href="../assets/app/favicon-32.png" type="image/png">
+<link rel="icon" href="{P}assets/app/favicon-32.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Jost:wght@300;500&display=swap" rel="stylesheet">
-<style>{CSS}</style>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Jost:wght@300;500{'&family=Tajawal:wght@400;500' if lang == 'ar' else ''}&display=swap" rel="stylesheet">
+<style>{CSS}{"body{font-family:Tajawal,system-ui,sans-serif}h1,h2{font-family:Tajawal,serif;font-weight:500}" if lang == 'ar' else ''}</style>
 </head>
 <body>
-<header><div class="w"><a class="brand" href="../" translate="no">QAMAR</a><a href="../#contact" style="color:var(--ink)">Contact</a></div></header>
+<header><div class="w"><a class="brand" href="{P}{'ar.html' if lang == 'ar' else ''}" translate="no">QAMAR</a><a href="{P}{'ar.html' if lang == 'ar' else ''}#contact" style="color:var(--ink)">{u['contact']}</a></div></header>
 <main class="w">
 <h1>{html.escape(g['h1'])}</h1>
 {''.join(block(t, v) for t, v in g['body'])}
-<a class="cta" href="../">Discover QAMAR</a>
-<div class="more"><h2>More guides</h2><ul>{others}</ul></div>
+<a class="cta" href="{P}{'ar.html' if lang == 'ar' else ''}">{u['cta']}</a>
+<div class="more"><h2>{u['more']}</h2><ul>{others}</ul></div>
 </main>
-<footer><div class="w"><span translate="no">© QAMAR Blowdry Lounge · Dubai</span><a href="../">Home</a></div></footer>
+<footer><div class="w"><span translate="no">{u['sign']}</span><a href="{P}{'ar.html' if lang == 'ar' else ''}">{u['home']}</a></div></footer>
 </body>
 </html>
 '''
-    open(f"guides/{g['slug']}.html", 'w').write(page)
-    print(g['slug'])
+for g in G:
+    open(f"guides/{g['slug']}.html", 'w').write(page(g, 'en', G)); print(g['slug'])
+for g in GA:
+    open(f"guides/ar/{g['slug']}.html", 'w').write(page(g, 'ar', GA)); print('ar', g['slug'])

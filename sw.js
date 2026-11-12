@@ -1,7 +1,7 @@
 /* QAMAR — service worker : l'app s'ouvre instantanément et fonctionne même sans réseau.
    Pages : réseau d'abord (contenu à jour), cache en secours. Fichiers statiques : cache d'abord, mis à jour en arrière-plan.
    Changer VERSION à chaque mise en ligne pour forcer le rafraîchissement. */
-const VERSION = 'qamar-v18';
+const VERSION = 'qamar-v19';
 const CORE = [
   './', 'index.html', 'queue.html', 'privacy.html', 'legal.html', 'manifest.webmanifest',
   'assets/qamar.css', 'assets/config.js', 'assets/data.js', 'assets/store.js', 'assets/app.js', 'assets/track.js',
@@ -21,8 +21,8 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
   if (url.origin !== location.origin) return; // polices et CDN : laissés au navigateur
   if (url.pathname.endsWith('.mp4')) return; // vidéos : lecture par morceaux gérée par le navigateur
-  if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).then(res => { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); return res; })
+  if (req.mode === 'navigate' || /\.(js|css)$/.test(url.pathname)) { // pages, scripts et styles : toujours la dernière version en ligne
+    e.respondWith(fetch(req).then(res => { if (res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); } return res; })
       .catch(() => caches.match(req, { ignoreSearch: true }).then(r => r || caches.match('index.html'))));
     return;
   }
