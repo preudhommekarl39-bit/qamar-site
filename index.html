@@ -32,7 +32,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Tajawal:wght@400;500;700&family=Yellowtail&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/qamar.css">
 <style>
   /* Mise en page « à la Apple » : sections pleine largeur qui alternent blanc et rose très pâle,
@@ -688,6 +688,16 @@
   .tier .visit { margin: 6px 0 0; padding: 10px 12px; border-radius: 14px; background: #FBEFF2; font-size: .92rem; color: var(--ink); }
   .tier .visit b { color: var(--rose-deep); }
   .tier .visit s { color: var(--ink-3); }
+
+  /* Filtres des looks : sur petit écran ils passent à la ligne au lieu de sortir du cadre */
+  @media (max-width: 760px) { .seg { display: flex; flex-wrap: wrap; justify-content: center; overflow: visible; border-radius: 22px; gap: 4px; } .seg button { padding: 8px 14px; } }
+
+  /* Signature au pinceau (inspirée d'une animation de logo « pigment ») */
+  .sig { background: #fff; padding: clamp(40px, 7vw, 90px) 16px clamp(20px, 4vw, 50px); display: grid; place-items: center; }
+  .sig-svg { width: min(820px, 100%); height: auto; overflow: visible; }
+  #sigWord { font-family: 'Yellowtail', 'Brush Script MT', cursive; font-size: 236px; }
+  #sigTag { font-family: var(--helv); font-size: 26px; letter-spacing: .5em; fill: var(--ink-2); opacity: 0; transition: opacity 1s ease .2s, letter-spacing 1.4s cubic-bezier(.2, .8, .2, 1); }
+  .sig.done #sigTag { opacity: 1; letter-spacing: .34em; }
 </style>
 </head>
 <body>
@@ -790,6 +800,26 @@
 </div>
 
 <main id="main">
+<section class="sig" id="signature" aria-label="QAMAR Blowdry Lounge">
+  <svg class="sig-svg" viewBox="0 0 1000 380" role="img" aria-label="QAMAR Blowdry Lounge">
+    <defs>
+      <linearGradient id="sigInk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E86FA0"/><stop offset=".5" stop-color="#C94C82"/><stop offset="1" stop-color="#9E3A62"/></linearGradient>
+      <filter id="sigPigment" x="-5%" y="-10%" width="110%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G" result="d"/>
+        <feTurbulence type="fractalNoise" baseFrequency="2.2" numOctaves="1" seed="3" result="g"/>
+        <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -.75 1.4" result="ga"/>
+        <feComposite in="d" in2="ga" operator="in"/>
+      </filter>
+      <linearGradient id="sigEdge" x1="0" x2="1"><stop offset="0" stop-color="#fff"/><stop offset=".86" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <mask id="sigMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="380"><rect id="sigWipe" x="0" y="0" width="0" height="380" fill="url(#sigEdge)"/></mask>
+    </defs>
+    <g mask="url(#sigMask)"><text id="sigWord" x="500" y="235" text-anchor="middle" fill="url(#sigInk)" filter="url(#sigPigment)">Qamar</text></g>
+    <g id="sigDrops" fill="#C9788F" filter="url(#sigPigment)"><circle cx="812" cy="118" r="0"/><circle cx="836" cy="96" r="0"/><circle cx="790" cy="300" r="0"/><circle cx="214" cy="290" r="0"/></g>
+    <text id="sigTag" x="500" y="330" text-anchor="middle">BLOWDRY LOUNGE</text>
+  </svg>
+</section>
+
 <section class="sec" id="manifesto">
   <div class="wrap center">
     <span class="kicker reveal" data-i18n="m_kicker">Blowdry, reinvented</span>
@@ -994,15 +1024,6 @@
       <div class="ncol reveal"><span class="when" data-i18n="n1w">Every night, 8 PM to midnight</span><h3 data-i18n="n1t">Night Glow</h3><p data-i18n="n1p">Any blow-dry of your choice, with a matcha on us.</p><div class="price">179 AED</div></div>
       <div class="ncol reveal"><span class="when" data-i18n="n2w">After 10 PM, on request</span><h3 data-i18n="n2t">The bride's lounge</h3><p data-i18n="n2p">The whole salon for the bride and her girls. Your music, every chair.</p><div class="price" data-i18n="n2price">On request</div></div>
       <div class="ncol reveal"><span class="when" data-i18n="n3w">Once a month</span><h3 data-i18n="n3t">Ladies Night</h3><p data-i18n="n3p">Networking for women in Dubai, with blow-dries and matcha.</p><div class="price" data-i18n="n3price">Free entry</div></div>
-    </div>
-    <div class="golden">
-      <div class="gticket reveal"><div class="in"><div><span>Qamar</span><b>GOLDEN</b><span data-i18n="gold_ticket">1 year of glow</span></div></div></div>
-      <div>
-        <span class="kicker" data-i18n="gold_kicker">The golden ticket</span>
-        <h2 class="title sm" data-i18n="gold_title">One cup. A year of free blow-dries.</h2>
-        <p class="sub" data-i18n="gold_p">It's hiding under one of our matcha lids. Find it, film it, tag @qamar.dubai.</p>
-        <div class="actions"><a class="more" href="queue.html"><span data-i18n="gold_cta">Try your luck</span> ›</a></div>
-      </div>
     </div>
   </div>
 </section>
@@ -1574,6 +1595,36 @@
     const io = new IntersectionObserver(es => { es.forEach(e => { if (e.isIntersecting) vis.add(e.target); else { vis.delete(e.target); e.target.pause(); e.target.muted = true; const it = items.find(x => x.v === e.target); if (it) it.b.setAttribute('aria-pressed', 'false'); } }); pick(); }, { threshold: 0.5 });
     items.forEach(x => io.observe(x.v));
   }
+})();
+</script>
+<script>
+/* Signature QAMAR : le mot s'écrit lettre par lettre au pinceau, puis « Blowdry Lounge » apparaît */
+(() => {
+  const sec = document.getElementById('signature'); if (!sec) return;
+  const word = document.getElementById('sigWord'), wipe = document.getElementById('sigWipe'), drops = [...document.querySelectorAll('#sigDrops circle')];
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finish = () => { wipe.setAttribute('width', 1400); drops.forEach((c, i) => c.setAttribute('r', [5, 3, 4, 2.5][i])); sec.classList.add('done'); };
+  if (still || !('IntersectionObserver' in window)) { finish(); return; }
+  let played = false;
+  const play = () => {
+    played = true;
+    let b; try { b = word.getBBox(); } catch (e) { finish(); return; }
+    const n = word.textContent.length, x0 = b.x - 10, x1 = b.x + b.width + 160, per = 520, total = n * per + 200;
+    const ease = t => 1 - Math.pow(1 - t, 2.2);
+    let t0 = 0;
+    const step = ms => {
+      if (!t0) t0 = ms; const t = ms - t0;
+      // chaque lettre s'écrit à son rythme : rapide au début du trait, plus lent à la fin
+      const k = Math.min(n, t / per), i = Math.floor(k), f = k - i;
+      const x = x0 + (x1 - x0) * Math.min(1, (i + ease(f)) / n);
+      wipe.setAttribute('width', Math.max(0, x));
+      if (t > total * .78) drops.forEach((c, j) => c.setAttribute('r', Math.min([5, 3, 4, 2.5][j], (t - total * .78) / 60 * [5, 3, 4, 2.5][j])));
+      if (t < total + 300) requestAnimationFrame(step); else finish();
+      if (t > total - 200) sec.classList.add('done');
+    };
+    requestAnimationFrame(step);
+  };
+  new IntersectionObserver(([e], o) => { if (e.isIntersecting && !played) { (document.fonts ? document.fonts.load("236px Yellowtail") : Promise.resolve()).catch(() => {}).then(play); o.disconnect(); } }, { threshold: .45 }).observe(sec);
 })();
 </script>
 </body>
