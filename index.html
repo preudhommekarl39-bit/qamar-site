@@ -623,6 +623,51 @@
   .lang button { min-height: 30px; min-width: 38px; }
   .gnav .lang { transform: none; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+
+  /* Club QAMAR (abonnements) */
+  .club-tiers { display: grid; gap: 18px; margin-top: 60px; }
+  @media (min-width: 900px) { .club-tiers { grid-template-columns: repeat(3, 1fr); align-items: stretch; } }
+  .tier { position: relative; background: #fff; border: 1px solid var(--line); border-radius: 28px; padding: 30px 26px 26px; display: flex; flex-direction: column; gap: 10px; }
+  .tier.pop { border: 1.5px solid var(--rose); box-shadow: 0 30px 60px -36px rgba(150, 74, 98, .45); }
+  .tier .badge { position: absolute; top: -13px; inset-inline-start: 24px; background: var(--rose-deep); color: #fff; font-size: .78rem; font-weight: 600; padding: 5px 12px; border-radius: 999px; }
+  .tier h3 { margin: 0; font-size: 1.6rem; letter-spacing: -.02em; }
+  .tier .per { color: var(--ink-3); margin: 0; }
+  .tier .price { font-size: 2.6rem; font-weight: 600; letter-spacing: -.03em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+  .tier .price small { font-size: 1rem; font-weight: 400; color: var(--ink-3); }
+  .tier .later { margin: 0; font-size: .95rem; color: var(--rose-deep); }
+  .tier .value { margin: 0; font-size: .9rem; color: var(--ink-3); }
+  .tier ul { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 9px; font-size: .97rem; }
+  .tier li { display: flex; gap: 10px; align-items: flex-start; }
+  .tier li::before { content: ''; flex: 0 0 18px; height: 18px; margin-top: 2px; border-radius: 50%; background: radial-gradient(circle at 50% 50%, var(--gold) 0 3.5px, rgba(196, 154, 90, .18) 4px); }
+  .club-drop { margin-top: 70px; background: #fff; border: 1px solid var(--line); border-radius: 28px; padding: 30px 26px; }
+  .club-drop-head h3 { margin: 0; font-size: 1.5rem; letter-spacing: -.02em; }
+  .club-drop-head p { margin: 8px 0 0; color: var(--ink-3); max-width: 640px; }
+  .club-pick { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+  .club-pick button { border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 999px; padding: 9px 16px; font: inherit; font-size: .92rem; cursor: pointer; min-height: 40px; }
+  .club-pick button[aria-pressed="true"] { background: var(--rose-deep); border-color: var(--rose-deep); color: #fff; }
+  .club-bars { display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; align-items: end; height: 190px; margin-top: 26px; }
+  .club-bars .b { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 6px; }
+  .club-bars .bar { width: 100%; border-radius: 10px 10px 4px 4px; background: linear-gradient(180deg, #E8A9B6, var(--rose)); transition: height .5s cubic-bezier(.3, 1, .4, 1); }
+  .club-bars .b:last-child .bar { background: linear-gradient(180deg, var(--gold-soft), var(--gold)); }
+  .club-bars .v { font-size: .72rem; font-variant-numeric: tabular-nums; color: var(--ink-2); white-space: nowrap; }
+  .club-bars .m { font-size: .7rem; color: var(--ink-3); }
+  @media (max-width: 600px) { .club-bars { gap: 3px; height: 160px; } .club-bars .v { font-size: .6rem; writing-mode: vertical-rl; transform: rotate(180deg); } }
+  .club-compare { margin-top: 50px; overflow-x: auto; }
+  .club-compare table { width: 100%; border-collapse: collapse; font-size: .98rem; }
+  .club-compare th, .club-compare td { padding: 15px 12px; border-bottom: 1px solid var(--line); text-align: center; }
+  .club-compare th:first-child, .club-compare td:first-child { text-align: start; }
+  .club-compare thead th { font-size: .85rem; letter-spacing: .04em; color: var(--ink-3); font-weight: 500; }
+  .club-compare thead th:last-child { color: var(--rose-deep); font-weight: 700; }
+  .club-compare td:last-child { color: var(--rose-deep); font-weight: 600; }
+  .club-founding { margin: 40px auto 0; max-width: 680px; text-align: center; font-size: 1.05rem; color: var(--ink-2); }
+  .club-founding b { color: var(--rose-deep); }
+
+  /* Tuiles avec photo (figurines intégrées, fixes) : texte en haut, photo en bas */
+  .tile.has-shot { background: #F6DCE1; min-height: 640px; }
+  .tile.has-shot .shot { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 60%; object-fit: cover; object-position: 82% 72%; z-index: 0; -webkit-mask-image: linear-gradient(180deg, transparent, #000 24%); mask-image: linear-gradient(180deg, transparent, #000 24%); }
+  .tile.has-shot > :not(.shot) { position: relative; z-index: 1; }
+  .tile.has-shot p { color: var(--ink-2); max-width: 36ch; }
+  html[dir="rtl"] .tile.has-shot .shot { transform: scaleX(-1); }
 </style>
 </head>
 <body>
@@ -642,7 +687,7 @@
         <ul>
           <li><a href="#how" data-i18n="nav_how">How it works</a></li>
           <li><a href="#looks" data-i18n="nav_looks">Looks</a></li>
-          <li><a href="#menu" data-i18n="nav_menu">Menu</a></li>
+          <li><a href="#menu" data-i18n="nav_menu">Menu</a></li><li><a href="#club" data-i18n="nav_club">Club</a></li>
           <li><a href="#rituals" data-i18n="nav_rituals">Rituals</a></li>
           <li><a href="#night" data-i18n="nav_night">Night</a></li>
         </ul>
@@ -681,6 +726,7 @@
       <a href="#how" data-i18n="nav_how">How it works</a>
       <a href="#looks" data-i18n="nav_looks">Looks</a>
       <a href="#menu" data-i18n="nav_menu">Menu</a>
+      <a href="#club" data-i18n="nav_club">Club</a>
       <a href="#rituals" data-i18n="nav_rituals">Rituals</a>
       <a href="#night" data-i18n="nav_night">Night</a>
       <a href="#contact" data-i18n="nav_contact">Contact</a>
@@ -702,6 +748,7 @@
       <a href="#how" data-close data-i18n="nav_how">How it works</a>
       <a href="#looks" data-close data-i18n="nav_looks">Looks</a>
       <a href="#menu" data-close data-i18n="nav_menu">Menu</a>
+      <a href="#club" data-close data-i18n="nav_club">Club</a>
       <a href="#rituals" data-close data-i18n="nav_rituals">Rituals</a>
       <a href="#night" data-close data-i18n="nav_night">Night</a>
       <a href="#rewards" data-close data-i18n="foot_rew">Offers</a>
@@ -854,6 +901,33 @@
   </div>
 </section>
 
+<section class="sec alt" id="club">
+  <div class="wrap">
+    <div class="center">
+      <span class="kicker" data-i18n="club_kicker">The QAMAR Club</span>
+      <h2 class="title sm" data-i18n="club_title">Members get everything.</h2>
+      <p class="sub" data-i18n="club_sub">A single visit is just the blow-dry. Members get the whole ritual, skip ahead in the queue, and pay a little less every month they stay.</p>
+    </div>
+    <div class="club-tiers" id="clubTiers"></div>
+    <div class="club-drop reveal">
+      <div class="club-drop-head">
+        <h3 data-i18n="club_drop_t">Your price goes down every month.</h3>
+        <p data-i18n="club_drop_p">−3% each month you stay, down to −30%. Pause up to 2 months a year and keep your price. Cancel, and you start again at full price.</p>
+      </div>
+      <div class="club-pick" id="clubPick" role="group" aria-label="Plan"></div>
+      <div class="club-bars" id="clubBars" aria-live="polite"></div>
+    </div>
+    <div class="club-compare reveal">
+      <table>
+        <thead><tr><th></th><th data-i18n="club_single">Single visit</th><th data-i18n="club_member">Member</th></tr></thead>
+        <tbody id="clubCompare"></tbody>
+      </table>
+    </div>
+    <p class="club-founding reveal" id="clubFounding"></p>
+    <div class="center"><div class="actions"><a class="btn-a" href="#contact" data-i18n="club_cta">Join the founding members</a></div></div>
+  </div>
+</section>
+
 <section class="sec" id="rituals">
   <div class="wrap">
     <div class="center">
@@ -861,11 +935,11 @@
       <h2 class="title sm" data-i18n="rit_title">More than a blow-dry.</h2>
     </div>
     <div class="tiles">
-      <div class="tile w3 matcha reveal">
-        <span class="k" data-i18n="r1k">Matcha bar</span>
-        <h3 data-i18n="r1t">Sip something green.</h3>
-        <p data-i18n="r1p">Latte, iced, strawberry or vanilla. While you wait, or in the chair.</p>
-        <canvas class="scene" data-scene="matcha" aria-hidden="true"></canvas>
+      <div class="tile w3 matcha has-shot reveal">
+        <img class="shot" src="assets/img/ritual-drinks.webp" alt="Miniature QAMAR team preparing matcha, tea, lemonade and fresh juice behind a marble drinks bar" width="1200" height="800" loading="lazy" decoding="async">
+        <span class="k" data-i18n="r1k">Drinks bar</span>
+        <h3 data-i18n="r1t">Something for every mood.</h3>
+        <p data-i18n="r1p">Matcha latte, iced or strawberry matcha, cappuccino, Arabic coffee with dates, karak tea, fresh mint lemonade, fresh orange juice. While you wait, or in the chair.</p>
       </div>
       <div class="tile w3 perfume reveal">
         <span class="k" data-i18n="r3k">Perfume bar</span>
@@ -998,6 +1072,8 @@
       <details><summary data-i18n="faq_q7">Where is QAMAR?</summary><p data-i18n="faq_a7">In Dubai. The exact address will be announced here before opening.</p></details>
       <details><summary data-i18n="faq_q8">How do offers and discounts work?</summary><p data-i18n="faq_a8">Only one discount applies per visit: the best one you are eligible for. Discounts apply to the service, never to drinks or tips. Offer conditions will be published before they start.</p></details>
       <details><summary data-i18n="faq_q9">Do you have services for girls and kids?</summary><p data-i18n="faq_a9">Yes: Mini Glow is a mini blow-dry or braids for little girls, in 25 minutes.</p></details>
+      <details><summary data-i18n="faq_q10">How does the QAMAR Club work?</summary><p data-i18n="faq_a10">Choose Crescent (2 blow-dries a month), Half Moon (one a week) or Full Moon (unlimited, one a day). Every visit includes the private shower, your outfit steamed and perfumed, and your drink. Your monthly price drops by 3% every month you stay, down to −30%.</p></details>
+      <details><summary data-i18n="faq_q11">Can I pause or cancel my membership?</summary><p data-i18n="faq_a11">After the first 3 months you can cancel anytime. You can also pause up to 2 months a year and keep your lower price. If you cancel and come back later, you start again at the full price.</p></details>
     </div>
   </div>
 </section>
@@ -1025,7 +1101,7 @@
       <div><h2 data-i18n="foot_lounge">Lounge</h2><a href="queue.html" data-i18n="cta_join">Join the queue</a><a href="#" data-install-app data-i18n="get_app">Get the app</a><a href="#looks" data-i18n="nav_looks">Looks</a><a href="#menu" data-i18n="nav_menu">Menu</a><a href="#faq" data-i18n="faq_kicker">Questions</a></div>
       <div><h2 data-i18n="foot_exp">Experience</h2><a href="#rituals" data-i18n="nav_rituals">Rituals</a><a href="#night" data-i18n="nav_night">Night</a><a href="#private" data-i18n="foot_private">Private events</a></div>
       <div><h2 data-i18n="foot_guides">Guides</h2><a href="guides/get-ready-after-work-dubai.html" data-guide="get-ready-after-work-dubai" data-i18n="g1_link">Get ready after work in Dubai</a><a href="guides/blow-dry-dubai-humidity.html" data-guide="blow-dry-dubai-humidity" data-i18n="g2_link">Make a blow-dry last in the humidity</a><a href="guides/steam-abaya-hijab.html" data-guide="steam-abaya-hijab" data-i18n="g3_link">Steam your abaya and hijab</a></div>
-      <div><h2 data-i18n="foot_rew">Offers</h2><a href="#rewards" data-i18n="foot_squad">Squad & referral</a><a href="#rewards" data-i18n="foot_packs">Packs & membership</a></div>
+      <div><h2 data-i18n="foot_rew">Offers</h2><a href="#rewards" data-i18n="foot_squad">Squad & referral</a><a href="#club" data-i18n="foot_packs">Packs & membership</a></div>
       <div data-social><h2 data-i18n="foot_follow">Follow</h2><a href="https://instagram.com/qamar.dubai" target="_blank" rel="noopener">Instagram</a><a href="https://tiktok.com/@qamar.dubai" target="_blank" rel="noopener">TikTok</a><a href="https://snapchat.com/add/qamar.dubai" target="_blank" rel="noopener">Snapchat</a></div>
     </div>
     <div class="legal"><span>© 2026 QAMAR Blowdry Lounge · Dubai</span><span><a href="privacy.html" data-i18n="foot_privacy">Privacy</a> · <a href="legal.html" data-i18n="foot_legal">Legal notice</a> · <a href="admin.html" data-i18n="foot_staff">Staff area</a></span></div>
@@ -1086,10 +1162,19 @@
     faq_a7: { en: 'In Dubai. The exact address will be announced here before opening.', ar: 'في دبي. سيُعلن العنوان الدقيق هنا قبل الافتتاح.' },
     faq_q8: { en: 'How do offers and discounts work?', ar: 'كيف تعمل العروض والخصومات؟' },
     faq_a8: { en: 'Only one discount applies per visit: the best one you are eligible for. Discounts apply to the service, never to drinks or tips. Offer conditions will be published before they start.', ar: 'يُطبَّق خصم واحد فقط في كل زيارة: الأفضل من بين الخصومات المتاحة لكِ. يشمل الخصم الخدمة فقط، ولا يشمل المشروبات أو الإكرامية. تُنشر شروط العروض قبل بدئها.' },
+    faq_q10: { en: 'How does the QAMAR Club work?', ar: 'كيف يعمل نادي قمر؟' },
+    faq_a10: { en: 'Choose Crescent (2 blow-dries a month), Half Moon (one a week) or Full Moon (unlimited, one a day). Every visit includes the private shower, your outfit steamed and perfumed, and your drink. Your monthly price drops by 3% every month you stay, down to −30%.', ar: 'اختاري هلال (سشواران في الشهر) أو نصف القمر (سشوار كل أسبوع) أو البدر (بلا حدود، مرة في اليوم). كل زيارة تشمل الدشّ الخاص، وملابسكِ بالبخار ومعطّرة، ومشروبكِ. وينخفض سعركِ الشهري ٣٪ كل شهر تبقين فيه، حتى −٣٠٪.' },
+    faq_q11: { en: 'Can I pause or cancel my membership?', ar: 'هل يمكنني إيقاف عضويتي أو إلغاؤها؟' },
+    faq_a11: { en: 'After the first 3 months you can cancel anytime. You can also pause up to 2 months a year and keep your lower price. If you cancel and come back later, you start again at the full price.', ar: 'بعد الأشهر الثلاثة الأولى يمكنكِ الإلغاء في أي وقت. ويمكنكِ أيضاً إيقاف العضوية حتى شهرين في السنة مع الاحتفاظ بسعركِ المنخفض. وإذا ألغيتِ ثم عدتِ لاحقاً، تبدئين من جديد بالسعر الكامل.' },
     faq_q9: { en: 'Do you have services for girls and kids?', ar: 'هل لديكم خدمات للفتيات الصغيرات؟' },
     faq_a9: { en: 'Yes: Mini Glow is a mini blow-dry or braids for little girls, in 25 minutes.', ar: 'نعم: ميني جلو سشوار خفيف أو ضفائر للأميرات الصغيرات، خلال ٢٥ دقيقة.' },
     nav_how: { en: 'How it works', ar: 'طريقة العمل' }, nav_looks: { en: 'Looks', ar: 'الإطلالات' }, nav_menu: { en: 'Menu', ar: 'القائمة' }, nav_rituals: { en: 'Rituals', ar: 'الطقوس' }, nav_night: { en: 'Night', ar: 'الليل' }, nav_contact: { en: 'Contact', ar: 'تواصلي معنا' },
     cta_join: { en: 'Join the queue', ar: 'انضمي للطابور' }, cta_join_now: { en: 'Join the queue now', ar: 'انضمي للطابور الآن' },
+    nav_club: { en: 'Club', ar: 'النادي' }, club_kicker: { en: 'The QAMAR Club', ar: 'نادي قمر' }, club_title: { en: 'Members get everything.', ar: 'العضوات يحصلن على كل شيء.' },
+    club_sub: { en: 'A single visit is just the blow-dry. Members get the whole ritual, skip ahead in the queue, and pay a little less every month they stay.', ar: 'الزيارة الواحدة تشمل السشوار فقط. العضوات يحصلن على الطقوس كاملة، ويتقدّمن في الطابور، ويدفعن أقل قليلاً كل شهر يبقين فيه.' },
+    club_drop_t: { en: 'Your price goes down every month.', ar: 'سعركِ ينخفض كل شهر.' },
+    club_drop_p: { en: '−3% each month you stay, down to −30%. Pause up to 2 months a year and keep your price. Cancel, and you start again at full price.', ar: '−٣٪ كل شهر تبقين فيه، حتى −٣٠٪. يمكنكِ إيقاف العضوية حتى شهرين في السنة مع الاحتفاظ بسعركِ. وإذا ألغيتِ، تبدئين من جديد بالسعر الكامل.' },
+    club_single: { en: 'Single visit', ar: 'زيارة واحدة' }, club_member: { en: 'Member', ar: 'عضوة' }, club_cta: { en: 'Join the founding members', ar: 'انضمي إلى العضوات المؤسِّسات' },
     foot_guides: { en: 'Guides', ar: 'أدلة' }, g1_link: { en: 'Get ready after work in Dubai', ar: 'أين تتجهزين بعد العمل في دبي' }, g2_link: { en: 'Make a blow-dry last in the humidity', ar: 'كيف يدوم السشوار في رطوبة دبي' }, g3_link: { en: 'Steam your abaya and hijab', ar: 'كيّ العباية والشيلة بالبخار' },
     hero_badge: { en: 'Women-only walk-in blowdry lounge · Dubai', ar: 'صالون سشوار نسائي بدون موعد · دبي' }, hc_city: { en: 'Dubai', ar: 'دبي' }, hc_hours: { en: 'Every day, 8 AM to midnight', ar: 'يومياً من ٨ صباحاً حتى منتصف الليل' }, hc_staff: { en: '{n} of 5 stylists on the floor', ar: '{n} من ٥ مصففات متواجدات' },
     hero_title: { en: 'Walk in. Glow out.', ar: 'ادخلي… واخرجي متألقة.' },
@@ -1122,7 +1207,7 @@
     i2t: { en: 'Hijab bar and a gift magnet.', ar: 'ركن الحجاب ومغناطيس هدية.' }, i2p: { en: "Your shayla steamed while you're styled.", ar: 'نكوي شيلتكِ بالبخار أثناء تصفيف شعركِ.' },
     i3t: { en: 'A hair perfume to finish.', ar: 'عطر للشعر في الختام.' }, i3p: { en: 'Oud, rose or white musk. Your choice.', ar: 'عود أو ورد أو مسك أبيض. باختيارك.' },
     rit_kicker: { en: 'The rituals', ar: 'الطقوس' }, rit_title: { en: 'More than a blow-dry.', ar: 'أكثر من مجرد سشوار.' },
-    r1k: { en: 'Matcha bar', ar: 'بار الماتشا' }, r1t: { en: 'Sip something green.', ar: 'رشفة خضراء.' }, r1p: { en: 'Latte, iced, strawberry or vanilla. While you wait, or in the chair.', ar: 'ماتشا لاتيه، مثلّجة، بالفراولة أو بالفانيليا. أثناء الانتظار أو على الكرسي.' },
+    r1k: { en: 'Drinks bar', ar: 'بار المشروبات' }, r1t: { en: 'Something for every mood.', ar: 'لكل مزاج مشروبه.' }, r1p: { en: 'Matcha latte, iced or strawberry matcha, cappuccino, Arabic coffee with dates, karak tea, fresh mint lemonade, fresh orange juice. While you wait, or in the chair.', ar: 'ماتشا لاتيه، ماتشا مثلّجة أو بالفراولة، كابتشينو، قهوة عربية مع التمر، شاي كرك، ليمون بالنعناع، عصير برتقال طازج. أثناء الانتظار أو على الكرسي.' },
     r3k: { en: 'Perfume bar', ar: 'بار العطور' }, r3t: { en: 'Oud. Rose. Musk.', ar: 'عود. ورد. مسك.' }, r3p: { en: 'Every look ends with a hair perfume you choose.', ar: 'كل إطلالة تنتهي بعطر شعر تختارينه.' },
     c_oud: { en: 'Oud', ar: 'عود' }, c_rose: { en: 'Rose', ar: 'ورد' }, c_musk2: { en: 'Musk', ar: 'مسك' },
     r4k: { en: 'Infinity mirror room', ar: 'غرفة المرآة اللانهائية' }, r4t: { en: 'See yourself, infinitely.', ar: 'انعكاسكِ… بلا نهاية.' }, r4p: { en: 'Step into our mirror room: glowing arches that go on forever, a neon moon in every reflection, and a photobooth that sends the shot straight to your phone.', ar: 'ادخلي غرفة المرايا: أقواس مضيئة بلا نهاية، قمر نيون في كل انعكاس، وكابينة تصوير ترسل الصورة إلى هاتفك.' },
@@ -1192,11 +1277,49 @@
   document.getElementById('galPrev').onclick = () => galStep(-1);
   document.getElementById('galNext').onclick = () => galStep(1);
 
+
+  /* Club QAMAR : paliers, prix dégressif mois par mois, comparatif. Les règles viennent de D.club (data.js). */
+  let clubTier = (D.club.tiers.find(t => t.popular) || D.club.tiers[0]).id;
+  const isAr = () => document.documentElement.lang === 'ar';
+  const num = n => isAr() ? Number(n).toLocaleString('ar-EG') : String(n);
+  const aed = n => isAr() ? `${num(n)} درهماً` : `${n} AED`;
+  const clubPrice = (p, m) => Math.round(p * (1 - Math.min(D.club.floorPct, D.club.dropPct * (m - 1)) / 100));
+  function renderClub() {
+    const C = D.club, last = Math.ceil(C.floorPct / C.dropPct) + 1;
+    const sMenu = D.services.find(s => s.id === 'glow');
+    document.getElementById('clubTiers').innerHTML = C.tiers.map(t => {
+      const visits = t.visits || 8, value = visits * (sMenu.price + C.ritualPrice);
+      return `<div class="tier reveal in${t.popular ? ' pop' : ''}">${t.popular ? `<span class="badge">${Q.L({ en: 'Most chosen', ar: 'الأكثر اختياراً' })}</span>` : ''}
+        <h3>${Q.esc(Q.L(t.name))}</h3><p class="per">${Q.esc(Q.L(t.per))}</p>
+        <p class="price">${aed(t.price)} <small>${Q.L({ en: '/ month', ar: 'شهرياً' })}</small></p>
+        <p class="later">${Q.L({ en: `${aed(clubPrice(t.price, last))} from month ${last}`, ar: `${aed(clubPrice(t.price, last))} ابتداءً من الشهر ${num(last)}` })}</p>
+        <p class="value">${t.visits ? Q.L({ en: `Worth ${aed(value)} in single visits`, ar: `قيمتها ${aed(value)} بالزيارات المنفردة` }) : Q.L({ en: 'Come as often as you like', ar: 'تعالي كلما رغبتِ' })}</p>
+        <ul>${C.perks.map(p => `<li>${Q.esc(Q.L(p))}</li>`).join('')}</ul></div>`;
+    }).join('');
+    document.getElementById('clubPick').innerHTML = C.tiers.map(t => `<button type="button" data-tier="${t.id}" aria-pressed="${t.id === clubTier}">${Q.esc(Q.L(t.name))}</button>`).join('');
+    document.querySelectorAll('#clubPick button').forEach(b => b.onclick = () => { clubTier = b.dataset.tier; renderClub(); });
+    const t = C.tiers.find(x => x.id === clubTier), months = Array.from({ length: 12 }, (_, i) => i + 1);
+    document.getElementById('clubBars').innerHTML = months.map(m => { const v = clubPrice(t.price, m); return `<div class="b"><span class="v">${num(v)}</span><span class="bar" style="height:${Math.round(18 + (v - t.price * .65) / (t.price * .35) * 82)}%"></span><span class="m">${Q.L({ en: 'M' + m, ar: 'ش' + num(m) })}</span></div>`; }).join('');
+    const rows = [
+      [{ en: 'Blow-dry', ar: 'السشوار' }, { en: 'Menu price', ar: 'سعر القائمة' }, { en: 'Included', ar: 'مشمول' }],
+      [{ en: 'Private shower', ar: 'دشّ خاص' }, { en: `+${C.ritualPrice} AED ritual`, ar: `+${num(C.ritualPrice)} درهماً للطقوس` }, { en: 'Included', ar: 'مشمول' }],
+      [{ en: 'Outfit steamed and perfumed', ar: 'الملابس بالبخار ومعطّرة' }, { en: 'In the ritual', ar: 'ضمن الطقوس' }, { en: 'Included', ar: 'مشمول' }],
+      [{ en: 'Coffee, tea or matcha', ar: 'قهوة أو شاي أو ماتشا' }, { en: 'In the ritual', ar: 'ضمن الطقوس' }, { en: 'Included', ar: 'مشمول' }],
+      [{ en: 'Queue', ar: 'الطابور' }, { en: 'Standard', ar: 'عادي' }, { en: 'Members’ lane', ar: 'مسار العضوات' }],
+      [{ en: 'Price over time', ar: 'السعر مع الوقت' }, { en: 'Same', ar: 'ثابت' }, { en: `Down to −${C.floorPct}%`, ar: `حتى −${num(C.floorPct)}٪` }],
+      [{ en: 'Friend at −50%', ar: 'صديقة بخصم ٥٠٪' }, { en: '—', ar: '—' }, { en: 'Once a month', ar: 'مرة في الشهر' }],
+      [{ en: 'Birthday blow-dry', ar: 'سشوار عيد الميلاد' }, { en: '—', ar: '—' }, { en: 'On us', ar: 'على حسابنا' }]
+    ];
+    document.getElementById('clubCompare').innerHTML = rows.map(r => `<tr>${r.map((c, i) => i ? `<td>${Q.esc(Q.L(c))}</td>` : `<td>${Q.esc(Q.L(c))}</td>`).join('')}</tr>`).join('');
+    document.getElementById('clubFounding').innerHTML = Q.L({ en: `<b>Founding members:</b> the first ${C.founding.count} start directly at the month-${C.founding.startMonth} price. ${C.minMonths}-month minimum, then cancel anytime.`, ar: `<b>العضوات المؤسِّسات:</b> أول ${num(C.founding.count)} عضوة يبدأن مباشرة بسعر الشهر ${num(C.founding.startMonth)}. الحد الأدنى ${num(C.minMonths)} أشهر، ثم يمكنكِ الإلغاء في أي وقت.` });
+  }
+
   function renderMenu() {
     const groups = [['blowdry', { en: 'Blow-dry', ar: 'سشوار' }], ['night', { en: 'Night Glow <small>(8 PM – midnight)</small>', ar: 'توهّج الليل <small>(٨م – منتصف الليل)</small>' }], ['sos', { en: 'SOS 15 min', ar: 'إس أو إس ١٥ دقيقة' }], ['care', { en: 'Care', ar: 'العناية' }], ['colour', { en: 'Cut & colour', ar: 'قص وصبغة' }], ['kids', { en: 'Mini Glow <small>(kids)</small>', ar: 'ميني جلو <small>(للصغيرات)</small>' }]];
     let html = groups.map(([cat, title]) => `<h4>${Q.L(title)}</h4>` + D.services.filter(s => s.cat === cat).map(s => `<div class="mrow"><span>${Q.esc(Q.L(s.look))} <small>· ${s.duration} ${Q.t('min')}</small></span><span class="p">${s.price} AED</span></div>`).join('')).join('');
     html += `<h4>${Q.L({ en: 'Packages', ar: 'الباقات' })}</h4>` + D.packages.map(p => `<div class="mrow"><span>${Q.esc(Q.L(p.name))}</span><span class="p">${p.price}</span></div>`).join('');
     document.getElementById('menuList').innerHTML = html;
+    renderClub();
     document.getElementById('packs').innerHTML = D.packages.slice(0, 2).map(p => `<div class="pack"><div><h4>${Q.esc(Q.L(p.name))}</h4><p>${Q.esc(Q.L(p.note))}</p></div><div class="p">${p.price}</div></div>`).join('');
   }
 

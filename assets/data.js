@@ -57,9 +57,33 @@ window.QAMAR_DATA = {
     { id: 'musk', name: { en: 'White Musk', ar: 'مسك أبيض' } }
   ],
 
+  /* Club QAMAR (abonnements) — PROPOSITION du 12/11/2026, prix à valider par Karl avant l'ouverture.
+     Principe : à l'unité on n'a que le brushing ; le rituel complet (douche, vêtements vapeur + parfum, boisson),
+     la file prioritaire et les avantages sont réservés aux abonnées. Le prix baisse chaque mois tant qu'on reste. */
+  club: {
+    ritualPrice: 79,          // à l'unité : douche privée + vêtements vapeur et parfum + boisson (inclus pour les abonnées)
+    dropPct: 3,               // baisse du prix à chaque mois d'abonnement
+    floorPct: 30,             // baisse maximale (atteinte au 11e mois), ensuite le prix reste à ce niveau
+    minMonths: 3,             // engagement minimum
+    pauseMonths: 2,           // pause possible par an, le palier de prix est conservé
+    founding: { count: 100, startMonth: 4 }, // 100 premières abonnées : démarrent directement au prix du 4e mois
+    tiers: [
+      { id: 'crescent', name: { en: 'Crescent', ar: 'هلال' }, visits: 2, price: 249, per: { en: '2 blow-dries a month', ar: 'سشواران في الشهر' } },
+      { id: 'half', name: { en: 'Half Moon', ar: 'نصف القمر' }, visits: 4, price: 449, per: { en: '1 blow-dry a week', ar: 'سشوار كل أسبوع' }, popular: true },
+      { id: 'full', name: { en: 'Full Moon', ar: 'البدر' }, visits: 0, price: 799, per: { en: 'Unlimited, 1 a day', ar: 'بلا حدود، مرة في اليوم' } }
+    ],
+    perks: [
+      { en: 'Private shower, outfit steamed and perfumed, and your drink, every visit', ar: 'دشّ خاص، ملابسكِ بالبخار ومعطّرة، ومشروبكِ في كل زيارة' },
+      { en: 'Members’ lane in the queue', ar: 'مسار خاص بالعضوات في الطابور' },
+      { en: 'Your price goes down every month you stay', ar: 'سعركِ ينخفض كل شهر تبقين فيه' },
+      { en: 'A friend at −50% once a month', ar: 'صديقة بخصم ٥٠٪ مرة في الشهر' },
+      { en: 'Birthday blow-dry on us', ar: 'سشوار عيد ميلادكِ على حسابنا' },
+      { en: 'An unused visit carries over to next month', ar: 'الزيارة غير المستخدمة تنتقل للشهر التالي' }
+    ]
+  },
+
   packages: [
-    { id: 'card4', name: { en: '4 Blow-Dry Card', ar: 'بطاقة ٤ سشوار' }, price: '449 AED', note: { en: 'Split it in 4 with Tabby or Tamara', ar: 'قسّطيها على ٤ دفعات مع تابي أو تمارا' } },
-    { id: 'unlimited', name: { en: 'Unlimited Weekday Membership', ar: 'عضوية غير محدودة أيام الأسبوع' }, price: '799 AED / month', note: { en: 'Monday to Friday, as often as you like', ar: 'من الاثنين إلى الجمعة، كلما رغبتِ' } },
+    { id: 'club', name: { en: 'QAMAR Club · from 249 AED / month', ar: 'نادي قمر · من ٢٤٩ درهماً شهرياً' }, price: '249 AED+', note: { en: 'Everything included, and the price goes down every month', ar: 'كل شيء مشمول، والسعر ينخفض كل شهر' } },
     { id: 'squad', name: { en: 'Squad — 4 friends or more', ar: 'سكواد — ٤ صديقات أو أكثر' }, price: '−25%', note: { en: 'Each of you saves 25%', ar: 'خصم ٢٥٪ لكل واحدة منكن' } },
     { id: 'happy', name: { en: 'Happy Hours · 10 AM – 3 PM weekdays', ar: 'عروض الظهيرة · ١٠ص – ٣م أيام الأسبوع' }, price: '−20%', note: { en: 'Perfect for a lunch-break glow', ar: 'مثالي لاستراحة الغداء' } }
   ],
