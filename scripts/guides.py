@@ -39,13 +39,13 @@ G = [
    ('h2','At QAMAR'),
    ('p','While you shower, we steam your abaya, dress or hijab and give it a light scent, so you leave with everything fresh at the same time. Women only, opening March 2027 off Sheikh Zayed Road.')]),
 ]
-CSS = """:root{--night:#120B0F;--rose:#C9788F;--gold:#C49A5A;--cream:#FAF5F0;--ink:#1F1417;--ink2:#5E4A50}*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:300 18px/1.7 Jost,system-ui,sans-serif}a{color:var(--rose)}header,footer{background:var(--night);color:#fff}header .w,footer .w{display:flex;justify-content:space-between;align-items:center;min-height:68px}.w{width:min(760px,100% - 40px);margin:auto}.brand{color:#fff;text-decoration:none;font:500 22px 'Cormorant Garamond',serif;letter-spacing:.3em}h1,h2{font-family:'Cormorant Garamond',serif;font-weight:500;line-height:1.15}h1{font-size:clamp(36px,6vw,54px);margin:48px 0 16px}h2{font-size:30px;margin:40px 0 8px}.lead{color:var(--ink2)}img{width:100%;height:auto;border-radius:18px;margin:24px 0}li{margin:6px 0}.cta{display:inline-flex;align-items:center;min-height:52px;padding:0 28px;border-radius:999px;background:var(--rose);color:#fff;text-decoration:none;font-weight:500;margin:32px 0}.more{border-top:1px solid rgba(196,154,90,.35);margin-top:48px;padding-top:24px}footer{margin-top:64px;font-size:15px}footer a{color:#fff;min-height:44px;display:inline-flex;align-items:center}:focus-visible{outline:2px solid var(--gold);outline-offset:3px}"""
+CSS = """:root{--night:#120B0F;--rose:#C9788F;--gold:#C49A5A;--cream:#FAF5F0;--ink:#1F1417;--ink2:#5E4A50}*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:300 18px/1.7 Jost,system-ui,sans-serif}a{color:var(--rose)}header,footer{background:linear-gradient(120deg,#F8E1DC,#F3D3D6 60%,#EFC6CC);color:var(--ink)}header .w,footer .w{display:flex;justify-content:space-between;align-items:center;min-height:68px}.w{width:min(760px,100% - 40px);margin:auto}.brand{color:var(--ink);text-decoration:none;font:500 22px 'Cormorant Garamond',serif;letter-spacing:.3em}h1,h2{font-family:'Cormorant Garamond',serif;font-weight:500;line-height:1.15}h1{font-size:clamp(36px,6vw,54px);margin:48px 0 16px}h2{font-size:30px;margin:40px 0 8px}.lead{color:var(--ink2)}li{margin:6px 0}.cta{display:inline-flex;align-items:center;min-height:52px;padding:0 28px;border-radius:999px;background:var(--rose);color:#fff;text-decoration:none;font-weight:500;margin:32px 0}.more{border-top:1px solid rgba(196,154,90,.35);margin-top:48px;padding-top:24px}footer{margin-top:64px;font-size:15px}footer a{color:var(--ink);min-height:44px;display:inline-flex;align-items:center}:focus-visible{outline:2px solid var(--gold);outline-offset:3px}"""
 def block(t, v):
     if t == 'ul': return '<ul>' + ''.join(f'<li>{html.escape(x)}</li>' for x in v) + '</ul>'
     return f'<{t}>{html.escape(v)}</{t}>'
 for g in G:
     url = SITE + 'guides/' + g['slug'] + '.html'
-    ld = {"@context":"https://schema.org","@type":"Article","headline":g['h1'],"description":g['desc'],"inLanguage":"en","image":SITE+'assets/img/'+g['img'],"datePublished":"2026-11-12","author":{"@type":"Organization","name":"QAMAR Blowdry Lounge","url":SITE},"publisher":{"@type":"Organization","name":"QAMAR Blowdry Lounge"},"mainEntityOfPage":url}
+    ld = {"@context":"https://schema.org","@type":"Article","headline":g['h1'],"description":g['desc'],"inLanguage":"en","image":SITE+'assets/og-qamar.png',"datePublished":"2026-11-12","author":{"@type":"Organization","name":"QAMAR Blowdry Lounge","url":SITE},"publisher":{"@type":"Organization","name":"QAMAR Blowdry Lounge"},"mainEntityOfPage":url}
     others = ''.join(f'<li><a href="{o["slug"]}.html">{html.escape(o["h1"])}</a></li>' for o in G if o is not g)
     page = f'''<!doctype html>
 <html lang="en" dir="ltr">
@@ -55,7 +55,7 @@ for g in G:
 <title>{html.escape(g['title'])} | QAMAR</title>
 <meta name="description" content="{html.escape(g['desc'])}">
 <link rel="canonical" href="{url}">
-<meta property="og:type" content="article"><meta property="og:title" content="{html.escape(g['title'])}"><meta property="og:description" content="{html.escape(g['desc'])}"><meta property="og:image" content="{SITE}assets/img/{g['img']}"><meta property="og:url" content="{url}">
+<meta property="og:type" content="article"><meta property="og:title" content="{html.escape(g['title'])}"><meta property="og:description" content="{html.escape(g['desc'])}"><meta property="og:image" content="{SITE}assets/og-qamar.png"><meta property="og:url" content="{url}">
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
 <link rel="icon" href="../assets/app/favicon-32.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -63,10 +63,9 @@ for g in G:
 <style>{CSS}</style>
 </head>
 <body>
-<header><div class="w"><a class="brand" href="../" translate="no">QAMAR</a><a href="../#join" style="color:#fff">Opening list</a></div></header>
+<header><div class="w"><a class="brand" href="../" translate="no">QAMAR</a><a href="../#contact" style="color:var(--ink)">Contact</a></div></header>
 <main class="w">
 <h1>{html.escape(g['h1'])}</h1>
-<img src="../assets/img/{g['img']}" alt="" width="800" height="1000" loading="lazy" decoding="async">
 {''.join(block(t, v) for t, v in g['body'])}
 <a class="cta" href="../">Discover QAMAR</a>
 <div class="more"><h2>More guides</h2><ul>{others}</ul></div>
