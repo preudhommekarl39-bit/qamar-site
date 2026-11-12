@@ -54,35 +54,33 @@ for (const path of ['/', '/ar.html']) {
 
 const phone = { ...devices['iPhone 13'], reducedMotion: 'reduce' };
 
-await test('mobile menu opens, lists every section, closes with Escape', async () => {
+await test('phone: header shows the language switch, sticky CTA appears after the hero', async () => {
   const ctx = await browser.newContext(phone); const page = await ctx.newPage();
   await page.goto(BASE + '/', { waitUntil: 'networkidle' });
-  await page.locator('.hnav .menu-btn').click();
-  await page.waitForSelector('#mnav.open');
-  const links = await page.locator('#mnav .mnav-links a').count();
-  await page.keyboard.press('Escape'); await page.waitForTimeout(500);
-  const hidden = await page.locator('#mnav').evaluate(el => el.hidden || !el.classList.contains('open'));
+  const lang = await page.locator('#langBtn').isVisible();
+  await page.evaluate(() => scrollTo(0, document.querySelector('.hero').offsetHeight + 200)); await page.waitForTimeout(400);
+  const sticky = await page.locator('#sticky').isVisible();
   await ctx.close();
-  return links >= 9 && hidden || { links, hidden };
+  return lang && sticky || { lang, sticky };
 });
 
 await test('language switch opens the Arabic page and comes back, keeping the section', async () => {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } }); const page = await ctx.newPage();
   await page.goto(BASE + '/#faq', { waitUntil: 'networkidle' });
-  await Promise.all([page.waitForURL(/\/ar\.html#faq$/), page.locator('.hnav .lang button[data-lang="ar"]').click()]);
+  await Promise.all([page.waitForURL(/\/ar\.html#faq$/), page.locator('#langBtn').click()]);
   const arTitle = await page.title();
-  await Promise.all([page.waitForURL(u => !u.pathname.endsWith('ar.html')), page.locator('.hnav .lang button[data-lang="en"]').click()]);
+  await Promise.all([page.waitForURL(u => !u.pathname.endsWith('ar.html')), page.locator('#langBtn').click()]);
   const back = page.url();
   await ctx.close();
-  return /[؀-ۿ]/.test(arTitle) && back.startsWith(BASE + '/') || { arTitle, back };
+  return /[؀-ۿ]/.test(arTitle) && back.startsWith(BASE + '/') && back.endsWith('#faq') || { arTitle, back };
 });
 
-await test('pre-opening honesty: no WhatsApp link, forms closed, preview CTA', async () => {
+await test('pre-opening honesty: no WhatsApp link or dead button until the number is set, no social links', async () => {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } }); const page = await ctx.newPage();
   await page.goto(BASE + '/', { waitUntil: 'networkidle' });
-  const r = await page.evaluate(() => ({ wa: document.querySelectorAll('a[href*="wa.me"]').length, disabled: document.querySelector('#contestForm button').disabled, cta: document.querySelector('.hnav .pill-btn').textContent.trim(), social: [...document.querySelectorAll('a[href*="instagram.com"]')].filter(a => a.offsetParent).length }));
+  const r = await page.evaluate(() => ({ wa: document.querySelectorAll('a[href*="wa.me"]').length, set: !!String((window.QAMAR_DATA || {brand:{}}).brand.whatsapp || ''), joinHidden: document.getElementById('joinBtn').hidden, note: !document.getElementById('joinNote').hidden, social: [...document.querySelectorAll('a[href*="instagram.com"]')].filter(a => a.offsetParent).length }));
   await ctx.close();
-  return r.wa === 0 && r.disabled === true && /Preview/i.test(r.cta) && r.social === 0 || r;
+  return (r.set ? r.wa > 0 : (r.wa === 0 && r.joinHidden && r.note)) && r.social === 0 || r;
 });
 
 await test('keyboard: first Tab reaches the "Skip to content" link', async () => {

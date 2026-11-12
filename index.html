@@ -55,8 +55,8 @@
   a { color: inherit; }
   :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
   .wrap { width: min(var(--wrap), 100% - 40px); margin-inline: auto; }
-  .skip { position: absolute; left: -9999px; }
-  .skip:focus { left: 16px; top: 16px; z-index: 99; background: #fff; padding: 10px 14px; }
+  .skip { position: absolute; top: 8px; inset-inline-start: 8px; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .skip:focus { width: auto; height: auto; clip-path: none; z-index: 99; background: #fff; color: var(--ink); padding: 10px 14px; border-radius: 8px; }
 
   h1, h2, h3 { font-family: var(--serif); font-weight: 500; line-height: 1.08; margin: 0; }
   h1 { font-size: clamp(46px, 7.4vw, 92px); }
@@ -484,7 +484,7 @@
 
     // Langue : la page arabe est construite par scripts/build-site.mjs
     document.getElementById('langBtn').addEventListener('click', () => {
-      location.href = lang === 'ar' ? (root.dataset.langHrefEn || './') : (root.dataset.langHrefAr || 'ar.html');
+      location.href = (lang === 'ar' ? (root.dataset.langHrefEn || './') : (root.dataset.langHrefAr || 'ar.html')) + location.hash;
     });
 
     // Appel à l'action : WhatsApp dès que le numéro est renseigné dans assets/data.js (brand.whatsapp)
