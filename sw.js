@@ -5,7 +5,7 @@ const VERSION = 'qamar-v23';
 const CORE = [
   './', 'index.html', 'queue.html', 'privacy.html', 'legal.html', 'manifest.webmanifest',
   'assets/qamar.css', 'assets/config.js', 'assets/data.js', 'assets/store.js', 'assets/app.js', 'assets/track.js',
-  'assets/stage-fx.js', 'assets/sakura.js', 'assets/rituals-fx.js', 'assets/looks-fx.js', 'assets/cursor-fx.js',
+  'assets/stage-fx.js', 'assets/sakura.js', 'assets/looks-fx.js', 'assets/cursor-fx.js',
   'assets/logo-qamar.webp', 'assets/menu-qamar.webp', 'assets/video/qamar-opening-poster.jpg', 'assets/app/icon-192.png', 'assets/app/icon-512.png', 'assets/app/apple-touch-icon.png'
 ];
 
