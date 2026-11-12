@@ -587,6 +587,17 @@
   .hcard .num { font-size: 2rem; font-weight: 400; letter-spacing: -.03em; margin: 2px 0 0; }
   .hcard .hc-sub { font-size: .88rem; color: var(--glass-ink-2); margin-bottom: 10px; }
   @media (min-width: 1024px) { .hcard { min-width: 260px; padding: 24px 24px 22px; } .hcard .num { font-size: 2.4rem; } }
+  /* ---------- Film d'ouverture ---------- */
+  .film-grid { display: grid; gap: 56px; align-items: center; }
+  @media (min-width: 900px) { .film-grid { grid-template-columns: 1fr auto; gap: 80px; } }
+  .film-frame { position: relative; width: min(360px, 82vw); aspect-ratio: 9 / 16; margin-inline: auto; border-radius: 28px; overflow: hidden; background: #2a1c18; box-shadow: 0 0 0 1px rgba(196, 154, 90, .55), 0 40px 80px -30px rgba(0, 0, 0, .7); }
+  .film-frame video { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .film-sound { position: absolute; right: 12px; top: 12px; display: inline-flex; align-items: center; gap: 8px; padding: 8px 13px; border: 0; border-radius: 999px; background: rgba(18, 11, 15, .5); color: #FFF7F9; font: inherit; font-size: .9rem; cursor: pointer; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  html[dir="rtl"] .film-sound { right: auto; left: 12px; }
+  .film-sound svg { width: 18px; height: 18px; }
+  .film-sound .on { display: none; }
+  .film-sound[aria-pressed="true"] .on { display: block; }
+  .film-sound[aria-pressed="true"] .off { display: none; }
 </style>
 </head>
 <body>
@@ -698,6 +709,25 @@
       <div class="stat reveal"><b data-i18n="p3b">45 min</b><span data-i18n="p3">maximum, for any look</span></div>
       <div class="stat reveal"><b data-i18n="p4b">00:00</b><span data-i18n="p4">closing time, every day</span></div>
       <div class="stat reveal"><b data-i18n="p5b">48 h</b><span data-i18n="p5">free touch-up after your visit</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec dark" id="film">
+  <div class="wrap film-grid">
+    <div>
+      <span class="kicker reveal" data-i18n="film_kicker">Opening March 2027</span>
+      <h2 class="title reveal"><span data-i18n="film_t1">Your night</span><br><span class="grad" data-i18n="film_t2">starts here.</span></h2>
+      <p class="sub reveal" data-i18n="film_sub">Walk in, freshen up, get your blowdry and a matcha on us. Ready in 45 minutes.</p>
+      <div class="actions"><a class="btn-a light" href="queue.html" data-track="join_queue_click" data-track-loc="film" data-i18n="cta_join">Join the queue</a></div>
+    </div>
+    <div class="film-frame reveal">
+      <video id="filmVideo" src="assets/video/qamar-opening.mp4" poster="assets/video/qamar-opening-poster.jpg" muted loop playsinline preload="metadata" aria-label="QAMAR Blowdry Lounge, opening film"></video>
+      <button class="film-sound" id="filmSound" type="button" aria-pressed="false">
+        <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="m23 9-6 6M17 9l6 6"/></svg>
+        <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>
+        <span data-i18n="film_sound">Sound</span>
+      </button>
     </div>
   </div>
 </section>
@@ -1037,6 +1067,8 @@
     corner_t: { en: 'The look menu', ar: 'قائمة الإطلالات' }, corner_s: { en: 'Prices and durations', ar: 'الأسعار والمدة' },
     min: { en: 'min', ar: 'د' }, walk_in: { en: 'Walk in', ar: 'ادخلي الآن' }, live_soon: { en: 'Opening soon', ar: 'قريباً' }, closed_now: { en: 'Closed now', ar: 'مغلق الآن' },
     announce: { en: '<span class="tag">Grand opening</span>The first 30 guests get <b>−70%</b>, everyone else <b>−50%</b> all day.', ar: '<span class="tag">الافتتاح الكبير</span>أول ٣٠ ضيفة <b>خصم ٧٠٪</b>، وباقي اليوم <b>خصم ٥٠٪</b>.' },
+    film_kicker: { en: 'Opening March 2027', ar: 'الافتتاح في مارس ٢٠٢٧' }, film_t1: { en: 'Your night', ar: 'ليلتكِ' }, film_t2: { en: 'starts here.', ar: 'تبدأ هنا.' },
+    film_sub: { en: 'Walk in, freshen up, get your blowdry and a matcha on us. Ready in 45 minutes.', ar: 'ادخلي، انتعشي، سشوار وماتشا على حسابنا. جاهزة خلال ٤٥ دقيقة.' }, film_sound: { en: 'Sound', ar: 'الصوت' },
     m_kicker: { en: 'Blowdry, reinvented', ar: 'السشوار، بشكل جديد' }, m_t1: { en: 'No appointment.', ar: 'بدون موعد.' }, m_t2: { en: 'Ever.', ar: 'أبداً.' },
     m_sub: { en: 'Come whenever you want, from 8 AM to midnight. We call you the moment your chair is ready.', ar: 'تعالي متى شئتِ، من ٨ صباحاً حتى منتصف الليل. نناديكِ لحظة جاهزية كرسيك.' },
     p2b: { en: '35 min', ar: '٣٥ د' }, p2: { en: 'or your express blow-dry is free', ar: 'أو السشوار السريع مجاني' },
@@ -1338,5 +1370,21 @@
 <script src="assets/cursor-fx.js"></script>
 <script src="assets/app.js"></script>
 <script src="assets/track.js"></script>
+<script>
+/* Film d'ouverture : lecture muette seulement quand il est visible, bouton pour le son */
+(() => {
+  const v = document.getElementById('filmVideo'), b = document.getElementById('filmSound');
+  if (!v || !b) return;
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (still) v.controls = true;
+  if ('IntersectionObserver' in window && !still) {
+    new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }), { threshold: 0.35 }).observe(v);
+  }
+  b.addEventListener('click', () => {
+    v.muted = !v.muted; b.setAttribute('aria-pressed', String(!v.muted));
+    if (!v.muted) { v.currentTime = 0; v.play().catch(() => {}); }
+  });
+})();
+</script>
 </body>
 </html>
