@@ -20,6 +20,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <!-- Données structurées : uniquement des informations vérifiées (pas d'adresse, d'horaires, de prix ni d'avis tant qu'ils ne sont pas confirmés) -->
 <script type="application/ld+json" id="ldjson">{"@context":"https://schema.org","@type":"HairSalon","name":"QAMAR Blowdry Lounge","alternateName":"قمر","description":"Women-only walk-in lounge opening in Dubai: shower, outfit steamed and perfumed, blow-dry and a drink in 45 minutes.","areaServed":{"@type":"City","name":"Dubai"},"knowsLanguage":["en","ar"]}</script>
+<script type="application/ld+json" id="faqld">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Do I need an appointment?", "acceptedAnswer": {"@type": "Answer", "text": "No. Walk in whenever you like. If every chair is busy, your phone shows your place in line."}}, {"@type": "Question", "name": "How long does it take?", "acceptedAnswer": {"@type": "Answer", "text": "45 minutes at most for the full visit: shower, outfit, blow-dry and a drink. A blow-dry alone is quicker."}}, {"@type": "Question", "name": "Is it only for women?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Our guests and our whole team are women."}}, {"@type": "Question", "name": "Can you steam my abaya or hijab?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Dresses, abayas, shirts and hijabs are steamed and lightly perfumed while you shower."}}, {"@type": "Question", "name": "What can I drink?", "acceptedAnswer": {"@type": "Answer", "text": "Coffee, tea, matcha, fresh juices and iced drinks, served on a tray at your chair."}}, {"@type": "Question", "name": "How much does it cost?", "acceptedAnswer": {"@type": "Answer", "text": "Prices are published before opening. The membership gives the best price, and it drops the longer you stay."}}]}</script>
 <meta name="theme-color" content="#120B0F">
 <link rel="icon" href="assets/app/favicon-32.png" type="image/png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -125,6 +126,17 @@
   .clock { margin-top: 48px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; font-family: var(--serif); font-size: clamp(26px, 3vw, 34px); }
   .clock span { font: 300 16px/1.5 var(--sans); color: var(--ink-2); }
 
+  .looks { background: #fff; }
+  .looks header { max-width: 40em; margin-bottom: 48px; }
+  .looks header .lead { margin-top: 18px; }
+  .lk { display: grid; gap: 20px; grid-template-columns: 1fr 1fr; list-style: none; margin: 0; padding: 0; }
+  @media (min-width: 1080px) { .lk { grid-template-columns: repeat(4, 1fr); } }
+  .lk figure { margin: 0 0 14px; border-radius: var(--r); overflow: hidden; aspect-ratio: 4 / 5; background: var(--sand); }
+  .lk img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+  .lk li:hover img { transform: scale(1.03); }
+  .lk h3 { font-size: 24px; }
+  .lk p { color: var(--ink-2); font-size: 15px; margin-top: 4px; }
+
   .promise { background: var(--sand); }
   .promise .grid { display: grid; gap: 40px; grid-template-columns: 1fr; margin-top: 48px; }
   @media (min-width: 900px) { .promise .grid { grid-template-columns: repeat(3, 1fr); } }
@@ -204,7 +216,7 @@
     <a class="brand" href="./" aria-label="QAMAR home"><svg viewBox="26 8 84 146" width="18" height="32" aria-hidden="true" fill="none" stroke="#C49A5A" stroke-width="6" stroke-linecap="round"><path d="M82 14C50 18 30 46 34 76c4 24 24 38 46 36"/><path d="M82 14C62 26 54 48 58 70"/><path d="M58 70c4 16 30 20 26 42-2 12-12 20-14 36"/><path d="M64 60c2 20 32 26 28 50-2 14-12 24-14 40"/><path d="M104 74c-4 18-14 30-24 38"/></svg><span translate="no">QAMAR</span></a>
     <nav>
       <button class="lang" type="button" id="langBtn" data-i18n="lang_switch">العربية</button>
-      <a class="btn btn-primary" href="#join" data-cta data-i18n="cta_short">Join the opening list</a>
+      <a class="btn btn-primary" href="#join" data-cta data-track="cta_click" data-track-loc="header" data-i18n="cta_short">Join the opening list</a>
     </nav>
   </div>
 </header>
@@ -216,11 +228,11 @@
       <h1 id="h1" data-i18n="h1">Walk in tired. Walk out ready.</h1>
       <p class="lead" data-i18n="hero_sub">A shower, your outfit steamed and perfumed, a blow-dry and something to drink. Forty-five minutes, no appointment, between work and your evening.</p>
       <div class="ctas">
-        <a class="btn btn-primary" href="#join" data-cta data-i18n="cta">Join the opening list</a>
-        <a class="btn btn-ghost" href="#film" data-i18n="cta_film">Watch the film</a>
+        <a class="btn btn-primary" href="#join" data-cta data-track="cta_click" data-track-loc="hero" data-i18n="cta">Join the opening list</a>
+        <a class="btn btn-ghost" href="#film" data-track="film_click" data-track-loc="hero" data-i18n="cta_film">Watch the film</a>
       </div>
       <ul class="facts">
-        <li data-i18n="fact_women"><b>Women only</b> · female team</li>
+        <li data-i18n="fact_women"><b>Women only</b> · private &amp; hijab-friendly</li>
         <li data-i18n="fact_time"><b>45 min</b> · no appointment</li>
         <li data-i18n="fact_open"><b>March 2027</b> · off Sheikh Zayed Road</li>
       </ul>
@@ -275,6 +287,22 @@
         </li>
       </ol>
       <p class="clock reveal" data-i18n="clock">45 minutes maximum <span>from the moment your service starts.</span></p>
+    </div>
+  </section>
+
+  <section class="looks" id="looks" aria-labelledby="looks-h">
+    <div class="wrap">
+      <header class="reveal">
+        <span class="eyebrow" data-i18n="lk_eyebrow">Signature looks</span>
+        <h2 id="looks-h" data-i18n="lk_h">Pick a look. We do the rest.</h2>
+        <p class="lead" data-i18n="lk_p">Four looks our stylists master, each done in your 45 minutes.</p>
+      </header>
+      <ul class="lk">
+        <li class="reveal"><figure><img src="assets/img/look-sleek.webp" alt="" width="800" height="1000" loading="lazy" decoding="async"></figure><h3 translate="no">Midnight Sleek</h3><p data-i18n="lk1">Glass-smooth and straight</p></li>
+        <li class="reveal"><figure><img src="assets/img/look-bouncy.webp" alt="" width="800" height="1000" loading="lazy" decoding="async"></figure><h3 translate="no">Qamar Glow</h3><p data-i18n="lk2">Volume and soft movement</p></li>
+        <li class="reveal"><figure><img src="assets/img/look-waves.webp" alt="" width="800" height="1000" loading="lazy" decoding="async"></figure><h3 translate="no">Marina Waves</h3><p data-i18n="lk3">Polished Hollywood waves</p></li>
+        <li class="reveal"><figure><img src="assets/img/look-curls.webp" alt="" width="800" height="1000" loading="lazy" decoding="async"></figure><h3 translate="no">Desert Curls</h3><p data-i18n="lk4">Defined, glossy curls</p></li>
+      </ul>
     </div>
   </section>
 
@@ -339,7 +367,7 @@
     <div class="wrap">
       <h2 id="join-h" data-i18n="j_h">Be there for the private preview.</h2>
       <p data-i18n="j_p">Send us a message and we'll invite you before the opening, with the founding membership price.</p>
-      <a class="btn" href="#join" id="joinBtn" data-cta data-i18n="cta">Join the opening list</a>
+      <a class="btn" href="#join" id="joinBtn" data-cta data-track="whatsapp_click" data-track-loc="final" data-i18n="cta">Join the opening list</a>
       <p class="note" id="joinNote" data-i18n="j_note">Our WhatsApp line opens soon. Come back in a few days.</p>
     </div>
   </section>
@@ -356,9 +384,11 @@
   </div>
 </footer>
 
-<div class="sticky" id="sticky"><a class="btn btn-primary" href="#join" data-cta data-i18n="cta">Join the opening list</a></div>
+<div class="sticky" id="sticky"><a class="btn btn-primary" href="#join" data-cta data-track="whatsapp_click" data-track-loc="sticky" data-i18n="cta">Join the opening list</a></div>
 
+<script src="assets/config.js"></script>
 <script src="assets/data.js"></script>
+<script src="assets/track.js" defer></script>
 <script>
   const dict = {
     skip: { en: 'Skip to content', ar: 'انتقلي إلى المحتوى' },
@@ -368,7 +398,7 @@
     cta_film: { en: 'Watch the film', ar: 'شاهدي الفيلم' },
     h1: { en: 'Walk in tired. Walk out ready.', ar: 'ادخلي متعبة. اخرجي جاهزة.' },
     hero_sub: { en: 'A shower, your outfit steamed and perfumed, a blow-dry and something to drink. Forty-five minutes, no appointment, between work and your evening.', ar: 'دش، ملابسك مكوية بالبخار ومعطّرة، سشوار ومشروب. خمس وأربعون دقيقة بدون موعد، بين العمل وسهرتك.' },
-    fact_women: { en: '<b>Women only</b> · female team', ar: '<b>للنساء فقط</b> · فريق نسائي' },
+    fact_women: { en: '<b>Women only</b> · private &amp; hijab-friendly', ar: '<b>للنساء فقط</b> · خصوصية تامة للمحجبات' },
     fact_time: { en: '<b>45 min</b> · no appointment', ar: '<b>٤٥ دقيقة</b> · بدون موعد' },
     fact_open: { en: '<b>March 2027</b> · off Sheikh Zayed Road', ar: '<b>مارس ٢٠٢٧</b> · قرب شارع الشيخ زايد' },
     film_eyebrow: { en: 'The film', ar: 'الفيلم' },
@@ -388,6 +418,13 @@
     s4_h: { en: 'A drink on the tray', ar: 'مشروب على الصينية' },
     s4_p: { en: 'Coffee, tea, matcha, fresh juice or something iced, brought to your chair.', ar: 'قهوة، شاي، ماتشا، عصير طازج أو مشروب مثلج، يصلك إلى كرسيك.' },
     clock: { en: '45 minutes maximum <span>from the moment your service starts.</span>', ar: '٤٥ دقيقة كحد أقصى <span>من لحظة بدء الخدمة.</span>' },
+    lk_eyebrow: { en: 'Signature looks', ar: 'إطلالات مميزة' },
+    lk_h: { en: 'Pick a look. We do the rest.', ar: 'اختاري إطلالتك، والباقي علينا.' },
+    lk_p: { en: 'Four looks our stylists master, each done in your 45 minutes.', ar: 'أربع إطلالات تتقنها مصففاتنا، وكل واحدة ضمن دقائقك الخمس والأربعين.' },
+    lk1: { en: 'Glass-smooth and straight', ar: 'ناعم ولامع كالزجاج' },
+    lk2: { en: 'Volume and soft movement', ar: 'كثافة وحركة ناعمة' },
+    lk3: { en: 'Polished Hollywood waves', ar: 'تموجات هوليوود أنيقة' },
+    lk4: { en: 'Defined, glossy curls', ar: 'تجاعيد واضحة ولامعة' },
     pr_h: { en: 'Made for women who go out after work.', ar: 'صُمّم للنساء اللواتي يخرجن بعد العمل.' },
     pr1_h: { en: 'Women only', ar: 'للنساء فقط' },
     pr1_p: { en: 'An all-female team and a private space. Take your hijab off without a second thought.', ar: 'فريق نسائي بالكامل ومكان خاص. اخلعي حجابك براحة تامة.' },
@@ -474,7 +511,7 @@
       }), { threshold: .4 }).observe(v);
     }
     sb.addEventListener('click', () => {
-      v.muted = !v.muted; if (!v.muted) { v.currentTime = 0; v.play().catch(() => {}); }
+      v.muted = !v.muted; if (!v.muted) { v.currentTime = 0; v.play().catch(() => {}); if (window.QamarTrack) QamarTrack('film_sound_on', { location: 'film' }); }
       sb.textContent = t(v.muted ? 'sound_on' : 'sound_off'); sb.setAttribute('aria-pressed', String(!v.muted));
     });
 

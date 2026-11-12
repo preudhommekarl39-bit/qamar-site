@@ -12,7 +12,7 @@ import { extractDict, translateHtml, setHeadTag, setMeta } from './lib.mjs';
 
 const SITE = (process.env.SITE_URL || 'https://qamarlounge.com/').replace(/\/?$/, '/');
 const OUT = '_site';
-const PUBLIC = ['index.html', 'queue.html', 'privacy.html', 'legal.html', 'entrance.html', 'station.html', 'admin.html', 'tests.html', 'manifest.webmanifest', 'sw.js', '.nojekyll'];
+const PUBLIC = ['index.html', 'queue.html', 'privacy.html', 'legal.html', 'entrance.html', 'station.html', 'admin.html', 'tests.html', 'manifest.webmanifest', 'sw.js', '.nojekyll', 'llms.txt'];
 const PUBLIC_DIRS = ['assets', 'tests'];
 
 rmSync(OUT, { recursive: true, force: true });
