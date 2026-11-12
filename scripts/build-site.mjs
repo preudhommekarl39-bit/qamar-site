@@ -13,7 +13,7 @@ import { extractDict, translateHtml, setHeadTag, setMeta } from './lib.mjs';
 const SITE = (process.env.SITE_URL || 'https://qamarlounge.com/').replace(/\/?$/, '/');
 const OUT = '_site';
 const PUBLIC = ['index.html', 'queue.html', 'privacy.html', 'legal.html', 'entrance.html', 'station.html', 'admin.html', 'tests.html', 'manifest.webmanifest', 'sw.js', '.nojekyll', 'llms.txt', 'googlee7662b1241ccf348.html', 'de2cfe638b66c13233e988a305c0c8d8.txt'];
-const PUBLIC_DIRS = ['assets', 'tests'];
+const PUBLIC_DIRS = ['assets', 'tests', 'guides'];
 
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT);
@@ -98,7 +98,7 @@ writeFileSync(`${OUT}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>
   </url>
   <url><loc>${URLS.ar}</loc><lastmod>${today}</lastmod>${alt}
   </url>
-  <url><loc>${abs('privacy.html')}</loc><lastmod>${today}</lastmod></url>
+${readdirSync('guides').filter(f => f.endsWith('.html')).map(f => `  <url><loc>${abs('guides/' + f)}</loc><lastmod>${today}</lastmod></url>\n`).join('')}  <url><loc>${abs('privacy.html')}</loc><lastmod>${today}</lastmod></url>
   <url><loc>${abs('legal.html')}</loc><lastmod>${today}</lastmod></url>
 </urlset>
 `);
