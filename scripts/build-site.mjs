@@ -13,7 +13,7 @@ import { extractDict, translateHtml, setHeadTag, setMeta } from './lib.mjs';
 const SITE = (process.env.SITE_URL || 'https://qamarlounge.com/').replace(/\/?$/, '/');
 const OUT = '_site';
 const PUBLIC = ['index.html', 'queue.html', 'privacy.html', 'legal.html', 'entrance.html', 'station.html', 'admin.html', 'tests.html', 'manifest.webmanifest', 'sw.js', '.nojekyll', 'llms.txt', 'googlee7662b1241ccf348.html', 'de2cfe638b66c13233e988a305c0c8d8.txt'];
-const PUBLIC_DIRS = ['assets', 'tests', 'guides'];
+const PUBLIC_DIRS = ['assets', 'tests', 'guides', 'services', 'areas'];
 
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT);
@@ -136,7 +136,7 @@ writeFileSync(`${OUT}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>
   </url>
   <url><loc>${URLS.ar}</loc><lastmod>${today}</lastmod>${alt}${vsm('ar')}
   </url>
-${readdirSync('guides').filter(f => f.endsWith('.html')).map(f => { const en = abs('guides/' + f), arU = abs('guides/ar/' + f); const has = existsSync('guides/ar/' + f); const a = has ? `\n    <xhtml:link rel="alternate" hreflang="en" href="${en}"/>\n    <xhtml:link rel="alternate" hreflang="ar" href="${arU}"/>` : ''; return `  <url><loc>${en}</loc><lastmod>${today}</lastmod>${a}\n  </url>\n` + (has ? `  <url><loc>${arU}</loc><lastmod>${today}</lastmod>${a}\n  </url>\n` : ''); }).join('')}</urlset>
+${['services', 'areas'].flatMap(d => readdirSync(d).filter(f => f.endsWith('.html')).sort((a, b) => (a === 'index.html' ? -1 : b === 'index.html' ? 1 : a.localeCompare(b))).map(f => { const p = f === 'index.html' ? '' : f; const en = abs(`${d}/${p}`), arU = abs(`${d}/ar/${p}`); const has = existsSync(`${d}/ar/${f}`); const a = has ? `\n    <xhtml:link rel="alternate" hreflang="en" href="${en}"/>\n    <xhtml:link rel="alternate" hreflang="ar" href="${arU}"/>\n    <xhtml:link rel="alternate" hreflang="x-default" href="${en}"/>` : ''; return `  <url><loc>${en}</loc><lastmod>${today}</lastmod>${a}\n  </url>\n` + (has ? `  <url><loc>${arU}</loc><lastmod>${today}</lastmod>${a}\n  </url>\n` : ''); })).join('')}${readdirSync('guides').filter(f => f.endsWith('.html')).map(f => { const en = abs('guides/' + f), arU = abs('guides/ar/' + f); const has = existsSync('guides/ar/' + f); const a = has ? `\n    <xhtml:link rel="alternate" hreflang="en" href="${en}"/>\n    <xhtml:link rel="alternate" hreflang="ar" href="${arU}"/>` : ''; return `  <url><loc>${en}</loc><lastmod>${today}</lastmod>${a}\n  </url>\n` + (has ? `  <url><loc>${arU}</loc><lastmod>${today}</lastmod>${a}\n  </url>\n` : ''); }).join('')}</urlset>
 `);
 
 console.log(`Built ${OUT}/ for ${SITE}:`, readdirSync(OUT).join(', '));
