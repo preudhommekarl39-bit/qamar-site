@@ -32,7 +32,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Tajawal:wght@400;500;700&family=Yellowtail&display=swap" rel="stylesheet">
+<!-- Polices non bloquantes (EN : Cormorant + Yellowtail ; la page arabe ajoute Tajawal + Amiri, voir scripts/build-site.mjs) -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Yellowtail&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Yellowtail&display=swap"></noscript>
 <link rel="stylesheet" href="assets/qamar.css">
 <style>
   /* Mise en page « à la Apple » : sections pleine largeur qui alternent blanc et rose très pâle,
@@ -685,6 +687,7 @@
   .dark :focus-visible { outline-color: #F3DDB0; }
   .lang button { min-height: 30px; min-width: 38px; }
   .gnav .lang { transform: none; }
+  .anim-off, .anim-off * { animation-play-state: paused !important; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
 
   /* Club QAMAR (abonnements) */
@@ -1435,7 +1438,7 @@
         <span class="meta">${q.duration} ${Q.t('min')}${s.fromHour ? ` · ${Q.t('n1w')}` : ''}</span>
         <h3>${Q.esc(Q.L(s.look))}</h3>
         <p>${Q.esc(Q.L(s.desc))}</p>
-        <div class="art${s.img ? ' photo' : ''}" style="background:radial-gradient(130% 90% at 50% 0%, ${s.tone[0]}, ${s.tone[1]})">${s.img ? `<img src="${s.img}" alt="${Q.esc(Q.L(s.look))}" loading="lazy" decoding="async" width="896" height="1152">` : `<canvas class="look-canvas" data-look="${s.id}" aria-hidden="true"></canvas>`}</div>
+        <div class="art${s.img ? ' photo' : ''}" style="background:radial-gradient(130% 90% at 50% 0%, ${s.tone[0]}, ${s.tone[1]})">${s.img ? `<img src="${s.img}" alt="${Q.esc(Q.L(s.look))}" loading="lazy" decoding="async" width="640" height="823">` : `<canvas class="look-canvas" data-look="${s.id}" aria-hidden="true"></canvas>`}</div>
         <div class="foot"><span class="price">${q.base} AED${['blowdry', 'night'].includes(s.cat) ? `<small class="club-hint">${Q.L({ en: 'Included in the Club', ar: 'مشمول في النادي' })}</small>` : ''}</span><span class="plus" aria-hidden="true">+</span></div>
       </a>`;
     }).join('');
@@ -1702,11 +1705,14 @@
 
   const io = new IntersectionObserver(entries => entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }), { threshold: .12 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Hors écran : animations CSS en boucle (reflets des titres, défilé, ticket doré, halos du hero) en pause, rendu identique à l'écran
+  const offIo = new IntersectionObserver(es => es.forEach(en => en.target.classList.toggle('anim-off', !en.isIntersecting)), { rootMargin: '120px 0px' });
+  document.querySelectorAll('header.stage-outer, main > section:not(#how), footer').forEach(el => offIo.observe(el)); // #how a déjà sa propre pause (.inview)
 })();
 </script>
 <script src="assets/stage-fx.js"></script>
 <script src="assets/sakura.js"></script>
-<script src="assets/rituals-fx.js"></script>
 <script src="assets/looks-fx.js"></script>
 <script src="assets/cursor-fx.js"></script>
 <script src="assets/app.js"></script>

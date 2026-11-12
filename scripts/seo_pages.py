@@ -692,7 +692,7 @@ def page(kind, item, lang):
 <script type="application/ld+json">{ld}</script>
 <link rel="icon" href="{P}assets/app/favicon-32.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Jost:wght@300;500{'&family=Tajawal:wght@300;400;500' if lang == 'ar' else ''}&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Jost:wght@300;500{'&family=Tajawal:wght@300;400;500' if lang == 'ar' else ''}&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Jost:wght@300;500{'&family=Tajawal:wght@300;400;500' if lang == 'ar' else ''}&display=swap"></noscript>
 <style>{CSS}{CSS_AR if lang == 'ar' else ''}</style>
 </head>
 <body>

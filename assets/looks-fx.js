@@ -159,8 +159,10 @@
     if (reduce) paint(it, 3);
   }
   function paint(it, t) { if (!it.w) return; it.ctx.clearRect(0, 0, it.w, it.h); try { it.ctx.save(); drawLook(it.ctx, it.w, it.h, t, it.id); } catch (e) { console.error('[QAMAR looks-fx]', e); } finally { it.ctx.restore(); } }
-  let raf = 0;
+  let raf = 0, nextDraw = 0;
   function loop(ms) {
+    if (ms < nextDraw) { raf = requestAnimationFrame(loop); return; } // ~30 images/s : même rendu, deux fois moins de calcul
+    nextDraw = ms + 33;
     let any = false;
     items.forEach(it => { if (!it.cv.isConnected) { items.delete(it); return; } if (!it.visible) return; any = true; paint(it, ms / 1000); });
     raf = any && !reduce ? requestAnimationFrame(loop) : 0;

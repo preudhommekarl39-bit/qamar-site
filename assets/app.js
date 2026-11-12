@@ -61,7 +61,7 @@
     else if (isIOS) body = `<div class="qa-ios">${t('ios1')} ${shareIcon}<b>${t('ios1b')}</b> ${t('ios2')} <b>${t('ios2b')}</b> ＋</div>`;
     else if (!deferred && !isMobile) body = `<p class="qa-ios">${t('desk')}</p>`;
     else if (!deferred) body = `<div class="qa-ios">${t('and1')} <b>⋮</b> ${t('ios2')} <b>${t('and2')}</b></div>`;
-    sheet.innerHTML = `<img src="assets/app/icon-192.png" alt=""><b>${t('title')}</b><p>${t('sub')}</p>${body}
+    sheet.innerHTML = `<img src="assets/app/icon-192.png" alt="" width="56" height="56"><b>${t('title')}</b><p>${t('sub')}</p>${body}
       <div class="qa-act">${deferred && !standalone ? `<button class="qa-go" type="button">${t('install')}</button>` : ''}<button class="qa-no" type="button">${t('later')}</button></div>`;
     document.body.appendChild(sheet);
     requestAnimationFrame(() => requestAnimationFrame(() => sheet && sheet.classList.add('show')));

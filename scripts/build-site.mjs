@@ -107,7 +107,8 @@ ar = ar.replace('<meta property="og:locale" content="en_AE">', '<meta property="
 ar = ar.replace(/<video src="([^"]+)" poster="([^"]+)" data-src-ar="([^"]+)" data-poster-ar="([^"]+)"/g, '<video src="$3" poster="$4" data-src-ar="$3" data-poster-ar="$4"');
 ar = ar.replace(/href="guides\/([a-z-]+)\.html" data-guide=/g, 'href="guides/ar/$1.html" data-guide=');
 ar = ar.replace('href="services/" data-i18n="ft_services"', 'href="services/ar/" data-i18n="ft_services"');
-ar = ar.replace('family=Cormorant+Garamond:wght@400;500&family=Tajawal:wght@400;500;700&family=Yellowtail&display=swap', 'family=Cormorant+Garamond:wght@400;500&family=Tajawal:wght@400;500;700&family=Yellowtail&family=Amiri&display=swap');
+ar = ar.replaceAll('family=Cormorant+Garamond:wght@400;500&family=Yellowtail&display=swap', 'family=Cormorant+Garamond:wght@400;500&family=Tajawal:wght@400;500;700&family=Yellowtail&family=Amiri&display=swap');
+if (!ar.includes('family=Tajawal')) { console.error('Arabic fonts (Tajawal + Amiri) not added to ar.html'); process.exit(1); }
 ar = setMeta(ar, 'name', 'twitter:title', 'قمر بلودراي لاونج دبي — ادخلي… واخرجي متألقة.');
 ar = setMeta(ar, 'name', 'twitter:description', 'صالون سشوار نسائي بدون موعد قرب شارع الشيخ زايد في دبي: دشّ خاص، ملابسكِ بالبخار، وسشوار في ٤٥ دقيقة. الافتتاح مارس ٢٠٢٧.');
 ar = setMeta(ar, 'property', 'og:description', 'صالون سشوار نسائي بدون موعد قرب شارع الشيخ زايد في دبي: دشّ خاص، ملابسكِ بالبخار، وسشوار في ٤٥ دقيقة. الافتتاح مارس ٢٠٢٧.');

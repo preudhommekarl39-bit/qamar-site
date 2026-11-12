@@ -386,12 +386,14 @@
   buildSprites();
   resize();
   let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { resize(); if (reduce || !running) frame(performance.now()); }, 150); });
+  let inView = true;
   new IntersectionObserver(([en]) => {
-    if (en.isIntersecting && !running && ready) { running = true; last = 0; raf = requestAnimationFrame(frame); }
+    inView = en.isIntersecting;
+    if (en.isIntersecting && !running && ready && !reduce) { running = true; last = 0; raf = requestAnimationFrame(frame); }
     if (!en.isIntersecting) { running = false; cancelAnimationFrame(raf); }
   }).observe(cv);
   // Image fixe tout de suite, animation lancée une fois la page chargée : le site s'affiche et répond d'abord
   running = false; try { draw(performance.now()); } catch (e) { /* le premier dessin ne doit jamais bloquer la page */ }
-  const start = () => { ready = true; if (!running && !reduce) { running = true; last = 0; raf = requestAnimationFrame(frame); } };
+  const start = () => { ready = true; if (!running && !reduce && inView) { running = true; last = 0; raf = requestAnimationFrame(frame); } };
   if (document.readyState === 'complete') setTimeout(start, 1200); else addEventListener('load', () => setTimeout(start, 1200), { once: true });
 })();

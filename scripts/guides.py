@@ -108,7 +108,7 @@ def page(g, lang, lst):
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
 <link rel="icon" href="{P}assets/app/favicon-32.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Jost:wght@300;500{'&family=Tajawal:wght@400;500' if lang == 'ar' else ''}&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Jost:wght@300;500{'&family=Tajawal:wght@400;500' if lang == 'ar' else ''}&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Jost:wght@300;500{'&family=Tajawal:wght@400;500' if lang == 'ar' else ''}&display=swap"></noscript>
 <style>{CSS}{"body{font-family:Tajawal,system-ui,sans-serif}h1,h2{font-family:Tajawal,serif;font-weight:500}" if lang == 'ar' else ''}</style>
 </head>
 <body>

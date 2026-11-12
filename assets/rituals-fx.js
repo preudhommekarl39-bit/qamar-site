@@ -562,6 +562,7 @@
   }
   let raf = 0, last = 0;
   function loop(ms) {
+    if (last && ms - last < 33) { raf = requestAnimationFrame(loop); return; } // ~30 images/s
     const t = ms / 1000, dt = Math.min(.05, last ? (ms - last) / 1000 : .016); last = ms;
     let any = false;
     items.forEach(it => {
