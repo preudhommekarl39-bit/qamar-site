@@ -731,7 +731,7 @@
     <div class="film-reel reveal">
       <figure class="film-item">
         <div class="film-frame">
-          <video src="assets/video/qamar-walk-in.mp4" poster="assets/video/qamar-walk-in-poster.jpg" muted loop playsinline preload="none" aria-label="QAMAR: walk in tired, walk out ready"></video>
+          <video src="assets/video/qamar-walk-in.mp4" poster="assets/video/qamar-walk-in-poster.jpg" data-src-ar="assets/video/qamar-walk-in-ar.mp4" data-poster-ar="assets/video/qamar-walk-in-ar-poster.jpg" muted loop playsinline preload="none" aria-label="QAMAR: walk in tired, walk out ready"></video>
       <button class="film-sound" type="button" aria-pressed="false">
         <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="m23 9-6 6M17 9l6 6"/></svg>
         <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>
@@ -1398,6 +1398,10 @@
 (() => {
   const items = [...document.querySelectorAll('.film-frame')].map(f => ({ v: f.querySelector('video'), b: f.querySelector('.film-sound') })).filter(x => x.v && x.b);
   if (!items.length) return;
+  /* Version arabe de la pub (voix et sous-titres) quand la page est en arabe */
+  items.forEach(({ v }) => { if (v.dataset.srcAr) { v.dataset.srcEn = v.getAttribute('src'); v.dataset.posterEn = v.getAttribute('poster'); } });
+  const filmLang = () => { const ar = document.documentElement.lang === 'ar'; items.forEach(({ v }) => { if (!v.dataset.srcAr) return; const src = ar ? v.dataset.srcAr : v.dataset.srcEn; if (v.getAttribute('src') === src) return; const was = !v.paused; v.setAttribute('poster', ar ? v.dataset.posterAr : v.dataset.posterEn); v.setAttribute('src', src); if (was) v.play().catch(() => {}); }); };
+  filmLang(); document.addEventListener('qamar:lang', filmLang);
   const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const vis = new Set();
   const others = v => items.forEach(x => { if (x.v !== v) { x.v.pause(); x.v.muted = true; x.b.setAttribute('aria-pressed', 'false'); } });
