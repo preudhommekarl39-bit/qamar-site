@@ -378,7 +378,7 @@
   .seg::-webkit-scrollbar { display: none; }
   .seg button { border: 0; background: transparent; color: var(--ink-2); border-radius: 999px; padding: 9px 18px; font-size: .9rem; white-space: nowrap; transition: background .25s, color .25s, box-shadow .25s; }
   .seg button.on { background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgba(31, 20, 23, .1); }
-  .gallery { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: max(22px, calc((100vw - 1120px) / 2)); padding: 50px max(22px, calc((100vw - 1120px) / 2)) 30px; margin: 0 calc(-1 * max(22px, env(safe-area-inset-left, 0px))); scrollbar-width: none; }
+  .gallery { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: max(22px, calc((100vw - 1120px) / 2)); padding: 50px max(22px, calc((100vw - 1120px) / 2)) 30px; margin: 0 calc(50% - 50vw); scrollbar-width: none; }
   .gallery::-webkit-scrollbar { display: none; }
   .tile-look { flex: 0 0 min(330px, 80vw); scroll-snap-align: start; background: var(--s2); border-radius: 28px; padding: 30px 28px 26px; display: flex; flex-direction: column; text-decoration: none; color: var(--ink); transition: transform .4s cubic-bezier(.2, .7, .2, 1); }
   .tile-look:hover { transform: scale(1.015); }
@@ -693,12 +693,13 @@
   /* Filtres des looks : sur petit écran ils passent à la ligne au lieu de sortir du cadre */
   @media (max-width: 760px) { .seg { display: flex; flex-wrap: wrap; justify-content: center; overflow: visible; border-radius: 22px; gap: 4px; } .seg button { padding: 8px 14px; } }
 
-  /* Signature au pinceau (inspirée d'une animation de logo « pigment ») */
-  .sig { background: #fff; padding: clamp(40px, 7vw, 90px) 16px clamp(20px, 4vw, 50px); display: grid; place-items: center; }
-  .sig-svg { width: min(820px, 100%); height: auto; overflow: visible; }
-  #sigWord { font-family: 'Yellowtail', 'Brush Script MT', cursive; font-size: 236px; }
-  #sigTag { font-family: var(--helv); font-size: 26px; letter-spacing: .5em; fill: var(--ink-2); opacity: 0; transition: opacity 1s ease .2s, letter-spacing 1.4s cubic-bezier(.2, .8, .2, 1); }
-  .sig.done #sigTag { opacity: 1; letter-spacing: .34em; }
+  /* Signature au feutre fluo (inspirée d'une animation de logo « pigment ») */
+  .sig { background: radial-gradient(60% 70% at 50% 45%, #FFF3F8, #fff 70%); min-height: min(78vh, 760px); display: grid; place-items: center; padding: 40px 0; overflow: hidden; }
+  .sig-svg { width: min(1400px, 100vw); height: auto; overflow: visible; }
+  .sig text { font-family: 'Yellowtail', 'Brush Script MT', cursive; font-size: 330px; }
+  #sigTag { font-family: var(--helv); font-size: 34px; letter-spacing: .6em; fill: var(--ink-2); opacity: 0; transition: opacity .9s ease .1s, letter-spacing 1.4s cubic-bezier(.2, .8, .2, 1); }
+  .sig.done #sigTag { opacity: 1; letter-spacing: .38em; }
+  @media (max-width: 700px) { .sig { min-height: 52vh; } }
 </style>
 </head>
 <body>
@@ -802,22 +803,28 @@
 
 <main id="main">
 <section class="sig" id="signature" aria-label="QAMAR Blowdry Lounge">
-  <svg class="sig-svg" viewBox="0 0 1000 380" role="img" aria-label="QAMAR Blowdry Lounge">
+  <svg class="sig-svg" viewBox="0 0 1400 560" role="img" aria-label="QAMAR Blowdry Lounge">
     <defs>
-      <linearGradient id="sigInk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E86FA0"/><stop offset=".5" stop-color="#C94C82"/><stop offset="1" stop-color="#9E3A62"/></linearGradient>
-      <filter id="sigPigment" x="-5%" y="-10%" width="110%" height="120%">
-        <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7" result="n"/>
-        <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G" result="d"/>
-        <feTurbulence type="fractalNoise" baseFrequency="2.2" numOctaves="1" seed="3" result="g"/>
-        <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -.75 1.4" result="ga"/>
-        <feComposite in="d" in2="ga" operator="in"/>
+      <linearGradient id="sigInk" x1="0" y1="0" x2="1" y2=".6"><stop offset="0" stop-color="#FF6FAE"/><stop offset=".45" stop-color="#E8478C"/><stop offset="1" stop-color="#B8336F"/></linearGradient>
+      <linearGradient id="sigGloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <filter id="sigGlow" filterUnits="userSpaceOnUse" x="-200" y="-100" width="1800" height="760">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="14" result="b"/>
+        <feFlood flood-color="#FF5FA2" flood-opacity=".45"/><feComposite in2="b" operator="in" result="glow"/>
+        <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="b2"/>
+        <feFlood flood-color="#FF8CC0" flood-opacity=".5"/><feComposite in2="b2" operator="in" result="glow2"/>
+        <feMerge><feMergeNode in="glow"/><feMergeNode in="glow2"/><feMergeNode in="SourceGraphic"/></feMerge>
       </filter>
-      <linearGradient id="sigEdge" x1="0" x2="1"><stop offset="0" stop-color="#fff"/><stop offset=".86" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-      <mask id="sigMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="380"><rect id="sigWipe" x="0" y="0" width="0" height="380" fill="url(#sigEdge)"/></mask>
+      <linearGradient id="sigFeather" x1="0" x2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <mask id="sigMask" maskUnits="userSpaceOnUse" x="-200" y="-100" width="1800" height="760">
+        <rect id="sigSolid" x="-200" y="-100" width="0" height="760" fill="#fff"/>
+        <rect id="sigEdge" x="-200" y="-100" width="60" height="760" fill="url(#sigFeather)"/>
+      </mask>
     </defs>
-    <g mask="url(#sigMask)"><text id="sigWord" x="500" y="235" text-anchor="middle" fill="url(#sigInk)" filter="url(#sigPigment)">Qamar</text></g>
-    <g id="sigDrops" fill="#C9788F" filter="url(#sigPigment)"><circle cx="812" cy="118" r="0"/><circle cx="836" cy="96" r="0"/><circle cx="790" cy="300" r="0"/><circle cx="214" cy="290" r="0"/></g>
-    <text id="sigTag" x="500" y="330" text-anchor="middle">BLOWDRY LOUNGE</text>
+    <g mask="url(#sigMask)" filter="url(#sigGlow)">
+      <text id="sigWord" x="700" y="345" text-anchor="middle" fill="url(#sigInk)">Qamar</text>
+      <text x="700" y="345" text-anchor="middle" fill="url(#sigGloss)" aria-hidden="true">Qamar</text>
+    </g>
+    <text id="sigTag" x="700" y="470" text-anchor="middle">BLOWDRY LOUNGE</text>
   </svg>
 </section>
 
@@ -1599,33 +1606,34 @@
 })();
 </script>
 <script>
-/* Signature QAMAR : le mot s'écrit lettre par lettre au pinceau, puis « Blowdry Lounge » apparaît */
+/* Signature QAMAR : le mot s'écrit au feutre fluo, lettre par lettre, à chaque fois qu'on arrive dessus */
 (() => {
   const sec = document.getElementById('signature'); if (!sec) return;
-  const word = document.getElementById('sigWord'), wipe = document.getElementById('sigWipe'), drops = [...document.querySelectorAll('#sigDrops circle')];
+  const word = document.getElementById('sigWord'), solid = document.getElementById('sigSolid'), edge = document.getElementById('sigEdge');
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const finish = () => { wipe.setAttribute('width', 1400); drops.forEach((c, i) => c.setAttribute('r', [5, 3, 4, 2.5][i])); sec.classList.add('done'); };
+  const setX = x => { solid.setAttribute('width', Math.max(0, x + 200)); edge.setAttribute('x', x); };
+  const finish = () => { setX(1700); sec.classList.add('done'); };
   if (still || !('IntersectionObserver' in window)) { finish(); return; }
-  let played = false;
+  let raf = 0, run = 0;
   const play = () => {
-    played = true;
+    const id = ++run; cancelAnimationFrame(raf); sec.classList.remove('done');
     let b; try { b = word.getBBox(); } catch (e) { finish(); return; }
-    const n = word.textContent.length, x0 = b.x - 10, x1 = b.x + b.width + 160, per = 520, total = n * per + 200;
-    const ease = t => 1 - Math.pow(1 - t, 2.2);
-    let t0 = 0;
+    const n = word.textContent.length, x0 = b.x - 70, x1 = b.x + b.width + 40, per = 430;
+    const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    setX(x0); let t0 = 0;
     const step = ms => {
-      if (!t0) t0 = ms; const t = ms - t0;
-      // chaque lettre s'écrit à son rythme : rapide au début du trait, plus lent à la fin
-      const k = Math.min(n, t / per), i = Math.floor(k), f = k - i;
-      const x = x0 + (x1 - x0) * Math.min(1, (i + ease(f)) / n);
-      wipe.setAttribute('width', Math.max(0, x));
-      if (t > total * .78) drops.forEach((c, j) => c.setAttribute('r', Math.min([5, 3, 4, 2.5][j], (t - total * .78) / 60 * [5, 3, 4, 2.5][j])));
-      if (t < total + 300) requestAnimationFrame(step); else finish();
-      if (t > total - 200) sec.classList.add('done');
+      if (id !== run) return;
+      if (!t0) t0 = ms; const t = ms - t0, k = Math.min(n, t / per), i = Math.floor(k), f = k - i;
+      setX(x0 + (x1 - x0) * Math.min(1, (i + ease(f)) / n));
+      if (t > n * per - 250) sec.classList.add('done');
+      if (t < n * per + 100) raf = requestAnimationFrame(step); else finish();
     };
-    requestAnimationFrame(step);
+    raf = requestAnimationFrame(step);
   };
-  new IntersectionObserver(([e], o) => { if (e.isIntersecting && !played) { (document.fonts ? document.fonts.load("236px Yellowtail") : Promise.resolve()).catch(() => {}).then(play); o.disconnect(); } }, { threshold: .45 }).observe(sec);
+  const reset = () => { run++; cancelAnimationFrame(raf); setX(-260); sec.classList.remove('done'); };
+  reset();
+  const ready = document.fonts ? document.fonts.load('330px Yellowtail').catch(() => {}) : Promise.resolve();
+  new IntersectionObserver(([e]) => { if (e.isIntersecting) ready.then(play); else reset(); }, { threshold: .35 }).observe(sec);
 })();
 </script>
 </body>
