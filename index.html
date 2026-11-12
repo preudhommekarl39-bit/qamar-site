@@ -657,8 +657,11 @@
   .club-compare th, .club-compare td { padding: 15px 12px; border-bottom: 1px solid var(--line); text-align: center; }
   .club-compare th:first-child, .club-compare td:first-child { text-align: start; }
   .club-compare thead th { font-size: .85rem; letter-spacing: .04em; color: var(--ink-3); font-weight: 500; }
-  .club-compare thead th:last-child { color: var(--rose-deep); font-weight: 700; }
-  .club-compare td:last-child { color: var(--rose-deep); font-weight: 600; }
+  .club-compare thead th:nth-child(n+3) { color: var(--rose-deep); font-weight: 700; }
+  .club-compare td.y { color: var(--rose-deep); font-weight: 600; }
+  .club-compare table { min-width: 640px; }
+  .tier ul.gifts { padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .tier ul.gifts li { font-weight: 600; }
   .club-founding { margin: 40px auto 0; max-width: 680px; text-align: center; font-size: 1.05rem; color: var(--ink-2); }
   .club-founding b { color: var(--rose-deep); }
 
@@ -782,7 +785,7 @@
       <div class="stat reveal"><b data-i18n="p2b">35 min</b><span data-i18n="p2">or your express blow-dry is free</span></div>
       <div class="stat reveal"><b data-i18n="p3b">45 min</b><span data-i18n="p3">maximum, for any look</span></div>
       <div class="stat reveal"><b data-i18n="p4b">00:00</b><span data-i18n="p4">closing time, every day</span></div>
-      <div class="stat reveal"><b data-i18n="p5b">48 h</b><span data-i18n="p5">free touch-up after your visit</span></div>
+      <div class="stat reveal"><b data-i18n="p5b">48 h</b><span data-i18n="p5">free touch-up for members</span></div>
     </div>
   </div>
 </section>
@@ -888,16 +891,16 @@
     <div class="menu-card reveal">
       <div class="mh"><span data-logo></span><div class="t">QAMAR</div><div class="s">— Blowdry Lounge —</div></div>
       <div id="menuList"></div>
-      <p class="menu-note" data-i18n="menu_note">Extra long or thick hair +40 AED · Matcha 25 AED · Indicative prices in AED, VAT treatment to be confirmed</p>
+      <p class="menu-note" data-i18n="menu_note">Indicative prices in AED, VAT treatment to be confirmed. Members get the extras included.</p>
     </div>
     <div>
-      <span class="kicker" data-i18n="incl_kicker">Included with every look</span>
+      <span class="kicker" data-i18n="incl_kicker">Free for members</span>
       <h2 class="title sm" data-i18n="incl_title">The little things are on us.</h2>
       <div class="perks-list">
         <div><i data-icon="clock"></i><span><h3 data-i18n="i4t">35 minutes, or it's free.</h3><p data-i18n="i4p">If your express blow-dry runs longer, you don't pay for it.</p></span></div>
-        <div><i data-icon="droplet"></i><span><h3 data-i18n="i1t">Free touch-up for 48 hours.</h3><p data-i18n="i1p">Humidity got to it? Come back, we fix it.</p></span></div>
-        <div><i data-icon="wind"></i><span><h3 data-i18n="i2t">Hijab bar and a gift magnet.</h3><p data-i18n="i2p">Your shayla steamed while you're styled.</p></span></div>
-        <div><i data-icon="flower"></i><span><h3 data-i18n="i3t">A hair perfume to finish.</h3><p data-i18n="i3p">Oud, rose or white musk. Your choice.</p></span></div>
+        <div><i data-icon="droplet"></i><span><h3 data-i18n="i1t">Free touch-up for 48 hours.</h3><p data-i18n="i1p">Humidity got to it? Come back, we fix it. Half Moon and Full Moon.</p></span></div>
+        <div><i data-icon="wind"></i><span><h3 data-i18n="i2t">Shower, steam and perfume.</h3><p data-i18n="i2p">Your private shower while your dress, abaya or shayla is steamed and perfumed.</p></span></div>
+        <div><i data-icon="flower"></i><span><h3 data-i18n="i3t">A hair perfume and your drink.</h3><p data-i18n="i3p">Oud, rose or white musk, with coffee, tea, karak or matcha.</p></span></div>
       </div>
     </div>
   </div>
@@ -908,7 +911,7 @@
     <div class="center">
       <span class="kicker" data-i18n="club_kicker">The QAMAR Club</span>
       <h2 class="title sm" data-i18n="club_title">Members get everything.</h2>
-      <p class="sub" data-i18n="club_sub">A single visit is just the blow-dry. Members get the whole ritual, skip ahead in the queue, and pay a little less every month they stay.</p>
+      <p class="sub" data-i18n="club_sub">A single visit is the blow-dry, and every extra is paid. Members get the extras free, skip ahead in the queue, and pay a little less every month they stay.</p>
     </div>
     <div class="club-tiers" id="clubTiers"></div>
     <div class="club-drop reveal">
@@ -921,7 +924,7 @@
     </div>
     <div class="club-compare reveal">
       <table>
-        <thead><tr><th></th><th data-i18n="club_single">Single visit</th><th data-i18n="club_member">Member</th></tr></thead>
+        <thead id="clubHead"></thead>
         <tbody id="clubCompare"></tbody>
       </table>
     </div>
@@ -1074,7 +1077,7 @@
       <details><summary data-i18n="faq_q7">Where is QAMAR?</summary><p data-i18n="faq_a7">In Dubai. The exact address will be announced here before opening.</p></details>
       <details><summary data-i18n="faq_q8">How do offers and discounts work?</summary><p data-i18n="faq_a8">Only one discount applies per visit: the best one you are eligible for. Discounts apply to the service, never to drinks or tips. Offer conditions will be published before they start.</p></details>
       <details><summary data-i18n="faq_q9">Do you have services for girls and kids?</summary><p data-i18n="faq_a9">Yes: Mini Glow is a mini blow-dry or braids for little girls, in 25 minutes.</p></details>
-      <details><summary data-i18n="faq_q10">How does the QAMAR Club work?</summary><p data-i18n="faq_a10">Choose Crescent (2 blow-dries a month), Half Moon (one a week) or Full Moon (unlimited, one a day). Every visit includes the private shower, your outfit steamed and perfumed, and your drink. Your monthly price drops by 3% every month you stay, down to −30%.</p></details>
+      <details><summary data-i18n="faq_q10">How does the QAMAR Club work?</summary><p data-i18n="faq_a10">Choose Crescent (2 blow-dries a month), Half Moon (one a week) or Full Moon (unlimited, one a day). The extras are included: shower, outfit steamed and perfumed, hair perfume and your drink, plus touch-ups and express nails from Half Moon. Your monthly price drops by 3% every month you stay, down to −30%.</p></details>
       <details><summary data-i18n="faq_q11">Can I pause or cancel my membership?</summary><p data-i18n="faq_a11">After the first 3 months you can cancel anytime. You can also pause up to 2 months a year and keep your lower price. If you cancel and come back later, you start again at the full price.</p></details>
     </div>
   </div>
@@ -1165,7 +1168,7 @@
     faq_q8: { en: 'How do offers and discounts work?', ar: 'كيف تعمل العروض والخصومات؟' },
     faq_a8: { en: 'Only one discount applies per visit: the best one you are eligible for. Discounts apply to the service, never to drinks or tips. Offer conditions will be published before they start.', ar: 'يُطبَّق خصم واحد فقط في كل زيارة: الأفضل من بين الخصومات المتاحة لكِ. يشمل الخصم الخدمة فقط، ولا يشمل المشروبات أو الإكرامية. تُنشر شروط العروض قبل بدئها.' },
     faq_q10: { en: 'How does the QAMAR Club work?', ar: 'كيف يعمل نادي قمر؟' },
-    faq_a10: { en: 'Choose Crescent (2 blow-dries a month), Half Moon (one a week) or Full Moon (unlimited, one a day). Every visit includes the private shower, your outfit steamed and perfumed, and your drink. Your monthly price drops by 3% every month you stay, down to −30%.', ar: 'اختاري هلال (سشواران في الشهر) أو نصف القمر (سشوار كل أسبوع) أو البدر (بلا حدود، مرة في اليوم). كل زيارة تشمل الدشّ الخاص، وملابسكِ بالبخار ومعطّرة، ومشروبكِ. وينخفض سعركِ الشهري ٣٪ كل شهر تبقين فيه، حتى −٣٠٪.' },
+    faq_a10: { en: 'Choose Crescent (2 blow-dries a month), Half Moon (one a week) or Full Moon (unlimited, one a day). The extras are included: shower, outfit steamed and perfumed, hair perfume and your drink, plus touch-ups and express nails from Half Moon. Your monthly price drops by 3% every month you stay, down to −30%.', ar: 'اختاري هلال (سشواران في الشهر) أو نصف القمر (سشوار كل أسبوع) أو البدر (بلا حدود، مرة في اليوم). الإضافات مشمولة: الدشّ، الملابس بالبخار ومعطّرة، عطر الشعر ومشروبكِ، ومع نصف القمر أيضاً اللمسات والأظافر السريعة. وينخفض سعركِ الشهري ٣٪ كل شهر تبقين فيه، حتى −٣٠٪.' },
     faq_q11: { en: 'Can I pause or cancel my membership?', ar: 'هل يمكنني إيقاف عضويتي أو إلغاؤها؟' },
     faq_a11: { en: 'After the first 3 months you can cancel anytime. You can also pause up to 2 months a year and keep your lower price. If you cancel and come back later, you start again at the full price.', ar: 'بعد الأشهر الثلاثة الأولى يمكنكِ الإلغاء في أي وقت. ويمكنكِ أيضاً إيقاف العضوية حتى شهرين في السنة مع الاحتفاظ بسعركِ المنخفض. وإذا ألغيتِ ثم عدتِ لاحقاً، تبدئين من جديد بالسعر الكامل.' },
     faq_q9: { en: 'Do you have services for girls and kids?', ar: 'هل لديكم خدمات للفتيات الصغيرات؟' },
@@ -1173,7 +1176,7 @@
     nav_how: { en: 'How it works', ar: 'طريقة العمل' }, nav_looks: { en: 'Looks', ar: 'الإطلالات' }, nav_menu: { en: 'Menu', ar: 'القائمة' }, nav_rituals: { en: 'Rituals', ar: 'الطقوس' }, nav_night: { en: 'Night', ar: 'الليل' }, nav_contact: { en: 'Contact', ar: 'تواصلي معنا' },
     cta_join: { en: 'Join the queue', ar: 'انضمي للطابور' }, cta_join_now: { en: 'Join the queue now', ar: 'انضمي للطابور الآن' },
     nav_club: { en: 'Club', ar: 'النادي' }, club_kicker: { en: 'The QAMAR Club', ar: 'نادي قمر' }, club_title: { en: 'Members get everything.', ar: 'العضوات يحصلن على كل شيء.' },
-    club_sub: { en: 'A single visit is just the blow-dry. Members get the whole ritual, skip ahead in the queue, and pay a little less every month they stay.', ar: 'الزيارة الواحدة تشمل السشوار فقط. العضوات يحصلن على الطقوس كاملة، ويتقدّمن في الطابور، ويدفعن أقل قليلاً كل شهر يبقين فيه.' },
+    club_sub: { en: 'A single visit is the blow-dry, and every extra is paid. Members get the extras free, skip ahead in the queue, and pay a little less every month they stay.', ar: 'في الزيارة الواحدة تدفعين السشوار وكل إضافة. أما العضوات فيحصلن على الإضافات مجاناً، ويتقدّمن في الطابور، ويدفعن أقل قليلاً كل شهر يبقين فيه.' },
     club_drop_t: { en: 'Your price goes down every month.', ar: 'سعركِ ينخفض كل شهر.' },
     club_drop_p: { en: '−3% each month you stay, down to −30%. Pause up to 2 months a year and keep your price. Cancel, and you start again at full price.', ar: '−٣٪ كل شهر تبقين فيه، حتى −٣٠٪. يمكنكِ إيقاف العضوية حتى شهرين في السنة مع الاحتفاظ بسعركِ. وإذا ألغيتِ، تبدئين من جديد بالسعر الكامل.' },
     club_single: { en: 'Single visit', ar: 'زيارة واحدة' }, club_member: { en: 'Member', ar: 'عضوة' }, club_cta: { en: 'Join the founding members', ar: 'انضمي إلى العضوات المؤسِّسات' },
@@ -1193,7 +1196,7 @@
     p2b: { en: '35 min', ar: '٣٥ د' }, p2: { en: 'or your express blow-dry is free', ar: 'أو السشوار السريع مجاناً' },
     p3b: { en: '45 min', ar: '٤٥ د' }, p3: { en: 'maximum, for any look', ar: 'كحد أقصى لأي إطلالة' },
     p4b: { en: '00:00', ar: '٠٠:٠٠' }, p4: { en: 'closing time, every day', ar: 'موعد الإغلاق، كل يوم' },
-    p5b: { en: '48 h', ar: '٤٨ س' }, p5: { en: 'free touch-up after your visit', ar: 'تعديل مجاني بعد زيارتك' },
+    p5b: { en: '48 h', ar: '٤٨ س' }, p5: { en: 'free touch-up for members', ar: 'لمسة مجانية للعضوات' },
     how_kicker: { en: 'How it works', ar: 'طريقة العمل' }, how_title: { en: 'Three taps. No waiting room.', ar: 'ثلاث نقرات. بدون غرفة انتظار.' },
     s1k: { en: 'Step 1', ar: 'الخطوة ١' }, s1t: { en: 'Scan at the door.', ar: 'امسحي الرمز عند الباب.' }, s1p: { en: 'Scan the QR code on our welcome screen, or simply text “I want a blow-dry” on WhatsApp.', ar: 'امسحي رمز QR على شاشة الترحيب، أو أرسلي «أريد سشوار» على واتساب.' },
     s2k: { en: 'Step 2', ar: 'الخطوة ٢' }, s2t: { en: 'Pick your look. See your wait.', ar: 'اختاري إطلالتكِ. واعرفي مدة انتظاركِ.' }, s2p: { en: 'Choose a look by its picture, then your stylist or the first one free. Your exact wait appears instantly.', ar: 'اختاري الإطلالة من صورتها، ثم مصففتك أو أول مصففة متاحة. يظهر وقت انتظارك فوراً.' },
@@ -1202,12 +1205,12 @@
     looks_kicker: { en: 'The look menu', ar: 'قائمة الإطلالات' }, looks_title: { en: "Don't explain it. Choose it.", ar: 'لا تشرحيها. اختاريها.' }, looks_sub: { en: 'Every look has a name and a picture. None takes more than 45 minutes.', ar: 'لكل إطلالة اسم وصورة. لا تتجاوز أي منها ٤٥ دقيقة.' },
     f_all: { en: 'All', ar: 'الكل' }, f_blowdry: { en: 'Blow-dry', ar: 'سشوار' }, f_quick: { en: 'Under 20 min', ar: 'أقل من ٢٠ د' }, f_night: { en: 'Night', ar: 'الليل' }, f_care: { en: 'Care', ar: 'عناية' }, f_colour: { en: 'Cut & colour', ar: 'قص وصبغة' }, f_kids: { en: 'Kids', ar: 'للصغيرات' },
     from: { en: 'From', ar: 'من' }, choose: { en: 'Choose', ar: 'اختاري' },
-    menu_note: { en: 'Extra long or thick hair +40 AED · Matcha 25 AED · Indicative prices in AED, VAT treatment to be confirmed', ar: 'شعر طويل جداً أو كثيف +٤٠ درهماً · ماتشا ٢٥ درهماً· أسعار إرشادية بالدرهم، ومعاملة ضريبة القيمة المضافة قيد التأكيد' },
-    incl_kicker: { en: 'Included with every look', ar: 'مشمول مع كل إطلالة' }, incl_title: { en: 'The little things are on us.', ar: 'التفاصيل الصغيرة علينا.' },
+    menu_note: { en: 'Indicative prices in AED, VAT treatment to be confirmed. Members get the extras included.', ar: 'أسعار إرشادية بالدرهم، ومعاملة ضريبة القيمة المضافة قيد التأكيد. الإضافات مشمولة للعضوات.' },
+    incl_kicker: { en: 'Free for members', ar: 'مجاناً للعضوات' }, incl_title: { en: 'The little things are on us.', ar: 'التفاصيل الصغيرة علينا.' },
     i4t: { en: "35 minutes, or it's free.", ar: '٣٥ دقيقة، أو مجاناً.' }, i4p: { en: "If your express blow-dry runs longer, you don't pay for it.", ar: 'إذا تجاوز السشوار السريع ٣٥ دقيقة، فلا تدفعين شيئاً.' },
-    i1t: { en: 'Free touch-up for 48 hours.', ar: 'تعديل مجاني لمدة ٤٨ ساعة.' }, i1p: { en: 'Humidity got to it? Come back, we fix it.', ar: 'أفسدت الرطوبة تسريحتكِ؟ عودي ونصلحها لكِ.' },
-    i2t: { en: 'Hijab bar and a gift magnet.', ar: 'ركن الحجاب ومغناطيس هدية.' }, i2p: { en: "Your shayla steamed while you're styled.", ar: 'نكوي شيلتكِ بالبخار أثناء تصفيف شعركِ.' },
-    i3t: { en: 'A hair perfume to finish.', ar: 'عطر للشعر في الختام.' }, i3p: { en: 'Oud, rose or white musk. Your choice.', ar: 'عود أو ورد أو مسك أبيض. باختيارك.' },
+    i1t: { en: 'Free touch-up for 48 hours.', ar: 'لمسة مجانية لمدة ٤٨ ساعة.' }, i1p: { en: 'Humidity got to it? Come back, we fix it. Half Moon and Full Moon.', ar: 'أفسدت الرطوبة تسريحتكِ؟ عودي ونصلحها لكِ. مع نصف القمر والبدر.' },
+    i2t: { en: 'Shower, steam and perfume.', ar: 'دشّ وبخار وعطر.' }, i2p: { en: 'Your private shower while your dress, abaya or shayla is steamed and perfumed.', ar: 'دشّكِ الخاص بينما نكوي فستانكِ أو عباءتكِ أو شيلتكِ بالبخار ونعطّرها.' },
+    i3t: { en: 'A hair perfume and your drink.', ar: 'عطر الشعر ومشروبكِ.' }, i3p: { en: 'Oud, rose or white musk, with coffee, tea, karak or matcha.', ar: 'عود أو ورد أو مسك أبيض، مع قهوة أو شاي أو كرك أو ماتشا.' },
     rit_kicker: { en: 'The rituals', ar: 'الطقوس' }, rit_title: { en: 'More than a blow-dry.', ar: 'أكثر من مجرد سشوار.' },
     r1k: { en: 'Drinks bar', ar: 'بار المشروبات' }, r1t: { en: 'Something for every mood.', ar: 'لكل مزاج مشروبه.' }, r1p: { en: 'Matcha latte, iced or strawberry matcha, cappuccino, Arabic coffee with dates, karak tea, fresh mint lemonade, fresh orange juice. While you wait, or in the chair.', ar: 'ماتشا لاتيه، ماتشا مثلّجة أو بالفراولة، كابتشينو، قهوة عربية مع التمر، شاي كرك، ليمون بالنعناع، عصير برتقال طازج. أثناء الانتظار أو على الكرسي.' },
     r3k: { en: 'Perfume bar', ar: 'بار العطور' }, r3t: { en: 'Oud. Rose. Musk.', ar: 'عود. ورد. مسك.' }, r3p: { en: 'Every look ends with a hair perfume you choose.', ar: 'كل إطلالة تنتهي بعطر شعر تختارينه.' },
@@ -1288,37 +1291,36 @@
   const clubPrice = (p, m) => Math.round(p * (1 - Math.min(D.club.floorPct, D.club.dropPct * (m - 1)) / 100));
   function renderClub() {
     const C = D.club, last = Math.ceil(C.floorPct / C.dropPct) + 1;
-    const sMenu = D.services.find(s => s.id === 'glow');
+    const X = id => D.extras.find(x => x.id === id), glow = D.services.find(s => s.id === 'glow').price;
+    const ritualValue = D.ritual.includes.reduce((n, id) => n + X(id).price, 0);
     document.getElementById('clubTiers').innerHTML = C.tiers.map(t => {
-      const visits = t.visits || 8, value = visits * (sMenu.price + C.ritualPrice);
+      const value = t.visits * (glow + ritualValue);
       return `<div class="tier reveal in${t.popular ? ' pop' : ''}">${t.popular ? `<span class="badge">${Q.L({ en: 'Most chosen', ar: 'الأكثر اختياراً' })}</span>` : ''}
         <h3>${Q.esc(Q.L(t.name))}</h3><p class="per">${Q.esc(Q.L(t.per))}</p>
         <p class="price">${aed(t.price)} <small>${Q.L({ en: '/ month', ar: 'شهرياً' })}</small></p>
         <p class="later">${Q.L({ en: `${aed(clubPrice(t.price, last))} from month ${last}`, ar: `${aed(clubPrice(t.price, last))} ابتداءً من الشهر ${num(last)}` })}</p>
-        <p class="value">${t.visits ? Q.L({ en: `Worth ${aed(value)} in single visits`, ar: `قيمتها ${aed(value)} بالزيارات المنفردة` }) : Q.L({ en: 'Come as often as you like', ar: 'تعالي كلما رغبتِ' })}</p>
+        <p class="value">${t.visits ? Q.L({ en: `Worth over ${aed(value)} in single visits`, ar: `قيمتها أكثر من ${aed(value)} بالزيارات المنفردة` }) : Q.L({ en: 'Come as often as you like', ar: 'تعالي كلما رغبتِ' })}</p>
+        <ul class="gifts">${t.gifts.map(p => `<li>${Q.esc(Q.L(p))}</li>`).join('')}</ul>
         <ul>${C.perks.map(p => `<li>${Q.esc(Q.L(p))}</li>`).join('')}</ul></div>`;
     }).join('');
     document.getElementById('clubPick').innerHTML = C.tiers.map(t => `<button type="button" data-tier="${t.id}" aria-pressed="${t.id === clubTier}">${Q.esc(Q.L(t.name))}</button>`).join('');
     document.querySelectorAll('#clubPick button').forEach(b => b.onclick = () => { clubTier = b.dataset.tier; renderClub(); });
     const t = C.tiers.find(x => x.id === clubTier), months = Array.from({ length: 12 }, (_, i) => i + 1);
     document.getElementById('clubBars').innerHTML = months.map(m => { const v = clubPrice(t.price, m); return `<div class="b"><span class="v">${num(v)}</span><span class="bar" style="height:${Math.round(18 + (v - t.price * .65) / (t.price * .35) * 82)}%"></span><span class="m">${Q.L({ en: 'M' + m, ar: 'ش' + num(m) })}</span></div>`; }).join('');
-    const rows = [
-      [{ en: 'Blow-dry', ar: 'السشوار' }, { en: 'Menu price', ar: 'سعر القائمة' }, { en: 'Included', ar: 'مشمول' }],
-      [{ en: 'Private shower', ar: 'دشّ خاص' }, { en: `+${C.ritualPrice} AED ritual`, ar: `+${num(C.ritualPrice)} درهماً للطقوس` }, { en: 'Included', ar: 'مشمول' }],
-      [{ en: 'Outfit steamed and perfumed', ar: 'الملابس بالبخار ومعطّرة' }, { en: 'In the ritual', ar: 'ضمن الطقوس' }, { en: 'Included', ar: 'مشمول' }],
-      [{ en: 'Coffee, tea or matcha', ar: 'قهوة أو شاي أو ماتشا' }, { en: 'In the ritual', ar: 'ضمن الطقوس' }, { en: 'Included', ar: 'مشمول' }],
-      [{ en: 'Queue', ar: 'الطابور' }, { en: 'Standard', ar: 'عادي' }, { en: 'Members’ lane', ar: 'مسار العضوات' }],
-      [{ en: 'Price over time', ar: 'السعر مع الوقت' }, { en: 'Same', ar: 'ثابت' }, { en: `Down to −${C.floorPct}%`, ar: `حتى −${num(C.floorPct)}٪` }],
-      [{ en: 'Friend at −50%', ar: 'صديقة بخصم ٥٠٪' }, { en: '—', ar: '—' }, { en: 'Once a month', ar: 'مرة في الشهر' }],
-      [{ en: 'Birthday blow-dry', ar: 'سشوار عيد الميلاد' }, { en: '—', ar: '—' }, { en: 'On us', ar: 'على حسابنا' }]
-    ];
-    document.getElementById('clubCompare').innerHTML = rows.map(r => `<tr>${r.map((c, i) => i ? `<td>${Q.esc(Q.L(c))}</td>` : `<td>${Q.esc(Q.L(c))}</td>`).join('')}</tr>`).join('');
+    const yes = Q.L({ en: 'Free', ar: 'مجاناً' }), cell = v => v === true ? `<td class="y">${yes}</td>` : v ? `<td class="y">${Q.esc(Q.L(v))}</td>` : '<td>—</td>';
+    document.getElementById('clubHead').innerHTML = `<tr><th></th><th>${Q.L({ en: 'Single visit', ar: 'زيارة واحدة' })}</th>${C.tiers.map(t => `<th>${Q.esc(Q.L(t.name))}</th>`).join('')}</tr>`;
+    document.getElementById('clubCompare').innerHTML = `<tr><td>${Q.L({ en: 'Blow-dry', ar: 'السشوار' })}</td><td>${Q.L({ en: 'Menu price', ar: 'سعر القائمة' })}</td>${C.tiers.map(t => `<td class="y">${Q.esc(Q.L(t.per))}</td>`).join('')}</tr>`
+      + C.compare.map(([id, ...v]) => `<tr><td>${Q.esc(Q.L(X(id).name))}</td><td>+${num(X(id).price)} ${Q.L({ en: 'AED', ar: 'درهماً' })}</td>${v.map(cell).join('')}</tr>`).join('')
+      + `<tr><td>${Q.L({ en: 'Queue', ar: 'الطابور' })}</td><td>${Q.L({ en: 'Standard', ar: 'عادي' })}</td>${C.tiers.map(() => `<td class="y">${Q.L({ en: 'Members’ lane', ar: 'مسار العضوات' })}</td>`).join('')}</tr>`
+      + `<tr><td>${Q.L({ en: 'Price over time', ar: 'السعر مع الوقت' })}</td><td>${Q.L({ en: 'Same', ar: 'ثابت' })}</td>${C.tiers.map(() => `<td class="y">${Q.L({ en: `Down to −${C.floorPct}%`, ar: `حتى −${num(C.floorPct)}٪` })}</td>`).join('')}</tr>`;
     document.getElementById('clubFounding').innerHTML = Q.L({ en: `<b>Founding members:</b> the first ${C.founding.count} start directly at the month-${C.founding.startMonth} price. ${C.minMonths}-month minimum, then cancel anytime.`, ar: `<b>العضوات المؤسِّسات:</b> أول ${num(C.founding.count)} عضوة يبدأن مباشرة بسعر الشهر ${num(C.founding.startMonth)}. الحد الأدنى ${num(C.minMonths)} أشهر، ثم يمكنكِ الإلغاء في أي وقت.` });
   }
 
   function renderMenu() {
     const groups = [['blowdry', { en: 'Blow-dry', ar: 'سشوار' }], ['night', { en: 'Night Glow <small>(8 PM – midnight)</small>', ar: 'توهّج الليل <small>(٨م – منتصف الليل)</small>' }], ['sos', { en: 'SOS 15 min', ar: 'إس أو إس ١٥ دقيقة' }], ['care', { en: 'Care', ar: 'العناية' }], ['colour', { en: 'Cut & colour', ar: 'قص وصبغة' }], ['kids', { en: 'Mini Glow <small>(kids)</small>', ar: 'ميني جلو <small>(للصغيرات)</small>' }]];
     let html = groups.map(([cat, title]) => `<h4>${Q.L(title)}</h4>` + D.services.filter(s => s.cat === cat).map(s => `<div class="mrow"><span>${Q.esc(Q.L(s.look))} <small>· ${s.duration} ${Q.t('min')}</small></span><span class="p">${s.price} AED</span></div>`).join('')).join('');
+    html += `<h4>${Q.L({ en: 'Extras <small>(free for members)</small>', ar: 'الإضافات <small>(مجانية للعضوات)</small>' })}</h4>` + D.extras.map(x => `<div class="mrow"><span>${Q.esc(Q.L(x.name))}</span><span class="p">+${x.price} AED</span></div>`).join('')
+      + `<div class="mrow"><span><b>${Q.esc(Q.L(D.ritual.name))}</b></span><span class="p">${D.ritual.price} AED</span></div>`;
     html += `<h4>${Q.L({ en: 'Packages', ar: 'الباقات' })}</h4>` + D.packages.map(p => `<div class="mrow"><span>${Q.esc(Q.L(p.name))}</span><span class="p">${p.price}</span></div>`).join('');
     document.getElementById('menuList').innerHTML = html;
     renderClub();

@@ -57,33 +57,53 @@ window.QAMAR_DATA = {
     { id: 'musk', name: { en: 'White Musk', ar: 'مسك أبيض' } }
   ],
 
+  /* Extras à l'unité (PROPOSITION 12/11/2026, à valider par Karl). Les abonnées en ont une partie offerte selon la formule. */
+  extras: [
+    { id: 'shower', name: { en: 'Private shower (towel and products)', ar: 'دشّ خاص (منشفة ومستحضرات)' }, price: 49 },
+    { id: 'steam', name: { en: 'Outfit steamed: dress, abaya or hijab (per piece)', ar: 'كيّ بالبخار: فستان أو عباءة أو شيلة (للقطعة)' }, price: 35 },
+    { id: 'scent', name: { en: 'Outfit lightly perfumed', ar: 'تعطير الملابس' }, price: 15 },
+    { id: 'hairscent', name: { en: 'Hair perfume: oud, rose or white musk', ar: 'عطر الشعر: عود أو ورد أو مسك أبيض' }, price: 20 },
+    { id: 'coffee', name: { en: 'Coffee, tea or karak', ar: 'قهوة أو شاي أو كرك' }, price: 20 },
+    { id: 'matcha', name: { en: 'Matcha or fresh juice', ar: 'ماتشا أو عصير طازج' }, price: 25 },
+    { id: 'touchup', name: { en: 'Touch-up within 48 hours', ar: 'لمسة خلال ٤٨ ساعة' }, price: 59 },
+    { id: 'nails', name: { en: 'Express nails (polish change)', ar: 'أظافر سريعة (تغيير الطلاء)' }, price: 79 },
+    { id: 'long', name: { en: 'Extra long or thick hair', ar: 'شعر طويل جداً أو كثيف' }, price: 40 }
+  ],
+  ritual: { price: 79, includes: ['shower', 'steam', 'scent', 'hairscent', 'coffee'], name: { en: 'Complete ritual: shower, 1 piece steamed and perfumed, hair perfume, coffee or tea', ar: 'الطقوس الكاملة: دشّ، قطعة بالبخار ومعطّرة، عطر الشعر، قهوة أو شاي' } },
+
   /* Club QAMAR (abonnements) — PROPOSITION du 12/11/2026, prix à valider par Karl avant l'ouverture.
-     Principe : à l'unité on n'a que le brushing ; le rituel complet (douche, vêtements vapeur + parfum, boisson),
-     la file prioritaire et les avantages sont réservés aux abonnées. Le prix baisse chaque mois tant qu'on reste. */
+     À l'unité on paie chaque extra ; les abonnées les ont offerts selon la formule. Le prix baisse chaque mois tant qu'on reste. */
   club: {
-    ritualPrice: 79,          // à l'unité : douche privée + vêtements vapeur et parfum + boisson (inclus pour les abonnées)
     dropPct: 3,               // baisse du prix à chaque mois d'abonnement
     floorPct: 30,             // baisse maximale (atteinte au 11e mois), ensuite le prix reste à ce niveau
     minMonths: 3,             // engagement minimum
     pauseMonths: 2,           // pause possible par an, le palier de prix est conservé
     founding: { count: 100, startMonth: 4 }, // 100 premières abonnées : démarrent directement au prix du 4e mois
     tiers: [
-      { id: 'crescent', name: { en: 'Crescent', ar: 'هلال' }, visits: 2, price: 249, per: { en: '2 blow-dries a month', ar: 'سشواران في الشهر' } },
-      { id: 'half', name: { en: 'Half Moon', ar: 'نصف القمر' }, visits: 4, price: 449, per: { en: '1 blow-dry a week', ar: 'سشوار كل أسبوع' }, popular: true },
-      { id: 'full', name: { en: 'Full Moon', ar: 'البدر' }, visits: 0, price: 799, per: { en: 'Unlimited, 1 a day', ar: 'بلا حدود، مرة في اليوم' } }
+      { id: 'crescent', name: { en: 'Crescent', ar: 'هلال' }, visits: 2, price: 249, per: { en: '2 blow-dries a month', ar: 'سشواران في الشهر' },
+        gifts: [{ en: 'Private shower, every visit', ar: 'دشّ خاص في كل زيارة' }, { en: '1 piece steamed and perfumed', ar: 'قطعة واحدة بالبخار ومعطّرة' }, { en: 'Hair perfume', ar: 'عطر الشعر' }, { en: 'Coffee, tea or karak', ar: 'قهوة أو شاي أو كرك' }] },
+      { id: 'half', name: { en: 'Half Moon', ar: 'نصف القمر' }, visits: 4, price: 449, popular: true, per: { en: '1 blow-dry a week', ar: 'سشوار كل أسبوع' },
+        gifts: [{ en: 'Everything in Crescent', ar: 'كل ما في هلال' }, { en: 'All your pieces steamed and perfumed', ar: 'كل قطعكِ بالبخار ومعطّرة' }, { en: 'Matcha or fresh juice', ar: 'ماتشا أو عصير طازج' }, { en: 'Free touch-up within 48 hours', ar: 'لمسة مجانية خلال ٤٨ ساعة' }, { en: '1 express nails a month', ar: 'أظافر سريعة مرة في الشهر' }] },
+      { id: 'full', name: { en: 'Full Moon', ar: 'البدر' }, visits: 0, price: 799, per: { en: 'Unlimited, 1 a day', ar: 'بلا حدود، مرة في اليوم' },
+        gifts: [{ en: 'Everything in Half Moon', ar: 'كل ما في نصف القمر' }, { en: '2 express nails a month', ar: 'أظافر سريعة مرتين في الشهر' }, { en: 'Extra long hair at no charge', ar: 'الشعر الطويل بدون رسوم إضافية' }, { en: 'Birthday blow-dry for a friend', ar: 'سشوار عيد الميلاد لصديقتكِ' }] }
     ],
     perks: [
-      { en: 'Private shower, outfit steamed and perfumed, and your drink, every visit', ar: 'دشّ خاص، ملابسكِ بالبخار ومعطّرة، ومشروبكِ في كل زيارة' },
       { en: 'Members’ lane in the queue', ar: 'مسار خاص بالعضوات في الطابور' },
       { en: 'Your price goes down every month you stay', ar: 'سعركِ ينخفض كل شهر تبقين فيه' },
       { en: 'A friend at −50% once a month', ar: 'صديقة بخصم ٥٠٪ مرة في الشهر' },
       { en: 'Birthday blow-dry on us', ar: 'سشوار عيد ميلادكِ على حسابنا' },
       { en: 'An unused visit carries over to next month', ar: 'الزيارة غير المستخدمة تنتقل للشهر التالي' }
+    ],
+    // tableau comparatif : extra → ce que chaque formule a (true = offert à chaque visite, texte = quantité)
+    compare: [
+      ['shower', true, true, true], ['steam', { en: '1 piece', ar: 'قطعة' }, { en: 'All', ar: 'الكل' }, { en: 'All', ar: 'الكل' }], ['scent', true, true, true],
+      ['hairscent', true, true, true], ['coffee', true, true, true], ['matcha', false, true, true], ['touchup', false, true, true],
+      ['nails', false, { en: '1 / month', ar: 'مرة شهرياً' }, { en: '2 / month', ar: 'مرتان شهرياً' }], ['long', false, false, true]
     ]
   },
 
   packages: [
-    { id: 'club', name: { en: 'QAMAR Club · from 249 AED / month', ar: 'نادي قمر · من ٢٤٩ درهماً شهرياً' }, price: '249 AED+', note: { en: 'Everything included, and the price goes down every month', ar: 'كل شيء مشمول، والسعر ينخفض كل شهر' } },
+    { id: 'club', name: { en: 'QAMAR Club · from 249 AED / month', ar: 'نادي قمر · من ٢٤٩ درهماً شهرياً' }, price: '249 AED+', note: { en: 'Extras included, and the price goes down every month', ar: 'الإضافات مشمولة، والسعر ينخفض كل شهر' } },
     { id: 'squad', name: { en: 'Squad — 4 friends or more', ar: 'سكواد — ٤ صديقات أو أكثر' }, price: '−25%', note: { en: 'Each of you saves 25%', ar: 'خصم ٢٥٪ لكل واحدة منكن' } },
     { id: 'happy', name: { en: 'Happy Hours · 10 AM – 3 PM weekdays', ar: 'عروض الظهيرة · ١٠ص – ٣م أيام الأسبوع' }, price: '−20%', note: { en: 'Perfect for a lunch-break glow', ar: 'مثالي لاستراحة الغداء' } }
   ],
