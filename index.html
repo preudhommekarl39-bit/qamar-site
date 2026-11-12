@@ -232,137 +232,187 @@
   .stat span { display: block; margin-top: 12px; font-size: 1rem; line-height: 1.4; color: var(--ink-3); }
   @media (max-width: 760px) { .stats { grid-template-columns: 1fr 1fr; gap: 44px 20px; margin-top: 64px; } }
 
-  /* ---------- Parcours : le téléphone reste fixe pendant que les étapes défilent ---------- */
-  /* Le téléphone s'anime tout seul (3 écrans en boucle) ; les étapes à côté suivent avec une barre de progression */
-  .how { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; margin-top: 60px; align-items: center; }
-  .how .sticky { display: grid; place-items: center; }
+  /* ---------- Comment ça marche : téléphone en 3D (isométrique) + cartes flottantes, 3 écrans en boucle ---------- */
+  /* Animations en transform/opacity uniquement, en pause hors écran (#how:not(.inview)), statiques si mouvement réduit. Pas de backdrop-filter (lent sous Safari). */
+  @keyframes stepfill { to { height: calc(100% - 44px); } }
+  .how { display: grid; grid-template-columns: 1.1fr 1fr; gap: 64px; margin-top: 56px; align-items: center; }
   .how .steps { display: grid; gap: 6px; }
-  .how .step { position: relative; padding: 22px 0 22px 28px; opacity: .34; cursor: pointer; transition: opacity .5s; }
-  .how .step::before, .how .step::after { content: ''; position: absolute; left: 0; top: 22px; width: 3px; border-radius: 3px; }
+  .how .step { position: relative; padding: 22px 0 22px 28px; padding-inline: 28px 0; opacity: .34; cursor: pointer; transition: opacity .5s; border-radius: 6px; }
+  .how .step:focus-visible { outline: 2px solid var(--rose); outline-offset: 4px; }
+  .how .step::before, .how .step::after { content: ''; position: absolute; inset-inline-start: 0; top: 22px; width: 3px; border-radius: 3px; }
   .how .step::before { bottom: 22px; background: var(--line); }
   .how .step::after { height: 0; background: var(--rose-deep); }
   .how .step.on { opacity: 1; }
-  .how .step.on::after { animation: stepfill var(--step-ms, 3800ms) linear forwards; }
-  @keyframes stepfill { to { height: calc(100% - 44px); } }
+  .how .step.on::after { animation: stepfill var(--step-ms, 5200ms) linear forwards; }
   .how .step small { font-size: 1rem; font-weight: 600; color: var(--rose-deep); }
   .how .step h3 { font-size: clamp(2rem, 3.4vw, 3rem); font-weight: 600; letter-spacing: -.035em; line-height: 1.08; margin: 10px 0 14px; color: var(--ink); }
-  .how .step p { font-size: clamp(1.1rem, 1.4vw, 1.3rem); line-height: 1.45; color: var(--ink-3); margin: 0; max-width: 30ch; }
-  .phone-wrap::before { display: none; }
-  /* ---------- iPhone Pro Max réaliste ---------- */
-  .phone-wrap { display: grid; place-items: center; position: relative; padding: 20px 30px; }
-  .phone-wrap::after { content: ''; position: absolute; z-index: -1; width: 80%; height: 30px; bottom: 6px; border-radius: 50%; background: radial-gradient(closest-side, rgba(75, 45, 37, .35), transparent); filter: blur(6px); }
-  .phone { position: relative; width: min(310px, 76vw, calc((100vh - 130px) * 77 / 163)); aspect-ratio: 77 / 163; border-radius: 17% / 8.1%; padding: 3.2%;
+  .how .step p { font-size: clamp(1.05rem, 1.35vw, 1.25rem); line-height: 1.5; color: var(--ink-3); margin: 0; max-width: 34ch; }
+  .how-dots { display: none; }
+
+  /* scène 3D */
+  .how-stage { position: relative; display: grid; place-items: center; padding: 40px 0 70px; perspective: 1800px; --mx: 0; --my: 0; --sy: 0; --ry: -22deg; --dir: 1; }
+  html[dir="rtl"] .how-stage { --ry: 22deg; --dir: -1; }
+  .hs-scene { position: relative; transform-style: preserve-3d; transform: rotateX(calc(10deg - var(--my) * 3deg)) rotateY(calc(var(--ry) + var(--mx) * 5deg)) rotateZ(calc(var(--dir) * 2deg)); transition: transform .5s cubic-bezier(.2, .7, .2, 1); }
+  .hs-float { transform-style: preserve-3d; animation: hsFloat 7s ease-in-out infinite; }
+  @keyframes hsFloat { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -12px, 0); } }
+  .hs-floor { position: absolute; bottom: 30px; left: 50%; width: min(340px, 74%); height: 46px; margin-left: calc(min(340px, 74%) / -2); border-radius: 50%; background: radial-gradient(closest-side, rgba(110, 48, 69, .32), rgba(110, 48, 69, .12) 55%, transparent); transform: translateX(calc(var(--dir) * 18px)) skewX(calc(var(--dir) * -24deg)); animation: hsFloor 7s ease-in-out infinite; }
+  @keyframes hsFloor { 0%, 100% { opacity: 1; transform: translateX(calc(var(--dir) * 18px)) skewX(calc(var(--dir) * -24deg)) scale(1); } 50% { opacity: .75; transform: translateX(calc(var(--dir) * 18px)) skewX(calc(var(--dir) * -24deg)) scale(.92); } }
+
+  /* iPhone réaliste (cadre titane) avec épaisseur en 3D */
+  .phone { position: relative; width: min(280px, 64vw, calc((100vh - 170px) * 77 / 163)); aspect-ratio: 77 / 163; border-radius: 17% / 8.1%; padding: 3.2%; transform-style: preserve-3d;
     background: linear-gradient(135deg, #4B4448 0%, #B9B0B4 18%, #6E666A 32%, #E9E3E6 50%, #7A7276 66%, #C9C1C5 82%, #4E474B 100%);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35), inset 0 0 0 3px rgba(0, 0, 0, .35), 0 60px 90px -40px rgba(75, 45, 37, .75), 0 30px 40px -30px rgba(0, 0, 0, .5); }
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35), inset 0 0 0 3px rgba(0, 0, 0, .35); }
   .phone::before { content: ''; position: absolute; inset: 1.6%; border-radius: 16% / 7.6%; background: #050304; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .06); }
+  .phone .ph-depth { position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(135deg, #3E373B, #8F878B 45%, #4A4246); }
+  .phone .ph-depth.d1 { transform: translateZ(-5px); }
+  .phone .ph-depth.d2 { transform: translateZ(-10px); background: #3A3336; box-shadow: 0 50px 70px -30px rgba(90, 40, 58, .55); }
   .phone .btn-side { position: absolute; width: 4px; border-radius: 3px; background: linear-gradient(90deg, #5A5256, #CFC7CB 50%, #5A5256); box-shadow: 0 0 0 .5px rgba(0, 0, 0, .3); }
   .phone .b-action { left: -3px; top: 17%; height: 5%; }
   .phone .b-vup { left: -3px; top: 25%; height: 9%; }
   .phone .b-vdown { left: -3px; top: 36%; height: 9%; }
   .phone .b-power { right: -3px; top: 28%; height: 13%; }
   .phone .b-cam { right: -2px; top: 58%; height: 8%; width: 3px; background: linear-gradient(90deg, #3A3236, #8E868A); }
-  .screen { position: relative; z-index: 1; width: 100%; height: 100%; border-radius: 14.4% / 6.8%; overflow: hidden; background: #000; isolation: isolate; }
-  .screen::after { content: ''; position: absolute; inset: 0; z-index: 30; pointer-events: none; background: linear-gradient(115deg, rgba(255, 255, 255, .14) 0%, rgba(255, 255, 255, 0) 32%, rgba(255, 255, 255, 0) 70%, rgba(255, 255, 255, .06) 100%); }
-  .statusbar { position: absolute; z-index: 25; top: 0; left: 0; right: 0; height: 9%; display: flex; align-items: center; justify-content: space-between; padding: 0 9% 0 10%; font-size: .74rem; font-weight: 600; color: var(--sb, #1F1417); transition: color .4s, opacity .4s; }
+  .screen { position: relative; z-index: 1; width: 100%; height: 100%; border-radius: 14.4% / 6.8%; overflow: hidden; background: #FFF6F8; isolation: isolate; }
+  .screen::after { content: ''; position: absolute; inset: 0; z-index: 30; pointer-events: none; background: linear-gradient(115deg, rgba(255, 255, 255, .22) 0%, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0) 72%, rgba(255, 255, 255, .08) 100%); }
+  .statusbar { position: absolute; z-index: 25; top: 0; left: 0; right: 0; height: 9%; display: flex; direction: ltr; align-items: center; justify-content: space-between; padding: 0 9% 0 10%; font-size: .7rem; font-weight: 600; color: #1F1417; }
   .statusbar .icons { display: flex; gap: 4px; align-items: center; }
   .statusbar svg { height: 10px; width: auto; fill: currentColor; }
   .statusbar .bat { width: 22px; height: 11px; border-radius: 3.5px; border: 1.2px solid currentColor; opacity: .9; position: relative; padding: 1.2px; }
   .statusbar .bat::after { content: ''; position: absolute; right: -3px; top: 3px; width: 1.6px; height: 4px; border-radius: 1px; background: currentColor; }
   .statusbar .bat i { display: block; height: 100%; width: 78%; border-radius: 1.6px; background: currentColor; }
-  .island-dyn { position: absolute; z-index: 26; top: 3.4%; left: 50%; transform: translateX(-50%); width: 32%; height: 4.4%; border-radius: 999px; background: #000; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 4%; overflow: hidden; transition: width .6s cubic-bezier(.3, 1.4, .5, 1), height .6s cubic-bezier(.3, 1.4, .5, 1), top .6s, border-radius .6s; font-size: .66rem; }
-  .island-dyn > * { opacity: 0; transition: opacity .3s; white-space: nowrap; }
-  .island-dyn .ia { display: flex; align-items: center; gap: 6px; }
-  .island-dyn .ia .logo-mark { width: 14px; color: #F4B6C8; }
-  .island-dyn .ring-mini { width: 18px; height: 18px; }
-  .island-dyn .big-l { display: none; }
-  .phone[data-s="1"] .island-dyn { width: 58%; }
-  .phone[data-s="1"] .island-dyn > .ia, .phone[data-s="1"] .island-dyn > .ib { opacity: 1; transition-delay: .25s; }
-  .phone[data-s="2"] .island-dyn { width: 90%; height: 13%; top: 2.2%; border-radius: 34px; flex-direction: column; justify-content: center; align-items: stretch; padding: 0 6%; }
-  .phone[data-s="2"] .island-dyn .ia, .phone[data-s="2"] .island-dyn .ib { display: none; }
-  .phone[data-s="2"] .island-dyn .big-l { display: flex; opacity: 1; transition-delay: .3s; align-items: center; gap: 10px; }
-  .big-l .seat-n { margin-inline-start: auto; font-size: 1.9rem; font-weight: 300; line-height: 1; color: #F4B6C8; }
-  .big-l b { display: block; font-size: .78rem; font-weight: 600; }
-  .big-l small { display: block; font-size: .64rem; opacity: .7; }
-  .big-l .av-mini { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(150deg, #E8A9B6, #7A4D58); display: grid; place-items: center; font-size: .8rem; }
-  .home-ind { position: absolute; z-index: 25; bottom: 1.4%; left: 50%; transform: translateX(-50%); width: 36%; height: 4px; border-radius: 4px; background: var(--hi, rgba(31, 20, 23, .85)); transition: background .4s; }
-  .phone[data-s="0"] { --sb: #fff; --hi: rgba(255, 255, 255, .85); }
-  .phone[data-s="2"] { --sb: #fff; --hi: rgba(255, 255, 255, .9); }
-  .phone[data-s="2"] .statusbar .t { opacity: 0; }
-  .scr { position: absolute; inset: 0; opacity: 0; transform: scale(1.04); transition: opacity .55s, transform .55s; }
+  .island-dyn { position: absolute; z-index: 26; top: 3.2%; left: 50%; width: 32%; height: 4.2%; margin-left: -16%; border-radius: 999px; background: #000; }
+  .home-ind { position: absolute; z-index: 25; bottom: 1.4%; left: 50%; width: 36%; margin-left: -18%; height: 4px; border-radius: 4px; background: rgba(31, 20, 23, .8); }
+
+  /* écrans : glissent et se fondent ; leurs blocs (.st) entrent en cascade */
+  .scr { position: absolute; inset: 0; padding: 15% 6.5% 9%; display: flex; flex-direction: column; gap: 9px; color: var(--ink); font-size: .64rem; opacity: 0; transform: translate3d(calc(var(--dir, 1) * 16%), 0, 0); transition: opacity .5s, transform .65s cubic-bezier(.2, .8, .2, 1); }
+  html[dir="rtl"] .scr { --dir: -1; }
+  .scr.out { transform: translate3d(calc(var(--dir, 1) * -16%), 0, 0); }
   .scr.on { opacity: 1; transform: none; }
-  /* écran 1 : appareil photo */
-  .scr.cam { background: radial-gradient(60% 40% at 30% 30%, #9B6F78, transparent 70%), radial-gradient(60% 50% at 80% 70%, #6E4652, transparent 70%), linear-gradient(160deg, #3A2730, #1B1117); }
-  .scr.cam .blur-arches { position: absolute; inset: 14% -10% 20%; opacity: .45; filter: blur(2px); }
-  .scr.cam .vf { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); width: 54%; aspect-ratio: 1; }
-  .scr.cam .vf .c { position: absolute; width: 22%; height: 22%; border: 3px solid #FFD60A; }
-  .scr.cam .vf .c1 { top: 0; left: 0; border-right: 0; border-bottom: 0; border-top-left-radius: 14px; }
-  .scr.cam .vf .c2 { top: 0; right: 0; border-left: 0; border-bottom: 0; border-top-right-radius: 14px; }
-  .scr.cam .vf .c3 { bottom: 0; left: 0; border-right: 0; border-top: 0; border-bottom-left-radius: 14px; }
-  .scr.cam .vf .c4 { bottom: 0; right: 0; border-left: 0; border-top: 0; border-bottom-right-radius: 14px; }
-  .scr.cam .qr { position: absolute; inset: 16%; background: #fff; border-radius: 6px; padding: 6%; display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; }
-  .scr.cam .qr i { background: #1F1417; border-radius: 1px; }
-  .scr.cam .qr i.o { background: transparent; }
-  .scr.cam .laser { position: absolute; left: 8%; right: 8%; height: 2px; background: linear-gradient(90deg, transparent, #FFD60A, transparent); box-shadow: 0 0 12px #FFD60A; animation: laser 1.8s ease-in-out infinite; }
-  @keyframes laser { 0%, 100% { top: 14%; } 50% { top: 84%; } }
-  .scr.cam .pill { position: absolute; left: 50%; top: 66%; transform: translateX(-50%); background: rgba(255, 214, 10, .95); color: #1F1417; border-radius: 999px; padding: 5px 12px; font-size: .64rem; font-weight: 600; white-space: nowrap; display: flex; gap: 6px; align-items: center; animation: pillPop 3.2s ease-in-out infinite; }
-  .scr.cam .pill .logo-mark { width: 10px; color: #1F1417; }
-  @keyframes pillPop { 0%, 30% { opacity: 0; transform: translate(-50%, 6px) scale(.95); } 45%, 100% { opacity: 1; transform: translate(-50%, 0) scale(1); } }
-  .scr.cam .shutter { position: absolute; bottom: 7%; left: 50%; transform: translateX(-50%); width: 15%; aspect-ratio: 1; border-radius: 50%; border: 3px solid #fff; display: grid; place-items: center; }
-  .scr.cam .shutter::after { content: ''; width: 80%; height: 80%; border-radius: 50%; background: #fff; }
-  .scr.cam .modes { position: absolute; bottom: 18%; left: 0; right: 0; display: flex; justify-content: center; gap: 12px; font-size: .58rem; letter-spacing: .08em; color: rgba(255, 255, 255, .7); }
-  .scr.cam .modes b { color: #FFD60A; font-weight: 600; }
-  /* écran 2 : app */
-  .scr.app { background: linear-gradient(180deg, #FFF6F8, #FCE6EC); padding: 17% 6% 8%; display: flex; flex-direction: column; gap: 8px; }
-  .scr.app .apphead { display: flex; align-items: center; gap: 6px; font-family: var(--menu-serif); letter-spacing: .3em; font-size: .72rem; color: var(--ink); }
-  .scr.app .apphead .logo-mark { width: 12px; color: var(--rose-deep); }
-  .scr.app h4 { margin: 2px 0 0; font-size: 1.05rem; font-weight: 600; letter-spacing: -.02em; color: var(--ink); }
-  .scr.app .mini-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-  .scr.app .mini-tile { border-radius: 9px; overflow: hidden; background: #fff; box-shadow: 0 6px 14px -10px rgba(75, 45, 37, .5); }
-  .scr.app .mini-tile i { display: block; aspect-ratio: .85; }
-  .scr.app .mini-tile i { overflow: hidden; } .scr.app .mini-tile i .look-canvas { width: 100%; height: 100%; display: block; }
-  .scr.app .mini-tile span { display: block; padding: 3px 4px 5px; font-size: .48rem; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .scr.app .mini-tile.sel { outline: 2px solid var(--rose); outline-offset: -2px; }
-  .tk { margin-top: 4px; background: #fff; border-radius: 22px; padding: 14px 12px 12px; text-align: center; box-shadow: 0 14px 30px -18px rgba(75, 45, 37, .5); flex: 1; display: flex; flex-direction: column; align-items: center; }
-  .tk small { letter-spacing: .24em; color: var(--gold); font-size: .62rem; }
-  .tk .ringbox { position: relative; width: 62%; aspect-ratio: 1; margin: 6px 0; }
-  .tk .ringbox svg { position: absolute; inset: 0; transform: rotate(-90deg); }
-  .tk .ringbox .arc { stroke-dasharray: 283; stroke-dashoffset: 283; transition: none; }
-  .phone[data-s="1"] .tk .ringbox .arc { animation: ringFill 3s ease-out forwards; }
-  @keyframes ringFill { to { stroke-dashoffset: 90; } }
-  .tk .ringbox .n { position: absolute; inset: 0; display: grid; place-items: center; font-size: 2.2rem; font-weight: 300; letter-spacing: -.04em; color: var(--ink); line-height: 1; }
-  .tk .ringbox .n span { font-size: .7rem; letter-spacing: 0; display: block; color: var(--ink-3); margin-top: 2px; }
-  .tk .lk { font-size: .78rem; font-weight: 600; color: var(--ink); }
-  .tk .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; width: 100%; margin-top: 8px; }
-  .tk .row div { background: #FBF2F4; border-radius: 9px; padding: 5px 2px; font-size: .5rem; color: var(--ink-3); }
-  .tk .row b { display: block; font-weight: 600; font-size: .72rem; color: var(--ink); }
-  /* écran 3 : écran verrouillé */
-  .scr.lock { background: radial-gradient(70% 50% at 50% 30%, #F7C6D4, transparent 70%), linear-gradient(170deg, #E9A1B6 0%, #C47A93 45%, #6E3F55 100%); color: #fff; }
-  .scr.lock .petals { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-  .scr.lock .clock { position: absolute; top: 19%; left: 0; right: 0; text-align: center; }
-  .scr.lock .clock small { display: block; font-size: .78rem; font-weight: 500; opacity: .9; }
-  .scr.lock .clock b { display: block; font-size: 4.6rem; font-weight: 600; letter-spacing: -.04em; line-height: 1; margin-top: 2px; text-shadow: 0 2px 20px rgba(110, 40, 70, .25); }
-  .notif { position: absolute; z-index: 5; left: 4%; right: 4%; top: 46%; background: rgba(255, 255, 255, .72); backdrop-filter: blur(20px) saturate(1.6); -webkit-backdrop-filter: blur(20px) saturate(1.6); border-radius: 18px; padding: 10px 11px; display: flex; gap: 9px; align-items: center; color: #1F1417; font-size: .64rem; box-shadow: 0 12px 26px -16px rgba(0, 0, 0, .45); transform: translateY(30px) scale(.94); opacity: 0; transition: transform .6s cubic-bezier(.3, 1.3, .5, 1) .5s, opacity .4s .5s; }
-  .notif.show { transform: none; opacity: 1; }
-  .notif .app { width: 30px; height: 30px; border-radius: 8px; background: #25D366; display: grid; place-items: center; color: #fff; flex: none; }
-  .notif .app .ic { font-size: 16px; }
-  .notif .txt { flex: 1; min-width: 0; }
-  .notif .txt b { display: flex; justify-content: space-between; font-weight: 600; font-size: .66rem; }
-  .notif .txt b span { font-weight: 400; opacity: .55; }
-  .notif .txt > span { display: block; line-height: 1.3; }
-  .notif.n2 { top: 60%; transform: translateY(30px) scale(.94); transition-delay: 1.1s; opacity: 0; }
-  .notif.n2.show { transform: none; opacity: .92; }
-  .notif.n2 .app { background: linear-gradient(150deg, #F2A9BF, #A85B72); }
-  .scr.lock .lockbtns { position: absolute; bottom: 7%; left: 10%; right: 10%; display: flex; justify-content: space-between; }
-  .scr.lock .lockbtns span { width: 34px; height: 34px; border-radius: 50%; background: rgba(255, 255, 255, .22); backdrop-filter: blur(10px); display: grid; place-items: center; }
-  .scr.lock .lockbtns .ic { font-size: 15px; color: #fff; }
-  .how-dots { display: none; }
-  /* Mobile : téléphone plus compact + une seule étape à la fois sous le téléphone, avec des onglets 1·2·3 */
+  .scr .st { opacity: 0; transform: translate3d(0, 10px, 0); transition: opacity .45s, transform .55s cubic-bezier(.2, .8, .2, 1); }
+  .scr.on .st { opacity: 1; transform: none; transition-delay: calc(.12s + var(--i, 0) * .08s); }
+  .scr.live { background: radial-gradient(90% 50% at 80% 0%, #FDE7EE, transparent 70%), linear-gradient(180deg, #FFF8FA, #FCEAF0); }
+  .scr.hw-member { background: radial-gradient(90% 50% at 10% 0%, #FBE3EA, transparent 70%), linear-gradient(180deg, #FFF8FA, #FBEDF1); }
+  .scr.events { background: linear-gradient(180deg, #FFF8FA, #FCECF1); }
+  .apphead { display: flex; align-items: center; gap: 5px; font-family: var(--menu-serif); letter-spacing: .3em; font-size: .7rem; color: var(--ink); }
+  .apphead .logo-mark { width: 11px; color: var(--rose-deep); }
+  .apphead .hd-r, .apphead .live-pill { margin-inline-start: auto; font-family: var(--helv); letter-spacing: 0; font-size: .58rem; font-weight: 600; color: var(--rose-deep); }
+  .live-pill { display: inline-flex; align-items: center; gap: 4px; background: #fff; border-radius: 999px; padding: 3px 7px; box-shadow: 0 4px 10px -6px rgba(110, 48, 69, .4); }
+  .live-pill i { width: 6px; height: 6px; border-radius: 50%; background: var(--rose); animation: livePulse 1.6s ease-in-out infinite; }
+  @keyframes livePulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.7); } }
+  .scr h4 { margin: 2px 0 0; font-size: 1rem; font-weight: 600; letter-spacing: -.02em; }
+  .wait { position: relative; width: 64%; aspect-ratio: 1; margin: 2px auto 0; }
+  .wait-ring { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .scr.on .wait-ring { animation: ringIn 1.1s .25s cubic-bezier(.2, .8, .2, 1) both; }
+  @keyframes ringIn { from { opacity: 0; transform: rotate(-120deg) scale(.85); } }
+  .wait-n { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+  .wait-n b { font-size: 2.6rem; font-weight: 300; letter-spacing: -.05em; line-height: 1; }
+  .wait-n span { font-size: .58rem; color: var(--ink-3); }
+  .chips { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .chips > div { background: #fff; border-radius: 12px; padding: 7px 8px; box-shadow: 0 8px 16px -12px rgba(110, 48, 69, .45); }
+  .chips b { display: block; font-size: .9rem; font-weight: 600; line-height: 1.1; }
+  .chips span { display: block; font-size: .54rem; color: var(--ink-3); }
+  .chips .mem b { color: var(--rose-deep); }
+  .map { position: relative; flex: 1; min-height: 56px; border-radius: 14px; overflow: hidden; background: linear-gradient(160deg, #F8DCE4, #F3CFD9); }
+  .map-art { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .pin { position: absolute; left: 50%; top: 46%; width: 0; height: 0; }
+  .pin-head { position: absolute; left: -12px; top: -30px; width: 24px; height: 24px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--rose-deep); display: grid; place-items: center; box-shadow: 0 6px 10px -4px rgba(110, 48, 69, .6); animation: pinBob 2.4s ease-in-out infinite; }
+  .pin-head .logo-mark { width: 10px; color: #fff; transform: rotate(45deg); }
+  @keyframes pinBob { 0%, 100% { transform: rotate(-45deg) translate3d(0, 0, 0); } 50% { transform: rotate(-45deg) translate3d(3px, -3px, 0); } }
+  .pin-ripple { position: absolute; left: -16px; top: -6px; width: 32px; height: 12px; border-radius: 50%; border: 1.5px solid var(--rose-deep); opacity: 0; animation: pinRip 2.4s ease-out infinite; }
+  @keyframes pinRip { 0% { opacity: .7; transform: scale(.3); } 100% { opacity: 0; transform: scale(1.6); } }
+  .map-l { position: absolute; inset-inline-start: 8px; bottom: 7px; background: #fff; border-radius: 999px; padding: 3px 8px; font-size: .54rem; font-weight: 600; color: var(--ink); box-shadow: 0 4px 10px -6px rgba(110, 48, 69, .5); }
+  .scan { display: flex; align-items: center; gap: 7px; background: var(--ink); color: #fff; border-radius: 12px; padding: 8px 9px; font-size: .56rem; line-height: 1.25; }
+  .qr-ic { flex: none; width: 16px; height: 16px; border-radius: 3px; background:
+    linear-gradient(#fff, #fff) 0 0 / 6px 6px no-repeat, linear-gradient(#fff, #fff) 100% 0 / 6px 6px no-repeat, linear-gradient(#fff, #fff) 0 100% / 6px 6px no-repeat, linear-gradient(#F4B6C8, #F4B6C8) 70% 70% / 5px 5px no-repeat; }
+
+  .apphead + .mcard { margin-top: 2px; }
+  .mcard { position: relative; overflow: hidden; border-radius: 16px; padding: 12px 12px 11px; color: #F8EDF0; background: var(--berry-grad); box-shadow: 0 16px 24px -16px rgba(78, 33, 49, .8); aspect-ratio: 1.62; display: flex; flex-direction: column; justify-content: flex-end; }
+  .mcard .moon { position: absolute; top: 10px; inset-inline-end: 10px; width: 22px; height: 22px; color: var(--gold-soft); }
+  .mcard small { font-size: .52rem; letter-spacing: .2em; text-transform: uppercase; opacity: .8; }
+  .mcard b { font-size: 1.15rem; font-weight: 600; letter-spacing: -.02em; color: #fff; }
+  .mcard .mm { font-size: .56rem; color: var(--gold-soft); }
+  .mcard .shine { position: absolute; top: -20%; bottom: -20%; left: 0; width: 40%; background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .16), transparent); transform: translate3d(-120%, 0, 0) skewX(-12deg); animation: shine 4.5s 1s ease-in-out infinite; }
+  @keyframes shine { 0%, 55% { transform: translate3d(-120%, 0, 0) skewX(-12deg); } 85%, 100% { transform: translate3d(320%, 0, 0) skewX(-12deg); } }
+  .visits { display: flex; align-items: center; gap: 9px; background: #fff; border-radius: 12px; padding: 7px 9px; box-shadow: 0 8px 16px -12px rgba(110, 48, 69, .45); }
+  .v-n { font-size: 1.35rem; font-weight: 600; letter-spacing: -.03em; color: var(--rose-deep); direction: ltr; }
+  .v-r span:first-child { display: block; font-size: .54rem; color: var(--ink-3); line-height: 1.2; }
+  .v-dots { display: flex; gap: 3px; margin-top: 4px; }
+  .v-dots i { width: 14px; height: 4px; border-radius: 3px; background: #F1D7DF; }
+  .v-dots i.u { background: var(--rose); }
+  .hw-price { background: #fff; border-radius: 12px; padding: 8px 9px 7px; box-shadow: 0 8px 16px -12px rgba(110, 48, 69, .45); }
+  .p-top { display: flex; justify-content: space-between; align-items: center; font-size: .54rem; color: var(--ink-3); }
+  .p-drop { background: #F8E4EA; color: var(--rose-deep); border-radius: 999px; padding: 1px 6px; font-weight: 600; }
+  .p-big { display: flex; align-items: center; gap: 4px; }
+  .p-big b { font-size: 1.05rem; font-weight: 600; letter-spacing: -.02em; }
+  .p-big .down { width: 11px; height: 11px; color: var(--rose-deep); }
+  .scr.on .p-big .down { animation: downNudge 1.8s 1s ease-in-out infinite; }
+  @keyframes downNudge { 0%, 60%, 100% { transform: none; } 30% { transform: translate3d(0, 2px, 0); } }
+  .bars { display: flex; align-items: flex-end; gap: 3px; height: 34px; margin-top: 5px; }
+  .bars i { flex: 1; height: var(--h); border-radius: 2px 2px 1px 1px; background: #F1D7DF; transform-origin: 50% 100%; }
+  .bars i.past { background: #E3B1C0; }
+  .bars i.now { background: var(--rose-deep); }
+  .scr.on .bars i { animation: barUp .6s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(.45s + var(--k) * .06s); }
+  @keyframes barUp { from { transform: scaleY(.05); } }
+  .free { display: flex; flex-direction: column; gap: 4px; }
+  .f-l { font-size: .54rem; color: var(--ink-3); }
+  .f-c { display: flex; flex-wrap: wrap; gap: 4px; }
+  .f-c span { background: #fff; border: 1px solid #F1D7DF; border-radius: 999px; padding: 3px 8px; font-size: .56rem; font-weight: 600; color: var(--rose-deep); }
+
+  .ev-hero { position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 1.12; display: flex; flex-direction: column; justify-content: flex-end; padding: 9px 10px; color: #fff; box-shadow: 0 14px 22px -16px rgba(78, 33, 49, .8); }
+  .ev-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
+  .ev-hero::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, transparent 35%, rgba(60, 22, 36, .78)); }
+  .ev-tag { align-self: flex-start; background: #fff; color: var(--rose-deep); border-radius: 999px; padding: 2px 7px; font-size: .52rem; font-weight: 600; margin-bottom: 3px; }
+  .ev-hero b { font-size: .95rem; font-weight: 600; letter-spacing: -.02em; }
+  .ev-row { display: flex; align-items: center; gap: 8px; background: #fff; border-radius: 12px; padding: 5px; box-shadow: 0 8px 16px -12px rgba(110, 48, 69, .45); }
+  .ev-row.friend { margin-top: auto; padding: 7px; }
+  .fr-ic { flex: none; width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; background: #F8E4EA; color: var(--rose-deep); font-size: .56rem; font-weight: 700; direction: ltr; }
+  .ev-row img { width: 34px; height: 34px; border-radius: 9px; object-fit: cover; flex: none; }
+  .ev-row b { display: block; font-size: .64rem; font-weight: 600; }
+  .ev-row small { display: block; font-size: .52rem; color: var(--ink-3); }
+  .gift { margin-top: auto; display: flex; align-items: center; gap: 9px; border-radius: 14px; padding: 10px; color: #fff; background: linear-gradient(135deg, #D58CA1, #964A62); box-shadow: 0 14px 22px -14px rgba(150, 74, 98, .8); }
+  .gift-ic { width: 22px; height: 22px; flex: none; }
+  .scr.on .gift-ic { animation: giftWiggle 3s 1.2s ease-in-out infinite; }
+  @keyframes giftWiggle { 0%, 70%, 100% { transform: none; } 76% { transform: rotate(-10deg) scale(1.08); } 84% { transform: rotate(8deg) scale(1.08); } 92% { transform: rotate(-4deg); } }
+  .gift b { display: block; font-size: .68rem; font-weight: 600; }
+  .gift small { display: block; font-size: .54rem; opacity: .9; }
+
+  /* cartes flottantes autour du téléphone (couleurs pleines, ombre douce, parallaxe souris/défilement) */
+  .hs-slot { position: absolute; z-index: 2; width: 150px; }
+  .hs-slot.sa { top: 13%; inset-inline-end: -40%; transform: translate3d(calc(var(--mx) * 14px), calc(var(--sy) * -26px + var(--my) * 8px), 70px); }
+  .hs-slot.sb { bottom: 16%; inset-inline-start: -42%; transform: translate3d(calc(var(--mx) * -10px), calc(var(--sy) * 22px + var(--my) * -6px), 110px); }
+  .hs-bob { display: grid; animation: hsBob 5.5s ease-in-out infinite; }
+  .sb .hs-bob { animation-duration: 6.5s; animation-delay: -2s; }
+  @keyframes hsBob { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -8px, 0); } }
+  .hs-card { grid-area: 1 / 1; align-self: start; background: #fff; border-radius: 16px; padding: 11px 14px; color: var(--ink); box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset, 0 22px 34px -18px rgba(110, 48, 69, .45), 0 4px 10px -6px rgba(110, 48, 69, .2); opacity: 0; transform: translate3d(0, 14px, 0) scale(.94); transition: opacity .45s, transform .6s cubic-bezier(.3, 1.3, .5, 1); }
+  .hs-card.on { opacity: 1; transform: none; transition-delay: .25s; }
+  .sa .hs-card small { display: block; font-size: .72rem; color: var(--ink-3); }
+  .sa .hs-card b { display: block; font-size: 1.5rem; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; }
+  .sa .hs-card b.dn { color: var(--rose-deep); }
+  .hs-card b.dn, .p-drop, .fr-ic { direction: ltr; unicode-bidi: isolate; }
+  .sb .hs-card { display: flex; align-items: center; gap: 8px; background: var(--s3); font-size: .8rem; font-weight: 600; line-height: 1.25; padding: 10px 13px; }
+  .fc-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--rose-deep); box-shadow: 0 0 0 4px rgba(201, 120, 143, .22); }
+  #how:not(.inview) .how-stage *, #how:not(.inview) .how-stage { animation-play-state: paused !important; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .how-stage *, .how-stage { animation: none !important; }
+    .hs-scene, .scr, .scr .st, .hs-card { transition: none !important; }
+  }
+
+  /* Mobile : téléphone au-dessus, une seule étape à la fois sous le téléphone, avec des onglets 1·2·3 */
   @media (max-width: 900px) {
-    .how { grid-template-columns: 1fr; gap: 6px; margin-top: 40px; }
-    .how .sticky { padding: 0 0 6px; }
-    .how .phone { width: min(250px, 66vw); }
+    .how { grid-template-columns: minmax(0, 1fr); gap: 6px; margin-top: 28px; }
+    .how-stage { padding: 26px 0 48px; overflow: hidden; margin-inline: -16px; --ry: -16deg; }
+    html[dir="rtl"] .how-stage { --ry: 16deg; }
+    .how .phone { width: min(230px, 58vw); }
+    .hs-floor { bottom: 22px; width: 240px; margin-left: -120px; }
+    .hs-slot { width: 118px; }
+    .hs-slot.sa { top: 9%; inset-inline-end: -20%; }
+    .hs-slot.sb { bottom: 13%; inset-inline-start: -14%; }
+    .sa .hs-card b { font-size: 1.15rem; }
+    .sa .hs-card small, .sb .hs-card { font-size: .66rem; }
+    .hs-card { padding: 9px 11px; border-radius: 13px; }
     .how-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 4px; }
-    .how-dots button { border: 0; border-radius: 999px; padding: 8px 14px; background: var(--s3); color: var(--ink-2); font: inherit; font-size: .8rem; font-weight: 600; cursor: pointer; position: relative; overflow: hidden; }
+    .how-dots button { border: 0; border-radius: 999px; padding: 8px 14px; background: var(--s3); color: var(--ink-2); font: inherit; font-size: .8rem; font-weight: 600; cursor: pointer; }
     .how-dots button.on { background: var(--ink); color: #fff; }
     .how .steps { display: grid; gap: 0; }
     .how .step { grid-area: 1 / 1; padding: 14px 4px 4px; text-align: center; opacity: 0; visibility: hidden; transform: translateY(10px); transition: opacity .45s, transform .5s, visibility 0s .45s; }
@@ -879,56 +929,99 @@
   <div class="wrap">
     <div class="center">
       <span class="kicker" data-i18n="how_kicker">How it works</span>
-      <h2 class="title sm" data-i18n="how_title">Three taps. No waiting room.</h2>
+      <h2 class="title sm" data-i18n="how_title">No appointment. Ever.</h2>
     </div>
     <div class="how">
-      <div class="sticky"><div class="phone-wrap" aria-hidden="true">
-        <div class="phone" id="phone" data-s="0">
-          <span class="btn-side b-action"></span><span class="btn-side b-vup"></span><span class="btn-side b-vdown"></span><span class="btn-side b-power"></span><span class="btn-side b-cam"></span>
-          <div class="screen">
-            <div class="statusbar"><span class="t" id="phClock">9:41</span><span class="icons"><svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12"><path d="M8 2.3c2.4 0 4.6.9 6.2 2.5l1.3-1.3A10.6 10.6 0 0 0 8 .4 10.6 10.6 0 0 0 .5 3.5l1.3 1.3A8.7 8.7 0 0 1 8 2.3zm0 3.7c1.4 0 2.7.5 3.6 1.4l1.3-1.3A7 7 0 0 0 8 4.1 7 7 0 0 0 3.1 6.1l1.3 1.3C5.3 6.5 6.6 6 8 6zm0 3.6c.5 0 1 .2 1.3.5L8 11.6 6.7 10.1c.3-.3.8-.5 1.3-.5z"/></svg><span class="bat"><i></i></span></span></div>
-            <div class="island-dyn" aria-hidden="true">
-              <span class="ia"><span data-logo></span>Q-012</span>
-              <span class="ib" style="display:flex;align-items:center;gap:6px"><svg class="ring-mini" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="3"/><circle cx="10" cy="10" r="8" fill="none" stroke="#F4B6C8" stroke-width="3" stroke-dasharray="50" stroke-dashoffset="18" stroke-linecap="round" transform="rotate(-90 10 10)"/></svg><b id="phIsland">12 min</b></span>
-              <span class="big-l"><span class="av-mini">N</span><span><b data-i18n="ph_turn">It's your turn</b><small data-i18n="ph_noor">with Noor</small></span><span class="seat-n">3</span></span>
-            </div>
+      <div class="how-stage" id="howStage" data-s="0" aria-hidden="true">
+        <span class="hs-floor"></span>
+        <div class="hs-scene">
+          <div class="hs-float">
+            <div class="phone" id="phone" data-s="0">
+              <span class="ph-depth d1"></span><span class="ph-depth d2"></span>
+              <span class="btn-side b-action"></span><span class="btn-side b-vup"></span><span class="btn-side b-vdown"></span><span class="btn-side b-power"></span><span class="btn-side b-cam"></span>
+              <div class="screen">
+                <div class="statusbar"><span class="t" id="phClock">9:41</span><span class="icons"><svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12"><path d="M8 2.3c2.4 0 4.6.9 6.2 2.5l1.3-1.3A10.6 10.6 0 0 0 8 .4 10.6 10.6 0 0 0 .5 3.5l1.3 1.3A8.7 8.7 0 0 1 8 2.3zm0 3.7c1.4 0 2.7.5 3.6 1.4l1.3-1.3A7 7 0 0 0 8 4.1 7 7 0 0 0 3.1 6.1l1.3 1.3C5.3 6.5 6.6 6 8 6zm0 3.6c.5 0 1 .2 1.3.5L8 11.6 6.7 10.1c.3-.3.8-.5 1.3-.5z"/></svg><span class="bat"><i></i></span></span></div>
+                <span class="island-dyn"></span>
 
-            <div class="scr cam on" data-scr="0">
-              <svg class="blur-arches" viewBox="0 0 300 400" fill="none" aria-hidden="true"><g stroke="#F4C9D5" stroke-width="3"><path d="M30 400V170a120 120 0 0 1 240 0v230"/><path d="M70 400V180a80 80 0 0 1 160 0v220" opacity=".7"/><path d="M105 400V190a45 45 0 0 1 90 0v210" opacity=".5"/></g></svg>
-              <div class="vf"><span class="c c1"></span><span class="c c2"></span><span class="c c3"></span><span class="c c4"></span><div class="qr" id="phQr"></div><span class="laser"></span></div>
-              <span class="pill"><span data-logo></span><span data-i18n="ph_qr">QAMAR · Join the queue</span></span>
-              <div class="modes"><span>CINEMATIC</span><span>VIDEO</span><b>PHOTO</b><span>PORTRAIT</span></div>
-              <span class="shutter"></span>
-            </div>
+                <!-- écran 1 : en direct au salon -->
+                <div class="scr live on" data-scr="0">
+                  <div class="apphead st" style="--i:0"><span data-logo></span>QAMAR<span class="live-pill"><i></i><span data-i18n="ph_live">Live</span></span></div>
+                  <h4 class="st" style="--i:1" data-i18n="ph_live_t">Live at QAMAR</h4>
+                  <div class="wait st" style="--i:2">
+                    <svg class="wait-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="43" fill="none" stroke="#F6E2E8" stroke-width="7"/><circle cx="50" cy="50" r="43" fill="none" stroke="url(#phG)" stroke-width="7" stroke-linecap="round" stroke-dasharray="270" stroke-dashoffset="190" transform="rotate(-90 50 50)"/><defs><linearGradient id="phG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C49A5A"/><stop offset="1" stop-color="#C9788F"/></linearGradient></defs></svg>
+                    <div class="wait-n"><b id="phWait">8</b><span data-i18n="ph_wait">min wait</span></div>
+                  </div>
+                  <div class="chips st" style="--i:3">
+                    <div><b id="phChairs">3</b><span data-i18n="ph_chairs">chairs free</span></div>
+                    <div class="mem"><b data-i18n="ph_lane_open">Open</b><span data-i18n="ph_lane">Members’ lane</span></div>
+                  </div>
+                  <div class="map st" style="--i:4">
+                    <svg class="map-art" viewBox="0 0 220 90" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke-linecap="round"><path d="M-10 78 L230 8" stroke="#fff" stroke-width="13"/><path d="M-10 78 L230 8" stroke="#F1C9D4" stroke-width="2" stroke-dasharray="7 7"/><path d="M40 -5 L95 95" stroke="#fff" stroke-width="5"/><path d="M150 -5 L190 95" stroke="#fff" stroke-width="5"/><path d="M-5 40 L230 52" stroke="#fff" stroke-width="4" opacity=".8"/></g></svg>
+                    <span class="pin"><span class="pin-ripple"></span><span class="pin-head"><span data-logo></span></span></span>
+                    <span class="map-l" data-i18n="ph_szr">Off Sheikh Zayed Rd</span>
+                  </div>
+                  <div class="scan st" style="--i:5"><i class="qr-ic"></i><span data-i18n="ph_scan">Scan at the door, your place is saved</span></div>
+                </div>
 
-            <div class="scr app" data-scr="1">
-              <div class="apphead"><span data-logo></span>QAMAR</div>
-              <h4 data-i18n="ph_choose">Choose your look</h4>
-              <div class="mini-grid" id="miniGrid"></div>
-              <div class="tk">
-                <small>Q-012</small>
-                <div class="ringbox"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="#F6E6EA" stroke-width="5"/><circle class="arc" cx="50" cy="50" r="45" fill="none" stroke="url(#phG)" stroke-width="5" stroke-linecap="round"/><defs><linearGradient id="phG"><stop offset="0" stop-color="#C49A5A"/><stop offset="1" stop-color="#C9788F"/></linearGradient></defs></svg><div class="n"><div>12<span>min</span></div></div></div>
-                <div class="lk">Marina Waves</div>
-                <div class="row"><div><b>#3</b><span data-i18n="ph_line">in line</span></div><div><b>Noor</b><span data-i18n="ph_with">with</span></div><div><b id="phAt">21:40</b><span data-i18n="ph_ready">ready</span></div></div>
+                <!-- écran 2 : carte de membre -->
+                <div class="scr hw-member" data-scr="1">
+                  <div class="apphead st" style="--i:0"><span data-logo></span>QAMAR<span class="hd-r" data-i18n="ph_myclub">My Club</span></div>
+                  <div class="mcard st" style="--i:1">
+                    <span class="shine"></span>
+                    <svg class="moon" viewBox="0 0 40 40"><path d="M27 6a15 15 0 1 0 7 26A13 13 0 0 1 27 6z" fill="currentColor"/></svg>
+                    <small data-i18n="ph_club">QAMAR Club</small>
+                    <b id="phTier">Half Moon</b>
+                    <span class="mm"><span data-i18n="ph_month">Month</span> <span id="phMonth">5</span></span>
+                  </div>
+                  <div class="visits st" style="--i:2">
+                    <div class="v-n" id="phLeft">2/4</div>
+                    <div class="v-r"><span data-i18n="ph_left">blow-dries left this month</span><span class="v-dots" id="phDots"></span></div>
+                  </div>
+                  <div class="hw-price st" style="--i:3">
+                    <div class="p-top"><span data-i18n="ph_this_month">This month</span><span class="p-drop" id="phDrop">−8%</span></div>
+                    <div class="p-big"><b id="phPrice">551 AED</b><svg class="down" viewBox="0 0 12 12"><path d="M6 1v9M2 6.5 6 10.5 10 6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="bars" id="phBars"></div>
+                  </div>
+                  <div class="free st" style="--i:4"><span class="f-l" data-i18n="ph_free">Free today</span><span class="f-c"><span data-i18n="ph_x_shower">Shower</span><span data-i18n="ph_x_steam">Steam</span><span data-i18n="ph_x_matcha">Matcha</span></span></div>
+                  <div class="ev-row friend st" style="--i:5"><span class="fr-ic">−50%</span><span><b data-i18n="ph_friend">Bring a friend at −50%</b><small data-i18n="ph_friend_s">Once a month, with your membership</small></span></div>
+                </div>
+
+                <!-- écran 3 : événements et cadeaux -->
+                <div class="scr events" data-scr="2">
+                  <div class="apphead st" style="--i:0"><span data-logo></span>QAMAR<span class="hd-r" data-i18n="ph_whatson">What’s on</span></div>
+                  <div class="ev-hero st" style="--i:1">
+                    <img src="assets/img/look-night.webp" alt="" loading="lazy" decoding="async" width="300" height="200">
+                    <span class="ev-tag" data-i18n="ph_ev1_when">Thursday · 8 PM</span>
+                    <b data-i18n="ph_ev1">Ladies Night</b>
+                  </div>
+                  <div class="ev-row st" style="--i:2"><img src="assets/img/ritual-drinks.webp" alt="" loading="lazy" decoding="async" width="80" height="80"><span><b data-i18n="ph_ev2">Creator evening</b><small data-i18n="ph_ev2_s">Members first</small></span></div>
+                  <div class="ev-row st" style="--i:3"><img src="assets/img/look-waves.webp" alt="" loading="lazy" decoding="async" width="80" height="80"><span><b data-i18n="ph_ev3">New looks this month</b><small data-i18n="ph_ev3_s">Try them first</small></span></div>
+                  <div class="gift st" style="--i:4">
+                    <svg class="gift-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 13h18M12 9v12M12 9c-2-4-6-4-6-1.5S10 9 12 9zm0 0c2-4 6-4 6-1.5S14 9 12 9z"/></svg>
+                    <span><b data-i18n="ph_gift">Gift a month of Club</b><small><span data-i18n="ph_gift_from">From</span> <span id="phGiftPrice">329 AED</span></small></span>
+                  </div>
+                </div>
+                <span class="home-ind"></span>
               </div>
             </div>
-
-            <div class="scr lock" data-scr="2">
-              <canvas class="petals" id="phPetals"></canvas>
-              <div class="clock"><small id="phDate">Friday 17 October</small><b id="phBig">21:40</b></div>
-              <div class="notif" id="notif"><span class="app"><i data-icon="message"></i></span><span class="txt"><b>WhatsApp · QAMAR <span data-i18n="ph_now">now</span></b><span data-i18n="ph_notif">Your wait is over — seat 3 with Noor</span></span></div>
-              <div class="notif n2" id="notif2"><span class="app"><span data-logo style="width:14px;color:#fff;display:block"></span></span><span class="txt"><b>QAMAR <span data-i18n="ph_ago">2 min ago</span></b><span data-i18n="ph_notif2">Almost your turn, 2 people before you</span></span></div>
-              <div class="lockbtns"><span><i data-icon="sparkles"></i></span><span><i data-icon="camera"></i></span></div>
-            </div>
-            <span class="home-ind"></span>
           </div>
+          <div class="hs-slot sa"><div class="hs-bob">
+            <div class="hs-card on" data-c="0"><small data-i18n="fc_wait">Wait now</small><b><span id="fcWait">8</span> <span data-i18n="min">min</span></b></div>
+            <div class="hs-card" data-c="1"><small data-i18n="fc_month">This month</small><b class="dn" id="fcDrop">−2%</b></div>
+            <div class="hs-card" data-c="2"><small data-i18n="fc_gift">Gift card</small><b data-i18n="fc_gift_b">1 month</b></div>
+          </div></div>
+          <div class="hs-slot sb"><div class="hs-bob">
+            <div class="hs-card on" data-c="0"><span class="fc-dot"></span><span data-i18n="fc_walk">Walk in, 8 AM to midnight</span></div>
+            <div class="hs-card" data-c="1"><span class="fc-dot"></span><span data-i18n="fc_extras">Extras included</span></div>
+            <div class="hs-card" data-c="2"><span class="fc-dot"></span><span data-i18n="fc_ladies">Ladies Night</span></div>
+          </div></div>
         </div>
-      </div></div>
+      </div>
       <div class="how-dots" role="group" aria-label="Steps"><button type="button" class="on" data-dot="0" data-i18n="s1k">Step 1</button><button type="button" data-dot="1" data-i18n="s2k">Step 2</button><button type="button" data-dot="2" data-i18n="s3k">Step 3</button></div>
       <div class="steps">
-        <div class="step on" data-step="0"><small data-i18n="s1k">Step 1</small><h3 data-i18n="s1t">Scan at the door.</h3><p data-i18n="s1p">Scan the QR code on our welcome screen, or simply text “I want a blow-dry” on WhatsApp.</p></div>
-        <div class="step" data-step="1"><small data-i18n="s2k">Step 2</small><h3 data-i18n="s2t">Pick your look. See your wait.</h3><p data-i18n="s2p">Choose a look by its picture, then your stylist or the first one free. Your exact wait appears instantly.</p></div>
-        <div class="step" data-step="2"><small data-i18n="s3k">Step 3</small><h3 data-i18n="s3t">Your phone tells you when.</h3><p data-i18n="s3p">Grab a matcha, take photos, relax. When it's your turn: “Seat 3, with Noor.”</p></div>
+        <div class="step on" data-step="0" role="button" tabindex="0"><small data-i18n="s1k">Step 1</small><h3 data-i18n="s1t">Walk in.</h3><p data-i18n="s1p">No booking, no app needed: walk in whenever you want, from 8 AM to midnight. Scan at the door and your place in line is saved.</p></div>
+        <div class="step" data-step="1" role="button" tabindex="0"><small data-i18n="s2k">Step 2</small><h3 data-i18n="s2t">Your month, at a glance.</h3><p data-i18n="s2p">Members open the QAMAR app to see their month at a glance: visits left, this month’s price going down, free extras.</p></div>
+        <div class="step" data-step="2" role="button" tabindex="0"><small data-i18n="s3k">Step 3</small><h3 data-i18n="s3t">Events and gifts.</h3><p data-i18n="s3p">See what’s on — Ladies Nights, creator evenings, new looks — and gift a month of Club to a friend.</p></div>
       </div>
     </div>
   </div>
@@ -1249,11 +1342,14 @@
     p3b: { en: '45 min', ar: '٤٥ د' }, p3: { en: 'maximum, for any look', ar: 'كحد أقصى لأي إطلالة' },
     p4b: { en: '00:00', ar: '٠٠:٠٠' }, p4: { en: 'closing time, every day', ar: 'موعد الإغلاق، كل يوم' },
     p5b: { en: '48 h', ar: '٤٨ س' }, p5: { en: 'free touch-up for members', ar: 'لمسة مجانية للعضوات' },
-    how_kicker: { en: 'How it works', ar: 'طريقة العمل' }, how_title: { en: 'Three taps. No waiting room.', ar: 'ثلاث نقرات. بدون غرفة انتظار.' },
-    s1k: { en: 'Step 1', ar: 'الخطوة ١' }, s1t: { en: 'Scan at the door.', ar: 'امسحي الرمز عند الباب.' }, s1p: { en: 'Scan the QR code on our welcome screen, or simply text “I want a blow-dry” on WhatsApp.', ar: 'امسحي رمز QR على شاشة الترحيب، أو أرسلي «أريد سشوار» على واتساب.' },
-    s2k: { en: 'Step 2', ar: 'الخطوة ٢' }, s2t: { en: 'Pick your look. See your wait.', ar: 'اختاري إطلالتكِ. واعرفي مدة انتظاركِ.' }, s2p: { en: 'Choose a look by its picture, then your stylist or the first one free. Your exact wait appears instantly.', ar: 'اختاري الإطلالة من صورتها، ثم مصففتك أو أول مصففة متاحة. يظهر وقت انتظارك فوراً.' },
-    s3k: { en: 'Step 3', ar: 'الخطوة ٣' }, s3t: { en: 'Your phone tells you when.', ar: 'وهاتفكِ يخبركِ حين يحين دوركِ.' }, s3p: { en: "Grab a matcha, take photos, relax. When it's your turn: “Seat 3, with Noor.”", ar: 'خذي ماتشا، صوّري، استرخي. عندما يحين دورك: «المقعد ٣، مع نور».' },
-    ph_notif: { en: 'Your wait is over — seat 3 with Noor', ar: 'انتهى انتظارك — المقعد ٣ مع نور' }, ph_turn: { en: "It's your turn", ar: 'حان دورك' }, ph_qr: { en: 'QAMAR · Join the queue', ar: 'قمر · انضمي للطابور' }, ph_now: { en: 'now', ar: 'الآن' }, ph_ago: { en: '2 min ago', ar: 'قبل دقيقتين' }, ph_notif2: { en: 'Almost your turn, 2 people before you', ar: 'اقترب دوركِ، أمامكِ ضيفتان' }, ph_choose: { en: 'Choose your look', ar: 'اختاري إطلالتك' }, ph_line: { en: 'in line', ar: 'في الطابور' }, ph_with: { en: 'with', ar: 'مع' }, ph_ready: { en: 'ready', ar: 'جاهزة' }, ph_over: { en: 'Your wait is over', ar: 'انتهى انتظارك' }, ph_go: { en: 'Go to seat', ar: 'توجّهي إلى المقعد' }, ph_noor: { en: 'with Noor', ar: 'مع نور' },
+    how_kicker: { en: 'How it works', ar: 'طريقة العمل' }, how_title: { en: 'No appointment. Ever.', ar: 'بدون موعد. أبداً.' },
+    s1k: { en: 'Step 1', ar: 'الخطوة ١' }, s1t: { en: 'Walk in.', ar: 'ادخلي مباشرة.' }, s1p: { en: 'No booking, no app needed: walk in whenever you want, from 8 AM to midnight. Scan at the door and your place in line is saved.', ar: 'بدون حجز وبدون تطبيق: ادخلي متى شئتِ، من ٨ صباحاً حتى منتصف الليل. امسحي الرمز عند الباب ويُحفظ مكانكِ في الدور.' },
+    s2k: { en: 'Step 2', ar: 'الخطوة ٢' }, s2t: { en: 'Your month, at a glance.', ar: 'شهركِ في لمحة.' }, s2p: { en: 'Members open the QAMAR app to see their month at a glance: visits left, this month’s price going down, free extras.', ar: 'كعضوة، افتحي تطبيق قمر لتري شهركِ في لمحة: زياراتكِ المتبقية، وسعر هذا الشهر وهو ينخفض، وإضافاتكِ المجانية.' },
+    s3k: { en: 'Step 3', ar: 'الخطوة ٣' }, s3t: { en: 'Events and gifts.', ar: 'فعاليات وهدايا.' }, s3p: { en: 'See what’s on — Ladies Nights, creator evenings, new looks — and gift a month of Club to a friend.', ar: 'اكتشفي ما يجري — ليالي السيدات، وأمسيات صانعات المحتوى، والإطلالات الجديدة — وأهدي صديقتكِ شهراً في النادي.' },
+    ph_live: { en: 'Live', ar: 'مباشر' }, ph_live_t: { en: 'Live at QAMAR', ar: 'الآن في قمر' }, ph_wait: { en: 'min wait', ar: 'دقائق انتظار' }, ph_chairs: { en: 'chairs free', ar: 'مقاعد متاحة' }, ph_lane_open: { en: 'Open', ar: 'مفتوح' }, ph_lane: { en: 'Members’ lane', ar: 'مسار العضوات' }, ph_szr: { en: 'Off Sheikh Zayed Rd', ar: 'بالقرب من شارع الشيخ زايد' }, ph_scan: { en: 'Scan at the door, your place is saved', ar: 'امسحي الرمز عند الباب ويُحفظ مكانكِ' },
+    ph_myclub: { en: 'My Club', ar: 'عضويتي' }, ph_club: { en: 'QAMAR Club', ar: 'نادي قمر' }, ph_month: { en: 'Month', ar: 'الشهر' }, ph_left: { en: 'blow-dries left this month', ar: 'سشوارات متبقية هذا الشهر' }, ph_this_month: { en: 'This month', ar: 'هذا الشهر' }, ph_free: { en: 'Free today', ar: 'مجاناً اليوم' }, ph_x_shower: { en: 'Shower', ar: 'دشّ' }, ph_x_steam: { en: 'Steam', ar: 'بخار' }, ph_x_matcha: { en: 'Matcha', ar: 'ماتشا' }, ph_friend: { en: 'Bring a friend at −50%', ar: 'صديقتكِ بخصم ٥٠٪' }, ph_friend_s: { en: 'Once a month, with your membership', ar: 'مرة في الشهر مع عضويتكِ' },
+    ph_whatson: { en: 'What’s on', ar: 'الفعاليات' }, ph_ev1_when: { en: 'Thursday', ar: 'الخميس' }, ph_ev1: { en: 'Ladies Night', ar: 'ليلة السيدات' }, ph_ev2: { en: 'Creator evening', ar: 'أمسية صانعات المحتوى' }, ph_ev2_s: { en: 'Members first', ar: 'الأولوية للعضوات' }, ph_ev3: { en: 'New looks this month', ar: 'إطلالات جديدة هذا الشهر' }, ph_ev3_s: { en: 'Try them first', ar: 'جرّبيها أولاً' }, ph_gift: { en: 'Gift a month of Club', ar: 'أهدي شهراً في النادي' }, ph_gift_from: { en: 'From', ar: 'ابتداءً من' },
+    fc_wait: { en: 'Wait now', ar: 'الانتظار الآن' }, fc_month: { en: 'This month', ar: 'هذا الشهر' }, fc_gift: { en: 'Gift card', ar: 'بطاقة هدية' }, fc_gift_b: { en: '1 month', ar: 'شهر كامل' }, fc_walk: { en: 'Walk in, 8 AM to midnight', ar: 'ادخلي من ٨ صباحاً حتى منتصف الليل' }, fc_extras: { en: 'Extras included', ar: 'الإضافات مشمولة' }, fc_ladies: { en: 'Ladies Night', ar: 'ليلة السيدات' },
     looks_kicker: { en: 'The look menu', ar: 'قائمة الإطلالات' }, looks_title: { en: "Don't explain it. Choose it.", ar: 'لا تشرحيها. اختاريها.' }, looks_sub: { en: 'Every look has a name and a picture. None takes more than 45 minutes.', ar: 'لكل إطلالة اسم وصورة. لا تتجاوز أي منها ٤٥ دقيقة.' },
     f_all: { en: 'All', ar: 'الكل' }, f_blowdry: { en: 'Blow-dry', ar: 'سشوار' }, f_quick: { en: 'Under 20 min', ar: 'أقل من ٢٠ د' }, f_night: { en: 'Night', ar: 'الليل' }, f_care: { en: 'Care', ar: 'عناية' }, f_colour: { en: 'Cut & colour', ar: 'قص وصبغة' }, f_kids: { en: 'Kids', ar: 'للصغيرات' },
     from: { en: 'From', ar: 'من' }, choose: { en: 'Choose', ar: 'اختاري' },
@@ -1415,13 +1511,6 @@
     sub.textContent = Q.t('hc_staff').replace('{n}', on);
   }
 
-  function renderPhoneTiles() {
-    document.getElementById('miniGrid').innerHTML = ['express', 'waves', 'sleek', 'glow'].map((id, k) => {
-      const s = Q.service(id);
-      return `<div class="mini-tile ${k === 1 ? 'sel' : ''}"><i style="background:radial-gradient(130% 90% at 50% 0%, ${s.tone[0]}, ${s.tone[1]})"><canvas class="look-canvas" data-look="${id}" aria-hidden="true"></canvas></i><span>${Q.esc(Q.L(s.look))}</span></div>`;
-    }).join('');
-  }
-
   // Menu mobile : ouverture par ☰, fermeture par ✕, un lien, Échap ou retour
   (() => {
     const m = document.getElementById('mnav'), btns = document.querySelectorAll('[data-menu]');
@@ -1468,7 +1557,7 @@
     const names = D.services.map((s, i) => `<span class="${i % 3 === 1 ? 'f' : ''}">${Q.esc(Q.L(s.look))}</span><span class="m">☾</span>`).join('');
     document.getElementById('lookMarquee').innerHTML = names + names;
   }
-  function renderAll() { renderMarquee(); paintIcons(); paintLogos(); renderLinks(); renderFilters(); renderLooks(); renderMenu(); renderTeam(); renderLive(); renderPhoneTiles(); }
+  function renderAll() { renderMarquee(); paintIcons(); paintLogos(); renderLinks(); renderFilters(); renderLooks(); renderMenu(); renderTeam(); renderLive(); }
   document.addEventListener('qamar:lang', renderAll);
   // Préouverture (config.js → phase) : mêmes pages, textes qui ne promettent aucun service déjà disponible.
   // Au lancement : phase = 'open', rien d'autre à réécrire. scripts/build-site.mjs applique la même règle à la page arabe.
@@ -1482,71 +1571,92 @@
   Q.i18n(dict);
   Q.on(() => { renderLive(); renderTeam(); renderLooks(); renderLinks(); });
 
-  // Téléphone : l'écran suit l'étape lue (desktop) ou tourne tout seul (mobile)
+  // « Comment ça marche » : téléphone 3D à 3 écrans (en direct · carte de membre · événements), cartes flottantes qui font écho.
+  // Les chiffres du Club viennent de D.club (data.js) : formule Half Moon, prix du 5e mois, baisse mensuelle.
+  const howEl = document.getElementById('how'), howStage = document.getElementById('howStage');
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let phoneStep = 0;
   function showPhone(n) {
-    document.getElementById('phone').dataset.s = n;
-    document.querySelectorAll('.scr').forEach(el => el.classList.toggle('on', +el.dataset.scr === n));
-    document.querySelectorAll('.how .step').forEach(el => el.classList.toggle('on', +el.dataset.step === n));
-    document.querySelectorAll('.how-dots button').forEach(el => { el.classList.toggle('on', +el.dataset.dot === n); el.setAttribute('aria-pressed', +el.dataset.dot === n); });
-    document.getElementById('notif').classList.toggle('show', n === 2);
-    document.getElementById('notif2').classList.toggle('show', n === 2);
-    phoneTime();
+    const prev = +howStage.dataset.s;
+    howStage.dataset.s = n; document.getElementById('phone').dataset.s = n;
+    howEl.querySelectorAll('.scr').forEach(el => {
+      const i = +el.dataset.scr;
+      el.classList.toggle('out', i === prev && i !== n);
+      el.classList.toggle('on', i === n);
+    });
+    howEl.querySelectorAll('.hs-card').forEach(el => el.classList.toggle('on', +el.dataset.c === n));
+    howEl.querySelectorAll('.how .step').forEach(el => { el.classList.toggle('on', +el.dataset.step === n); el.setAttribute('aria-pressed', +el.dataset.step === n); });
+    howEl.querySelectorAll('.how-dots button').forEach(el => { el.classList.toggle('on', +el.dataset.dot === n); el.setAttribute('aria-pressed', +el.dataset.dot === n); });
   }
-  // Heures du téléphone : toujours l'heure réelle (barre d'état + écran verrouillé), mise à jour en continu
-  function phoneTime() {
-    const now = Date.now();
-    document.getElementById('phClock').textContent = Q.clock(now);
-    document.getElementById('phBig').textContent = Q.clock(now);
-    document.getElementById('phAt').textContent = Q.clock(now + 12 * 60000);
-    document.getElementById('phDate').textContent = new Date(now).toLocaleDateString(Q.lang === 'ar' ? 'ar-AE' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  function renderHow() {
+    const C = D.club, tier = C.tiers.find(t => t.id === 'half') || C.tiers.find(t => t.popular) || C.tiers[0];
+    const month = 5, used = 2, last = Math.ceil(C.floorPct / C.dropPct) + 1;
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set('phTier', Q.L(tier.name));
+    set('phMonth', num(month));
+    set('phLeft', `${num(tier.visits - used)}/${num(tier.visits)}`);
+    document.getElementById('phDots').innerHTML = Array.from({ length: tier.visits }, (_, i) => `<i class="${i < used ? 'u' : ''}"></i>`).join('');
+    const pct = Math.min(C.floorPct, C.dropPct * (month - 1));
+    set('phPrice', aed(clubPrice(tier.price, month)));
+    set('phDrop', `−${num(pct)}%`);
+    set('fcDrop', `−${num(C.dropPct)}%`);
+    const lo = clubPrice(tier.price, last);
+    document.getElementById('phBars').innerHTML = Array.from({ length: last }, (_, k) => {
+      const p = clubPrice(tier.price, k + 1), h = 35 + 65 * (p - lo * .9) / (tier.price - lo * .9);
+      return `<i class="${k + 1 === month ? 'now' : k + 1 < month ? 'past' : ''}" style="--h:${h.toFixed(0)}%;--k:${k}"></i>`;
+    }).join('');
+    set('phGiftPrice', aed(Math.min(...C.tiers.map(t => t.price))));
+    set('phWait', num(8)); set('fcWait', num(8)); set('phChairs', num(3));
+    set('phClock', Q.clock(Date.now()));
   }
-  phoneTime();
-  setInterval(phoneTime, 10000);
-  // QR code stylisé sur l'écran appareil photo (motif fixe)
-  document.getElementById('phQr').innerHTML = Array.from({ length: 81 }, (_, i) => {
-    const x = i % 9, y = Math.floor(i / 9);
-    const finder = (x < 3 && y < 3) || (x > 5 && y < 3) || (x < 3 && y > 5);
-    const on = finder ? !(x % 6 === 1 && y % 6 === 1) : ((x * 7 + y * 13 + x * y) % 3 === 0);
-    return `<i class="${on ? '' : 'o'}"></i>`;
-  }).join('');
-  // pétales sur l'écran verrouillé
-  (function lockPetals() {
-    const cv = document.getElementById('phPetals'), c = cv.getContext('2d');
-    let W = 0, H = 0, ps = [];
-    const size = () => { const d = Math.min(2, devicePixelRatio || 1); W = cv.clientWidth; H = cv.clientHeight; if (!W || !H) return; cv.width = W * d; cv.height = H * d; c.setTransform(d, 0, 0, d, 0, 0); ps = Array.from({ length: 12 }, () => ({ x: Math.random() * W, y: Math.random() * H, s: 4 + Math.random() * 5, r: Math.random() * 6, v: 14 + Math.random() * 18, ph: Math.random() * 6 })); };
-    new ResizeObserver(size).observe(cv); size();
-    let last = 0;
-    const loop = ms => {
-      const dt = Math.min(.05, last ? (ms - last) / 1000 : .016); last = ms;
-      if (document.getElementById('phone').dataset.s === '2' && W) {
-        c.clearRect(0, 0, W, H);
-        ps.forEach(p => {
-          p.y += p.v * dt; p.r += dt; if (p.y > H + 10) { p.y = -10; p.x = Math.random() * W; }
-          const x = p.x + Math.sin(ms / 900 + p.ph) * 10;
-          c.save(); c.translate(x, p.y); c.rotate(p.r); c.scale(Math.cos(ms / 500 + p.ph), 1);
-          c.beginPath(); c.moveTo(0, 0); c.bezierCurveTo(-p.s * .6, -p.s * .3, -p.s * .55, -p.s, 0, -p.s * .85); c.bezierCurveTo(p.s * .55, -p.s, p.s * .6, -p.s * .3, 0, 0);
-          c.fillStyle = 'rgba(255, 228, 236, .85)'; c.fill(); c.restore();
-        });
-      }
-      raf = vis ? requestAnimationFrame(loop) : 0;
-    };
-    let raf = 0, vis = false;
-    if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) new IntersectionObserver(([e]) => { vis = e.isIntersecting; if (vis && !raf) raf = requestAnimationFrame(loop); }).observe(cv);
-  })();
-  // Le téléphone tourne tout seul sur ses 3 écrans ; un clic sur une étape y saute
-  const STEP_MS = 3800;
-  let phoneTimer = null, phoneStep = 0;
-  const steps = [...document.querySelectorAll('.how .step')];
-  document.querySelector('.how').style.setProperty('--step-ms', STEP_MS + 'ms');
+  renderHow();
+  document.addEventListener('qamar:lang', renderHow);
+  setInterval(() => { if (howEl.classList.contains('inview')) document.getElementById('phClock').textContent = Q.clock(Date.now()); }, 10000);
+
+  // Boucle automatique ; un clic (ou Entrée/Espace) sur une étape y saute
+  const STEP_MS = 5200;
+  let phoneTimer = null;
+  const steps = [...howEl.querySelectorAll('.how .step')];
+  howEl.querySelector('.how').style.setProperty('--step-ms', STEP_MS + 'ms');
   const runPhone = () => {
     clearInterval(phoneTimer);
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (reduceMotion) return;
     phoneTimer = setInterval(() => { phoneStep = (phoneStep + 1) % steps.length; showPhone(phoneStep); }, STEP_MS);
   };
-  steps.forEach((el, i) => el.addEventListener('click', () => { phoneStep = i; showPhone(i); runPhone(); }));
-  document.querySelectorAll('.how-dots button').forEach(b => b.addEventListener('click', () => { phoneStep = +b.dataset.dot; showPhone(phoneStep); runPhone(); }));
-  showPhone(0); runPhone();
-  if ('IntersectionObserver' in window) new IntersectionObserver(([e]) => { if (e.isIntersecting) runPhone(); else clearInterval(phoneTimer); }).observe(document.querySelector('.how'));
+  const jump = i => { phoneStep = i; showPhone(i); if (howEl.classList.contains('inview')) runPhone(); };
+  steps.forEach((el, i) => {
+    el.addEventListener('click', () => jump(i));
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); jump(i); } });
+  });
+  howEl.querySelectorAll('.how-dots button').forEach(b => b.addEventListener('click', () => jump(+b.dataset.dot)));
+  showPhone(0);
+
+  // Parallaxe douce (souris sur desktop + défilement), seulement quand la section est visible
+  let pxRaf = 0, mx = 0, my = 0;
+  const paint = () => {
+    pxRaf = 0;
+    const r = howStage.getBoundingClientRect(), sy = Math.max(-1, Math.min(1, ((r.top + r.height / 2) - innerHeight / 2) / innerHeight));
+    howStage.style.setProperty('--mx', mx.toFixed(3)); howStage.style.setProperty('--my', my.toFixed(3)); howStage.style.setProperty('--sy', sy.toFixed(3));
+  };
+  const queue = () => { if (!pxRaf && howEl.classList.contains('inview')) pxRaf = requestAnimationFrame(paint); };
+  if (!reduceMotion) {
+    addEventListener('scroll', queue, { passive: true });
+    if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      howEl.addEventListener('pointermove', e => {
+        const r = howStage.getBoundingClientRect();
+        mx = Math.max(-1, Math.min(1, (e.clientX - r.left - r.width / 2) / (r.width / 2))) * (document.dir === 'rtl' ? -1 : 1);
+        my = Math.max(-1, Math.min(1, (e.clientY - r.top - r.height / 2) / (r.height / 2)));
+        queue();
+      });
+      howEl.addEventListener('pointerleave', () => { mx = 0; my = 0; queue(); });
+    }
+  }
+  // Hors écran : boucle et animations en pause (classe .inview sur la section)
+  if ('IntersectionObserver' in window) new IntersectionObserver(([e]) => {
+    howEl.classList.toggle('inview', e.isIntersecting);
+    if (e.isIntersecting) { runPhone(); queue(); } else clearInterval(phoneTimer);
+  }, { rootMargin: '80px 0px' }).observe(howEl);
+  else { howEl.classList.add('inview'); runPhone(); }
 
 
   // Barre fine et bouton WhatsApp après le hero
