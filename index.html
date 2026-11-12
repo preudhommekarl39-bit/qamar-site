@@ -673,6 +673,21 @@
   .tile.perfume.has-shot h3 { color: var(--ink); } .tile.perfume.has-shot .k { color: var(--rose-deep); }
   .tile.has-shot p { color: var(--ink-2); max-width: 36ch; }
   html[dir="rtl"] .tile.has-shot .shot { transform: scaleX(-1); }
+
+  .tile-look .art.photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .tile-look .club-hint { display: block; font-size: .75rem; font-weight: 600; color: var(--rose-deep); margin-top: 2px; }
+  /* Comparatif des abonnements : sur téléphone, une ligne = un bloc, sans défilement horizontal */
+  @media (max-width: 760px) {
+    .club-compare table { min-width: 0; }
+    .club-compare thead { display: none; }
+    .club-compare tr { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px 6px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .club-compare td { border: 0; padding: 0; font-size: .82rem; }
+    .club-compare td:first-child { grid-column: 1 / -1; font-weight: 600; font-size: .95rem; margin-bottom: 4px; }
+    .club-compare td[data-l]::before { content: attr(data-l); display: block; font-size: .68rem; font-weight: 500; color: var(--ink-3); margin-bottom: 2px; }
+  }
+  .tier .visit { margin: 6px 0 0; padding: 10px 12px; border-radius: 14px; background: #FBEFF2; font-size: .92rem; color: var(--ink); }
+  .tier .visit b { color: var(--rose-deep); }
+  .tier .visit s { color: var(--ink-3); }
 </style>
 </head>
 <body>
@@ -1269,11 +1284,11 @@
     document.getElementById('looksGrid').innerHTML = D.services.map(s => {
       const q = Q.quote(s.id);
       return `<a class="tile-look" href="queue.html?look=${s.id}" ${matches(s) ? '' : 'hidden'}>
-        <span class="meta">${q.duration} ${Q.t('min')}${q.promo ? ` · −${q.promo.pct}%` : ''}${s.fromHour ? ` · ${Q.t('n1w')}` : ''}</span>
+        <span class="meta">${q.duration} ${Q.t('min')}${s.fromHour ? ` · ${Q.t('n1w')}` : ''}</span>
         <h3>${Q.esc(Q.L(s.look))}</h3>
         <p>${Q.esc(Q.L(s.desc))}</p>
-        <div class="art" style="background:radial-gradient(130% 90% at 50% 0%, ${s.tone[0]}, ${s.tone[1]})"><canvas class="look-canvas" data-look="${s.id}" aria-hidden="true"></canvas></div>
-        <div class="foot"><span class="price">${q.discount ? `<s>${q.base}</s> ` : ''}${q.total} AED</span><span class="plus" aria-hidden="true">+</span></div>
+        <div class="art${s.img ? ' photo' : ''}" style="background:radial-gradient(130% 90% at 50% 0%, ${s.tone[0]}, ${s.tone[1]})">${s.img ? `<img src="${s.img}" alt="${Q.esc(Q.L(s.look))}" loading="lazy" decoding="async" width="896" height="1152">` : `<canvas class="look-canvas" data-look="${s.id}" aria-hidden="true"></canvas>`}</div>
+        <div class="foot"><span class="price">${q.base} AED${['blowdry', 'night'].includes(s.cat) ? `<small class="club-hint">${Q.L({ en: 'Included in the Club', ar: 'مشمول في النادي' })}</small>` : ''}</span><span class="plus" aria-hidden="true">+</span></div>
       </a>`;
     }).join('');
   }
@@ -1293,13 +1308,15 @@
     const C = D.club, last = Math.ceil(C.floorPct / C.dropPct) + 1;
     const X = id => D.extras.find(x => x.id === id), glow = D.services.find(s => s.id === 'glow').price;
     const ritualValue = D.ritual.includes.reduce((n, id) => n + X(id).price, 0);
+    // ce que coûte une visite équivalente à l'unité : brushing Glow + chaque extra offert dans la formule
+    const single = t => glow + ritualValue + (t.id !== 'crescent' ? X('matcha').price - X('coffee').price + X('touchup').price : 0);
     document.getElementById('clubTiers').innerHTML = C.tiers.map(t => {
       const value = t.visits * (glow + ritualValue);
       return `<div class="tier reveal in${t.popular ? ' pop' : ''}">${t.popular ? `<span class="badge">${Q.L({ en: 'Most chosen', ar: 'الأكثر اختياراً' })}</span>` : ''}
         <h3>${Q.esc(Q.L(t.name))}</h3><p class="per">${Q.esc(Q.L(t.per))}</p>
         <p class="price">${aed(t.price)} <small>${Q.L({ en: '/ month', ar: 'شهرياً' })}</small></p>
         <p class="later">${Q.L({ en: `${aed(clubPrice(t.price, last))} from month ${last}`, ar: `${aed(clubPrice(t.price, last))} ابتداءً من الشهر ${num(last)}` })}</p>
-        <p class="value">${t.visits ? Q.L({ en: `Worth over ${aed(value)} in single visits`, ar: `قيمتها أكثر من ${aed(value)} بالزيارات المنفردة` }) : ''}</p>
+        <p class="visit">${Q.L({ en: `<b>${aed(Math.round(t.price / t.visits))}</b> per visit, everything included <s>${aed(single(t))}</s>`, ar: `<b>${aed(Math.round(t.price / t.visits))}</b> للزيارة، كل شيء مشمول <s>${aed(single(t))}</s>` })}</p>
         <ul class="gifts">${t.gifts.map(p => `<li>${Q.esc(Q.L(p))}</li>`).join('')}</ul>
         <ul>${C.perks.map(p => `<li>${Q.esc(Q.L(p))}</li>`).join('')}</ul></div>`;
     }).join('');
@@ -1307,12 +1324,13 @@
     document.querySelectorAll('#clubPick button').forEach(b => b.onclick = () => { clubTier = b.dataset.tier; renderClub(); });
     const t = C.tiers.find(x => x.id === clubTier), months = Array.from({ length: 12 }, (_, i) => i + 1);
     document.getElementById('clubBars').innerHTML = months.map(m => { const v = clubPrice(t.price, m); return `<div class="b"><span class="v">${num(v)}</span><span class="bar" style="height:${Math.round(18 + (v - t.price * .65) / (t.price * .35) * 82)}%"></span><span class="m">${Q.L({ en: 'M' + m, ar: 'ش' + num(m) })}</span></div>`; }).join('');
-    const yes = Q.L({ en: 'Free', ar: 'مجاناً' }), cell = v => v === true ? `<td class="y">${yes}</td>` : v ? `<td class="y">${Q.esc(Q.L(v))}</td>` : '<td>—</td>';
+    const yes = Q.L({ en: 'Free', ar: 'مجاناً' }), L0 = Q.L({ en: 'Single visit', ar: 'زيارة واحدة' }), Ln = C.tiers.map(t => Q.esc(Q.L(t.name)));
+    const cell = (v, i) => v === true ? `<td class="y" data-l="${Ln[i]}">${yes}</td>` : v ? `<td class="y" data-l="${Ln[i]}">${Q.esc(Q.L(v))}</td>` : `<td data-l="${Ln[i]}">—</td>`;
     document.getElementById('clubHead').innerHTML = `<tr><th></th><th>${Q.L({ en: 'Single visit', ar: 'زيارة واحدة' })}</th>${C.tiers.map(t => `<th>${Q.esc(Q.L(t.name))}</th>`).join('')}</tr>`;
-    document.getElementById('clubCompare').innerHTML = `<tr><td>${Q.L({ en: 'Blow-dry', ar: 'السشوار' })}</td><td>${Q.L({ en: 'Menu price', ar: 'سعر القائمة' })}</td>${C.tiers.map(t => `<td class="y">${Q.esc(Q.L(t.per))}</td>`).join('')}</tr>`
-      + C.compare.map(([id, ...v]) => `<tr><td>${Q.esc(Q.L(X(id).name))}</td><td>+${num(X(id).price)} ${Q.L({ en: 'AED', ar: 'درهماً' })}</td>${v.map(cell).join('')}</tr>`).join('')
-      + `<tr><td>${Q.L({ en: 'Queue', ar: 'الطابور' })}</td><td>${Q.L({ en: 'Standard', ar: 'عادي' })}</td>${C.tiers.map(() => `<td class="y">${Q.L({ en: 'Members’ lane', ar: 'مسار العضوات' })}</td>`).join('')}</tr>`
-      + `<tr><td>${Q.L({ en: 'Price over time', ar: 'السعر مع الوقت' })}</td><td>${Q.L({ en: 'Same', ar: 'ثابت' })}</td>${C.tiers.map(() => `<td class="y">${Q.L({ en: `Down to −${C.floorPct}%`, ar: `حتى −${num(C.floorPct)}٪` })}</td>`).join('')}</tr>`;
+    document.getElementById('clubCompare').innerHTML = `<tr><td>${Q.L({ en: 'Blow-dry', ar: 'السشوار' })}</td><td data-l="${L0}">${Q.L({ en: 'Menu price', ar: 'سعر القائمة' })}</td>${C.tiers.map((t, i) => `<td class="y" data-l="${Ln[i]}">${Q.esc(Q.L(t.per))}</td>`).join('')}</tr>`
+      + C.compare.map(([id, ...v]) => `<tr><td>${Q.esc(Q.L(X(id).name))}</td><td data-l="${L0}">+${num(X(id).price)} ${Q.L({ en: 'AED', ar: 'درهماً' })}</td>${v.map(cell).join('')}</tr>`).join('')
+      + `<tr><td>${Q.L({ en: 'Queue', ar: 'الطابور' })}</td><td data-l="${L0}">${Q.L({ en: 'Standard', ar: 'عادي' })}</td>${C.tiers.map((t, i) => `<td class="y" data-l="${Ln[i]}">${Q.L({ en: 'Members’ lane', ar: 'مسار العضوات' })}</td>`).join('')}</tr>`
+      + `<tr><td>${Q.L({ en: 'Price over time', ar: 'السعر مع الوقت' })}</td><td data-l="${L0}">${Q.L({ en: 'Same', ar: 'ثابت' })}</td>${C.tiers.map((t, i) => `<td class="y" data-l="${Ln[i]}">${Q.L({ en: `Down to −${C.floorPct}%`, ar: `حتى −${num(C.floorPct)}٪` })}</td>`).join('')}</tr>`;
     document.getElementById('clubFounding').innerHTML = Q.L({ en: `<b>Founding members:</b> the first ${C.founding.count} start directly at the month-${C.founding.startMonth} price. ${C.minMonths}-month minimum, then cancel anytime.`, ar: `<b>العضوات المؤسِّسات:</b> أول ${num(C.founding.count)} عضوة يبدأن مباشرة بسعر الشهر ${num(C.founding.startMonth)}. الحد الأدنى ${num(C.minMonths)} أشهر، ثم يمكنكِ الإلغاء في أي وقت.` });
   }
 
