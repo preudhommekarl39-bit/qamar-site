@@ -700,6 +700,13 @@
   #sigTag { font-family: var(--helv); font-size: 34px; letter-spacing: .6em; fill: var(--ink-2); opacity: 0; transition: opacity .9s ease .1s, letter-spacing 1.4s cubic-bezier(.2, .8, .2, 1); }
   .sig.done #sigTag { opacity: 1; letter-spacing: .38em; }
   @media (max-width: 700px) { .sig { min-height: 52vh; } }
+
+  .tile.w2.has-shot { min-height: 540px; }
+  .tile.has-shot.wide { min-height: 460px; }
+  .tile.has-shot.wide .shot { top: 0; left: auto; right: 0; width: 62%; height: 100%; object-position: 70% 55%; -webkit-mask-image: linear-gradient(90deg, transparent, #000 26%); mask-image: linear-gradient(90deg, transparent, #000 26%); }
+  .tile.has-shot.wide h3, .tile.has-shot.wide p { max-width: 36%; }
+  html[dir="rtl"] .tile.has-shot.wide .shot { right: auto; left: 0; -webkit-mask-image: linear-gradient(270deg, transparent, #000 26%); mask-image: linear-gradient(270deg, transparent, #000 26%); }
+  @media (max-width: 980px) { .tile.has-shot.wide { min-height: 600px; } .tile.has-shot.wide .shot { top: auto; width: 100%; height: 60%; -webkit-mask-image: linear-gradient(180deg, transparent, #000 24%); mask-image: linear-gradient(180deg, transparent, #000 24%); } .tile.has-shot.wide h3, .tile.has-shot.wide p { max-width: none; } }
 </style>
 </head>
 <body>
@@ -1000,20 +1007,20 @@
         <p data-i18n="r1p">Matcha latte, iced or strawberry matcha, cappuccino, Arabic coffee with dates, karak tea, fresh mint lemonade, fresh orange juice. While you wait, or in the chair.</p>
       </div>
       <div class="tile w3 perfume has-shot reveal">
-        <img class="shot" src="assets/img/ritual-perfume.webp" alt="Miniature QAMAR team spraying and testing oud, rose and musk perfumes on a marble tray" width="1200" height="800" loading="lazy" decoding="async">
+        <img class="shot" src="assets/img/ritual-perfume.webp" alt="Miniature QAMAR team spraying hair perfume on a lock of hair and testing oud, rose and musk" width="1200" height="800" loading="lazy" decoding="async">
         <span class="k" data-i18n="r3k">Perfume bar</span>
         <h3 data-i18n="r3t">Oud. Rose. Musk.</h3>
         <p data-i18n="r3p">Every look ends with a hair perfume you choose.</p>
       </div>
-      <div class="tile w6 photo reveal">
-        <span class="k" data-i18n="r4k">Infinity mirror room</span>
-        <h3 data-i18n="r4t">See yourself, infinitely.</h3>
-        <p data-i18n="r4p">A tunnel of glowing arches, an infinity mirror room, a flower ceiling and a photobooth that sends the shot straight to your phone.</p>
-        <canvas class="scene" data-scene="mirror" aria-hidden="true"></canvas>
+      <div class="tile w6 shower has-shot wide reveal">
+        <img class="shot" src="assets/img/ritual-shower.webp" alt="Miniature QAMAR team preparing a private marble shower with fluffy towels" width="1200" height="800" loading="lazy" decoding="async">
+        <span class="k" data-i18n="r4k">Private shower</span>
+        <h3 data-i18n="r4t">Your own shower.</h3>
+        <p data-i18n="r4p">Marble, rainfall shower, fluffy towels and products. While you shower, we steam and perfume your outfit.</p>
       </div>
-      <div class="tile w2 wash reveal"><canvas class="scene" data-scene="wash" aria-hidden="true"></canvas><span class="k" data-i18n="r2k">Wash lounge</span><h3 data-i18n="r2t">Look up. Breathe.</h3><p data-i18n="r2p">Velvet chairs, filtered water, a warm towel.</p></div>
-      <div class="tile w2 hijab reveal"><canvas class="scene" data-scene="hijab" aria-hidden="true"></canvas><span class="k" data-i18n="r6k">Hijab bar</span><h3 data-i18n="r6t">Steamed while you wait.</h3><p data-i18n="r6p">Pins and accessories to shop, a magnet to keep.</p></div>
-      <div class="tile w2 prayer reveal"><canvas class="scene" data-scene="prayer" aria-hidden="true"></canvas><span class="k" data-i18n="r5k">Prayer room</span><h3 data-i18n="r5t">A quiet place.</h3><p data-i18n="r5p">Prayer mats, qibla direction and a mirror.</p></div>
+      <div class="tile w2 wash has-shot reveal"><img class="shot" src="assets/img/ritual-wash.webp" alt="Miniature QAMAR team washing hair at a velvet basin" width="1200" height="800" loading="lazy" decoding="async"><span class="k" data-i18n="r2k">Wash lounge</span><h3 data-i18n="r2t">Look up. Breathe.</h3><p data-i18n="r2p">Velvet chairs, filtered water, a warm towel.</p></div>
+      <div class="tile w2 hijab has-shot reveal"><img class="shot" src="assets/img/ritual-hijab.webp" alt="Miniature QAMAR team steaming a blush hijab and folding an abaya" width="1200" height="800" loading="lazy" decoding="async"><span class="k" data-i18n="r6k">Hijab bar</span><h3 data-i18n="r6t">Steamed while you wait.</h3><p data-i18n="r6p">Pins and accessories to shop, a magnet to keep.</p></div>
+      <div class="tile w2 prayer has-shot reveal"><img class="shot" src="assets/img/ritual-prayer.webp" alt="A calm prayer room with aligned prayer rugs, prepared by the miniature QAMAR team" width="1200" height="800" loading="lazy" decoding="async"><span class="k" data-i18n="r5k">Prayer room</span><h3 data-i18n="r5t">A quiet place.</h3><p data-i18n="r5p">Prayer mats, qibla direction and a mirror.</p></div>
     </div>
   </div>
 </section>
@@ -1259,7 +1266,7 @@
     r1k: { en: 'Drinks bar', ar: 'بار المشروبات' }, r1t: { en: 'Something for every mood.', ar: 'لكل مزاج مشروبه.' }, r1p: { en: 'Matcha latte, iced or strawberry matcha, cappuccino, Arabic coffee with dates, karak tea, fresh mint lemonade, fresh orange juice. While you wait, or in the chair.', ar: 'ماتشا لاتيه، ماتشا مثلّجة أو بالفراولة، كابتشينو، قهوة عربية مع التمر، شاي كرك، ليمون بالنعناع، عصير برتقال طازج. أثناء الانتظار أو على الكرسي.' },
     r3k: { en: 'Perfume bar', ar: 'بار العطور' }, r3t: { en: 'Oud. Rose. Musk.', ar: 'عود. ورد. مسك.' }, r3p: { en: 'Every look ends with a hair perfume you choose.', ar: 'كل إطلالة تنتهي بعطر شعر تختارينه.' },
     c_oud: { en: 'Oud', ar: 'عود' }, c_rose: { en: 'Rose', ar: 'ورد' }, c_musk2: { en: 'Musk', ar: 'مسك' },
-    r4k: { en: 'Infinity mirror room', ar: 'غرفة المرآة اللانهائية' }, r4t: { en: 'See yourself, infinitely.', ar: 'انعكاسكِ… بلا نهاية.' }, r4p: { en: 'Step into our mirror room: glowing arches that go on forever, a neon moon in every reflection, and a photobooth that sends the shot straight to your phone.', ar: 'ادخلي غرفة المرايا: أقواس مضيئة بلا نهاية، قمر نيون في كل انعكاس، وكابينة تصوير ترسل الصورة إلى هاتفك.' },
+    r4k: { en: 'Private shower', ar: 'دشّ خاص' }, r4t: { en: 'Your own shower.', ar: 'دشّكِ الخاص.' }, r4p: { en: 'Marble, rainfall shower, fluffy towels and products. While you shower, we steam and perfume your outfit.', ar: 'رخام، دشّ مطري، مناشف ناعمة ومستحضرات. وأثناء الدشّ نكوي ملابسكِ بالبخار ونعطّرها.' },
     r2k: { en: 'Wash lounge', ar: 'ركن غسل الشعر' }, r2t: { en: 'Look up. Breathe.', ar: 'انظري للأعلى. تنفّسي.' }, r2p: { en: 'Velvet chairs, filtered water, a warm towel.', ar: 'كراسٍ مخملية، ماء مفلتر، منشفة دافئة.' },
     r6k: { en: 'Hijab bar', ar: 'ركن الحجاب' }, r6t: { en: 'Steamed while you wait.', ar: 'شيلتكِ تُكوى أثناء انتظاركِ.' }, r6p: { en: 'Pins and accessories to shop, a magnet to keep.', ar: 'دبابيس وإكسسوارات للتسوق، ومغناطيس هدية.' },
     r5k: { en: 'Prayer room', ar: 'غرفة الصلاة' }, r5t: { en: 'A quiet place.', ar: 'مكان هادئ.' }, r5p: { en: 'Prayer mats, qibla direction and a mirror.', ar: 'سجادات صلاة، اتجاه القبلة ومرآة.' },
