@@ -17,16 +17,16 @@ window.QAMAR_DATA = {
 
   // look = nom signature affiché aux clientes, name = nom de la prestation
   services: [
-    { id: 'express', art: 'bouncy', cat: 'blowdry', look: { en: 'Qamar Express', ar: 'قمر إكسبريس' }, name: { en: 'Express Blow-Dry', ar: 'سشوار سريع' }, desc: { en: 'Smooth, bouncy, done in 35 minutes — or it is on us.', ar: 'ناعم ومنسدل، جاهز خلال ٣٥ دقيقة — أو مجاناً.' }, duration: 35, price: 129, tone: ['#F6D9D2', '#E7B8A8'] },
-    { id: 'glow', art: 'glow', cat: 'blowdry', look: { en: 'Qamar Glow', ar: 'لمعة قمر' }, name: { en: 'Glow Blow-Dry', ar: 'سشوار اللمعان' }, desc: { en: 'Our signature: mirror shine, airy volume, soft ends.', ar: 'توقيعنا: لمعان كالمرآة وحجم خفيف وأطراف ناعمة.' }, duration: 40, price: 169, tone: ['#F3E2D3', '#D9B48C'] },
-    { id: 'waves', art: 'waves', cat: 'blowdry', look: { en: 'Marina Waves', ar: 'أمواج المارينا' }, name: { en: 'Waves / Hollywood Curls', ar: 'تموجات / كيرلي هوليوود' }, desc: { en: 'Loose beach waves or glam Hollywood curls.', ar: 'تموجات شاطئية ناعمة أو كيرلي هوليوود الفاخر.' }, duration: 45, price: 189, tone: ['#F4D6CF', '#C9917E'] },
-    { id: 'sleek', art: 'straight', cat: 'blowdry', look: { en: 'Midnight Sleek', ar: 'ميدنايت سليك' }, name: { en: 'Sleek Straight', ar: 'فرد ناعم' }, desc: { en: 'Glass-straight, ultra glossy, humidity-proof.', ar: 'فرد كالزجاج، لمعان فائق، مقاوم للرطوبة.' }, duration: 40, price: 159, tone: ['#E9D3D0', '#8E6A6A'] },
-    { id: 'night', art: 'night', cat: 'night', look: { en: 'Night Glow', ar: 'توهّج الليل' }, name: { en: 'Blow-dry of your choice + free matcha', ar: 'سشوار من اختيارك + ماتشا مجانية' }, desc: { en: '8 PM – midnight only. Any blow-dry + a matcha on us.', ar: 'من ٨ مساءً حتى منتصف الليل فقط. أي سشوار + ماتشا مجانية.' }, duration: 45, price: 179, freeMatcha: true, fromHour: 20, tone: ['#3A2630', '#C49A5A'] },
+    { id: 'express', art: 'bouncy', cat: 'blowdry', look: { en: 'Qamar Express', ar: 'قمر إكسبريس' }, name: { en: 'Express Blow-Dry', ar: 'سشوار سريع' }, desc: { en: 'Smooth, bouncy, done in 35 minutes — or it is on us.', ar: 'ناعم ومنسدل، جاهز خلال ٣٥ دقيقة — أو مجاناً.' }, duration: 35, price: 139, tone: ['#F6D9D2', '#E7B8A8'] },
+    { id: 'glow', art: 'glow', cat: 'blowdry', look: { en: 'Qamar Glow', ar: 'لمعة قمر' }, name: { en: 'Glow Blow-Dry', ar: 'سشوار اللمعان' }, desc: { en: 'Our signature: mirror shine, airy volume, soft ends.', ar: 'توقيعنا: لمعان كالمرآة وحجم خفيف وأطراف ناعمة.' }, duration: 40, price: 179, tone: ['#F3E2D3', '#D9B48C'] },
+    { id: 'waves', art: 'waves', cat: 'blowdry', look: { en: 'Marina Waves', ar: 'أمواج المارينا' }, name: { en: 'Waves / Hollywood Curls', ar: 'تموجات / كيرلي هوليوود' }, desc: { en: 'Loose beach waves or glam Hollywood curls.', ar: 'تموجات شاطئية ناعمة أو كيرلي هوليوود الفاخر.' }, duration: 45, price: 199, tone: ['#F4D6CF', '#C9917E'] },
+    { id: 'sleek', art: 'straight', cat: 'blowdry', look: { en: 'Midnight Sleek', ar: 'ميدنايت سليك' }, name: { en: 'Sleek Straight', ar: 'فرد ناعم' }, desc: { en: 'Glass-straight, ultra glossy, humidity-proof.', ar: 'فرد كالزجاج، لمعان فائق، مقاوم للرطوبة.' }, duration: 40, price: 169, tone: ['#E9D3D0', '#8E6A6A'] },
+    { id: 'night', art: 'night', cat: 'night', look: { en: 'Night Glow', ar: 'توهّج الليل' }, name: { en: 'Blow-dry of your choice + free matcha', ar: 'سشوار من اختيارك + ماتشا مجانية' }, desc: { en: '8 PM – midnight only. Any blow-dry + a matcha on us.', ar: 'من ٨ مساءً حتى منتصف الليل فقط. أي سشوار + ماتشا مجانية.' }, duration: 45, price: 189, freeMatcha: true, fromHour: 20, tone: ['#3A2630', '#C49A5A'] },
     { id: 'sos', art: 'braid', cat: 'sos', look: { en: 'SOS 15', ar: 'إس أو إس ١٥' }, name: { en: 'Fringe, sleek ponytail or quick braid', ar: 'غرّة أو ذيل حصان ناعم أو ضفيرة سريعة' }, desc: { en: 'Late for dinner or a meeting? 15 minutes flat.', ar: 'مستعجلة لعشاء أو اجتماع؟ ١٥ دقيقة فقط.' }, duration: 15, price: 69, tone: ['#F7E4DC', '#E2A48E'] },
     { id: 'care', art: 'drops', cat: 'care', look: { en: 'Moon Ritual', ar: 'طقوس القمر' }, name: { en: 'Shampoo & Care Ritual', ar: 'غسل الشعر وطقوس العناية' }, desc: { en: 'Velvet wash chair, warm towel, mask and steam.', ar: 'كرسي غسل الشعر مخملي، منشفة دافئة، ماسك وبخار.' }, duration: 30, price: 149, tone: ['#F1E6DE', '#B9A08A'] },
-    { id: 'cut', art: 'cut', cat: 'colour', look: { en: 'Cut & Glow', ar: 'قص ولمعان' }, name: { en: 'Cut + Blow-Dry', ar: 'قص + سشوار' }, desc: { en: 'A fresh shape, finished with a glow blow-dry.', ar: 'قصة جديدة مع سشوار لامع.' }, duration: 45, price: 249, tone: ['#EFD5CC', '#A97964'] },
-    { id: 'root', art: 'root', cat: 'colour', look: { en: 'Root & Glow', ar: 'جذور ولمعان' }, name: { en: 'Root Touch-Up + Blow-Dry', ar: 'صبغة الجذور + سشوار' }, desc: { en: 'Seamless roots, then the full glow finish.', ar: 'جذور متناسقة ثم لمسة اللمعان الكاملة.' }, duration: 45, price: 349, tone: ['#EAD0C4', '#7F5444'] },
-    { id: 'mini', art: 'mini', cat: 'kids', look: { en: 'Mini Glow', ar: 'ميني جلو' }, name: { en: 'Mini blow-dry or braids (kids)', ar: 'سشوار أو ضفائر للصغيرات' }, desc: { en: 'For little princesses: mini blow-dry or braids.', ar: 'للأميرات الصغيرات: سشوار خفيف أو ضفائر.' }, duration: 25, price: 79, tone: ['#FBE3E0', '#E9A9A0'] }
+    { id: 'cut', art: 'cut', cat: 'colour', look: { en: 'Cut & Glow', ar: 'قص ولمعان' }, name: { en: 'Cut + Blow-Dry', ar: 'قص + سشوار' }, desc: { en: 'A fresh shape, finished with a glow blow-dry.', ar: 'قصة جديدة مع سشوار لامع.' }, duration: 45, price: 279, tone: ['#EFD5CC', '#A97964'] },
+    { id: 'root', art: 'root', cat: 'colour', look: { en: 'Root & Glow', ar: 'جذور ولمعان' }, name: { en: 'Root Touch-Up + Blow-Dry', ar: 'صبغة الجذور + سشوار' }, desc: { en: 'Seamless roots, then the full glow finish.', ar: 'جذور متناسقة ثم لمسة اللمعان الكاملة.' }, duration: 45, price: 379, tone: ['#EAD0C4', '#7F5444'] },
+    { id: 'mini', art: 'mini', cat: 'kids', look: { en: 'Mini Glow', ar: 'ميني جلو' }, name: { en: 'Mini blow-dry or braids (kids)', ar: 'سشوار أو ضفائر للصغيرات' }, desc: { en: 'For little princesses: mini blow-dry or braids.', ar: 'للأميرات الصغيرات: سشوار خفيف أو ضفائر.' }, duration: 25, price: 89, tone: ['#FBE3E0', '#E9A9A0'] }
   ],
 
   maxMinutes: 45, // aucune formule ne dépasse 45 min
@@ -74,17 +74,17 @@ window.QAMAR_DATA = {
   /* Club QAMAR (abonnements) — PROPOSITION du 12/11/2026, prix à valider par Karl avant l'ouverture.
      À l'unité on paie chaque extra ; les abonnées les ont offerts selon la formule. Le prix baisse chaque mois tant qu'on reste. */
   club: {
-    dropPct: 3,               // baisse du prix à chaque mois d'abonnement
-    floorPct: 30,             // baisse maximale (atteinte au 11e mois), ensuite le prix reste à ce niveau
+    dropPct: 2,               // baisse du prix à chaque mois d'abonnement
+    floorPct: 16,             // baisse maximale (atteinte au 9e mois), ensuite le prix reste à ce niveau — au-delà, plus rentable (voir note Obsidian)
     minMonths: 3,             // engagement minimum
     pauseMonths: 2,           // pause possible par an, le palier de prix est conservé
     founding: { count: 100, startMonth: 4 }, // 100 premières abonnées : démarrent directement au prix du 4e mois
     tiers: [
-      { id: 'crescent', name: { en: 'Crescent', ar: 'هلال' }, visits: 2, price: 249, per: { en: '2 blow-dries a month', ar: 'سشواران في الشهر' },
+      { id: 'crescent', name: { en: 'Crescent', ar: 'هلال' }, visits: 2, price: 329, per: { en: '2 blow-dries a month', ar: 'سشواران في الشهر' },
         gifts: [{ en: 'Private shower, every visit', ar: 'دشّ خاص في كل زيارة' }, { en: '1 piece steamed and perfumed', ar: 'قطعة واحدة بالبخار ومعطّرة' }, { en: 'Hair perfume', ar: 'عطر الشعر' }, { en: 'Coffee, tea or karak', ar: 'قهوة أو شاي أو كرك' }] },
-      { id: 'half', name: { en: 'Half Moon', ar: 'نصف القمر' }, visits: 4, price: 449, popular: true, per: { en: '1 blow-dry a week', ar: 'سشوار كل أسبوع' },
+      { id: 'half', name: { en: 'Half Moon', ar: 'نصف القمر' }, visits: 4, price: 599, popular: true, per: { en: '1 blow-dry a week', ar: 'سشوار كل أسبوع' },
         gifts: [{ en: 'Everything in Crescent', ar: 'كل ما في هلال' }, { en: 'All your pieces steamed and perfumed', ar: 'كل قطعكِ بالبخار ومعطّرة' }, { en: 'Matcha or fresh juice', ar: 'ماتشا أو عصير طازج' }, { en: 'Free touch-up within 48 hours', ar: 'لمسة مجانية خلال ٤٨ ساعة' }, { en: '1 express nails a month', ar: 'أظافر سريعة مرة في الشهر' }] },
-      { id: 'full', name: { en: 'Full Moon', ar: 'البدر' }, visits: 0, price: 799, per: { en: 'Unlimited, 1 a day', ar: 'بلا حدود، مرة في اليوم' },
+      { id: 'full', name: { en: 'Full Moon', ar: 'البدر' }, visits: 12, price: 1199, per: { en: 'Up to 3 blow-dries a week', ar: 'حتى ٣ سشوارات في الأسبوع' },
         gifts: [{ en: 'Everything in Half Moon', ar: 'كل ما في نصف القمر' }, { en: '2 express nails a month', ar: 'أظافر سريعة مرتين في الشهر' }, { en: 'Extra long hair at no charge', ar: 'الشعر الطويل بدون رسوم إضافية' }, { en: 'Birthday blow-dry for a friend', ar: 'سشوار عيد الميلاد لصديقتكِ' }] }
     ],
     perks: [
@@ -103,7 +103,7 @@ window.QAMAR_DATA = {
   },
 
   packages: [
-    { id: 'club', name: { en: 'QAMAR Club · from 249 AED / month', ar: 'نادي قمر · من ٢٤٩ درهماً شهرياً' }, price: '249 AED+', note: { en: 'Extras included, and the price goes down every month', ar: 'الإضافات مشمولة، والسعر ينخفض كل شهر' } },
+    { id: 'club', name: { en: 'QAMAR Club · from 329 AED / month', ar: 'نادي قمر · من ٣٢٩ درهماً شهرياً' }, price: '329 AED+', note: { en: 'Extras included, and the price goes down every month', ar: 'الإضافات مشمولة، والسعر ينخفض كل شهر' } },
     { id: 'squad', name: { en: 'Squad — 4 friends or more', ar: 'سكواد — ٤ صديقات أو أكثر' }, price: '−25%', note: { en: 'Each of you saves 25%', ar: 'خصم ٢٥٪ لكل واحدة منكن' } },
     { id: 'happy', name: { en: 'Happy Hours · 10 AM – 3 PM weekdays', ar: 'عروض الظهيرة · ١٠ص – ٣م أيام الأسبوع' }, price: '−20%', note: { en: 'Perfect for a lunch-break glow', ar: 'مثالي لاستراحة الغداء' } }
   ],
