@@ -589,8 +589,13 @@
   @media (min-width: 1024px) { .hcard { min-width: 260px; padding: 24px 24px 22px; } .hcard .num { font-size: 2.4rem; } }
   /* ---------- Film d'ouverture ---------- */
   .film-grid { display: grid; gap: 56px; align-items: center; }
-  @media (min-width: 900px) { .film-grid { grid-template-columns: 1fr auto; gap: 80px; } }
-  .film-frame { position: relative; width: min(360px, 82vw); aspect-ratio: 9 / 16; margin-inline: auto; border-radius: 28px; overflow: hidden; background: #2a1c18; box-shadow: 0 0 0 1px rgba(196, 154, 90, .55), 0 40px 80px -30px rgba(0, 0, 0, .7); }
+  @media (min-width: 900px) { .film-grid { grid-template-columns: 1fr auto; gap: 64px; } }
+  .film-reel { display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 2px 18px; margin-inline: -2px; scrollbar-width: none; }
+  .film-reel::-webkit-scrollbar { display: none; }
+  .film-item { flex: 0 0 auto; scroll-snap-align: center; margin: 0; }
+  .film-item figcaption { margin-top: 12px; text-align: center; font-size: .92rem; color: rgba(245, 236, 238, .62); }
+  @media (min-width: 900px) { .film-reel { overflow: visible; } }
+  .film-frame { position: relative; width: min(300px, 74vw); aspect-ratio: 9 / 16; border-radius: 28px; overflow: hidden; background: #2a1c18; box-shadow: 0 0 0 1px rgba(196, 154, 90, .55), 0 40px 80px -30px rgba(0, 0, 0, .7); }
   .film-frame video { display: block; width: 100%; height: 100%; object-fit: cover; }
   .film-sound { position: absolute; right: 12px; top: 12px; display: inline-flex; align-items: center; gap: 8px; padding: 8px 13px; border: 0; border-radius: 999px; background: rgba(18, 11, 15, .72); color: #FFF7F9; font: inherit; font-size: .9rem; cursor: pointer; }
   html[dir="rtl"] .film-sound { right: auto; left: 12px; }
@@ -721,13 +726,29 @@
       <p class="sub reveal" data-i18n="film_sub">Walk in, freshen up, get your blowdry and a matcha on us. Ready in 45 minutes.</p>
       <div class="actions"><a class="btn-a light" href="queue.html" data-track="join_queue_click" data-track-loc="film" data-i18n="cta_join">Join the queue</a></div>
     </div>
-    <div class="film-frame reveal">
-      <video id="filmVideo" src="assets/video/qamar-opening.mp4" poster="assets/video/qamar-opening-poster.jpg" muted loop playsinline preload="none" aria-label="QAMAR Blowdry Lounge, opening film"></video>
-      <button class="film-sound" id="filmSound" type="button" aria-pressed="false">
+    <div class="film-reel reveal">
+      <figure class="film-item">
+        <div class="film-frame">
+          <video src="assets/video/qamar-walk-in.mp4" poster="assets/video/qamar-walk-in-poster.jpg" muted loop playsinline preload="none" aria-label="QAMAR: walk in tired, walk out ready"></video>
+      <button class="film-sound" type="button" aria-pressed="false">
         <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="m23 9-6 6M17 9l6 6"/></svg>
         <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>
         <span data-i18n="film_sound">Tap for sound</span>
       </button>
+        </div>
+        <figcaption data-i18n="film_cap1">From work to dinner, in 45 min</figcaption>
+      </figure>
+      <figure class="film-item">
+        <div class="film-frame">
+          <video src="assets/video/qamar-opening.mp4" poster="assets/video/qamar-opening-poster.jpg" muted loop playsinline preload="none" aria-label="QAMAR Blowdry Lounge, opening film"></video>
+      <button class="film-sound" type="button" aria-pressed="false">
+        <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="m23 9-6 6M17 9l6 6"/></svg>
+        <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>
+        <span data-i18n="film_sound">Tap for sound</span>
+      </button>
+        </div>
+        <figcaption data-i18n="film_cap2">The QAMAR ritual</figcaption>
+      </figure>
     </div>
   </div>
 </section>
@@ -1068,7 +1089,7 @@
     min: { en: 'min', ar: 'د' }, walk_in: { en: 'Walk in', ar: 'ادخلي الآن' }, live_soon: { en: 'Opening soon', ar: 'قريباً' }, closed_now: { en: 'Closed now', ar: 'مغلق الآن' },
     announce: { en: '<span class="tag">Grand opening</span>The first 30 guests get <b>−70%</b>, everyone else <b>−50%</b> all day.', ar: '<span class="tag">الافتتاح الكبير</span>أول ٣٠ ضيفة <b>خصم ٧٠٪</b>، وباقي اليوم <b>خصم ٥٠٪</b>.' },
     film_kicker: { en: 'Opening March 2027', ar: 'الافتتاح في مارس ٢٠٢٧' }, film_t1: { en: 'Your night', ar: 'ليلتكِ' }, film_t2: { en: 'starts here.', ar: 'تبدأ هنا.' },
-    film_sub: { en: 'Walk in, freshen up, get your blowdry and a matcha on us. Ready in 45 minutes.', ar: 'ادخلي، انتعشي، سشوار وماتشا على حسابنا. جاهزة خلال ٤٥ دقيقة.' }, film_sound: { en: 'Tap for sound', ar: 'اضغطي للصوت' },
+    film_sub: { en: 'Walk in, freshen up, get your blowdry and a matcha on us. Ready in 45 minutes.', ar: 'ادخلي، انتعشي، سشوار وماتشا على حسابنا. جاهزة خلال ٤٥ دقيقة.' }, film_sound: { en: 'Tap for sound', ar: 'اضغطي للصوت' }, film_cap1: { en: 'From work to dinner, in 45 min', ar: 'من العمل إلى العشاء، في ٤٥ دقيقة' }, film_cap2: { en: 'The QAMAR ritual', ar: 'طقوس قمر' },
     m_kicker: { en: 'Blowdry, reinvented', ar: 'السشوار، بشكل جديد' }, m_t1: { en: 'No appointment.', ar: 'بدون موعد.' }, m_t2: { en: 'Ever.', ar: 'أبداً.' },
     m_sub: { en: 'Come whenever you want, from 8 AM to midnight. We call you the moment your chair is ready.', ar: 'تعالي متى شئتِ، من ٨ صباحاً حتى منتصف الليل. نناديكِ لحظة جاهزية كرسيك.' },
     p2b: { en: '35 min', ar: '٣٥ د' }, p2: { en: 'or your express blow-dry is free', ar: 'أو السشوار السريع مجاني' },
@@ -1371,19 +1392,26 @@
 <script src="assets/app.js"></script>
 <script src="assets/track.js"></script>
 <script>
-/* Film d'ouverture : lecture muette seulement quand il est visible, bouton pour le son */
+/* Films : lecture muette quand visibles, une seule vidéo à la fois, bouton pour le son */
 (() => {
-  const v = document.getElementById('filmVideo'), b = document.getElementById('filmSound');
-  if (!v || !b) return;
+  const items = [...document.querySelectorAll('.film-frame')].map(f => ({ v: f.querySelector('video'), b: f.querySelector('.film-sound') })).filter(x => x.v && x.b);
+  if (!items.length) return;
   const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (still) v.controls = true;
-  if ('IntersectionObserver' in window && !still) {
-    new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }), { threshold: 0.35 }).observe(v);
-  }
-  b.addEventListener('click', () => {
-    v.muted = !v.muted; b.setAttribute('aria-pressed', String(!v.muted));
-    if (!v.muted) { v.currentTime = 0; v.play().catch(() => {}); }
+  const vis = new Set();
+  const others = v => items.forEach(x => { if (x.v !== v) { x.v.pause(); x.v.muted = true; x.b.setAttribute('aria-pressed', 'false'); } });
+  const pick = () => { const cur = items.find(x => !x.v.paused); if (cur && vis.has(cur.v)) return; const nx = items.find(x => vis.has(x.v)); if (nx) { others(nx.v); nx.v.play().catch(() => {}); } };
+  items.forEach(({ v, b }) => {
+    if (still) v.controls = true;
+    b.addEventListener('click', () => {
+      const on = v.muted || v.paused;
+      others(v); v.muted = !on; b.setAttribute('aria-pressed', String(on));
+      if (on) { v.currentTime = 0; v.play().catch(() => {}); }
+    });
   });
+  if ('IntersectionObserver' in window && !still) {
+    const io = new IntersectionObserver(es => { es.forEach(e => { if (e.isIntersecting) vis.add(e.target); else { vis.delete(e.target); e.target.pause(); e.target.muted = true; const it = items.find(x => x.v === e.target); if (it) it.b.setAttribute('aria-pressed', 'false'); } }); pick(); }, { threshold: 0.5 });
+    items.forEach(x => io.observe(x.v));
+  }
 })();
 </script>
 </body>
