@@ -47,6 +47,11 @@ window.QAMAR_DATA = {
     // Carte 4 brushings, abonnement, anniversaire et parrainage : appliqués manuellement en caisse
     // tant que les règles (justificatifs, plafonds, durée de validité) ne sont pas validées. Voir AUDIT.md.
   },
+  /* Codes promo saisis par la cliente sur la page file d'attente (vide pour l'instant).
+     Forme : { code: 'GLOW10', pct: 10, label: { en: 'Glow code', ar: 'كود جلو' }, validUntil: '2027-04-30', minPeople: 1 }
+     code insensible à la casse ; validUntil inclus (date de Dubaï, facultatif) ; minPeople = taille de groupe minimale (facultatif).
+     Le code concourt avec lancement / happy hours / Squad : chaque personne garde la meilleure remise, jamais cumulée. */
+  promoCodes: [],
   guarantee: { serviceIds: ['express'], minutes: 35 }, // mesuré entre « début de prestation » et « fin de prestation », hors attente
   limits: { nameMax: 40, commentMax: 500, tipMaxPct: 100, tipMaxAed: 500 },
 

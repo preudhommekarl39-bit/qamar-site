@@ -126,6 +126,16 @@
   .party { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #fff; border-radius: 16px; padding: 10px 10px 10px 16px; margin-bottom: 12px; }
   html[dir="rtl"] .party { padding: 10px 16px 10px 10px; }
   .party small { display: block; color: var(--muted); font-size: .8rem; }
+  .promo { margin: -6px 0 18px; }
+  .promo summary { min-height: 44px; display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--cocoa); font-weight: 500; list-style: none; -webkit-tap-highlight-color: transparent; }
+  .promo summary::-webkit-details-marker { display: none; }
+  .promo summary::after { content: '+'; margin-inline-start: auto; font-size: 1.3rem; color: var(--muted); }
+  .promo[open] summary::after { content: '−'; }
+  .promo-row { display: flex; gap: 8px; }
+  .promo-row .input { flex: 1; min-width: 0; min-height: 48px; font-size: 16px; text-transform: uppercase; letter-spacing: .04em; }
+  .promo-row .btn { flex: none; min-height: 48px; min-width: 88px; padding-inline: 18px; }
+  .promo-msg { display: block; min-height: 1.2em; margin-top: 6px; font-size: .86rem; color: var(--muted); }
+  .promo-msg.bad { color: var(--bad); } .promo-msg.good { color: var(--ok); }
   .stepper { display: flex; align-items: center; gap: 4px; flex: none; }
   .stepper button { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--line); background: #fff; font-size: 1.35rem; line-height: 1; color: var(--cocoa); display: grid; place-items: center; }
   .stepper button[disabled] { opacity: .35; }
@@ -189,6 +199,9 @@
       <h1 data-i18n="s3_title">Almost there</h1>
       <p class="sub" data-i18n="s3_sub">We'll message you on WhatsApp when it's your turn.</p>
       <div class="summary" id="summary"></div>
+      <details class="promo" id="promoBox"><summary data-i18n="promo_q">Have a promo code?</summary>
+        <div class="promo-row"><input class="input" id="promoIn" maxlength="24" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Promo code"><button type="button" class="btn btn-light" id="promoBtn" data-i18n="promo_apply">Apply</button></div>
+        <small class="promo-msg" id="promoMsg" aria-live="polite"></small></details>
       <form id="joinForm">
         <div class="field"><label for="fname" data-i18n="f_name">First name</label><input class="input" id="fname" name="name" required autocomplete="given-name" maxlength="40"></div>
         <div class="field">
@@ -283,12 +296,19 @@
     live_closed: { en: 'The team hasn’t started yet. The queue opens with the first stylist.', ar: 'لم يبدأ الفريق بعد. يفتح الطابور مع أول مصففة.' },
     live_walk: { en: 'Walk-in only — no appointment needed, just come in.', ar: 'بدون مواعيد — تعالي مباشرة.' },
     upd_now: { en: 'updated just now', ar: 'محدَّث الآن' }, upd_ago: { en: 'updated {m} min ago', ar: 'محدَّث قبل {m} د' }, upd_auto: { en: 'from the live queue', ar: 'من الطابور المباشر' },
+    promo_q: { en: 'Have a promo code?', ar: 'لديكِ كود خصم؟' }, promo_ph: { en: 'Enter your code', ar: 'أدخلي الكود' }, promo_apply: { en: 'Apply', ar: 'تطبيق' }, promo_lbl: { en: 'Promo code', ar: 'كود الخصم' },
+    promo_ok: { en: 'Code applied: −{p}%', ar: 'تم تطبيق الكود: خصم {p}٪' }, promo_better: { en: 'Code accepted, but a better offer already applies. You always get the best one.', ar: 'الكود صحيح، لكن لديكِ عرض أفضل. نطبّق لكِ الأفضل دائماً.' },
+    promo_invalid: { en: 'This code doesn’t work. Check the spelling and try again.', ar: 'هذا الكود غير صحيح. تأكّدي من كتابته وحاولي مجدداً.' }, promo_expired: { en: 'This code has expired.', ar: 'انتهت صلاحية هذا الكود.' },
+    promo_min_people: { en: 'This code is for groups of {n} or more.', ar: 'هذا الكود للمجموعات من {n} أشخاص أو أكثر.' }, promo_empty: { en: 'Type your code first.', ar: 'اكتبي الكود أولاً.' },
     paid_cash: { en: 'Cash with your stylist', ar: 'نقداً مع مصففتك' }, back_site: { en: 'Back to the website', ar: 'العودة إلى الموقع' }, back: { en: 'Back', ar: 'رجوع' }, opening: { en: 'The team is getting ready — your place is saved.', ar: 'الفريق يستعد — مكانك محفوظ.' }
   };
   const t = (k, v = {}) => Q.t(k).replace(/\{(\w)\}/g, (_, x) => v[x] ?? '');
   // Prix dans la langue de la page : chiffres arabes + « درهماً » en arabe
   const qNum = n => Q.lang === 'ar' ? Number(n).toLocaleString('ar-EG') : String(n);
   const qAed = n => Q.lang === 'ar' ? `${qNum(n)} درهماً` : `${n} AED`;
+  const qD = v => Q.lang === 'ar' ? String(v).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]) : String(v); // chiffres d'un texte (Q-001, 14:30)
+  const qIso = v => Q.lang === 'ar' ? '\u2066' + qD(v) + '\u2069' : String(v);   // « Q-٠٠١ », « #٣ » restent lisibles dans un texte RTL
+  const qPos = n => qIso('#' + n);
 
   document.getElementById('logo').innerHTML = Q.logo('logo-mark');
   const savedCc = (() => { try { return localStorage.getItem('qamar:cc'); } catch (e) { return null; } })() || '+971';
@@ -298,6 +318,9 @@
   // Visite de groupe : une entrée par personne (la première est la cliente qui inscrit)
   const sel = { people: [{ serviceId: params.get('look') || null, extraLong: false }], active: 0, pref: params.get('stylist') || null };
   const lead = () => sel.people[0];
+  // Code promo saisi (concourt avec les autres remises, jamais cumulé) ; ignoré si le groupe ne remplit plus la condition
+  const codeFor = n => sel.code && Q.checkPromoCode(sel.code, n).ok ? sel.code : null;
+  const promoName = pr => Q.esc(Q.L(pr.label)) + (pr.id === 'code' && pr.code ? ` · <bdi dir="ltr">${Q.esc(pr.code)}</bdi>` : '');
   const curP = () => sel.people[sel.active];
   const size = () => sel.people.length;
   const partyArg = () => size() > 1 ? sel.people : null;
@@ -326,7 +349,7 @@
     const me = curP(), n = size();
     document.getElementById('looks').innerHTML = D.services.map(s => {
       const ok = nightOk(s);
-      const q = Q.quote(s.id, me.extraLong, Date.now(), sel.active, n);
+      const q = Q.quote(s.id, me.extraLong, Date.now(), sel.active, n, codeFor(n));
       const on = me.serviceId === s.id;
       const cnt = n > 1 ? sel.people.filter(p => p.serviceId === s.id).length : 0;
       return `<button class="opt ${on ? 'sel' : ''}" data-id="${s.id}" ${ok ? '' : 'disabled aria-disabled="true"'} aria-pressed="${on}">
@@ -364,7 +387,7 @@
     pe.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { sel.active = +b.dataset.p; renderLooks(); });
     const act = pe.querySelector('.on'); if (act && act.scrollIntoView) act.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     // prix par personne : chacune a SA meilleure remise (jamais cumulée), Squad dès 4
-    const lines = sel.people.map((p, i) => p.serviceId ? Q.quote(p.serviceId, p.extraLong, now, i, n) : null);
+    const lines = sel.people.map((p, i) => p.serviceId ? Q.quote(p.serviceId, p.extraLong, now, i, n, codeFor(n)) : null);
     const base = lines.reduce((a, l) => a + (l ? l.base : 0), 0), total = lines.reduce((a, l) => a + (l ? l.total : 0), 0);
     const promos = {}; lines.forEach(l => { if (l && l.promo) promos[l.promo.id + l.promo.pct] = l.promo; });
     const SQ = D.promotions.squad;
@@ -372,7 +395,7 @@
     const squadHint = SQ && SQ.enabled && n < SQ.minPeople && SQ.pct > bestPct;
     const missing = lines.some(l => !l);
     gs.innerHTML = sel.people.map((p, i) => { const l = lines[i]; return `<div><span>${t('person', { n: qNum(i + 1) })}${l ? ' · ' + Q.esc(lookName(p.serviceId)) + (p.extraLong ? ' + XL' : '') : ''}</span>${l ? `<span><bdi dir="ltr">${l.discount ? `<s class="muted">${qNum(l.base)}</s> ` : ''}${qAed(l.total)}</bdi></span>` : `<span class="muted">${t('pick')}</span>`}</div>`; }).join('')
-      + Object.values(promos).map(pr => `<div><span>${Q.esc(Q.L(pr.label))}</span><span><bdi dir="ltr">−${qNum(pr.pct)}%</bdi></span></div>`).join('')
+      + Object.values(promos).map(pr => `<div><span>${promoName(pr)}</span><span><bdi dir="ltr">−${qNum(pr.pct)}%</bdi></span></div>`).join('')
       + `<div class="total"><span>${forTxt(n)}</span><span><bdi dir="ltr">${qAed(total)}</bdi></span></div>`
       + (base > total ? `<div class="gnote">${t('grp_instead', { y: `<bdi dir="ltr"><s>${qAed(base)}</s></bdi>` })} · ${t('grp_rule')}</div>` : '')
       + (squadHint ? `<div class="gnote">✦ ${t('squad_hint', { n: qNum(SQ.minPeople), p: qNum(SQ.pct) })}</div>` : '')
@@ -423,27 +446,53 @@
     const e = Q.estimate(lead().serviceId, sel.pref, lead().extraLong, partyArg());
     const sty = sel.pref === 'any' ? t('any') : Q.stylist(sel.pref)?.name;
     if (size() > 1) {
-      const g = Q.groupQuote(sel.people);
+      const g = Q.groupQuote(sel.people, Date.now(), codeFor(size()));
       const promos = {}; g.people.forEach(l => { if (l.promo) promos[l.promo.id + l.promo.pct] = l.promo; });
       document.getElementById('summary').innerHTML = `
         <div><span>${t('group')}</span><b>${pplTxt(g.size)}</b></div>
         ${g.people.map((l, i) => `<div><span>${t('person', { n: qNum(i + 1) })} · ${Q.esc(lookName(l.serviceId))}${l.extraLong ? ' + XL' : ''}</span><span><bdi dir="ltr">${l.discount ? `<s class="muted">${qNum(l.base)}</s> ` : ''}${qAed(l.total)}</bdi></span></div>`).join('')}
-        ${Object.values(promos).map(pr => `<div><span>${Q.esc(Q.L(pr.label))}</span><span><bdi dir="ltr">−${qNum(pr.pct)}%</bdi></span></div>`).join('')}
+        ${Object.values(promos).map(pr => `<div><span>${promoName(pr)}</span><span><bdi dir="ltr">−${qNum(pr.pct)}%</bdi></span></div>`).join('')}
         <div><span>${t('stylist')}</span><b>${Q.esc(sty)}</b></div>
         <div><span>${t('est')}</span><b>${e ? (e.minutes <= 1 ? t('now') : '~' + qNum(e.minutes) + ' ' + t('min')) : '—'}</b></div>
         <div><span>${forTxt(g.size)}</span><b><bdi dir="ltr">${g.discount ? `<s class="muted" style="font-weight:400">${qNum(g.base)}</s> ` : ''}${qAed(g.total)}</bdi></b></div>
         <div style="display:block;color:var(--muted);font-size:.8rem">${t('pay_after')}</div>`;
-      return;
+      return promoMsg(g.people);
     }
-    const q = Q.quote(lead().serviceId, lead().extraLong);
+    const q = Q.quote(lead().serviceId, lead().extraLong, Date.now(), 0, 1, codeFor(1));
     document.getElementById('summary').innerHTML = `
       <div><span>${t('look')}</span><b>${Q.esc(Q.L(s.look))}</b></div>
       <div><span>${t('stylist')}</span><b>${Q.esc(sty)}</b></div>
-      <div><span>${t('est')}</span><b>${e ? (e.minutes <= 1 ? t('now') : '~' + e.minutes + ' ' + t('min')) : '—'}</b></div>
-      <div><span>${t('price')}</span><b><bdi dir="ltr">${q.discount ? `<s class="muted" style="font-weight:400">${q.base}</s> ` : ''}${qAed(q.total)}</bdi></b></div>
-      ${q.promo ? `<div><span>${Q.esc(Q.L(q.promo.label))}</span><span><bdi dir="ltr">−${q.promo.pct}%</bdi></span></div>` : ''}
+      <div><span>${t('est')}</span><b>${e ? (e.minutes <= 1 ? t('now') : '~' + qNum(e.minutes) + ' ' + t('min')) : '—'}</b></div>
+      <div><span>${t('price')}</span><b><bdi dir="ltr">${q.discount ? `<s class="muted" style="font-weight:400">${qNum(q.base)}</s> ` : ''}${qAed(q.total)}</bdi></b></div>
+      ${q.promo ? `<div><span>${promoName(q.promo)}</span><span><bdi dir="ltr">−${qNum(q.promo.pct)}%</bdi></span></div>` : ''}
       <div style="display:block;color:var(--muted);font-size:.8rem">${t('pay_after')}</div>`;
+    promoMsg([q]);
   }
+  // Message sous le champ code : appliqué, battu par une meilleure offre, ou refusé (inline, jamais bloquant)
+  let promoErr = null;
+  const minOf = c => ((D.promoCodes || []).find(x => String(x.code).toUpperCase() === String(c).toUpperCase()) || {}).minPeople || 0;
+  function promoMsg(lines) {
+    const m = document.getElementById('promoMsg'); m.className = 'promo-msg'; m.textContent = '';
+    if (promoErr) { m.classList.add('bad'); m.textContent = t('promo_' + promoErr.code, { n: qNum(promoErr.n || 0) }); return; }
+    if (!sel.code) return;
+    const chk = Q.checkPromoCode(sel.code, size());
+    if (!chk.ok) { m.classList.add('bad'); m.textContent = t('promo_' + chk.error, { n: qNum(minOf(sel.code)) }); return; }
+    const used = lines.some(l => l && l.promo && l.promo.id === 'code');
+    if (used) m.classList.add('good');
+    m.textContent = used ? t('promo_ok', { p: qNum(chk.promo.pct) }) : t('promo_better');
+  }
+  function applyPromo() {
+    const v = document.getElementById('promoIn').value.trim();
+    promoErr = null;
+    if (!v) { sel.code = null; promoErr = { code: 'empty' }; }
+    else { const r = Q.checkPromoCode(v, size()); if (r.ok) sel.code = r.promo.code; else { sel.code = null; promoErr = { code: r.error, n: minOf(v) }; } }
+    renderSummary();
+  }
+  document.getElementById('promoBtn').onclick = applyPromo;
+  document.getElementById('promoIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applyPromo(); } });
+  document.getElementById('promoIn').addEventListener('input', () => { if (promoErr) { promoErr = null; document.getElementById('promoMsg').textContent = ''; } });
+  const localizePromo = () => { const i = document.getElementById('promoIn'); i.placeholder = t('promo_ph'); i.setAttribute('aria-label', t('promo_lbl')); if (step === 3) renderSummary(); };
+  localizePromo(); document.addEventListener('qamar:lang', localizePromo);
 
   function showStep(n) {
     step = n;
@@ -475,7 +524,7 @@
     field.classList.remove('err');
     submitting = true; updateBar();                       // empêche les doubles envois
     try { localStorage.setItem('qamar:cc', fd.get('cc')); } catch (e) { /* ignore */ }
-    const tk = Q.joinQueue({ name: fd.get('name'), phone, serviceId: lead().serviceId, pref: sel.pref, extraLong: lead().extraLong, channel: 'qr', party: partyArg() });
+    const tk = Q.joinQueue({ name: fd.get('name'), phone, serviceId: lead().serviceId, pref: sel.pref, extraLong: lead().extraLong, channel: 'qr', party: partyArg(), promoCode: codeFor(size()) });
     if (tk && window.QamarTrack) QamarTrack('join_queue', { service: lead().serviceId, party_size: size(), stylist_choice: sel.pref === 'any' ? 'first_free' : 'chosen', demo: Q.isDemo }); // aucune donnée personnelle
     submitting = false;
     if (!tk) { updateBar(); Q.toast(t('join_err')); return; }
@@ -524,29 +573,29 @@
     const el = document.getElementById('ticket');
     const s = Q.service(tk.serviceId);
     const sty = tk.assignedTo ? Q.stylist(tk.assignedTo) : null;
-    const code = Q.ticketCode(tk);
+    const code = qIso(Q.ticketCode(tk));
 
     if (tk.status === 'waiting') {
       const e = Q.ticketEta(tk.id) || {};
       const total = Math.max(1, Math.round((Date.now() - tk.createdAt) / 60000) + (e.minutes || 0));
       const frac = e.minutes == null ? 0 : 1 - e.minutes / total;
       const who = e.stylistId ? Q.stylist(e.stylistId)?.name : (tk.pref === 'any' ? t('any') : Q.stylist(tk.pref)?.name);
-      const readyAt = e.minutes != null ? Q.clock(Date.now() + e.minutes * 60000) : '—';
+      const readyAt = e.minutes != null ? qD(Q.clock(Date.now() + e.minutes * 60000)) : '—';
       const idle = e.minutes == null;
       const pos = Q.position(tk.id);
       el.innerHTML = `
         <div class="ticket-card" data-wk="${tk.id}:${idle}">
           <div class="code">${code}</div>
           <div class="muted" style="margin-top:6px">${idle ? t('idle_t') : t('your_wait')}</div>
-          <div class="ring">${ring(frac)}<div class="wait-big" id="wkBig">${idle ? `<span style="display:block;width:48px;margin:0 auto 8px;color:var(--gold)">${Q.logo('')}</span><span class="idle">#${pos}</span>` : e.minutes <= 1 ? '<small>' + t('now') + '</small>' : e.minutes + '<small>' + t('min') + '</small>'}</div></div>
+          <div class="ring">${ring(frac)}<div class="wait-big" id="wkBig">${idle ? `<span style="display:block;width:48px;margin:0 auto 8px;color:var(--gold)">${Q.logo('')}</span><span class="idle">${qPos(pos)}</span>` : e.minutes <= 1 ? '<small>' + t('now') + '</small>' : qNum(e.minutes) + '<small>' + t('min') + '</small>'}</div></div>
           <div class="serif" style="font-size:1.5rem;color:var(--cocoa)">${partyLine(tk)}</div>
-          <div class="meta"><div><b id="wkPos">#${pos}</b><small>${t('pos')}</small></div><div><b id="wkWho">${Q.esc(who || '—')}</b><small>${t('with')}</small></div><div><b id="wkReady">${readyAt}</b><small>${t('ready_at')}</small></div></div>
+          <div class="meta"><div><b id="wkPos">${qPos(pos)}</b><small>${t('pos')}</small></div><div><b id="wkWho">${Q.esc(who || '—')}</b><small>${t('with')}</small></div><div><b id="wkReady">${readyAt}</b><small>${t('ready_at')}</small></div></div>
           ${idle ? `<p class="muted" style="font-size:.9rem;margin:10px 0 0">${t('idle_s')}</p>` : ''}
         </div>
         <ol class="steps-done">
-          <li class="done"><span class="ck">✓</span><span>${t('st_in')}<small id="wkStIn">${t('st_in_s', { c: code, p: pos })}</small></span></li>
-          <li class="now"><span class="ck">2</span><span>${waOn ? t('st_wa') : t('st_wa_off')}<small>${waOn ? t('st_wa_s', { n: Q.esc(tk.phone || '—') }) : t('st_wa_off_s')}</small></span></li>
-          <li><span class="ck">3</span><span>${t('st_seat')}<small>${t('st_seat_s')}</small></span></li>
+          <li class="done"><span class="ck">✓</span><span>${t('st_in')}<small id="wkStIn">${t('st_in_s', { c: code, p: qNum(pos) })}</small></span></li>
+          <li class="now"><span class="ck">${qNum(2)}</span><span>${waOn ? t('st_wa') : t('st_wa_off')}<small>${waOn ? t('st_wa_s', { n: Q.esc(tk.phone || '—') }) : t('st_wa_off_s')}</small></span></li>
+          <li><span class="ck">${qNum(3)}</span><span>${t('st_seat')}<small>${t('st_seat_s')}</small></span></li>
         </ol>
         <div class="note"><span>☾</span><span>${waOn ? t('waiting_note') : t('waiting_note_off')}</span></div>
         ${demoBtn()}
@@ -585,7 +634,7 @@
           <p class="sub">${t('pay_s')}</p>
           <div class="summary" style="background:var(--pearl);text-align:start">
             ${pr.people ? pr.people.map((l, i) => `<div><span>${t('person', { n: qNum(i + 1) })} · ${Q.esc(lookName(l.serviceId))}${l.extraLong ? ' + XL' : ''}${l.pct ? ` <bdi dir="ltr">−${qNum(l.pct)}%</bdi>` : ''}</span><span><bdi dir="ltr">${l.discount ? `<s class="muted">${qNum(l.base)}</s> ` : ''}${qAed(l.total)}</bdi></span></div>`).join('') : `<div><span>${Q.esc(Q.L(s.look))}${tk.extraLong ? ' + XL' : ''}</span><span>${qAed(pr.base)}</span></div>`}
-            ${pr.discount && !pr.people ? `<div><span>${t('launch_disc')} <bdi dir="ltr">−${qNum(tk.discountPct)}%</bdi></span><span><bdi dir="ltr">−${qAed(pr.discount)}</bdi></span></div>` : ''}
+            ${pr.discount && !pr.people ? `<div><span>${pr.promo && pr.promo.label ? promoName(pr.promo) : t('launch_disc')} <bdi dir="ltr">−${qNum(tk.discountPct)}%</bdi></span><span><bdi dir="ltr">−${qAed(pr.discount)}</bdi></span></div>` : ''}
             ${pr.guarantee ? `<div><span>${t('guarantee')}</span><span><bdi dir="ltr">−${qAed(pr.base - pr.discount)}</bdi></span></div>` : ''}
             ${pr.addons.map(a => `<div><span>${Q.esc(Q.L(a.name))}</span><span>${a.price ? qAed(a.price) : t('free')}</span></div>`).join('')}
             <div class="total"><span>${t('total')}</span><span>${qAed(pr.total)}</span></div>
@@ -690,11 +739,11 @@
     const e = Q.ticketEta(tk.id) || {}, idle = e.minutes == null, card = document.querySelector('#ticket .ticket-card');
     if (!card || card.dataset.wk !== `${tk.id}:${idle}`) return renderTicket(tk);
     const pos = Q.position(tk.id), who = e.stylistId ? Q.stylist(e.stylistId)?.name : (tk.pref === 'any' ? t('any') : Q.stylist(tk.pref)?.name);
-    setTxt('wkPos', '#' + pos); setTxt('wkWho', who || '—'); setTxt('wkReady', idle ? '—' : Q.clock(Date.now() + e.minutes * 60000));
-    setTxt('wkStIn', t('st_in_s', { c: Q.ticketCode(tk), p: pos }));
+    setTxt('wkPos', qPos(pos)); setTxt('wkWho', who || '—'); setTxt('wkReady', idle ? '—' : qD(Q.clock(Date.now() + e.minutes * 60000)));
+    setTxt('wkStIn', t('st_in_s', { c: qIso(Q.ticketCode(tk)), p: qNum(pos) }));
     const big = document.getElementById('wkBig');
-    if (idle) { const i = big && big.querySelector('.idle'); if (i && i.textContent !== '#' + pos) i.textContent = '#' + pos; }
-    else if (big) { const html = e.minutes <= 1 ? '<small>' + t('now') + '</small>' : e.minutes + '<small>' + t('min') + '</small>'; if (big.innerHTML !== html) big.innerHTML = html; }
+    if (idle) { const i = big && big.querySelector('.idle'); if (i && i.textContent !== qPos(pos)) i.textContent = qPos(pos); }
+    else if (big) { const html = e.minutes <= 1 ? '<small>' + t('now') + '</small>' : qNum(e.minutes) + '<small>' + t('min') + '</small>'; if (big.innerHTML !== html) big.innerHTML = html; }
     const total = Math.max(1, Math.round((Date.now() - tk.createdAt) / 60000) + (e.minutes || 0)), frac = idle ? 0 : 1 - e.minutes / total;
     const arc = document.querySelector('#ticket .ring svg circle:nth-of-type(2)'); if (arc) arc.setAttribute('stroke-dashoffset', 2 * Math.PI * 100 * (1 - frac));
   }, 5000);

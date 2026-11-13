@@ -132,8 +132,20 @@
   }
   // Meilleure remise applicable à un instant donné (une seule remise, jamais cumulée)
   // ahead = personnes du même groupe déjà placées avant (places −70 % qu'elles prennent) ; size = taille du groupe
-  function bestPromo(ts = Date.now(), ahead = 0, size = 1) {
+  // Code promo (data.js → promoCodes) : insensible à la casse, valable jusqu'à validUntil inclus (date de Dubaï)
+  function checkPromoCode(code, size = 1, ts = Date.now()) {
+    const c = String(code || '').trim().toUpperCase();
+    if (!c) return fail('empty');
+    const pc = (D.promoCodes || []).find(x => x && String(x.code).toUpperCase() === c);
+    if (!pc || !(pc.pct > 0)) return fail('invalid');
+    if (pc.validUntil && dubai(ts).dateKey > pc.validUntil) return fail('expired');
+    if (size < (pc.minPeople || 1)) return fail('min_people');
+    return ok({ promo: { id: 'code', code: String(pc.code).toUpperCase(), pct: pc.pct, label: pc.label || { en: pc.code, ar: pc.code } } });
+  }
+  // code = code promo saisi par la cliente : il concourt avec les autres remises, jamais cumulé
+  function bestPromo(ts = Date.now(), ahead = 0, size = 1, code = null) {
     const cands = [];
+    if (code) { const r = checkPromoCode(code, size, ts); if (r.ok) cands.push(r.promo); }
     if (launchOn()) {
       const L = PROMO.launch, st = state.settings;
       const first = launchUsed() + ahead < (st.launchFirst ?? L.firstN);
@@ -145,18 +157,18 @@
     return cands.sort((a, b) => b.pct - a.pct)[0] || null;
   }
   // Prix affiché AVANT inscription (site, page cliente) — même calcul que la caisse
-  function quote(serviceId, extraLong = false, ts = Date.now(), index = 0, size = 1) {
+  function quote(serviceId, extraLong = false, ts = Date.now(), index = 0, size = 1, code = null) {
     const s = service(serviceId); if (!s) return null;
     const base = s.price + (extraLong ? D.extraLong.price : 0);
-    const promo = bestPromo(ts, index, size);
+    const promo = bestPromo(ts, index, size, code);
     const discount = promo ? Math.round(base * promo.pct / 100) : 0;
     return { base, promo, discount, total: base - discount, duration: Math.min(D.maxMinutes || 45, s.duration + (extraLong ? D.extraLong.minutes : 0)) };
   }
   // Prix d'un groupe : chaque personne a SA meilleure remise (lancement, happy hours ou Squad dès 4), jamais cumulées
-  function groupQuote(people, ts = Date.now()) {
+  function groupQuote(people, ts = Date.now(), code = null) {
     const list = (people || []).filter(p => p && service(p.serviceId)).slice(0, D.maxParty || 6);
     const n = list.length;
-    const lines = list.map((p, i) => ({ serviceId: p.serviceId, extraLong: !!p.extraLong, ...quote(p.serviceId, !!p.extraLong, ts, i, n) }));
+    const lines = list.map((p, i) => ({ serviceId: p.serviceId, extraLong: !!p.extraLong, ...quote(p.serviceId, !!p.extraLong, ts, i, n, code) }));
     const base = lines.reduce((a, l) => a + l.base, 0), discount = lines.reduce((a, l) => a + l.discount, 0);
     return { size: n, people: lines, base, discount, total: base - discount, squad: lines.some(l => l.promo && l.promo.id === 'squad') };
   }
@@ -214,9 +226,9 @@
     },
     on(fn) { listeners.push(fn); fn(state); },
     service, addon, stylist, ticket, openShift, online, duration, currentOf, schedule, estimate, ticketEta, position, pricing, fmt, ticketCode, minsUntil, startOfDay,
-    quote, groupQuote, bestPromo, launchUsed, available, dubai, partyOf, sizeOf,
+    quote, groupQuote, bestPromo, checkPromoCode, launchUsed, available, dubai, partyOf, sizeOf,
 
-    joinQueue({ name, phone, serviceId, pref = 'any', extraLong = false, channel = 'qr', party = null }) {
+    joinQueue({ name, phone, serviceId, pref = 'any', extraLong = false, channel = 'qr', party = null, promoCode = null }) {
       // visite de groupe : party = [{ serviceId, extraLong }] (2 à maxParty personnes, la première est la cliente qui inscrit)
       let people = Array.isArray(party) && party.length > 1 ? party.slice(0, D.maxParty || 6).map(p => ({ serviceId: p && p.serviceId, extraLong: !!(p && p.extraLong) })) : null;
       if (people) { if (people.some(p => !service(p.serviceId) || !available(service(p.serviceId)))) return null; serviceId = people[0].serviceId; extraLong = people[0].extraLong; }
@@ -228,10 +240,12 @@
       if (ph) { const dup = state.tickets.find(t => t.phone === ph && ['waiting', 'called', 'in_service', 'checkout'].includes(t.status)); if (dup) return dup; }
       const today = dubai().dateKey;
       if (state.counterDay !== today) { state.counterDay = today; state.counter = 0; } // numéros remis à zéro chaque jour
-      if (people) { const g = groupQuote(people); people = g.people.map(l => ({ serviceId: l.serviceId, extraLong: l.extraLong, promo: l.promo })); }
-      const promo = people ? people[0].promo : bestPromo();
+      const code = promoCode && checkPromoCode(promoCode, people ? people.length : 1).ok ? String(promoCode).trim().toUpperCase() : null;
+      if (people) { const g = groupQuote(people, Date.now(), code); people = g.people.map(l => ({ serviceId: l.serviceId, extraLong: l.extraLong, promo: l.promo })); }
+      const promo = people ? people[0].promo : bestPromo(Date.now(), 0, 1, code);
       if (launchOn()) state.launchServed = (state.launchServed || 0) + (people ? people.length : 1); // compteur informatif (dashboard)
       const t = { id: uid(), num: ++state.counter, name: clean(name, D.limits.nameMax) || 'Guest', phone: ph, serviceId, pref, extraLong: !!extraLong, channel, promo, discountPct: promo ? promo.pct : 0, addons: [], status: 'waiting', createdAt: Date.now() };
+      if (code) t.promoCode = code;   // code saisi (trace caisse) ; la remise retenue reste dans promo / party[].promo
       if (people) t.party = people;
       state.tickets.push(t);
       commit();
@@ -300,7 +314,7 @@
       const L = D.limits;
       const maxTip = Math.min(L.tipMaxAed, Math.round(p.total * L.tipMaxPct / 100) || L.tipMaxAed);
       const safeTip = method === 'cash' ? 0 : Math.max(0, Math.min(maxTip, Math.round(Number(tip) || 0)));
-      t.payment = { method, total: p.total, discount: p.discount, promo: p.promo ? p.promo.id : null, tip: safeTip, paidAt: Date.now(), demo: Q.isDemo };
+      t.payment = { method, total: p.total, discount: p.discount, promo: p.promo ? p.promo.id : null, promoCode: t.promoCode || null, tip: safeTip, paidAt: Date.now(), demo: Q.isDemo };
       t.status = 'paid';
       commit();
       return t.payment;
