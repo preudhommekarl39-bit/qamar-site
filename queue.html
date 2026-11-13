@@ -344,7 +344,7 @@
     const promo = Q.bestPromo();
     const pill = document.getElementById('launchPill');
     pill.textContent = '';
-    if (promo) { const sp = document.createElement('span'); sp.className = 'launch-pill'; sp.innerHTML = `☾ ${Q.esc(Q.L(promo.label))} · <bdi dir="ltr">−${promo.pct}%</bdi>`; pill.appendChild(sp); }
+    if (promo) { const sp = document.createElement('span'); sp.className = 'launch-pill'; sp.innerHTML = `☾ ${Q.esc(Q.L(promo.label))} · <bdi dir="ltr">−${qNum(promo.pct)}%</bdi>`; pill.appendChild(sp); }
     sel.people.forEach(p => { if (p.serviceId && (!Q.service(p.serviceId) || !Q.available(Q.service(p.serviceId)))) p.serviceId = null; });
     const me = curP(), n = size();
     document.getElementById('looks').innerHTML = D.services.map(s => {
