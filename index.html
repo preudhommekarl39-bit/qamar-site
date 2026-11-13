@@ -830,6 +830,12 @@
   /* Arabe : pas d'espacement entre les lettres (il casse la liaison des lettres) */
   html[dir="rtl"] :is(.kicker, .sub, .stat b, .how .step h3, .tile h3, .tile-look h3, .ncol h3, .big4 b, .big4 h3, .pack h4, .tier h3, .tier .price, .club-compare thead th, .mnav-links a, .marquee span, .forms h3, .faq summary, .facts b, .perks-list h3, .club-drop-head h3, .scr h4, .ev-hero b, .p-big b, .member b, .bottle span, .gticket span, .h-eyebrow, .hcard .num) { letter-spacing: 0; }
   bdi, .num-iso { unicode-bidi: isolate; }
+
+  /* Contre-vérification mobile : signature entière, son en bas, cibles 44px, petits textes */
+  @media (max-width: 700px) { .sig { grid-template-columns: minmax(0, 1fr); overflow: hidden; } .sig-svg { width: 135vw; max-width: none; margin-inline: calc(50% - 67.5vw); } }
+  .film-sound { top: auto; bottom: 12px; }
+  @media (pointer: coarse) { footer .cols a, footer .legal a { padding-block: 12px; min-height: 44px; } .hnav .brand { min-height: 44px; display: inline-flex; align-items: center; } }
+  @media (max-width: 600px) { .club-bars .v, .club-bars .m { font-size: 12px; } }
 </style>
 </head>
 <body>
