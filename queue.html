@@ -20,7 +20,10 @@
 <link rel="stylesheet" href="assets/qamar.css">
 <style>
   body { background: radial-gradient(130% 60% at 50% 0%, #FCEAE5, var(--blush) 50%, var(--blush-2)); min-height: 100svh; }
-  .app { width: min(560px, 100%); margin: 0 auto; padding: 18px 16px 120px; }
+  html { scroll-padding-bottom: 130px; }
+  .app { position: relative; z-index: 1; width: min(560px, 100%); margin: 0 auto; padding: 18px 16px 120px; } /* au-dessus de la pluie de pétales */
+  html[dir="rtl"] .arr { display: inline-block; transform: scaleX(-1); }
+  .top a { min-height: 44px; }
   .top { display: flex; align-items: center; justify-content: space-between; padding: 6px 0 18px; }
   .top a { display: flex; align-items: center; gap: 10px; text-decoration: none; }
   .progress { display: flex; gap: 6px; margin-bottom: 26px; }
@@ -44,18 +47,19 @@
   .opt .pr b { display: inline; font-family: var(--sans); font-size: .95rem; color: var(--rose-deep); }
   .opt[disabled] { opacity: .45; }
   .toggle { display: flex; align-items: center; justify-content: space-between; gap: 14px; background: #fff; border-radius: 16px; padding: 14px 16px; margin-top: 14px; }
-  .switch { width: 50px; height: 30px; border-radius: 999px; background: #E6D5CF; position: relative; border: 0; flex: none; transition: background .2s; }
-  .switch::after { content: ''; position: absolute; top: 3px; inset-inline-start: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: inset-inline-start .2s; box-shadow: 0 2px 6px rgba(0, 0, 0, .15); }
+  .switch { width: 56px; height: 34px; border-radius: 999px; background: #E6D5CF; position: relative; border: 0; flex: none; transition: background .2s; }
+  .switch::after { content: ''; position: absolute; top: 3px; inset-inline-start: 3px; width: 28px; height: 28px; border-radius: 50%; background: #fff; transition: inset-inline-start .2s; box-shadow: 0 2px 6px rgba(0, 0, 0, .15); }
   .switch.on { background: var(--rose); }
-  .switch.on::after { inset-inline-start: 23px; }
+  .switch.on::after { inset-inline-start: 25px; }
   .sty { display: flex; align-items: center; gap: 14px; width: 100%; background: #fff; border: 1.5px solid transparent; border-radius: 18px; padding: 14px 16px; margin-bottom: 10px; text-align: start; box-shadow: 0 10px 30px -20px rgba(75, 45, 37, .4); color: var(--ink); }
   .sty.sel { border-color: var(--rose); box-shadow: 0 0 0 4px rgba(184, 122, 98, .18); }
   .sty .av { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; font-family: var(--serif); font-size: 1.4rem; color: #fff; flex: none; }
-  .sty .nm { flex: 1; }
+  .sty .nm { flex: 1; min-width: 0; }
   .sty .nm b { display: block; font-weight: 500; color: var(--cocoa); }
   .sty .nm small { color: var(--muted); }
   .sty .w { text-align: end; font-family: var(--serif); font-size: 1.5rem; color: var(--cocoa); line-height: 1; }
-  .sty .w small { display: block; font-family: var(--sans); font-size: .7rem; color: var(--muted); }
+  .sty .w { max-width: 45%; }
+  .sty .w small { display: block; font-family: var(--sans); font-size: .8rem; line-height: 1.3; color: var(--muted); }
   .sty[disabled] { opacity: .5; }
   .bar { position: fixed; bottom: 0; inset-inline: 0; padding: 14px 16px calc(14px + env(safe-area-inset-bottom)); background: linear-gradient(0deg, var(--blush-2) 60%, rgba(242, 210, 202, 0)); }
   .bar .in { width: min(560px, 100%); margin: 0 auto; display: flex; gap: 10px; }
@@ -64,9 +68,10 @@
   .summary { background: #fff; border-radius: 20px; padding: 18px; margin-bottom: 18px; display: grid; gap: 6px; }
   .summary div { display: flex; justify-content: space-between; gap: 10px; }
   .summary span:first-child { color: var(--muted); }
+  .summary span:last-child { white-space: nowrap; }
   form .field { margin-bottom: 14px; }
   .phone-row { display: flex; gap: 8px; direction: ltr; }
-  .phone-row .cc { flex: 0 0 auto; width: 132px; padding-inline: 10px; }
+  .phone-row .cc { flex: 0 0 auto; width: 152px; padding-inline: 10px 6px; text-overflow: ellipsis; }
   .phone-row input { flex: 1; min-width: 0; }
   .field .muted { font-size: .8rem; }
   .field.err .input { border-color: var(--bad); box-shadow: 0 0 0 4px rgba(181, 82, 63, .12); }
@@ -111,6 +116,7 @@
   .extras { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
   .extras button { border: 1px solid var(--line); background: #fff; border-radius: 14px; padding: 12px; color: var(--cocoa); text-align: start; }
   .extras button small { display: block; color: var(--muted); }
+  .extras .em { margin-inline-end: 8px; }
   .note { background: rgba(255, 255, 255, .6); border-radius: 16px; padding: 14px 16px; font-size: .9rem; color: var(--cocoa); margin-top: 14px; display: flex; gap: 10px; }
   .total { display: flex; justify-content: space-between; font-family: var(--serif); font-size: 1.6rem; color: var(--cocoa); border-top: 1px solid var(--line); padding-top: 10px; margin-top: 6px; }
   .hidden { display: none !important; }
@@ -119,7 +125,7 @@
 <body>
 <div class="app">
   <div class="top">
-    <a href="index.html" aria-label="Back to the website"><span style="font-size:1.3rem;color:var(--cocoa)">←</span><span id="logo"></span><span class="logo-word" style="font-size:1.05rem">QAMAR</span></a>
+    <a href="index.html" id="homeLink" aria-label="Back to the website"><span class="arr" aria-hidden="true" style="font-size:1.3rem;color:var(--cocoa)">←</span><span id="logo"></span><span class="logo-word" style="font-size:1.05rem">QAMAR</span></a>
     <div class="lang"><button data-lang="en">EN</button><button data-lang="ar">عربي</button></div>
   </div>
 
@@ -160,7 +166,7 @@
     </section>
 
     <div class="bar"><div class="in">
-      <button class="btn btn-ghost back" id="backBtn" aria-label="Back">←</button>
+      <button class="btn btn-ghost back" id="backBtn" aria-label="Back"><span class="arr" aria-hidden="true">←</span></button>
       <button class="btn btn-primary" id="nextBtn" disabled data-i18n="next">Continue</button>
     </div></div>
   </div>
@@ -226,7 +232,7 @@
     demo: { en: 'Demo: see what the salon sees', ar: 'تجربة: شاهدي ما يراه الصالون' }, demo_open: { en: 'Open the dashboard', ar: 'افتحي لوحة التحكم' },
     demo_note: { en: 'Preview — QAMAR is not open yet. A ticket created here stays on this phone: the salon does not receive it, no message or payment is sent.', ar: 'معاينة — قمر لم يفتح بعد. التذكرة التي تُنشأ هنا تبقى على هذا الهاتف: لا يستلمها الصالون ولا تُرسل أي رسالة أو دفعة.' },
     demo_next: { en: 'Demo · simulate the next step', ar: 'تجربة · محاكاة الخطوة التالية' }, demo_next_s: { en: 'On a single phone, plays the salon’s part so you can see the whole journey.', ar: 'على هاتف واحد، يقوم بدور الصالون لتشاهدي الرحلة كاملة.' },
-    paid_cash: { en: 'Cash with your stylist', ar: 'نقداً مع مصففتك' }, opening: { en: 'The team is getting ready — your place is saved.', ar: 'الفريق يستعد — مكانك محفوظ.' }
+    paid_cash: { en: 'Cash with your stylist', ar: 'نقداً مع مصففتك' }, back_site: { en: 'Back to the website', ar: 'العودة إلى الموقع' }, back: { en: 'Back', ar: 'رجوع' }, opening: { en: 'The team is getting ready — your place is saved.', ar: 'الفريق يستعد — مكانك محفوظ.' }
   };
   const t = (k, v = {}) => Q.t(k).replace(/\{(\w)\}/g, (_, x) => v[x] ?? '');
 
@@ -243,13 +249,15 @@
   const nightOk = s => Q.available(s);
   const tones = ['#D9A08C', '#8E6A6A', '#B87A62', '#C49A5A', '#A97964'];
   let submitting = false;
+  // Lien vers le tableau de bord du personnel : jamais sur la page cliente en production (sauf ?demo=1)
+  const showDemoStrip = (window.QAMAR_CONFIG || {}).environment !== 'production' || params.get('demo') === '1';
 
   /* ---------- Étape 1 : looks ---------- */
   function renderLooks() {
     const promo = Q.bestPromo();
     const pill = document.getElementById('launchPill');
     pill.textContent = '';
-    if (promo) { const sp = document.createElement('span'); sp.className = 'launch-pill'; sp.textContent = `☾ ${Q.L(promo.label)} · −${promo.pct}%`; pill.appendChild(sp); }
+    if (promo) { const sp = document.createElement('span'); sp.className = 'launch-pill'; sp.innerHTML = `☾ ${Q.esc(Q.L(promo.label))} · <bdi dir="ltr">−${promo.pct}%</bdi>`; pill.appendChild(sp); }
     document.getElementById('looks').innerHTML = D.services.map(s => {
       const ok = nightOk(s);
       const q = Q.quote(s.id, sel.extraLong);
@@ -294,8 +302,8 @@
       <div><span>${t('look')}</span><b>${Q.esc(Q.L(s.look))}</b></div>
       <div><span>${t('stylist')}</span><b>${Q.esc(sty)}</b></div>
       <div><span>${t('est')}</span><b>${e ? (e.minutes <= 1 ? t('now') : '~' + e.minutes + ' ' + t('min')) : '—'}</b></div>
-      <div><span>${t('price')}</span><b>${q.discount ? `<s class="muted" style="font-weight:400">${q.base}</s> ` : ''}${q.total} AED</b></div>
-      ${q.promo ? `<div><span>${Q.esc(Q.L(q.promo.label))}</span><span>−${q.promo.pct}%</span></div>` : ''}
+      <div><span>${t('price')}</span><b><bdi dir="ltr">${q.discount ? `<s class="muted" style="font-weight:400">${q.base}</s> ` : ''}${q.total} AED</bdi></b></div>
+      ${q.promo ? `<div><span>${Q.esc(Q.L(q.promo.label))}</span><span><bdi dir="ltr">−${q.promo.pct}%</bdi></span></div>` : ''}
       <div style="display:block;color:var(--muted);font-size:.8rem">${t('pay_after')}</div>`;
   }
 
@@ -313,7 +321,10 @@
     b.textContent = step === 3 ? (submitting ? t('joining') : t('join')) : t('next');
     b.disabled = submitting || (step === 1 && !sel.serviceId) || (step === 2 && !sel.pref);
   }
-  document.getElementById('backBtn').onclick = () => { if (step === 1) location.href = 'index.html'; else showStep(step - 1); };
+  const homeHref = () => Q.lang === 'ar' ? 'ar.html' : 'index.html';
+  document.getElementById('backBtn').onclick = () => { if (step === 1) location.href = homeHref(); else showStep(step - 1); };
+  const localizeNav = () => { document.getElementById('homeLink').href = homeHref(); document.getElementById('homeLink').setAttribute('aria-label', t('back_site')); document.getElementById('backBtn').setAttribute('aria-label', t('back')); };
+  document.addEventListener('qamar:lang', localizeNav);
   document.getElementById('nextBtn').onclick = () => {
     if (submitting) return;
     if (step < 3) return showStep(step + 1);
@@ -322,7 +333,7 @@
     const fd = new FormData(f);
     const phone = Q.normalizePhone(fd.get('phone'), fd.get('cc'));
     const field = document.getElementById('phone').closest('.field');
-    if (!phone) { field.classList.add('err'); document.getElementById('phoneHint').textContent = t('phone_bad'); document.getElementById('phone').focus(); return; }
+    if (!phone) { field.classList.add('err'); document.getElementById('phoneHint').textContent = t('phone_bad'); document.getElementById('phone').focus({ preventScroll: true }); field.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
     field.classList.remove('err');
     submitting = true; updateBar();                       // empêche les doubles envois
     try { localStorage.setItem('qamar:cc', fd.get('cc')); } catch (e) { /* ignore */ }
@@ -335,6 +346,10 @@
     history.replaceState(null, '', '?t=' + myId);
     render();
   };
+
+  // Entrée dans un champ du formulaire = « Rejoindre la file »
+  document.getElementById('joinForm').addEventListener('submit', e => { e.preventDefault(); document.getElementById('nextBtn').click(); });
+  document.getElementById('joinForm').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); document.getElementById('nextBtn').click(); } });
 
   /* ---------- Ticket vivant ---------- */
   function ring(frac) {
@@ -382,22 +397,22 @@
       const idle = e.minutes == null;
       const pos = Q.position(tk.id);
       el.innerHTML = `
-        <div class="ticket-card">
+        <div class="ticket-card" data-wk="${tk.id}:${idle}">
           <div class="code">${code}</div>
           <div class="muted" style="margin-top:6px">${idle ? t('idle_t') : t('your_wait')}</div>
-          <div class="ring">${ring(frac)}<div class="wait-big">${idle ? `<span style="display:block;width:48px;margin:0 auto 8px;color:var(--gold)">${Q.logo('')}</span><span class="idle">#${pos}</span>` : e.minutes <= 1 ? '<small>' + t('now') + '</small>' : e.minutes + '<small>' + t('min') + '</small>'}</div></div>
+          <div class="ring">${ring(frac)}<div class="wait-big" id="wkBig">${idle ? `<span style="display:block;width:48px;margin:0 auto 8px;color:var(--gold)">${Q.logo('')}</span><span class="idle">#${pos}</span>` : e.minutes <= 1 ? '<small>' + t('now') + '</small>' : e.minutes + '<small>' + t('min') + '</small>'}</div></div>
           <div class="serif" style="font-size:1.5rem;color:var(--cocoa)">${Q.esc(Q.L(s.look))}</div>
-          <div class="meta"><div><b>#${pos}</b><small>${t('pos')}</small></div><div><b>${Q.esc(who || '—')}</b><small>${t('with')}</small></div><div><b>${readyAt}</b><small>${t('ready_at')}</small></div></div>
+          <div class="meta"><div><b id="wkPos">#${pos}</b><small>${t('pos')}</small></div><div><b id="wkWho">${Q.esc(who || '—')}</b><small>${t('with')}</small></div><div><b id="wkReady">${readyAt}</b><small>${t('ready_at')}</small></div></div>
           ${idle ? `<p class="muted" style="font-size:.9rem;margin:10px 0 0">${t('idle_s')}</p>` : ''}
         </div>
         <ol class="steps-done">
-          <li class="done"><span class="ck">✓</span><span>${t('st_in')}<small>${t('st_in_s', { c: code, p: pos })}</small></span></li>
+          <li class="done"><span class="ck">✓</span><span>${t('st_in')}<small id="wkStIn">${t('st_in_s', { c: code, p: pos })}</small></span></li>
           <li class="now"><span class="ck">2</span><span>${waOn ? t('st_wa') : t('st_wa_off')}<small>${waOn ? t('st_wa_s', { n: Q.esc(tk.phone || '—') }) : t('st_wa_off_s')}</small></span></li>
           <li><span class="ck">3</span><span>${t('st_seat')}<small>${t('st_seat_s')}</small></span></li>
         </ol>
         <div class="note"><span>☾</span><span>${waOn ? t('waiting_note') : t('waiting_note_off')}</span></div>
         ${demoBtn()}
-        <div class="demo-strip"><span>${t('demo')}</span><a href="admin.html">${t('demo_open')} →</a></div>
+        ${showDemoStrip ? `<div class="demo-strip"><span>${t('demo')}</span><a href="admin.html">${t('demo_open')} <span class="arr" aria-hidden="true">→</span></a></div>` : ''}
         ${'Notification' in window && Notification.permission === 'default' ? `<button class="btn btn-light btn-block" style="margin-top:12px" id="notifBtn">🔔 ${t('notify_on')}</button>` : ''}
         <button class="btn btn-ghost btn-block" style="margin-top:12px" id="cancelBtn">${t('cancel')}</button>`;
       const cb = document.getElementById('cancelBtn'); cb.onclick = () => Q.twoTap(cb, () => Q.cancel(tk.id), t('cancel_q'));
@@ -416,7 +431,7 @@
           <div class="code">${code} · ${t('with')} ${Q.esc(sty?.name)}</div>
           <h1 style="margin-top:12px">${t('in_t')}</h1>
           <p class="sub">${t('in_s')}</p>
-          <div class="extras">${D.addons.map(a => `<button data-add="${a.id}">🍵 ${Q.esc(Q.L(a.name))}<small>${free ? t('free') : a.price + ' AED'}</small></button>`).join('')}</div>
+          <div class="extras">${D.addons.map(a => `<button data-add="${a.id}"><span class="em" aria-hidden="true">🍵</span>${Q.esc(Q.L(a.name))}<small>${free ? t('free') : a.price + ' AED'}</small></button>`).join('')}</div>
           <p class="muted" style="margin:22px 0 8px">${t('perfume_t')}</p>
           <div class="extras" style="grid-template-columns:repeat(3,1fr)">${D.perfumes.map(p => `<button data-perf="${p.id}" style="${tk.perfume === p.id ? 'border-color:var(--rose);background:var(--blush)' : ''};text-align:center">${Q.esc(Q.L(p.name))}</button>`).join('')}</div>
         </div>${demoBtn()}`;
@@ -432,8 +447,8 @@
           <p class="sub">${t('pay_s')}</p>
           <div class="summary" style="background:var(--pearl);text-align:start">
             <div><span>${Q.esc(Q.L(s.look))}${tk.extraLong ? ' + XL' : ''}</span><span>${pr.base} AED</span></div>
-            ${pr.discount ? `<div><span>${t('launch_disc')} −${tk.discountPct}%</span><span>−${pr.discount} AED</span></div>` : ''}
-            ${pr.guarantee ? `<div><span>${t('guarantee')}</span><span>−${pr.base - pr.discount} AED</span></div>` : ''}
+            ${pr.discount ? `<div><span>${t('launch_disc')} <bdi dir="ltr">−${tk.discountPct}%</bdi></span><span><bdi dir="ltr">−${pr.discount} AED</bdi></span></div>` : ''}
+            ${pr.guarantee ? `<div><span>${t('guarantee')}</span><span><bdi dir="ltr">−${pr.base - pr.discount} AED</bdi></span></div>` : ''}
             ${pr.addons.map(a => `<div><span>${Q.esc(Q.L(a.name))}</span><span>${a.price ? a.price + ' AED' : t('free')}</span></div>`).join('')}
             <div class="total"><span>${t('total')}</span><span>${pr.total} AED</span></div>
           </div>
@@ -442,13 +457,13 @@
           ${tipChoice === 'custom' ? `<input class="input" id="customTip" type="number" min="0" inputmode="numeric" placeholder="AED" style="margin-bottom:10px">` : ''}
           <button class="btn btn-ghost btn-block" data-tip="0" style="margin-bottom:14px;${tipChoice === 0 ? 'background:var(--blush)' : ''}">${t('no_tip')}</button>
           <div class="summary" style="background:var(--pearl);text-align:start;margin-top:4px"><div><span>${t('tip_line')}</span><span id="tipVal">${tipAmt} AED</span></div><div class="total"><span>${t('to_pay')}</span><span id="payVal">${pr.total + tipAmt} AED</span></div></div>
-          <button class="btn apple btn-block" id="payApple"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.7-1-2.7-4.1zM13.9 5c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5z"/></svg>${t('pay_apple')} · ${pr.total + tipAmt} AED</button>
+          <button class="btn apple btn-block" id="payApple"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.7-1-2.7-4.1zM13.9 5c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5z"/></svg>${t('pay_apple')} · <span id="appleAmt">${pr.total + tipAmt} AED</span></button>
           <button class="btn btn-ghost btn-block" id="payCard" style="margin-top:10px">${t('pay_card')}</button>
           ${Q.isDemo ? `<p class="muted" style="font-size:.8rem;margin:12px 0 0">${t('demo_pay')}</p>` : ''}
         </div>`;
       el.querySelectorAll('[data-tip]').forEach(b => b.onclick = () => { tipChoice = b.dataset.tip === 'custom' ? 'custom' : +b.dataset.tip; renderTicket(Q.ticket(myId)); if (tipChoice === 'custom') setTimeout(() => document.getElementById('customTip')?.focus(), 30); });
       const ct = document.getElementById('customTip');
-      if (ct) ct.oninput = () => { const v = Math.max(0, Math.round(+ct.value || 0)); document.getElementById('tipVal').textContent = v + ' AED'; document.getElementById('payVal').textContent = (pr.total + v) + ' AED'; };
+      if (ct) ct.oninput = () => { const v = Math.max(0, Math.round(+ct.value || 0)); document.getElementById('tipVal').textContent = v + ' AED'; document.getElementById('payVal').textContent = (pr.total + v) + ' AED'; document.getElementById('appleAmt').textContent = (pr.total + v) + ' AED'; };
       const doPay = method => {
         const tip = tipChoice === 'custom' ? (+document.getElementById('customTip')?.value || 0) : tipChoice ? Math.round(tipBase * tipChoice / 100) : 0;
         const btn = document.getElementById(method === 'applepay' ? 'payApple' : 'payCard');
@@ -528,7 +543,22 @@
   Q.i18n(dict);
   if (sel.serviceId && Q.service(sel.serviceId)) showStep(1);
   Q.on(render);
-  setInterval(() => { const tk = myId && Q.ticket(myId); if (tk && tk.status === 'waiting') renderTicket(tk); }, 5000);
+  // Ticket en attente : toutes les 5 s on ne met à jour que les valeurs (attente, rang, heure), sans reconstruire la carte
+  const setTxt = (id, v) => { const el = document.getElementById(id); if (el && el.textContent !== v) el.textContent = v; };
+  setInterval(() => {
+    const tk = myId && Q.ticket(myId); if (!tk || tk.status !== 'waiting') return;
+    if (document.activeElement && ['customTip', 'comment'].includes(document.activeElement.id)) return;
+    const e = Q.ticketEta(tk.id) || {}, idle = e.minutes == null, card = document.querySelector('#ticket .ticket-card');
+    if (!card || card.dataset.wk !== `${tk.id}:${idle}`) return renderTicket(tk);
+    const pos = Q.position(tk.id), who = e.stylistId ? Q.stylist(e.stylistId)?.name : (tk.pref === 'any' ? t('any') : Q.stylist(tk.pref)?.name);
+    setTxt('wkPos', '#' + pos); setTxt('wkWho', who || '—'); setTxt('wkReady', idle ? '—' : Q.clock(Date.now() + e.minutes * 60000));
+    setTxt('wkStIn', t('st_in_s', { c: Q.ticketCode(tk), p: pos }));
+    const big = document.getElementById('wkBig');
+    if (idle) { const i = big && big.querySelector('.idle'); if (i && i.textContent !== '#' + pos) i.textContent = '#' + pos; }
+    else if (big) { const html = e.minutes <= 1 ? '<small>' + t('now') + '</small>' : e.minutes + '<small>' + t('min') + '</small>'; if (big.innerHTML !== html) big.innerHTML = html; }
+    const total = Math.max(1, Math.round((Date.now() - tk.createdAt) / 60000) + (e.minutes || 0)), frac = idle ? 0 : 1 - e.minutes / total;
+    const arc = document.querySelector('#ticket .ring svg circle:nth-of-type(2)'); if (arc) arc.setAttribute('stroke-dashoffset', 2 * Math.PI * 100 * (1 - frac));
+  }, 5000);
 })();
 </script>
 </body>

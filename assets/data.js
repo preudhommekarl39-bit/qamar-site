@@ -103,16 +103,17 @@ window.QAMAR_DATA = {
   },
 
   packages: [
-    { id: 'club', name: { en: 'QAMAR Club · from 329 AED / month', ar: 'نادي قمر · من ٣٢٩ درهماً شهرياً' }, price: '329 AED+', note: { en: 'Extras included, and the price goes down every month', ar: 'الإضافات مشمولة، والسعر ينخفض كل شهر' } },
-    { id: 'squad', name: { en: 'Squad — 4 friends or more', ar: 'سكواد — ٤ صديقات أو أكثر' }, price: '−25%', note: { en: 'Each of you saves 25%', ar: 'خصم ٢٥٪ لكل واحدة منكن' } },
-    { id: 'happy', name: { en: 'Happy Hours · 10 AM – 3 PM weekdays', ar: 'عروض الظهيرة · ١٠ص – ٣م أيام الأسبوع' }, price: '−20%', note: { en: 'Perfect for a lunch-break glow', ar: 'مثالي لاستراحة الغداء' } }
+    { id: 'club', name: { en: 'QAMAR Club · from 329 AED / month', ar: 'نادي قمر · من ٣٢٩ درهماً شهرياً' }, price: { en: 'From 329 AED', ar: 'من ٣٢٩ درهماً' }, note: { en: 'Extras included, and the price goes down every month', ar: 'الإضافات مشمولة، والسعر ينخفض كل شهر' } },
+    { id: 'squad', name: { en: 'Squad — 4 friends or more', ar: 'سكواد — ٤ صديقات أو أكثر' }, price: { en: '−25%', ar: 'خصم ٢٥٪' }, note: { en: 'Each of you saves 25%', ar: 'خصم ٢٥٪ لكل واحدة منكن' } },
+    { id: 'happy', name: { en: 'Happy Hours · 10 AM – 3 PM weekdays', ar: 'عروض الظهيرة · ١٠ص – ٣م أيام الأسبوع' }, price: { en: '−20%', ar: 'خصم ٢٠٪' }, note: { en: 'Perfect for a lunch-break glow', ar: 'مثالي لاستراحة الغداء' } }
   ],
 
+  // name : identifiant affiché sur les écrans du personnel ; names : prénom traduit pour le site public (EN/AR)
   stylists: [
-    { id: 'layla', name: 'Layla', seat: 1, pin: '1111', ig: 'qamar.layla', specialty: { en: 'Hollywood curls', ar: 'كيرلي هوليوود' } },
-    { id: 'noor', name: 'Noor', seat: 2, pin: '2222', ig: 'qamar.noor', specialty: { en: 'Sleek & glass hair', ar: 'الشعر الناعم واللامع' } },
-    { id: 'sara', name: 'Sara', seat: 3, pin: '3333', ig: 'qamar.sara', specialty: { en: 'Cuts & colour', ar: 'القص والصبغة' } },
-    { id: 'mariam', name: 'Mariam', seat: 4, pin: '4444', ig: 'qamar.mariam', specialty: { en: 'Braids & updos', ar: 'الضفائر والتسريحات' } },
-    { id: 'yasmin', name: 'Yasmin', seat: 5, pin: '5555', ig: 'qamar.yasmin', specialty: { en: 'Volume & waves', ar: 'الحجم والتموجات' } }
+    { id: 'layla', name: 'Layla', names: { en: 'Layla', ar: 'ليلى' }, seat: 1, pin: '1111', ig: 'qamar.layla', specialty: { en: 'Hollywood curls', ar: 'كيرلي هوليوود' } },
+    { id: 'noor', name: 'Noor', names: { en: 'Noor', ar: 'نور' }, seat: 2, pin: '2222', ig: 'qamar.noor', specialty: { en: 'Sleek & glass hair', ar: 'الشعر الناعم واللامع' } },
+    { id: 'sara', name: 'Sara', names: { en: 'Sara', ar: 'سارة' }, seat: 3, pin: '3333', ig: 'qamar.sara', specialty: { en: 'Cuts & colour', ar: 'القص والصبغة' } },
+    { id: 'mariam', name: 'Mariam', names: { en: 'Mariam', ar: 'مريم' }, seat: 4, pin: '4444', ig: 'qamar.mariam', specialty: { en: 'Braids & updos', ar: 'الضفائر والتسريحات' } },
+    { id: 'yasmin', name: 'Yasmin', names: { en: 'Yasmin', ar: 'ياسمين' }, seat: 5, pin: '5555', ig: 'qamar.yasmin', specialty: { en: 'Volume & waves', ar: 'الحجم والتموجات' } }
   ]
 };

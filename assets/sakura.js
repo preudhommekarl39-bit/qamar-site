@@ -1,6 +1,6 @@
 /* QAMAR — sakura sur tout le site :
    1) branches de cerisier en fleurs qui se balancent dans les sections ([data-branch="tr|tl"])
-   2) pluie légère de pétales par-dessus la page (après le hero, ou partout s'il n'y a pas de hero). */
+   2) pluie légère de pétales derrière le texte (au-dessus des fonds de section, sous .wrap / .app), après le hero ou partout s'il n'y a pas de hero. */
 (function () {
   const TAU = Math.PI * 2;
   const rnd = (a, b) => a + Math.random() * (b - a);
@@ -109,7 +109,12 @@
     function size() {
       dpr = 1; W = innerWidth; H = innerHeight;
       cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      items = Array.from({ length: W < 700 ? 9 : 16 }, () => make(false));
+      items = Array.from({ length: W < 700 ? 5 : 16 }, () => make(false));
+    }
+    // iOS déclenche « resize » quand la barre d'adresse bouge : on ne relance la pluie que si la largeur change
+    function onResize() {
+      if (innerWidth !== W) return size();
+      if (innerHeight !== H) { H = innerHeight; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
     }
     function frame(ms) {
       if (last && ms - last < 33) { if (on && !document.hidden) raf = requestAnimationFrame(frame); return; }
@@ -126,7 +131,7 @@
       if (on && !document.hidden) raf = requestAnimationFrame(frame);
     }
     const start = () => { cancelAnimationFrame(raf); last = 0; raf = requestAnimationFrame(frame); };
-    size(); addEventListener('resize', size);
+    size(); addEventListener('resize', onResize);
     // Sur la page d'accueil, la pluie prend le relais quand on quitte le hero
     if (hasHero) {
       new MutationObserver(() => {
@@ -140,7 +145,7 @@
 
   const style = document.createElement('style');
   style.textContent = `
-    .sakura-rain { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; opacity: 0; transition: opacity .8s; }
+    .sakura-rain { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0; transition: opacity .8s; }
     .sakura-rain.on { opacity: 1; }
     .branch-deco { position: absolute; top: -4px; z-index: 0; width: min(400px, 40%); pointer-events: none; }
     .branch-deco.tr { right: -6px; }
@@ -148,7 +153,7 @@
     .branch-deco img { display: block; width: 100%; height: auto; transform-origin: 100% 0; animation: branchSway 7s ease-in-out infinite alternate; filter: drop-shadow(0 10px 18px rgba(214, 120, 150, .18)); }
     @keyframes branchSway { from { transform: rotate(-1.4deg); } to { transform: rotate(1.6deg); } }
     @media (max-width: 760px) { .branch-deco { width: 46%; opacity: .9; } }
-    @media (prefers-reduced-motion: reduce) { .branch-deco img { animation: none; } }
+    @media (prefers-reduced-motion: reduce), (pointer: coarse) { .branch-deco img { animation: none; } }
   `;
   document.head.appendChild(style);
 

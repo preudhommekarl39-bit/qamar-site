@@ -112,6 +112,9 @@ if (!ar.includes('family=Tajawal')) { console.error('Arabic fonts (Tajawal + Ami
 ar = setMeta(ar, 'name', 'twitter:title', 'قمر بلودراي لاونج دبي — ادخلي… واخرجي متألقة.');
 ar = setMeta(ar, 'name', 'twitter:description', 'صالون سشوار نسائي بدون موعد قرب شارع الشيخ زايد في دبي: دشّ خاص، ملابسكِ بالبخار، وسشوار في ٤٥ دقيقة. الافتتاح مارس ٢٠٢٧.');
 ar = setMeta(ar, 'property', 'og:description', 'صالون سشوار نسائي بدون موعد قرب شارع الشيخ زايد في دبي: دشّ خاص، ملابسكِ بالبخار، وسشوار في ٤٥ دقيقة. الافتتاح مارس ٢٠٢٧.');
+// Libellés d'accessibilité (aria-label) en arabe
+for (const [en, arL] of [['Menu', 'القائمة'], ['Close', 'إغلاق'], ['Previous', 'السابق'], ['Next', 'التالي'], ['Language', 'اللغة'], ['QAMAR home', 'الصفحة الرئيسية لقمر'], ['Main', 'التنقل الرئيسي'], ['Filter looks', 'تصفية الإطلالات'], ['Steps', 'الخطوات'], ['Plan', 'الاشتراك'], ['WhatsApp', 'واتساب'], ['QAMAR Blowdry Lounge, opening film', 'قمر بلودراي لاونج، فيلم الافتتاح']]) ar = ar.replaceAll(`aria-label="${en}"`, `aria-label="${arL}"`);
+ar = ar.replace('target="_blank" rel="noopener">WhatsApp</a>', 'target="_blank" rel="noopener">واتساب</a>');
 ar = seoHead(ar, 'ar', URLS.ar);
 writeFileSync(`${OUT}/ar.html`, ar);
 

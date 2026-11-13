@@ -75,12 +75,12 @@
   .label { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: rgba(255, 255, 255, .55); border: 1px solid rgba(255, 255, 255, .6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); font-size: 13px; color: var(--glass-ink); }
   .label .ic { font-size: 15px; color: var(--rose-deep); }
   .pill-btn { display: inline-flex; align-items: center; gap: 12px; background: rgba(75, 45, 37, .86); color: #fff; border-radius: 999px; padding-block: 8px; padding-inline: 8px 22px; font-size: .9rem; text-decoration: none; white-space: nowrap; border: 0; transition: background .2s, transform .2s; }
-  .pill-btn:hover { background: rgba(75, 45, 37, 1); transform: scale(1.02); }
+  @media (hover: hover) { .pill-btn:hover { background: rgba(75, 45, 37, 1); transform: scale(1.02); } }
   .pill-btn:active, .white-btn:active { transform: scale(.98); }
   .pill-btn .bub { background: rgba(255, 255, 255, .2); border-radius: 50%; width: 32px; height: 32px; display: grid; place-items: center; }
   .pill-btn .bub .ic { font-size: 18px; }
   .white-btn { display: inline-flex; align-items: center; gap: 10px; background: #fff; color: var(--glass-ink); border-radius: 999px; padding-block: 6px; padding-inline: 6px 20px; font-size: .9rem; text-decoration: none; border: 0; white-space: nowrap; transition: background .2s, transform .2s; }
-  .white-btn:hover { background: rgba(255, 255, 255, .88); transform: scale(1.02); }
+  @media (hover: hover) { .white-btn:hover { background: rgba(255, 255, 255, .88); transform: scale(1.02); } }
   .white-btn .bub { background: rgba(75, 45, 37, .08); border-radius: 50%; width: 28px; height: 28px; display: grid; place-items: center; }
   .white-btn .bub .ic { font-size: 16px; }
   .announce { display: block; padding: 10px 16px; line-height: 1.7; font-size: 13px; color: var(--ink-2); text-align: center; background: #FBF4F6; }
@@ -108,14 +108,14 @@
   .brand .logo-mark { width: 26px; color: var(--rose-deep); }
   .hnav ul { display: none; list-style: none; margin: 0; padding: 0; gap: 30px; font-size: .875rem; color: rgb(55, 38, 33); }
   .hnav li a { display: flex; align-items: center; gap: 4px; text-decoration: none; transition: opacity .2s; }
-  .hnav li a:hover { opacity: .65; }
+  @media (hover: hover) { .hnav li a:hover { opacity: .65; } }
   .glass-lang { background: rgba(255, 255, 255, .45); border-color: rgba(255, 255, 255, .55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
   @media (min-width: 768px) { .hnav { padding: 24px 40px; } }
   @media (min-width: 1080px) { .hnav ul { display: flex; } }
   @media (max-width: 560px) { .hnav .glass-lang { display: none; } .hnav .pill-btn { font-size: .78rem; padding-inline: 6px 14px; gap: 8px; } .hnav .pill-btn .bub { width: 26px; height: 26px; } }
   /* Petits écrans : le mot QAMAR laisse la place au bouton (le texte arabe du bouton est plus long) */
   @media (max-width: 420px) { html[dir="rtl"] .hnav .logo-word { display: none; } .hnav .brand .logo-word { letter-spacing: .3em; } }
-  @media (max-width: 380px) { .hnav .logo-word { display: none; } }
+  @media (max-width: 400px) { .hnav .logo-word { display: none; } }
   .htext { width: 100%; max-width: 56rem; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 28px 24px 0; }
   .htext .label { margin-bottom: 16px; animation: up .6s ease-out both; }
   .htext h1 { font-weight: 400; font-size: clamp(2.5rem, 6.6vw, 84px); line-height: 1.02; letter-spacing: -.035em; color: var(--ink-2); margin: 0 0 12px; text-wrap: balance; animation: pop .8s .15s both; }
@@ -128,7 +128,7 @@
   .hproof { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 18px 0 0; padding: 0; animation: fade .8s .45s both; }
   .hproof li { font-size: .8rem; font-weight: 500; color: var(--ink-2); background: rgba(255, 255, 255, .55); border: 1px solid rgba(255, 255, 255, .7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 999px; padding: 6px 12px; }
   .hproof li::before { content: "☾"; color: var(--gold); margin-inline-end: 6px; }
-  @media (max-width: 420px) { .hproof { gap: 6px; } .hproof li { font-size: .72rem; padding: 5px 10px; } }
+  @media (max-width: 420px) { .hproof { gap: 6px; } .hproof li { font-size: .8rem; padding: 5px 10px; } }
   @keyframes up { from { transform: translateY(16px); } }
   @keyframes pop { from { transform: scale(.98); } }
   @keyframes fade { from { transform: translateY(6px); } }
@@ -145,7 +145,7 @@
   .mask-top { top: -1.5rem; right: 0; }
   .mask-left { bottom: 0; left: -1.5rem; }
   .hcorner .circ { width: 40px; height: 40px; border-radius: 50%; background: rgba(75, 45, 37, .05); border: 1px solid rgba(75, 45, 37, .1); display: grid; place-items: center; color: rgba(75, 45, 37, .8); flex: none; transition: transform .25s; }
-  .hcorner:hover .circ { transform: rotate(45deg); }
+  @media (hover: hover) { .hcorner:hover .circ { transform: rotate(45deg); } }
   .hcorner .circ .ic { font-size: 20px; }
   .hcorner .info { display: flex; flex-direction: column; text-align: start; }
   .hcorner b { font-weight: 400; font-size: 16px; color: rgba(75, 45, 37, .95); }
@@ -172,10 +172,10 @@
   .grad { background: linear-gradient(100deg, #6B4A52 0%, #A85B72 35%, #E58FAA 50%, #A85B72 65%, #6B4A52 100%); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: titleShine 8s ease-in-out infinite; }
   .dark .grad { background-image: linear-gradient(100deg, #F3DDB0 0%, #FFF4DE 40%, #F7B9CB 55%, #F3DDB0 75%); }
   .more { display: inline-flex; align-items: center; gap: 4px; color: var(--rose-deep); font-size: 1.05rem; text-decoration: none; letter-spacing: -.01em; }
-  .more:hover { text-decoration: underline; text-underline-offset: 3px; }
+  @media (hover: hover) { .more:hover { text-decoration: underline; text-underline-offset: 3px; } }
   .dark .more { color: var(--gold-soft); }
   .btn-a { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: #fff; border-radius: 999px; padding: 13px 24px; font-size: 1rem; text-decoration: none; border: 0; letter-spacing: -.01em; transition: background .2s, transform .2s; }
-  .btn-a:hover { background: #3A272C; }
+  @media (hover: hover) { .btn-a:hover { background: #3A272C; } }
   .btn-a:active { transform: scale(.98); }
   .btn-a.light { background: #fff; color: var(--ink); }
   .btn-a.gold { background: var(--gold-soft); color: var(--black); }
@@ -194,7 +194,7 @@
   .gnav .brand .logo-word { font-size: .95rem; }
   .gnav nav { display: flex; gap: 26px; font-size: .8rem; }
   .gnav nav a { color: var(--ink-3); text-decoration: none; transition: color .2s; }
-  .gnav nav a:hover { color: var(--ink); }
+  @media (hover: hover) { .gnav nav a:hover { color: var(--ink); } }
   .gnav .lang { transform: scale(.88); }
   .gnav .cta { background: var(--ink); color: #fff; border-radius: 999px; padding: 6px 14px; font-size: .78rem; text-decoration: none; white-space: nowrap; }
   @media (max-width: 960px) { .gnav nav, .gnav .lang { display: none; } .gnav .in { gap: 10px; } }
@@ -227,6 +227,7 @@
   .mnav-row a { flex: 1; text-align: center; padding: 12px 6px; border-radius: 14px; background: rgba(255, 255, 255, .7); border: 1px solid var(--line); color: var(--ink-2); text-decoration: none; font-size: .85rem; font-weight: 500; }
   html.is-app .mnav-row a[data-install-app] { display: none; }
   body.menu-open { overflow: hidden; }
+  body.menu-lock { position: fixed; left: 0; right: 0; width: 100%; }
 
   /* ---------- Manifeste ---------- */
   .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; margin-top: 90px; text-align: center; }
@@ -333,6 +334,7 @@
   .mcard { position: relative; overflow: hidden; border-radius: 14px; padding: 12px 13px 11px; color: #F8EDF0; background: var(--berry-grad); box-shadow: 0 16px 24px -16px rgba(78, 33, 49, .8); aspect-ratio: 1.62; display: flex; flex-direction: column; justify-content: flex-end; }
   .mcard .moon { position: absolute; top: 11px; inset-inline-end: 11px; width: 22px; height: 22px; color: #F3CBD7; }
   .mcard small { font-size: .56rem; letter-spacing: .18em; text-transform: uppercase; opacity: .85; }
+  html[dir="rtl"] .mcard small { letter-spacing: 0; text-transform: none; font-size: .62rem; }
   .mcard b { font-size: 1.2rem; font-weight: 600; letter-spacing: -.02em; line-height: 1.2; color: #fff; }
   .mcard .mm { font-size: .62rem; color: #F3CBD7; }
   .mcard .shine { position: absolute; top: -20%; bottom: -20%; left: 0; width: 40%; background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .16), transparent); transform: translate3d(-120%, 0, 0) skewX(-12deg); animation: shine 4.5s 1s ease-in-out infinite; }
@@ -413,14 +415,14 @@
   /* Mobile : téléphone au-dessus, une seule étape à la fois sous le téléphone, avec des onglets 1·2·3 */
   @media (max-width: 900px) {
     .how { grid-template-columns: minmax(0, 1fr); gap: 6px; margin-top: 28px; }
-    .how-stage { padding: 26px 0 48px; overflow: hidden; margin-inline: -16px; --ry: -16deg; }
+    #how { overflow-x: clip; }
+    .how-stage { padding: 26px 0 48px; overflow: visible; margin-inline: -16px; --ry: -16deg; }
     html[dir="rtl"] .how-stage { --ry: 16deg; }
     .how .phone { width: min(250px, 64vw); }
     .hs-floor { bottom: 20px; width: 230px; margin-left: -115px; }
     .hs-slot { width: 112px; }
-    .hs-slot.sa { top: 27%; inset-inline-end: -27%; }
-    .hs-slot.sb { bottom: -5%; inset-inline-start: -11%; }
-    html[dir="rtl"] .hs-slot.sb { inset-inline-start: -6%; }
+    .hs-slot.sa { top: 27%; inset-inline-end: -12%; }
+    .hs-slot.sb { bottom: -5%; inset-inline-start: -2%; }
     .sa .hs-card b { font-size: 1.1rem; }
     .sa .hs-card small, .sb .hs-card { font-size: .68rem; }
     .hs-card { padding: 8px 10px; border-radius: 12px; }
@@ -446,22 +448,22 @@
   .gallery { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: max(22px, calc((100vw - 1120px) / 2)); padding: 50px max(22px, calc((100vw - 1120px) / 2)) 30px; margin: 0 calc(50% - 50vw); scrollbar-width: none; }
   .gallery::-webkit-scrollbar { display: none; }
   .tile-look { flex: 0 0 min(330px, 80vw); scroll-snap-align: start; background: var(--s2); border-radius: 28px; padding: 30px 28px 26px; display: flex; flex-direction: column; text-decoration: none; color: var(--ink); transition: transform .4s cubic-bezier(.2, .7, .2, 1); }
-  .tile-look:hover { transform: scale(1.015); }
+  @media (hover: hover) { .tile-look:hover { transform: scale(1.015); } }
   .tile-look[hidden] { display: none; }
   .tile-look .meta { font-size: .85rem; font-weight: 600; color: var(--rose-deep); }
   .tile-look h3 { font-size: 1.75rem; font-weight: 600; letter-spacing: -.03em; margin: 6px 0 6px; line-height: 1.1; }
   .tile-look p { margin: 0; font-size: 1rem; line-height: 1.45; color: var(--ink-3); min-height: 2.9em; }
   .tile-look .art { margin: 26px auto 22px; width: 78%; aspect-ratio: 1 / 1.05; border-radius: 999px 999px 18px 18px; display: grid; place-items: center; overflow: hidden; }
   .tile-look .art .look-canvas { width: 100%; height: 100%; display: block; transition: transform .6s; }
-  .tile-look:hover .art .look-canvas { transform: scale(1.04); }
+  @media (hover: hover) { .tile-look:hover .art .look-canvas { transform: scale(1.04); } }
   .tile-look .foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .tile-look .price { font-size: 1rem; color: var(--ink); }
   .tile-look .price s { color: var(--ink-3); margin-inline-end: 6px; }
   .tile-look .plus { width: 36px; height: 36px; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center; font-size: 1.3rem; line-height: 1; transition: transform .3s; }
-  .tile-look:hover .plus { transform: rotate(90deg); }
+  @media (hover: hover) { .tile-look:hover .plus { transform: rotate(90deg); } }
   .gal-ctrl { display: flex; justify-content: flex-end; gap: 12px; }
   .gal-ctrl button { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--s3); color: var(--ink); display: grid; place-items: center; font-size: 1.1rem; transition: background .2s; }
-  .gal-ctrl button:hover { background: #EEDFE3; }
+  @media (hover: hover) { .gal-ctrl button:hover { background: #EEDFE3; } }
   @media (max-width: 760px) { .gal-ctrl { justify-content: center; } .gal-ctrl button { width: 44px; height: 44px; } }
 
   /* ---------- Menu + inclus ---------- */
@@ -475,7 +477,7 @@
   .menu-card h4 { font-weight: 400; letter-spacing: .14em; text-transform: uppercase; font-size: 1.05rem; display: flex; align-items: center; gap: 12px; margin: 24px 0 6px; }
   html[dir="rtl"] .menu-card h4 { letter-spacing: 0; font-size: 1.3rem; }
   .menu-card h4::after { content: ''; flex: 1; height: 1px; background: var(--gold); opacity: .6; }
-  .menu-card h4 small { font-size: .7em; letter-spacing: .04em; text-transform: none; }
+  .menu-card h4 small { font-size: max(.7em, 12px); letter-spacing: .04em; text-transform: none; }
   .mrow { display: flex; justify-content: space-between; gap: 14px; padding: 4px 0; font-family: var(--helv); font-size: .93rem; }
   .mrow small { color: var(--ink-3); }
   .mrow .p { white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -553,7 +555,7 @@
   .team { display: flex; justify-content: center; gap: 44px; margin-top: 80px; flex-wrap: wrap; }
   .member { width: 150px; text-align: center; text-decoration: none; color: inherit; }
   .member .av { width: 120px; height: 120px; margin: 0 auto 18px; border-radius: 50%; display: grid; place-items: center; font-size: 2.6rem; font-weight: 300; color: #fff; position: relative; transition: transform .4s cubic-bezier(.2, .7, .2, 1); }
-  .member:hover .av { transform: scale(1.05); }
+  @media (hover: hover) { .member:hover .av { transform: scale(1.05); } }
   .member .av .dot { position: absolute; bottom: 8px; right: 10px; width: 16px; height: 16px; border: 3px solid var(--s2); }
   .member b { display: block; font-size: 1.2rem; font-weight: 600; letter-spacing: -.02em; }
   .member small { display: block; color: var(--ink-3); font-size: .92rem; margin-top: 2px; }
@@ -599,14 +601,14 @@
   footer .cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; padding: 26px 0; }
   footer h2, footer h5 { margin: 0 0 10px; font-size: .78rem; font-weight: 600; color: var(--ink); }
   footer a { display: block; color: var(--ink-3); text-decoration: none; padding: 3px 0; }
-  footer a:hover { color: var(--ink); text-decoration: underline; }
+  @media (hover: hover) { footer a:hover { color: var(--ink); text-decoration: underline; } }
   footer .legal { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-top: 16px; border-top: 1px solid var(--line); }
   footer .legal a { display: inline; }
   @media (max-width: 760px) { footer .cols { grid-template-columns: 1fr 1fr; } }
 
   .wa-fab { position: fixed; z-index: 55; bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); inset-inline-start: max(16px, env(safe-area-inset-left, 0px)); width: 52px; height: 52px; border-radius: 50%; background: radial-gradient(120% 90% at 30% 20%, rgba(255, 255, 255, .55), transparent 55%), linear-gradient(150deg, #F6BCCB 0%, #E08AA3 55%, #B8607B 100%); color: #fff; display: grid; place-items: center; box-shadow: inset 0 0 0 1.5px rgba(232, 199, 140, .85), inset 0 1px 2px rgba(255, 255, 255, .6), 0 12px 30px -10px rgba(168, 91, 114, .75), 0 0 0 5px rgba(246, 188, 203, .25); transition: opacity .3s, transform .3s; }
   body:not(.past-hero) .wa-fab { opacity: 0; transform: translateY(16px); pointer-events: none; }
-  .wa-fab:hover { transform: translateY(-2px) scale(1.05); }
+  @media (hover: hover) { .wa-fab:hover { transform: translateY(-2px) scale(1.05); } }
   .wa-fab svg { filter: drop-shadow(0 1px 2px rgba(120, 50, 70, .35)); }
   @keyframes titleShine { 0% { background-position: 100% 0; } 60%, 100% { background-position: 0% 0; } }
   @media (prefers-reduced-motion: reduce) { .grad, .gticket, .reveal.in { animation: none; } .how .step { opacity: 1; } }
@@ -668,8 +670,8 @@
   @media (min-width: 900px) { .film-reel { overflow: visible; } }
   .film-frame { position: relative; width: min(300px, 74vw); aspect-ratio: 9 / 16; border-radius: 28px; overflow: hidden; background: #2a1c18; box-shadow: 0 0 0 1px rgba(196, 154, 90, .55), 0 40px 80px -30px rgba(0, 0, 0, .7); }
   .film-frame video { display: block; width: 100%; height: 100%; object-fit: cover; }
-  .film-sound { position: absolute; right: 12px; top: 12px; display: inline-flex; align-items: center; gap: 8px; padding: 8px 13px; border: 0; border-radius: 999px; background: rgba(18, 11, 15, .72); color: #FFF7F9; font: inherit; font-size: .9rem; cursor: pointer; }
-  html[dir="rtl"] .film-sound { right: auto; left: 12px; }
+  .film-sound { position: absolute; right: 12px; top: 12px; min-height: 44px; display: inline-flex; align-items: center; gap: 8px; padding: 8px 13px; border: 0; border-radius: 999px; background: rgba(18, 11, 15, .72); color: #FFF7F9; font: inherit; font-size: .9rem; cursor: pointer; }
+  html[dir="rtl"] .film-sound { right: auto; left: 12px; top: auto; bottom: 12px; } /* en haut, il cachait le mot QAMAR de la vidéo arabe */
   .film-sound svg { width: 18px; height: 18px; }
   .film-sound .on { display: none; }
   .film-sound[aria-pressed="true"] .on { display: block; }
@@ -718,7 +720,7 @@
   .club-bars .b:last-child .bar { background: linear-gradient(180deg, var(--gold-soft), var(--gold)); }
   .club-bars .v { font-size: .72rem; font-variant-numeric: tabular-nums; color: var(--ink-2); white-space: nowrap; }
   .club-bars .m { font-size: .7rem; color: var(--ink-3); }
-  @media (max-width: 600px) { .club-bars { gap: 3px; height: 160px; } .club-bars .v { font-size: .6rem; writing-mode: vertical-rl; transform: rotate(180deg); } }
+  @media (max-width: 600px) { .club-bars { gap: 3px; height: 160px; } .club-bars .v { font-size: 11px; } .club-bars .b:not(:nth-child(1)):not(:nth-child(5)):not(:nth-child(9)):not(:nth-child(12)) .v { visibility: hidden; } .club-bars .m { font-size: 11px; } }
   .club-compare { margin-top: 50px; overflow-x: auto; }
   .club-compare table { width: 100%; border-collapse: collapse; font-size: .98rem; }
   .club-compare th, .club-compare td { padding: 15px 12px; border-bottom: 1px solid var(--line); text-align: center; }
@@ -766,7 +768,8 @@
   .sig text { font-family: 'Yellowtail', 'Brush Script MT', cursive; font-size: 330px; }
   #sigTag { font-family: var(--helv); font-size: 34px; letter-spacing: .6em; fill: var(--ink-2); opacity: 0; transition: opacity .9s ease .1s, letter-spacing 1.4s cubic-bezier(.2, .8, .2, 1); }
   .sig.done #sigTag { opacity: 1; letter-spacing: .38em; }
-  @media (max-width: 700px) { .sig { min-height: 52vh; } }
+  @media (max-width: 700px) { .sig { min-height: auto; padding: 56px 0; } .sig-svg { width: 165vw; max-width: none; } }
+  .sig-svg { direction: ltr; position: relative; z-index: 1; }
 
   .tile.w2.has-shot { min-height: 540px; }
   .tile.has-shot.wide { min-height: 460px; }
@@ -774,6 +777,59 @@
   .tile.has-shot.wide h3, .tile.has-shot.wide p { max-width: 36%; }
   html[dir="rtl"] .tile.has-shot.wide .shot { right: auto; left: 0; -webkit-mask-image: linear-gradient(270deg, transparent, #000 26%); mask-image: linear-gradient(270deg, transparent, #000 26%); }
   @media (max-width: 980px) { .tile.has-shot.wide { min-height: 600px; } .tile.has-shot.wide .shot { top: auto; width: 100%; height: 60%; -webkit-mask-image: linear-gradient(180deg, transparent, #000 24%); mask-image: linear-gradient(180deg, transparent, #000 24%); } .tile.has-shot.wide h3, .tile.has-shot.wide p { max-width: none; } }
+
+  /* ---------- Téléphone (iPhone) : corrections d'ergonomie, sans changement sur ordinateur ---------- */
+  html { scroll-padding-top: 64px; }
+  /* Hero en flux sur téléphone : la carte « Opening soon » ne chevauche plus le texte sur les écrans courts */
+  @media (max-width: 767px) {
+    .stage-outer { height: auto; min-height: calc(100svh - 44px); max-height: none; }
+    .stage-layer { height: auto; flex: 1 0 auto; }
+    .htext { margin-bottom: 20px; }
+    .hcard { position: relative; right: auto; bottom: auto; margin: auto 16px 128px; align-self: center; width: calc(100% - 32px); max-width: 420px; min-width: 0; }
+  }
+  /* Zones tactiles ≥ 44 px (écrans tactiles uniquement : rien ne bouge à la souris) */
+  @media (pointer: coarse) {
+    .lang button { min-height: 44px; min-width: 44px; }
+    .gnav .cta { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 16px; }
+    .menu-btn, .gnav .menu-btn, .mnav-x { width: 44px; height: 44px; }
+    .pill-btn, .white-btn, .more, .seg button, .how-dots button, .club-pick button, .gal-ctrl button { min-height: 44px; }
+    .white-btn { padding-block: 8px; }
+    .gal-ctrl button { min-width: 44px; }
+    footer a { padding-block: 10px; }
+    footer .legal a { display: inline-block; padding-block: 12px; }
+    .faq summary { min-height: 44px; }
+    /* animations continues coupées sur téléphone (batterie, fluidité) */
+    .htext h1 { animation: pop .8s .15s both; }
+    .grad, .blob { animation: none; }
+  }
+  /* Rituels : sur téléphone, la photo passe sous le texte au lieu de le recouvrir, hauteur contenue */
+  @media (max-width: 600px) {
+    .tile.has-shot, .tile.has-shot.wide, .tile.w2.has-shot, .tile.w3.has-shot, .tile.w6.has-shot { min-height: 0; padding-bottom: 0; }
+    .tile.has-shot .shot, .tile.has-shot.wide .shot { position: relative; inset: auto; order: 9; width: calc(100% + 56px); max-width: none; height: 220px; margin: 20px -28px 0; }
+  }
+  /* Comparatif du Club : replié sur téléphone (sinon ~13 lignes empilées) */
+  .club-compare summary { display: none; }
+  @media (max-width: 760px) {
+    .club-tiers { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px; margin: 44px -22px 0; padding: 16px 22px 12px; scroll-padding-inline: 22px; scrollbar-width: none; }
+    .club-tiers::-webkit-scrollbar { display: none; }
+    .club-tiers .tier { flex: 0 0 min(86%, 340px); scroll-snap-align: start; }
+  }
+  @media (max-width: 760px) {
+    .club-compare summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 0 20px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font-weight: 600; color: var(--ink); cursor: pointer; list-style: none; }
+    .club-compare summary::-webkit-details-marker { display: none; }
+    .club-compare summary::after { content: "+"; font-weight: 400; font-size: 1.3rem; color: var(--rose-deep); transition: transform .3s; }
+    .club-compare details[open] summary::after { transform: rotate(45deg); }
+    .club-compare details[open] table { margin-top: 10px; }
+  }
+  /* WhatsApp pas encore configuré : un seul message soigné à la place des champs désactivés */
+  html.no-wa #contestForm > :not(.form-soon), html.no-wa #brideForm > :not(.form-soon) { display: none; }
+  html.no-wa .form-soon { display: flex; gap: 12px; align-items: flex-start; margin: 0; padding: 18px 20px; border-radius: 20px; background: linear-gradient(160deg, #FFF7F9, #FBE9EF); border: 1px solid rgba(201, 120, 143, .25); font-size: .98rem; line-height: 1.5; color: var(--ink-2); }
+  html.no-wa .form-soon::before { content: "☾"; flex: none; color: var(--rose-deep); font-size: 1.1rem; line-height: 1.35; }
+  .btn-a[aria-disabled="true"] { opacity: 1; background: #fff; color: var(--rose-deep); box-shadow: inset 0 0 0 1px rgba(150, 74, 98, .28); gap: 10px; }
+  .btn-a[aria-disabled="true"]::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--rose); box-shadow: 0 0 0 4px rgba(201, 120, 143, .18); }
+  /* Arabe : pas d'espacement entre les lettres (il casse la liaison des lettres) */
+  html[dir="rtl"] :is(.kicker, .sub, .stat b, .how .step h3, .tile h3, .tile-look h3, .ncol h3, .big4 b, .big4 h3, .pack h4, .tier h3, .tier .price, .club-compare thead th, .mnav-links a, .marquee span, .forms h3, .faq summary, .facts b, .perks-list h3, .club-drop-head h3, .scr h4, .ev-hero b, .p-big b, .member b, .bottle span, .gticket span, .h-eyebrow, .hcard .num) { letter-spacing: 0; }
+  bdi, .num-iso { unicode-bidi: isolate; }
 </style>
 </head>
 <body>
@@ -818,7 +874,7 @@
       <a class="hcorner" href="#looks">
         <span class="mask mask-top"><svg viewBox="0 0 56 56" fill="none"><path d="M56 56V0C56 30.9279 30.9279 56 0 56H56Z" fill="currentColor"/></svg></span>
         <span class="mask mask-left"><svg viewBox="0 0 56 56" fill="none"><path d="M56 56H0C30.9279 56 56 30.9279 56 0V56Z" fill="currentColor"/></svg></span>
-        <span class="circ"><i data-icon="arrow"></i></span>
+        <span class="circ"><i data-icon="arrow" class="flip"></i></span>
         <span class="info"><b data-i18n="corner_t">The look menu</b><span class="sub"><span data-i18n="corner_s">Prices & durations</span><i data-icon="chevron" class="flip"></i></span></span>
       </a>
     </div>
@@ -858,7 +914,7 @@
       <a href="#rituals" data-close data-i18n="nav_rituals">Rituals</a>
       <a href="#night" data-close data-i18n="nav_night">Night</a>
       <a href="#rewards" data-close data-i18n="foot_rew">Offers</a>
-      <a href="#team" data-close data-i18n="nav_team">Stylists</a>
+      <a href="#team" data-close data-i18n="nav_team" hidden>Stylists</a>
       <a href="#private" data-close data-i18n="foot_private">Private events</a>
       <a href="#faq" data-close data-i18n="faq_kicker">Questions</a>
       <a href="#contact" data-close data-i18n="nav_contact">Contact</a>
@@ -1094,10 +1150,13 @@
       <div class="club-bars" id="clubBars" aria-live="polite"></div>
     </div>
     <div class="club-compare reveal">
-      <table>
-        <thead id="clubHead"></thead>
-        <tbody id="clubCompare"></tbody>
-      </table>
+      <details id="clubCompareD" open>
+        <summary><span data-i18n="club_compare">Compare plans</span></summary>
+        <table>
+          <thead id="clubHead"></thead>
+          <tbody id="clubCompare"></tbody>
+        </table>
+      </details>
     </div>
     <p class="club-founding reveal" id="clubFounding"></p>
     <div class="center"><div class="actions"><a class="btn-a" href="#contact" data-i18n="club_cta">Join the founding members</a></div></div>
@@ -1147,7 +1206,7 @@
       <div class="actions"><a class="btn-a light" href="#private" data-i18n="cta_private">Book a private night</a><a class="more" href="queue.html"><span data-i18n="cta_join">Join the queue</span> ›</a></div>
     </div>
     <div class="ncols">
-      <div class="ncol reveal"><span class="when" data-i18n="n1w">Every night, 8 PM to midnight</span><h3 data-i18n="n1t">Night Glow</h3><p data-i18n="n1p">Any blow-dry of your choice, with a matcha on us.</p><div class="price">179 AED</div></div>
+      <div class="ncol reveal"><span class="when" data-i18n="n1w">Every night, 8 PM to midnight</span><h3 data-i18n="n1t">Night Glow</h3><p data-i18n="n1p">Any blow-dry of your choice, with a matcha on us.</p><div class="price" data-i18n="n1price">179 AED</div></div>
       <div class="ncol reveal"><span class="when" data-i18n="n2w">After 10 PM, on request</span><h3 data-i18n="n2t">The bride's lounge</h3><p data-i18n="n2p">The whole salon for the bride and her girls. Your music, every chair.</p><div class="price" data-i18n="n2price">On request</div></div>
       <div class="ncol reveal"><span class="when" data-i18n="n3w">Once a month</span><h3 data-i18n="n3t">Ladies Night</h3><p data-i18n="n3p">Networking for women in Dubai, with blow-dries and matcha.</p><div class="price" data-i18n="n3price">Free entry</div></div>
     </div>
@@ -1161,8 +1220,8 @@
       <h2 class="title sm" data-i18n="rew_title">Bring your girls. Pay less.</h2>
     </div>
     <div class="big4">
-      <div class="reveal"><b class="grad">−25%</b><h3 data-i18n="w1t">Squad</h3><p data-i18n="w1p">Come as 4 or more. Each of you saves 25%.</p></div>
-      <div class="reveal"><b class="grad">50 AED</b><h3 data-i18n="w2t">Refer a friend</h3><p data-i18n="w2p">Credit for every friend you bring.</p></div>
+      <div class="reveal"><b class="grad" data-i18n="w1b">−25%</b><h3 data-i18n="w1t">Squad</h3><p data-i18n="w1p">Come as 4 or more. Each of you saves 25%.</p></div>
+      <div class="reveal"><b class="grad" data-i18n="w2b">50 AED</b><h3 data-i18n="w2t">Refer a friend</h3><p data-i18n="w2p">Credit for every friend you bring.</p></div>
       <div class="reveal"><b class="grad" data-i18n="w3b">1 month</b><h3 data-i18n="w3t">Three friends</h3><p data-i18n="w3p">Bring three, get a month of blow-dries free.</p></div>
       <div class="reveal"><b class="grad" data-i18n="w4b">Free</b><h3 data-i18n="w4t">Birthday glow</h3><p data-i18n="w4p">Your blow-dry is on us on your birthday.</p></div>
     </div>
@@ -1171,7 +1230,7 @@
   </div>
 </section>
 
-<section class="sec alt" id="team">
+<section class="sec alt" id="team" hidden><!-- affiché seulement quand D.brand.teamConfirmed = true (data.js) -->
   <div class="wrap">
     <div class="center">
       <span class="kicker" data-social>@qamar.dubai</span>
@@ -1193,13 +1252,13 @@
         <div class="f"><label for="cLook" data-i18n="f_look">Your look name</label><input id="cLook" name="look" required data-i18n-ph="ph_look" placeholder="e.g. Sunset Curls"></div>
         <div class="two">
           <div class="f"><label for="cName" data-i18n="f_name">Name</label><input id="cName" name="name" required></div>
-          <div class="f"><label for="cIg" data-i18n="f_insta">Instagram</label><input id="cIg" name="ig" placeholder="@"></div>
+          <div class="f"><label for="cIg" data-i18n="f_insta">Instagram</label><input id="cIg" name="ig" placeholder="@" dir="ltr" autocapitalize="none" autocomplete="off"></div>
         </div>
         <div class="actions" style="margin-top:12px">
           <button class="btn-a" type="submit" data-i18n="contest_cta">Submit</button>
           <a class="more" id="contestLink" hidden target="_blank" rel="noopener"><span data-i18n="bride_open">Send it on WhatsApp</span> ›</a>
         </div>
-        <p class="form-soon" data-i18n="form_soon">This form opens with our WhatsApp line, shortly before launch. Nothing is sent from this page yet.</p>
+        <p class="form-soon" data-i18n="form_soon">Requests open on our WhatsApp line shortly before launch.</p>
       </form>
     </div>
     <div class="divider"></div>
@@ -1217,7 +1276,7 @@
           <button class="btn-a" type="submit" data-i18n="bride_cta">Prepare my request</button>
           <a class="more" id="brideLink" hidden target="_blank" rel="noopener"><span data-i18n="bride_open">Send it on WhatsApp</span> ›</a>
         </div>
-        <p class="form-soon" data-i18n="form_soon">This form opens with our WhatsApp line, shortly before launch. Nothing is sent from this page yet.</p>
+        <p class="form-soon" data-i18n="form_soon">Requests open on our WhatsApp line shortly before launch.</p>
       </form>
     </div>
   </div>
@@ -1253,7 +1312,7 @@
     <div class="actions"><a class="btn-a" id="waLink" data-track="whatsapp_click" data-track-loc="contact" target="_blank" rel="noopener" data-i18n="v_wa_cta">Message us on WhatsApp</a><a class="more" href="queue.html"><span data-i18n="cta_join">Join the queue</span> ›</a></div>
     <div class="facts">
       <div><b data-i18n="v_hours_t">Every day</b><span data-i18n="v_hours">8 AM to midnight. Happy hours 10 AM to 3 PM on weekdays.</span></div>
-      <div><b>WhatsApp</b><span data-i18n="v_wa">Text “I want a blow-dry” to join the queue.</span></div>
+      <div><b data-i18n="v_wa_t">WhatsApp</b><span data-i18n="v_wa">Text “I want a blow-dry” to join the queue.</span></div>
       <div><b data-i18n="v_addr_t">Dubai</b><span data-i18n="v_addr">Exact location announced very soon.</span></div>
     </div>
   </div>
@@ -1271,7 +1330,7 @@
       <div><h2 data-i18n="foot_rew">Offers</h2><a href="#rewards" data-i18n="foot_squad">Squad & referral</a><a href="#club" data-i18n="foot_packs">Packs & membership</a></div>
       <div data-social><h2 data-i18n="foot_follow">Follow</h2><a href="https://instagram.com/qamar.dubai" target="_blank" rel="noopener">Instagram</a><a href="https://tiktok.com/@qamar.dubai" target="_blank" rel="noopener">TikTok</a><a href="https://snapchat.com/add/qamar.dubai" target="_blank" rel="noopener">Snapchat</a></div>
     </div>
-    <div class="legal"><span>© 2026 QAMAR Blowdry Lounge · Dubai</span><span><a href="privacy.html" data-i18n="foot_privacy">Privacy</a> · <a href="legal.html" data-i18n="foot_legal">Legal notice</a> · <a href="admin.html" data-i18n="foot_staff">Staff area</a></span></div>
+    <div class="legal"><span data-i18n="foot_copy">© 2026 QAMAR Blowdry Lounge · Dubai</span><span><a href="privacy.html" data-i18n="foot_privacy">Privacy</a> · <a href="legal.html" data-i18n="foot_legal">Legal notice</a> · <a href="admin.html" data-i18n="foot_staff">Staff area</a></span></div>
   </div>
 </footer>
 
@@ -1353,7 +1412,7 @@
     min: { en: 'min', ar: 'د' }, walk_in: { en: 'Walk in', ar: 'ادخلي الآن' }, live_soon: { en: 'Opening soon', ar: 'قريباً' }, closed_now: { en: 'Closed now', ar: 'مغلق الآن' },
     announce: { en: '<span class="tag">Grand opening</span>The first 30 guests get <b>−70%</b>, everyone else <b>−50%</b> all day.', ar: '<span class="tag">الافتتاح الكبير</span>أول ٣٠ ضيفة <b>خصم ٧٠٪</b>، وباقي اليوم <b>خصم ٥٠٪</b>.' },
     film_kicker: { en: 'Opening March 2027', ar: 'الافتتاح في مارس ٢٠٢٧' }, film_t1: { en: 'Your night', ar: 'ليلتكِ' }, film_t2: { en: 'starts here.', ar: 'تبدأ هنا.' },
-    film_sub: { en: 'Walk in, freshen up, get your blowdry and a matcha on us. Ready in 45 minutes.', ar: 'ادخلي، انتعشي، واحصلي على السشوار مع ماتشا على حسابنا. جاهزة خلال ٤٥ دقيقة.' }, film_sound: { en: 'Tap for sound', ar: 'اضغطي للصوت' }, film_cap1: { en: 'From work to dinner, in 45 min', ar: 'من العمل إلى العشاء، في ٤٥ دقيقة' }, film_cap2: { en: 'The QAMAR ritual', ar: 'طقوس قمر' },
+    film_sub: { en: 'Walk in, freshen up, get your blowdry and a matcha on us. Ready in 45 minutes.', ar: 'ادخلي، انتعشي، واحصلي على السشوار مع ماتشا على حسابنا. جاهزة خلال ٤٥ دقيقة.' }, film_sound: { en: 'Tap for sound', ar: 'الصوت' }, film_cap1: { en: 'From work to dinner, in 45 min', ar: 'من العمل إلى العشاء، في ٤٥ دقيقة' }, film_cap2: { en: 'The QAMAR ritual', ar: 'طقوس قمر' },
     m_kicker: { en: 'Blowdry, reinvented', ar: 'السشوار بأسلوب جديد' }, m_t1: { en: 'No appointment.', ar: 'بدون موعد.' }, m_t2: { en: 'Ever.', ar: 'أبداً.' },
     m_sub: { en: 'Come whenever you want, from 8 AM to midnight. We call you the moment your chair is ready.', ar: 'تعالي متى شئتِ، من ٨ صباحاً حتى منتصف الليل. نُعلمكِ فور جاهزية كرسيكِ.' },
     p2b: { en: '35 min', ar: '٣٥ د' }, p2: { en: 'or your express blow-dry is free', ar: 'أو السشوار السريع مجاناً' },
@@ -1415,10 +1474,13 @@
     foot_private: { en: 'Private events', ar: 'مناسبات خاصة' }, nav_team: { en: 'Stylists', ar: 'المصففات' }, foot_squad: { en: 'Squad & referral', ar: 'سكواد ودعوة صديقة' }, foot_packs: { en: 'Packs & membership', ar: 'الباقات والعضوية' }, foot_staff: { en: 'Staff area', ar: 'مساحة الفريق' },
     toast_contest: { en: 'Thank you, your name is in the running', ar: 'شكراً، اقتراحك دخل المسابقة' },
     wa_soon: { en: 'WhatsApp line opens soon', ar: 'خط واتساب يفتح قريباً' },
-    form_soon: { en: 'This form opens with our WhatsApp line, shortly before launch. Nothing is sent from this page yet.', ar: 'يُفعَّل هذا النموذج مع خط واتساب الخاص بنا قبيل الافتتاح. لا يُرسَل أي شيء من هذه الصفحة حالياً.' },
+    form_soon: { en: 'Requests open on our WhatsApp line shortly before launch.', ar: 'تُفتح الطلبات عبر خط واتساب الخاص بنا قبيل الافتتاح.' },
     wa_contest: { en: 'Hello QAMAR, my idea for your next look:', ar: 'مرحباً قمر، اقتراحي لإطلالتكم القادمة:' },
     wa_bride: { en: 'Hello QAMAR! I would like to book the lounge after 10 PM.', ar: 'مرحباً قمر! أرغب في حجز الصالون بعد الساعة ١٠ مساءً.' },
-    wa_join: { en: 'I want a blow-dry', ar: 'أريد سشوار' }
+    wa_join: { en: 'I want a blow-dry', ar: 'أريد سشوار' },
+    n1price: { en: '179 AED', ar: '١٧٩ درهماً' }, w1b: { en: '−25%', ar: 'خصم ٢٥٪' }, w2b: { en: '50 AED', ar: '٥٠ درهماً' },
+    v_wa_t: { en: 'WhatsApp', ar: 'واتساب' }, foot_copy: { en: '© 2026 QAMAR Blowdry Lounge · Dubai', ar: '© ٢٠٢٦ قمر بلودراي لاونج · دبي' },
+    club_compare: { en: 'Compare plans', ar: 'قارني بين الاشتراكات' }
   };
 
   const FILTERS = [['all', 'f_all'], ['blowdry', 'f_blowdry'], ['quick', 'f_quick'], ['night', 'f_night'], ['care', 'f_care'], ['colour', 'f_colour'], ['kids', 'f_kids']];
@@ -1435,11 +1497,11 @@
     document.getElementById('looksGrid').innerHTML = D.services.map(s => {
       const q = Q.quote(s.id);
       return `<a class="tile-look" href="queue.html?look=${s.id}" ${matches(s) ? '' : 'hidden'}>
-        <span class="meta">${q.duration} ${Q.t('min')}${s.fromHour ? ` · ${Q.t('n1w')}` : ''}</span>
+        <span class="meta">${num(q.duration)} ${Q.t('min')}${s.fromHour ? ` · ${Q.t('n1w')}` : ''}</span>
         <h3>${Q.esc(Q.L(s.look))}</h3>
         <p>${Q.esc(Q.L(s.desc))}</p>
         <div class="art${s.img ? ' photo' : ''}" style="background:radial-gradient(130% 90% at 50% 0%, ${s.tone[0]}, ${s.tone[1]})">${s.img ? `<img src="${s.img}" alt="${Q.esc(Q.L(s.look))}" loading="lazy" decoding="async" width="640" height="823">` : `<canvas class="look-canvas" data-look="${s.id}" aria-hidden="true"></canvas>`}</div>
-        <div class="foot"><span class="price">${q.base} AED${['blowdry', 'night'].includes(s.cat) ? `<small class="club-hint">${Q.L({ en: 'Included in the Club', ar: 'مشمول في النادي' })}</small>` : ''}</span><span class="plus" aria-hidden="true">+</span></div>
+        <div class="foot"><span class="price">${aed(q.base)}${['blowdry', 'night'].includes(s.cat) ? `<small class="club-hint">${Q.L({ en: 'Included in the Club', ar: 'مشمول في النادي' })}</small>` : ''}</span><span class="plus" aria-hidden="true">+</span></div>
       </a>`;
     }).join('');
   }
@@ -1479,7 +1541,7 @@
     const cell = (v, i) => v === true ? `<td class="y" data-l="${Ln[i]}">${yes}</td>` : v ? `<td class="y" data-l="${Ln[i]}">${Q.esc(Q.L(v))}</td>` : `<td data-l="${Ln[i]}">—</td>`;
     document.getElementById('clubHead').innerHTML = `<tr><th></th><th>${Q.L({ en: 'Single visit', ar: 'زيارة واحدة' })}</th>${C.tiers.map(t => `<th>${Q.esc(Q.L(t.name))}</th>`).join('')}</tr>`;
     document.getElementById('clubCompare').innerHTML = `<tr><td>${Q.L({ en: 'Blow-dry', ar: 'السشوار' })}</td><td data-l="${L0}">${Q.L({ en: 'Menu price', ar: 'سعر القائمة' })}</td>${C.tiers.map((t, i) => `<td class="y" data-l="${Ln[i]}">${Q.esc(Q.L(t.per))}</td>`).join('')}</tr>`
-      + C.compare.map(([id, ...v]) => `<tr><td>${Q.esc(Q.L(X(id).name))}</td><td data-l="${L0}">+${num(X(id).price)} ${Q.L({ en: 'AED', ar: 'درهماً' })}</td>${v.map(cell).join('')}</tr>`).join('')
+      + C.compare.map(([id, ...v]) => `<tr><td>${Q.esc(Q.L(X(id).name))}</td><td data-l="${L0}"><bdi>+${aed(X(id).price)}</bdi></td>${v.map(cell).join('')}</tr>`).join('')
       + `<tr><td>${Q.L({ en: 'Queue', ar: 'الطابور' })}</td><td data-l="${L0}">${Q.L({ en: 'Standard', ar: 'عادي' })}</td>${C.tiers.map((t, i) => `<td class="y" data-l="${Ln[i]}">${Q.L({ en: 'Members’ lane', ar: 'مسار العضوات' })}</td>`).join('')}</tr>`
       + `<tr><td>${Q.L({ en: 'Price over time', ar: 'السعر مع الوقت' })}</td><td data-l="${L0}">${Q.L({ en: 'Same', ar: 'ثابت' })}</td>${C.tiers.map((t, i) => `<td class="y" data-l="${Ln[i]}">${Q.L({ en: `Down to −${C.floorPct}%`, ar: `حتى −${num(C.floorPct)}٪` })}</td>`).join('')}</tr>`;
     document.getElementById('clubFounding').innerHTML = Q.L({ en: `<b>Founding members:</b> the first ${C.founding.count} start directly at the month-${C.founding.startMonth} price. ${C.minMonths}-month minimum, then cancel anytime.`, ar: `<b>العضوات المؤسِّسات:</b> أول ${num(C.founding.count)} عضوة يبدأن مباشرة بسعر الشهر ${num(C.founding.startMonth)}. الحد الأدنى ${num(C.minMonths)} أشهر، ثم يمكنكِ الإلغاء في أي وقت.` });
@@ -1487,27 +1549,32 @@
 
   function renderMenu() {
     const groups = [['blowdry', { en: 'Blow-dry', ar: 'سشوار' }], ['night', { en: 'Night Glow <small>(8 PM – midnight)</small>', ar: 'توهّج الليل <small>(٨م – منتصف الليل)</small>' }], ['sos', { en: 'SOS 15 min', ar: 'إس أو إس ١٥ دقيقة' }], ['care', { en: 'Care', ar: 'العناية' }], ['colour', { en: 'Cut & colour', ar: 'قص وصبغة' }], ['kids', { en: 'Mini Glow <small>(kids)</small>', ar: 'ميني جلو <small>(للصغيرات)</small>' }]];
-    let html = groups.map(([cat, title]) => `<h4>${Q.L(title)}</h4>` + D.services.filter(s => s.cat === cat).map(s => `<div class="mrow"><span>${Q.esc(Q.L(s.look))} <small>· ${s.duration} ${Q.t('min')}</small></span><span class="p">${s.price} AED</span></div>`).join('')).join('');
-    html += `<h4>${Q.L({ en: 'Extras <small>(free for members)</small>', ar: 'الإضافات <small>(مجانية للعضوات)</small>' })}</h4>` + D.extras.map(x => `<div class="mrow"><span>${Q.esc(Q.L(x.name))}</span><span class="p">+${x.price} AED</span></div>`).join('')
-      + `<div class="mrow"><span><b>${Q.esc(Q.L(D.ritual.name))}</b></span><span class="p">${D.ritual.price} AED</span></div>`;
-    html += `<h4>${Q.L({ en: 'Packages', ar: 'الباقات' })}</h4>` + D.packages.map(p => `<div class="mrow"><span>${Q.esc(Q.L(p.name))}</span><span class="p">${p.price}</span></div>`).join('');
+    let html = groups.map(([cat, title]) => `<h4>${Q.L(title)}</h4>` + D.services.filter(s => s.cat === cat).map(s => `<div class="mrow"><span>${Q.esc(Q.L(s.look))} <small>· ${num(s.duration)} ${Q.t('min')}</small></span><span class="p">${aed(s.price)}</span></div>`).join('')).join('');
+    html += `<h4>${Q.L({ en: 'Extras <small>(free for members)</small>', ar: 'الإضافات <small>(مجانية للعضوات)</small>' })}</h4>` + D.extras.map(x => `<div class="mrow"><span>${Q.esc(Q.L(x.name))}</span><span class="p"><bdi>+${aed(x.price)}</bdi></span></div>`).join('')
+      + `<div class="mrow"><span><b>${Q.esc(Q.L(D.ritual.name))}</b></span><span class="p">${aed(D.ritual.price)}</span></div>`;
+    html += `<h4>${Q.L({ en: 'Packages', ar: 'الباقات' })}</h4>` + D.packages.map(p => `<div class="mrow"><span>${Q.esc(Q.L(p.name))}</span><span class="p"><bdi>${Q.esc(Q.L(p.price))}</bdi></span></div>`).join('');
     document.getElementById('menuList').innerHTML = html;
     renderClub();
-    document.getElementById('packs').innerHTML = D.packages.slice(0, 2).map(p => `<div class="pack"><div><h4>${Q.esc(Q.L(p.name))}</h4><p>${Q.esc(Q.L(p.note))}</p></div><div class="p">${p.price}</div></div>`).join('');
+    document.getElementById('packs').innerHTML = D.packages.slice(0, 2).map(p => `<div class="pack"><div><h4>${Q.esc(Q.L(p.name))}</h4><p>${Q.esc(Q.L(p.note))}</p></div><div class="p"><bdi>${Q.esc(Q.L(p.price))}</bdi></div></div>`).join('');
   }
 
   const tones = ['#E8A9B6', '#B88A94', '#D99AA8', '#D4B38A', '#C08C8C'];
   // Le statut « au salon » n'est affiché que si les données sont réellement en direct (mode connecté)
   function renderTeam() {
     const live = !Q.isDemo, real = !!D.brand.teamConfirmed;
+    // Équipe pas encore confirmée : la section et ses liens restent masqués (passer teamConfirmed à true dans data.js pour les afficher)
+    document.getElementById('team').hidden = !real;
+    document.querySelectorAll('a[href="#team"]').forEach(a => { a.hidden = !real; });
+    const nameOf = s => Q.L((D.stylists.find(x => x.id === s.id) || {}).names || s.names || s.name);
     // Équipe pas encore recrutée : prénoms présentés comme provisoires, aucun lien vers des comptes Instagram qui ne sont pas les nôtres
     document.getElementById('teamNote').hidden = real;
     document.getElementById('teamGrid').innerHTML = Q.state.stylists.map((s, i) => {
       const on = live && !!Q.openShift(s.id);
-      const inner = `<span class="av" style="background:linear-gradient(150deg, ${tones[i % 5]}, #7A4D58)" aria-hidden="true">${Q.esc(s.name[0])}${live ? `<span class="dot ${on ? 'live' : 'off'}" title="${Q.t(on ? 'on_shift' : 'off_shift')}"></span>` : ''}</span>
-        <b>${Q.esc(s.name)}</b><small>${Q.esc(Q.L(s.specialty))}</small>`;
+      const nm = nameOf(s);
+      const inner = `<span class="av" style="background:linear-gradient(150deg, ${tones[i % 5]}, #7A4D58)" aria-hidden="true">${Q.esc([...nm][0] || '')}${live ? `<span class="dot ${on ? 'live' : 'off'}" title="${Q.t(on ? 'on_shift' : 'off_shift')}"></span>` : ''}</span>
+        <b>${Q.esc(nm)}</b><small>${Q.esc(Q.L(s.specialty))}</small>`;
       return real
-        ? `<a class="member" href="https://instagram.com/${encodeURIComponent(s.ig)}" target="_blank" rel="noopener noreferrer" aria-label="${Q.esc(s.name)} on Instagram">${inner}<span class="ig">@${Q.esc(s.ig)}</span></a>`
+        ? `<a class="member" href="https://instagram.com/${encodeURIComponent(s.ig)}" target="_blank" rel="noopener noreferrer" aria-label="${Q.esc(nm)} · Instagram">${inner}<span class="ig">@${Q.esc(s.ig)}</span></a>`
         : `<div class="member">${inner}</div>`;
     }).join('');
     document.querySelectorAll('[data-social]').forEach(el => el.hidden = !D.brand.instagramConfirmed);
@@ -1532,16 +1599,19 @@
   // Menu mobile : ouverture par ☰, fermeture par ✕, un lien, Échap ou retour
   (() => {
     const m = document.getElementById('mnav'), btns = document.querySelectorAll('[data-menu]');
-    let last = null;
+    let last = null, lockY = 0;
+    // iOS ignore overflow:hidden sur body : on fige la page (position fixed + top négatif) et on rend la position à la fermeture
+    const lock = () => { lockY = scrollY; document.body.style.top = -lockY + 'px'; document.body.classList.add('menu-lock'); };
+    const unlock = () => { if (!document.body.classList.contains('menu-lock')) return; document.body.classList.remove('menu-lock'); document.body.style.top = ''; scrollTo({ top: lockY, behavior: 'instant' }); };
     const open = () => {
-      last = document.activeElement; m.hidden = false; document.body.classList.add('menu-open');
+      last = document.activeElement; m.hidden = false; document.body.classList.add('menu-open'); lock();
       btns.forEach(b => b.setAttribute('aria-expanded', 'true'));
       void m.offsetWidth; m.classList.add('open'); // reflow forcé : la transition d'ouverture part bien
       m.querySelector('.mnav-x').focus({ preventScroll: true });
     };
     const close = () => {
       if (m.hidden) return;
-      m.classList.remove('open'); document.body.classList.remove('menu-open');
+      m.classList.remove('open'); document.body.classList.remove('menu-open'); unlock();
       btns.forEach(b => b.setAttribute('aria-expanded', 'false'));
       setTimeout(() => { if (!m.classList.contains('open')) m.hidden = true; }, 350);
       if (last && last.focus) last.focus({ preventScroll: true });
@@ -1575,6 +1645,8 @@
     const names = D.services.map((s, i) => `<span class="${i % 3 === 1 ? 'f' : ''}">${Q.esc(Q.L(s.look))}</span><span class="m">☾</span>`).join('');
     document.getElementById('lookMarquee').innerHTML = names + names;
   }
+  // Comparatif du Club : ouvert sur ordinateur, replié sur téléphone
+  (() => { const d = document.getElementById('clubCompareD'), mq = matchMedia('(max-width: 760px)'); const set = () => { d.open = !mq.matches; }; set(); mq.addEventListener ? mq.addEventListener('change', set) : mq.addListener(set); })();
   function renderAll() { renderMarquee(); paintIcons(); paintLogos(); renderLinks(); renderFilters(); renderLooks(); renderMenu(); renderTeam(); renderLive(); }
   document.addEventListener('qamar:lang', renderAll);
   // Préouverture (config.js → phase) : mêmes pages, textes qui ne promettent aucun service déjà disponible.
@@ -1616,8 +1688,9 @@
     document.getElementById('phDots').innerHTML = Array.from({ length: tier.visits }, (_, i) => `<i class="${i < used ? 'u' : ''}"></i>`).join('');
     const pct = Math.min(C.floorPct, C.dropPct * (month - 1));
     set('phPrice', aed(clubPrice(tier.price, month)));
-    set('phDrop', `−${num(pct)}%`);
-    set('fcDrop', `−${num(C.dropPct)}%`);
+    const minus = n => isAr() ? `−${num(n)}٪` : `−${n}%`;
+    set('phDrop', minus(pct));
+    set('fcDrop', minus(C.dropPct));
     const lo = clubPrice(tier.price, last);
     document.getElementById('phBars').innerHTML = Array.from({ length: last }, (_, k) => {
       const p = clubPrice(tier.price, k + 1), h = 35 + 65 * (p - lo * .9) / (tier.price - lo * .9);

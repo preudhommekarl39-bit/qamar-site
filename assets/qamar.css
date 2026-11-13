@@ -82,6 +82,7 @@ html[dir="rtl"] .field label { letter-spacing: 0; font-size: .95rem; }
 .lang { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: rgba(255, 255, 255, .6); }
 .lang button { border: 0; background: transparent; padding: .35em .85em; border-radius: 999px; font-size: .8rem; color: var(--cocoa); }
 .lang button.on { background: var(--cocoa); color: #fff; }
+@media (pointer: coarse) { .lang button { min-height: 44px; min-width: 44px; } }
 
 /* Toast */
 .toast { position: fixed; inset-inline: 0; bottom: 24px; margin-inline: auto; width: max-content; max-width: calc(100% - 32px); background: var(--night); color: var(--gold-soft); padding: .9em 1.4em; border-radius: 999px; box-shadow: var(--shadow); z-index: 999; font-size: .95rem; opacity: 0; transform: translateY(20px); transition: .35s ease; pointer-events: none; }

@@ -76,14 +76,14 @@ GA = [
    ('h2','في قمر'),
    ('p','أثناء الدشّ نكوي عباءتكِ أو فستانكِ أو شيلتكِ بالبخار ونعطّرها برائحة خفيفة، فتخرجين وكل شيء منعش في الوقت نفسه. للنساء فقط، الافتتاح مارس ٢٠٢٧ قرب شارع الشيخ زايد.')]),
 ]
-CSS = """:root{--night:#120B0F;--rose:#C9788F;--gold:#C49A5A;--cream:#FAF5F0;--ink:#1F1417;--ink2:#5E4A50}*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:300 18px/1.7 Jost,system-ui,sans-serif}a{color:var(--rose)}header,footer{background:linear-gradient(120deg,#F8E1DC,#F3D3D6 60%,#EFC6CC);color:var(--ink)}header .w,footer .w{display:flex;justify-content:space-between;align-items:center;min-height:68px}.w{width:min(760px,100% - 40px);margin:auto}.brand{color:var(--ink);text-decoration:none;font:500 22px 'Cormorant Garamond',serif;letter-spacing:.3em}h1,h2{font-family:'Cormorant Garamond',serif;font-weight:500;line-height:1.15}h1{font-size:clamp(36px,6vw,54px);margin:48px 0 16px}h2{font-size:30px;margin:40px 0 8px}.lead{color:var(--ink2)}li{margin:6px 0}.cta{display:inline-flex;align-items:center;min-height:52px;padding:0 28px;border-radius:999px;background:var(--rose);color:#fff;text-decoration:none;font-weight:500;margin:32px 0}.more{border-top:1px solid rgba(196,154,90,.35);margin-top:48px;padding-top:24px}footer{margin-top:64px;font-size:15px}footer a{color:var(--ink);min-height:44px;display:inline-flex;align-items:center}:focus-visible{outline:2px solid var(--gold);outline-offset:3px}"""
+CSS = """:root{--night:#120B0F;--rose:#C9788F;--rose-ink:#A4506A;--gold:#C49A5A;--cream:#FAF5F0;--ink:#1F1417;--ink2:#5E4A50}*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:300 18px/1.7 Jost,system-ui,sans-serif}a{color:var(--rose-ink)}header,footer{background:linear-gradient(120deg,#F8E1DC,#F3D3D6 60%,#EFC6CC);color:var(--ink)}header .w,footer .w{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;min-height:68px}header nav,footer nav{display:flex;gap:18px;flex-wrap:wrap}header nav a,footer nav a{color:var(--ink);min-height:44px;display:inline-flex;align-items:center;text-decoration:none}footer .w{padding:14px 0}.crumbs{font-size:14px;color:var(--ink2);margin:20px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}.crumbs li{margin:0}.crumbs li+li:before{content:'›';margin-inline-end:6px}[dir=rtl] .crumbs li+li:before{content:'‹'}.crumbs a{display:inline-block;padding:12px 0}@media(max-width:480px){.crumbs li[aria-current]{display:none}}.more li a{display:inline-block;padding:9px 0}.w{width:min(760px,100% - 40px);margin:auto}.brand{color:var(--ink);text-decoration:none;font:500 22px 'Cormorant Garamond',serif;letter-spacing:.3em}h1,h2{font-family:'Cormorant Garamond',serif;font-weight:500;line-height:1.15}h1{font-size:clamp(36px,6vw,54px);margin:20px 0 16px}h2{font-size:30px;margin:40px 0 8px}.lead{color:var(--ink2)}li{margin:6px 0}.cta{display:inline-flex;align-items:center;min-height:52px;padding:0 28px;border-radius:999px;background:var(--rose-ink);color:#fff;text-decoration:none;font-weight:500;margin:32px 0}.more{border-top:1px solid rgba(196,154,90,.35);margin-top:48px;padding-top:24px}footer{margin-top:64px;font-size:15px}:focus-visible{outline:2px solid var(--gold);outline-offset:3px}"""
 def block(t, v):
     if t == 'ul': return '<ul>' + ''.join(f'<li>{html.escape(x)}</li>' for x in v) + '</ul>'
     return f'<{t}>{html.escape(v)}</{t}>'
 import os
 os.makedirs('guides/ar', exist_ok=True)
-UI = {'en': dict(dir='ltr', loc='en_AE', home='Home', cta='Discover QAMAR', more='More guides', contact='Contact', pre='../', crumb='QAMAR', sign='© QAMAR Blowdry Lounge · Dubai'),
-      'ar': dict(dir='rtl', loc='ar_AE', home='الرئيسية', cta='اكتشفي قمر', more='أدلة أخرى', contact='تواصلي معنا', pre='../../', crumb='قمر', sign='© قمر بلودراي لاونج · دبي')}
+UI = {'en': dict(dir='ltr', loc='en_AE', home='Home', cta='Discover QAMAR', more='More guides', contact='Contact', pre='../', crumb='QAMAR', sign='© QAMAR Blowdry Lounge · Dubai', hub='Services & areas', other='العربية', privacy='Privacy', legal='Legal notice'),
+      'ar': dict(dir='rtl', loc='ar_AE', home='الرئيسية', cta='اكتشفي قمر', more='أدلة أخرى', contact='تواصلي معنا', pre='../../', crumb='قمر', sign='© قمر بلودراي لاونج · دبي', hub='الخدمات والمناطق', other='English', privacy='الخصوصية', legal='إشعار قانوني')}
 def page(g, lang, lst):
     u = UI[lang]; P = u['pre']
     url = SITE + ('guides/ar/' if lang == 'ar' else 'guides/') + g['slug'] + '.html'
@@ -94,6 +94,10 @@ def page(g, lang, lst):
       {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":u['crumb'],"item":home},{"@type":"ListItem","position":2,"name":g['h1'],"item":url}]}]}
     others = ''.join(f'<li><a href="{o["slug"]}.html">{html.escape(o["h1"])}</a></li>' for o in lst if o is not g)
     t = html.escape(g['title']); d = html.escape(g['desc'])
+    H = P + ('ar.html' if lang == 'ar' else ''); hub = P + ('services/ar/' if lang == 'ar' else 'services/')
+    other = f"../{g['slug']}.html" if lang == 'ar' else f"ar/{g['slug']}.html"
+    ol = 'en' if lang == 'ar' else 'ar'
+    crumbs = f'<ol class="crumbs"><li><a href="{H}">{u["crumb"]}</a></li><li aria-current="page">{html.escape(g["h1"])}</li></ol>'
     return f'''<!doctype html>
 <html lang="{lang}" dir="{u['dir']}">
 <head>
@@ -112,14 +116,15 @@ def page(g, lang, lst):
 <style>{CSS}{"body{font-family:Tajawal,system-ui,sans-serif}h1,h2{font-family:Tajawal,serif;font-weight:500}" if lang == 'ar' else ''}</style>
 </head>
 <body>
-<header><div class="w"><a class="brand" href="{P}{'ar.html' if lang == 'ar' else ''}" translate="no">QAMAR</a><a href="{P}{'ar.html' if lang == 'ar' else ''}#contact" style="color:var(--ink)">{u['contact']}</a></div></header>
+<header><div class="w"><a class="brand" href="{H}" translate="no">QAMAR</a><nav><a href="{hub}">{u['hub']}</a><a href="{H}#contact">{u['contact']}</a><a href="{other}" hreflang="{ol}" lang="{ol}">{u['other']}</a></nav></div></header>
 <main class="w">
+{crumbs}
 <h1>{html.escape(g['h1'])}</h1>
 {''.join(block(t, v) for t, v in g['body'])}
 <a class="cta" href="{P}{'ar.html' if lang == 'ar' else ''}">{u['cta']}</a>
-<div class="more"><h2>{u['more']}</h2><ul>{others}</ul></div>
+<div class="more"><h2>{u['more']}</h2><ul>{others}</ul><p><a href="{hub}">{u['hub']}</a></p></div>
 </main>
-<footer><div class="w"><span translate="no">{u['sign']}</span><a href="{P}{'ar.html' if lang == 'ar' else ''}">{u['home']}</a></div></footer>
+<footer><div class="w"><span translate="no">{u['sign']}</span><nav><a href="{H}">{u['home']}</a><a href="{hub}">{u['hub']}</a><a href="{P}privacy.html">{u['privacy']}</a><a href="{P}legal.html">{u['legal']}</a></nav></div></footer>
 </body>
 </html>
 '''
