@@ -1,7 +1,7 @@
 -- QAMAR — 004 : visites de groupe (un ticket, plusieurs personnes) et affluence en direct du salon
 -- ⚠ Non exécuté : aucun projet Supabase n'est déployé. À appliquer avec `supabase db push` puis tester en préproduction.
--- ⚠ À FAIRE avant d'activer les groupes en mode connecté : join_queue doit accepter p_party et amount_due doit
---   recalculer le prix par personne (meilleure remise par personne, Squad −25 % dès 4) comme assets/store.js → groupQuote.
+-- ✓ Fait dans 005_group_pricing.sql : join_queue accepte p_party (+ code promo) et amount_due
+--   recalcule le prix par personne comme assets/store.js → groupQuote.
 
 -- 1. Groupe : [{ "serviceId": "express", "extraLong": false, "promo": {...} }, ...] — null = personne seule
 alter table tickets add column if not exists party jsonb;

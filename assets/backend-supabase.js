@@ -1,5 +1,5 @@
 /* QAMAR — connecteur Supabase (mode connecté). NON ACTIF tant que config.js → backend: 'demo'.
-   NON TESTÉ contre un vrai projet : à valider après `supabase db push` (voir DEPLOY.md).
+   NON TESTÉ contre un vrai projet : à valider après `supabase db push` (voir DEPLOY.md et supabase/README.md).
 
    Chargement (dans chaque page, AVANT store.js, uniquement en mode connecté) :
      <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -7,7 +7,7 @@
 
    Correspondance avec l'API de démo (assets/store.js) — mêmes noms, mais chaque action passe par une
    fonction SQL qui vérifie le rôle et l'état, et recalcule les montants côté serveur :
-     joinQueue      → rpc('join_queue')          cliente, anonyme (retourne ticket_id + access_token)
+     joinQueue      → rpc('join_queue')          cliente, anonyme (retourne ticket_id + access_token) ; groupe 1–6 + code promo (005)
      ticket suivi   → rpc('my_ticket')           cliente, avec access_token (jamais le téléphone dans l'URL)
      cancel         → rpc('cancel_my_ticket')
      clockIn/Out    → rpc('clock_in'/'clock_out') personnel connecté (Supabase Auth, e-mail + mot de passe ou lien magique)
@@ -31,7 +31,14 @@
 
   window.QAMAR_BACKEND = {
     client: sb,
-    joinQueue: (p) => call('join_queue', { p_name: p.name, p_phone: p.phone, p_service: p.serviceId, p_extra_long: !!p.extraLong, p_pref: p.prefStaffId || null }),
+    // Groupe (005_group_pricing.sql) : on n'envoie que les looks ; les remises par personne sont recalculées par le serveur
+    joinQueue: (p) => {
+      const party = Array.isArray(p.party) && p.party.length > 1
+        ? p.party.slice(0, 6).map(x => ({ serviceId: x && x.serviceId, extraLong: !!(x && x.extraLong) })) : null;
+      const code = p.promoCode ? String(p.promoCode).trim().toUpperCase().slice(0, 32) : null;
+      return call('join_queue', { p_name: p.name, p_phone: p.phone, p_service: party ? party[0].serviceId : p.serviceId, p_extra_long: party ? party[0].extraLong : !!p.extraLong,
+        p_pref: p.prefStaffId || null, p_party: party, p_promo_code: code || null });
+    },
     myTicket: (id, token) => call('my_ticket', { p_ticket: id, p_token: token }),
     cancel: (id, token) => call('cancel_my_ticket', { p_ticket: id, p_token: token }),
     signIn: (email, password) => sb.auth.signInWithPassword({ email, password }),
