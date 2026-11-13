@@ -19,6 +19,8 @@
   .seat-tag { background: var(--night); color: var(--gold-soft); border-radius: 999px; padding: 6px 16px; font-size: .85rem; letter-spacing: .14em; }
   .head .sp { flex: 1; }
   .me { display: flex; align-items: center; gap: 12px; }
+  .head { flex-wrap: wrap; row-gap: 12px; } .seat-tag, .head .chip { white-space: nowrap; }
+  @media (max-width: 560px) { .head { gap: 10px; } .head .sp { display: none; } .me { flex-basis: 100%; } .me #outBtn { margin-inline-start: auto; } .panel { padding: 22px; } .stars button { font-size: 2.6rem !important; } }
   .av { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-family: var(--serif); font-size: 1.3rem; background: var(--rose); flex: none; }
   .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
   .kpi { background: rgba(255, 255, 255, .75); border-radius: 18px; padding: 14px 18px; }
@@ -245,7 +247,7 @@
     return `<div class="panel">
       <div class="lbl">In the chair</div>
       <div class="client" style="margin-top:10px"><span class="av">${Q.esc(t.name[0])}</span><span><b>${Q.esc(t.name)} · ${Q.esc(Q.partyText(t))}</b><small>${Q.esc(s.name.en)}${t.discountPct ? ' · opening −' + t.discountPct + '%' : ''}</small></span></div>
-      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px"><div class="timer ${over ? 'over' : ''}" id="timer">${mmss(el)}</div><div class="muted">target ${Q.duration(t)}:00${t.serviceId === 'express' ? '<br><b style="color:var(--rose)">35-min guarantee</b>' : ''}</div></div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px"><div class="timer ${over ? 'over' : ''}" id="timer">${mmss(el)}</div><div class="muted">target ${Q.duration(t)}:00${t.serviceId === 'express' && !(t.party && t.party.length > 1) ? '<br><b style="color:var(--rose)">35-min guarantee</b>' : ''}</div></div>
       <div class="pbar ${over ? 'over' : ''}"><i id="pbar" style="width:${Math.min(100, el / target * 100)}%"></i></div>
       <div class="sec-t">Offer a matcha ${freeLeft ? '<span class="chip" style="margin-inline-start:6px">1 free with Night Glow</span>' : ''}</div>
       <div class="upsell">${D.addons.map(a => `<button data-add="${a.id}">🍵 ${Q.esc(a.name.en)}<small>${a.price} AED</small>${counts[a.id] ? `<span class="cnt">${counts[a.id]}</span>` : ''}</button>`).join('')}</div>
@@ -264,7 +266,7 @@
     const p = Q.pricing(t);
     const name = Q.stylist(sid).name;
     const lines = `<div class="lines">
-      ${p.people ? p.people.map((l, i) => `<div><span>Person ${i + 1} · ${Q.esc(Q.service(l.serviceId)?.look.en || '')}${l.extraLong ? ' + extra long' : ''}${l.pct ? ` · ${Q.esc(Q.L(l.promo?.label) || 'discount')} −${l.pct}%` : ''}</span><span>${l.discount ? `<s>${l.base}</s> ` : ''}${l.total} AED</span></div>`).join('') : `<div><span>${Q.esc(s.look.en)}${t.extraLong ? ' + extra long' : ''}</span><span>${p.base} AED</span></div>`}
+      ${p.people ? p.people.map((l, i) => `<div><span>Person ${i + 1} · ${Q.esc(Q.service(l.serviceId)?.look.en || '')}${l.extraLong ? ' + extra long' : ''}${l.pct ? ` · ${Q.esc(l.promo?.label?.en || 'discount')} −${l.pct}%` : ''}</span><span>${l.discount ? `<s>${l.base}</s> ` : ''}${l.total} AED</span></div>`).join('') : `<div><span>${Q.esc(s.look.en)}${t.extraLong ? ' + extra long' : ''}</span><span>${p.base} AED</span></div>`}
       ${p.discount && !p.people ? `<div><span>Opening discount −${t.discountPct}%</span><span>−${p.discount} AED</span></div>` : ''}
       ${p.guarantee ? `<div><span>Over 35 min — on us ✦</span><span>−${p.base - p.discount} AED</span></div>` : ''}
       ${p.addons.map(a => `<div><span>${Q.esc(a.name.en)}</span><span>${a.price ? a.price + ' AED' : 'free'}</span></div>`).join('')}
