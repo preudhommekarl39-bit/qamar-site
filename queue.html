@@ -120,6 +120,8 @@
   .note { background: rgba(255, 255, 255, .6); border-radius: 16px; padding: 14px 16px; font-size: .9rem; color: var(--cocoa); margin-top: 14px; display: flex; gap: 10px; }
   .total { display: flex; justify-content: space-between; font-family: var(--serif); font-size: 1.6rem; color: var(--cocoa); border-top: 1px solid var(--line); padding-top: 10px; margin-top: 6px; }
   .hidden { display: none !important; }
+  .stars button { min-width: 48px; min-height: 48px; }
+  .stars button.on { color: var(--rose-deep, #964A62); }
 </style>
 </head>
 <body>
@@ -235,6 +237,9 @@
     paid_cash: { en: 'Cash with your stylist', ar: 'نقداً مع مصففتك' }, back_site: { en: 'Back to the website', ar: 'العودة إلى الموقع' }, back: { en: 'Back', ar: 'رجوع' }, opening: { en: 'The team is getting ready — your place is saved.', ar: 'الفريق يستعد — مكانك محفوظ.' }
   };
   const t = (k, v = {}) => Q.t(k).replace(/\{(\w)\}/g, (_, x) => v[x] ?? '');
+  // Prix dans la langue de la page : chiffres arabes + « درهماً » en arabe
+  const qNum = n => Q.lang === 'ar' ? Number(n).toLocaleString('ar-EG') : String(n);
+  const qAed = n => Q.lang === 'ar' ? `${qNum(n)} درهماً` : `${n} AED`;
 
   document.getElementById('logo').innerHTML = Q.logo('logo-mark');
   const savedCc = (() => { try { return localStorage.getItem('qamar:cc'); } catch (e) { return null; } })() || '+971';
@@ -262,9 +267,9 @@
       const ok = nightOk(s);
       const q = Q.quote(s.id, sel.extraLong);
       return `<button class="opt ${sel.serviceId === s.id ? 'sel' : ''}" data-id="${s.id}" ${ok ? '' : 'disabled aria-disabled="true"'} aria-pressed="${sel.serviceId === s.id}">
-        <div class="ph" style="background:radial-gradient(120% 90% at 50% 10%, ${s.tone[0]}, ${s.tone[1]})"><canvas class="look-canvas" data-look="${s.id}" aria-hidden="true"></canvas><span class="t">${q.duration} ${t('min')}</span></div>
+        <div class="ph" style="background:radial-gradient(120% 90% at 50% 10%, ${s.tone[0]}, ${s.tone[1]})"><canvas class="look-canvas" data-look="${s.id}" aria-hidden="true"></canvas><span class="t">${qNum(q.duration)} ${t('min')}</span></div>
         <div class="bd"><b>${Q.esc(Q.L(s.look))}</b><small>${ok ? Q.esc(Q.L(s.name)) : t('night_only')}</small>
-        <div class="pr">${q.discount ? `<s>${q.base}</s><b>${q.total} AED</b>` : `<b>${q.total} AED</b>`}</div></div>
+        <div class="pr">${q.discount ? `<s>${qNum(q.base)}</s><b>${qAed(q.total)}</b>` : `<b>${qAed(q.total)}</b>`}</div></div>
       </button>`;
     }).join('');
     document.querySelectorAll('#looks .opt').forEach(b => b.onclick = () => { if (b.disabled) return; sel.serviceId = b.dataset.id; renderLooks(); updateBar(); });
@@ -302,7 +307,7 @@
       <div><span>${t('look')}</span><b>${Q.esc(Q.L(s.look))}</b></div>
       <div><span>${t('stylist')}</span><b>${Q.esc(sty)}</b></div>
       <div><span>${t('est')}</span><b>${e ? (e.minutes <= 1 ? t('now') : '~' + e.minutes + ' ' + t('min')) : '—'}</b></div>
-      <div><span>${t('price')}</span><b><bdi dir="ltr">${q.discount ? `<s class="muted" style="font-weight:400">${q.base}</s> ` : ''}${q.total} AED</bdi></b></div>
+      <div><span>${t('price')}</span><b><bdi dir="ltr">${q.discount ? `<s class="muted" style="font-weight:400">${q.base}</s> ` : ''}${qAed(q.total)}</bdi></b></div>
       ${q.promo ? `<div><span>${Q.esc(Q.L(q.promo.label))}</span><span><bdi dir="ltr">−${q.promo.pct}%</bdi></span></div>` : ''}
       <div style="display:block;color:var(--muted);font-size:.8rem">${t('pay_after')}</div>`;
   }
@@ -431,7 +436,7 @@
           <div class="code">${code} · ${t('with')} ${Q.esc(sty?.name)}</div>
           <h1 style="margin-top:12px">${t('in_t')}</h1>
           <p class="sub">${t('in_s')}</p>
-          <div class="extras">${D.addons.map(a => `<button data-add="${a.id}"><span class="em" aria-hidden="true">🍵</span>${Q.esc(Q.L(a.name))}<small>${free ? t('free') : a.price + ' AED'}</small></button>`).join('')}</div>
+          <div class="extras">${D.addons.map(a => `<button data-add="${a.id}"><span class="em" aria-hidden="true">🍵</span>${Q.esc(Q.L(a.name))}<small>${free ? t('free') : qAed(a.price)}</small></button>`).join('')}</div>
           <p class="muted" style="margin:22px 0 8px">${t('perfume_t')}</p>
           <div class="extras" style="grid-template-columns:repeat(3,1fr)">${D.perfumes.map(p => `<button data-perf="${p.id}" style="${tk.perfume === p.id ? 'border-color:var(--rose);background:var(--blush)' : ''};text-align:center">${Q.esc(Q.L(p.name))}</button>`).join('')}</div>
         </div>${demoBtn()}`;
@@ -446,24 +451,24 @@
           <h1 style="margin-top:10px">${t('pay_t')}</h1>
           <p class="sub">${t('pay_s')}</p>
           <div class="summary" style="background:var(--pearl);text-align:start">
-            <div><span>${Q.esc(Q.L(s.look))}${tk.extraLong ? ' + XL' : ''}</span><span>${pr.base} AED</span></div>
-            ${pr.discount ? `<div><span>${t('launch_disc')} <bdi dir="ltr">−${tk.discountPct}%</bdi></span><span><bdi dir="ltr">−${pr.discount} AED</bdi></span></div>` : ''}
-            ${pr.guarantee ? `<div><span>${t('guarantee')}</span><span><bdi dir="ltr">−${pr.base - pr.discount} AED</bdi></span></div>` : ''}
-            ${pr.addons.map(a => `<div><span>${Q.esc(Q.L(a.name))}</span><span>${a.price ? a.price + ' AED' : t('free')}</span></div>`).join('')}
-            <div class="total"><span>${t('total')}</span><span>${pr.total} AED</span></div>
+            <div><span>${Q.esc(Q.L(s.look))}${tk.extraLong ? ' + XL' : ''}</span><span>${qAed(pr.base)}</span></div>
+            ${pr.discount ? `<div><span>${t('launch_disc')} <bdi dir="ltr">−${qNum(tk.discountPct)}%</bdi></span><span><bdi dir="ltr">−${qAed(pr.discount)}</bdi></span></div>` : ''}
+            ${pr.guarantee ? `<div><span>${t('guarantee')}</span><span><bdi dir="ltr">−${qAed(pr.base - pr.discount)}</bdi></span></div>` : ''}
+            ${pr.addons.map(a => `<div><span>${Q.esc(Q.L(a.name))}</span><span>${a.price ? qAed(a.price) : t('free')}</span></div>`).join('')}
+            <div class="total"><span>${t('total')}</span><span>${qAed(pr.total)}</span></div>
           </div>
           <p style="margin:18px 0 0;color:var(--cocoa)"><b style="font-weight:500">${t('tip_t', { n: sty?.name })}</b><br><small class="muted">${t('tip_s')}</small></p>
-          <div class="tip-grid">${[10, 25, 75].map(p => `<button data-tip="${p}" class="${tipChoice === p ? 'sel' : ''}">${p}%<small>${Math.round(tipBase * p / 100)} AED</small></button>`).join('')}<button data-tip="custom" class="${tipChoice === 'custom' ? 'sel' : ''}">${t('custom')}<small>AED</small></button></div>
-          ${tipChoice === 'custom' ? `<input class="input" id="customTip" type="number" min="0" inputmode="numeric" placeholder="AED" style="margin-bottom:10px">` : ''}
+          <div class="tip-grid">${[10, 25, 75].map(p => `<button data-tip="${p}" class="${tipChoice === p ? 'sel' : ''}">${qNum(p)}%<small>${qAed(Math.round(tipBase * p / 100))}</small></button>`).join('')}<button data-tip="custom" class="${tipChoice === 'custom' ? 'sel' : ''}">${t('custom')}<small>AED</small></button></div>
+          ${tipChoice === 'custom' ? `<input class="input" id="customTip" type="number" min="0" inputmode="numeric" placeholder="${Q.lang === 'ar' ? 'درهم' : 'AED'}" style="margin-bottom:10px">` : ''}
           <button class="btn btn-ghost btn-block" data-tip="0" style="margin-bottom:14px;${tipChoice === 0 ? 'background:var(--blush)' : ''}">${t('no_tip')}</button>
-          <div class="summary" style="background:var(--pearl);text-align:start;margin-top:4px"><div><span>${t('tip_line')}</span><span id="tipVal">${tipAmt} AED</span></div><div class="total"><span>${t('to_pay')}</span><span id="payVal">${pr.total + tipAmt} AED</span></div></div>
-          <button class="btn apple btn-block" id="payApple"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.7-1-2.7-4.1zM13.9 5c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5z"/></svg>${t('pay_apple')} · <span id="appleAmt">${pr.total + tipAmt} AED</span></button>
+          <div class="summary" style="background:var(--pearl);text-align:start;margin-top:4px"><div><span>${t('tip_line')}</span><span id="tipVal">${qAed(tipAmt)}</span></div><div class="total"><span>${t('to_pay')}</span><span id="payVal">${qAed(pr.total + tipAmt)}</span></div></div>
+          <button class="btn apple btn-block" id="payApple"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.7-1-2.7-4.1zM13.9 5c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5z"/></svg>${t('pay_apple')} · <span id="appleAmt">${qAed(pr.total + tipAmt)}</span></button>
           <button class="btn btn-ghost btn-block" id="payCard" style="margin-top:10px">${t('pay_card')}</button>
           ${Q.isDemo ? `<p class="muted" style="font-size:.8rem;margin:12px 0 0">${t('demo_pay')}</p>` : ''}
         </div>`;
       el.querySelectorAll('[data-tip]').forEach(b => b.onclick = () => { tipChoice = b.dataset.tip === 'custom' ? 'custom' : +b.dataset.tip; renderTicket(Q.ticket(myId)); if (tipChoice === 'custom') setTimeout(() => document.getElementById('customTip')?.focus(), 30); });
       const ct = document.getElementById('customTip');
-      if (ct) ct.oninput = () => { const v = Math.max(0, Math.round(+ct.value || 0)); document.getElementById('tipVal').textContent = v + ' AED'; document.getElementById('payVal').textContent = (pr.total + v) + ' AED'; document.getElementById('appleAmt').textContent = (pr.total + v) + ' AED'; };
+      if (ct) ct.oninput = () => { const v = Math.max(0, Math.round(+ct.value || 0)); document.getElementById('tipVal').textContent = qAed(v); document.getElementById('payVal').textContent = qAed(pr.total + v); document.getElementById('appleAmt').textContent = qAed(pr.total + v); };
       const doPay = method => {
         const tip = tipChoice === 'custom' ? (+document.getElementById('customTip')?.value || 0) : tipChoice ? Math.round(tipBase * tipChoice / 100) : 0;
         const btn = document.getElementById(method === 'applepay' ? 'payApple' : 'payCard');
@@ -476,7 +481,7 @@
       el.innerHTML = `<div class="ticket-card">
           <div class="code">${code}</div>
           <h1 style="margin-top:12px">${t('rate_t')}</h1>
-          <div class="stars" id="stars" style="margin:14px 0 18px">${[1, 2, 3, 4, 5].map(n => `<button data-s="${n}" class="${n <= stars ? 'on' : ''}" aria-label="${n}">★</button>`).join('')}</div>
+          <div class="stars" id="stars" style="margin:14px 0 18px;display:flex;justify-content:center;gap:6px">${[1, 2, 3, 4, 5].map(n => `<button data-s="${n}" class="${n <= stars ? 'on' : ''}" aria-label="${n}">★</button>`).join('')}</div>
           <textarea class="input" id="comment" rows="3" maxlength="500" placeholder="${Q.esc(t('rate_ph', { n: sty?.name }))}"></textarea>
           <button class="btn btn-primary btn-block" id="sendRate" style="margin-top:14px" ${stars ? '' : 'disabled'}>${t('send')}</button>
           <button class="btn btn-ghost btn-block" id="skipRate" style="margin-top:10px">${t('skip')}</button>
