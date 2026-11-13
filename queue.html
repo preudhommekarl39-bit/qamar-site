@@ -37,7 +37,7 @@
   .opt:active { transform: scale(.98); }
   .opt.sel { border-color: var(--rose); box-shadow: 0 0 0 4px rgba(184, 122, 98, .18); }
   .opt .ph { aspect-ratio: 4 / 3.2; position: relative; display: grid; place-items: center; }
-  .opt .ph { overflow: hidden; } .opt .ph .look-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .opt .ph { overflow: hidden; } .opt .ph .look-canvas, .opt .ph .look-img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; } .opt .ph .look-img { object-fit: cover; object-position: 50% 35%; }
   .opt .ph .t { position: absolute; top: 10px; inset-inline-start: 10px; font-size: .72rem; background: rgba(255, 255, 255, .8); border-radius: 999px; padding: 3px 9px; color: var(--cocoa); }
   .opt .bd { padding: 12px 14px 14px; }
   .opt b { display: block; font-family: var(--serif); font-size: 1.3rem; font-weight: 500; line-height: 1.1; color: var(--cocoa); }
@@ -267,7 +267,7 @@
       const ok = nightOk(s);
       const q = Q.quote(s.id, sel.extraLong);
       return `<button class="opt ${sel.serviceId === s.id ? 'sel' : ''}" data-id="${s.id}" ${ok ? '' : 'disabled aria-disabled="true"'} aria-pressed="${sel.serviceId === s.id}">
-        <div class="ph" style="background:radial-gradient(120% 90% at 50% 10%, ${s.tone[0]}, ${s.tone[1]})"><canvas class="look-canvas" data-look="${s.id}" aria-hidden="true"></canvas><span class="t">${qNum(q.duration)} ${t('min')}</span></div>
+        <div class="ph" style="background:radial-gradient(120% 90% at 50% 10%, ${s.tone[0]}, ${s.tone[1]})">${s.img ? `<img class="look-img" src="${s.img}" alt="${Q.esc(Q.L(s.look))}" loading="lazy" decoding="async" width="640" height="823">` : `<canvas class="look-canvas" data-look="${s.id}" aria-hidden="true"></canvas>`}<span class="t">${qNum(q.duration)} ${t('min')}</span></div>
         <div class="bd"><b>${Q.esc(Q.L(s.look))}</b><small>${ok ? Q.esc(Q.L(s.name)) : t('night_only')}</small>
         <div class="pr">${q.discount ? `<s>${qNum(q.base)}</s><b>${qAed(q.total)}</b>` : `<b>${qAed(q.total)}</b>`}</div></div>
       </button>`;
