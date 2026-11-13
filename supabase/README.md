@@ -32,3 +32,6 @@ supplément cheveux longs, une matcha offerte par personne Night Glow, et la gar
 
 Le supplément cheveux longs (40 AED) et la garantie (35 min) sont écrits en dur dans le SQL : s'ils changent dans
 `data.js`, il faut les changer aussi dans `amount_due` (005) et `advance_ticket` (001).
+
+## État (13/11/2026)
+Projet Supabase créé : **qamar** (org Voltaire, ref `seexwsitmwqfzuejskej`, https://seexwsitmwqfzuejskej.supabase.co, région auto = Sydney ap-southeast-2). Migrations 001→005 + seed appliquées via l'éditeur SQL (arabe corrigé en UTF-8, prix alignés sur data.js). Restent les étapes 3 à 7 (remises, codes, comptes du personnel, tests, bascule config.js) — le site reste en mode démo.
