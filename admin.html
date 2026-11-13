@@ -109,7 +109,8 @@
 
     <div class="kpis" id="kpis"></div>
 
-    <div class="box" id="live" style="margin-bottom:18px"><h2>Live floor <span class="sp"></span><span class="dot live"></span><small class="muted" style="font-family:var(--sans);font-size:.8rem">real time</small></h2><div class="floor" id="floor"></div></div>
+    <div class="box" id="live" style="margin-bottom:18px"><h2>Live floor <span class="sp"></span><span class="dot live"></span><small class="muted" style="font-family:var(--sans);font-size:.8rem">real time</small></h2><div class="floor" id="floor"></div>
+      <h2 style="margin-top:18px;font-size:1.2rem">Lounge now <span class="sp"></span><small class="muted" style="font-family:var(--sans);font-size:.8rem">shown live on the client page</small></h2><div id="loungeCtl" style="max-width:420px"></div></div>
 
     <div class="grid2">
       <div class="box" id="queue"><h2>Queue <span class="sp"></span><span class="badge" id="qCount"></span></h2><div class="tbl"><table><thead><tr><th>#</th><th>Client</th><th>Look</th><th>Asked for</th><th>Source</th><th>Waiting</th><th>ETA</th><th></th></tr></thead><tbody id="qBody"></tbody></table></div></div>
@@ -190,7 +191,7 @@
       const queued = Object.values(plan).filter(p => p.stylistId === s.id).length;
       let txt = '<small>Off duty</small>';
       if (on && !cur) txt = '<small style="color:var(--ok)">● Free</small>';
-      if (cur) { const sv = Q.service(cur.serviceId); const label = { called: 'Calling', in_service: 'Styling', checkout: 'Paying', paid: 'Rating' }[cur.status]; txt = `<small>${label} · <b>${Q.esc(cur.name)}</b></small><small>${Q.esc(sv.look.en)}${cur.startedAt ? ' · ' + Math.round((Date.now() - cur.startedAt) / 60000) + '/' + Q.duration(cur) + ' min' : ''}</small>`; }
+      if (cur) { const sv = Q.service(cur.serviceId); const label = { called: 'Calling', in_service: 'Styling', checkout: 'Paying', paid: 'Rating' }[cur.status]; txt = `<small>${label} · <b>${Q.esc(cur.name)}</b></small><small>${Q.esc(Q.partyText(cur))}${cur.startedAt ? ' · ' + Math.round((Date.now() - cur.startedAt) / 60000) + '/' + Q.duration(cur) + ' min' : ''}</small>`; }
       return `<div class="seat ${on ? (cur ? 'busy' : '') : 'off'}"><span class="n">${s.seat}</span><b>${Q.esc(s.name)}</b>${txt}${queued ? `<small>${queued} in her line</small>` : ''}<a href="station.html#seat${s.seat}" >Open station ↗</a></div>`;
     }).join('');
 
@@ -198,7 +199,7 @@
     document.getElementById('qCount').textContent = waiting.length + ' waiting';
     document.getElementById('qBody').innerHTML = waiting.map(t => {
       const p = plan[t.id];
-      return `<tr><td class="serif" style="color:var(--gold)">${Q.ticketCode(t)}</td><td><b style="font-weight:500">${Q.esc(t.name)}</b><br><small class="muted">${Q.flagFor(t.phone)} ${Q.esc(t.phone)}</small></td><td>${Q.esc(Q.service(t.serviceId).look.en)}${t.extraLong ? ' · XL' : ''}</td><td>${t.pref === 'any' ? 'Anyone' : Q.esc(Q.stylist(t.pref)?.name)}</td><td><span class="badge ${t.channel === 'whatsapp' ? 'wa' : 'qr'}">${t.channel === 'whatsapp' ? 'WhatsApp' : 'QR'}</span></td><td>${Math.round((Date.now() - t.createdAt) / 60000)} min</td><td>${p && p.startAt ? '~' + Q.minsUntil(p.startAt) + ' min · ' + Q.esc(Q.stylist(p.stylistId)?.name) : '—'}</td><td><button class="mini" data-cancel="${t.id}">Remove</button></td></tr>`;
+      return `<tr><td class="serif" style="color:var(--gold)">${Q.ticketCode(t)}</td><td><b style="font-weight:500">${Q.esc(t.name)}</b><br><small class="muted">${Q.flagFor(t.phone)} ${Q.esc(t.phone)}</small></td><td>${Q.sizeOf(t) > 1 ? `<span class="badge" style="background:var(--rose);color:#fff">×${Q.sizeOf(t)}</span> ` : ''}${Q.esc(Q.partyText(t))}${t.extraLong ? ' · XL' : ''}</td><td>${t.pref === 'any' ? 'Anyone' : Q.esc(Q.stylist(t.pref)?.name)}</td><td><span class="badge ${t.channel === 'whatsapp' ? 'wa' : 'qr'}">${t.channel === 'whatsapp' ? 'WhatsApp' : 'QR'}</span></td><td>${Math.round((Date.now() - t.createdAt) / 60000)} min</td><td>${p && p.startAt ? '~' + Q.minsUntil(p.startAt) + ' min · ' + Q.esc(Q.stylist(p.stylistId)?.name) : '—'}</td><td><button class="mini" data-cancel="${t.id}">Remove</button></td></tr>`;
     }).join('') || '<tr><td colspan="8" class="muted">Nobody waiting.</td></tr>';
 
     document.getElementById('teamBody').innerHTML = S.stylists.map(s => {
@@ -228,6 +229,7 @@
     document.getElementById('launchTxt').textContent = `${used}/${s.launchFirst} clients have had −${s.launchFirstPct}% · ${Math.max(0, (S.launchServed || 0) - used)} at −${s.launchRestPct}% (cancelled and no-show tickets free their spot)`;
     document.getElementById('launchBar').style.width = (used / s.launchFirst * 100) + '%';
 
+    const lc = document.getElementById('loungeCtl'); lc.innerHTML = Q.loungeControl(); Q.bindLounge(lc, null);
     document.querySelectorAll('[data-cancel]').forEach(b => b.onclick = () => Q.twoTap(b, () => Q.cancel(b.dataset.cancel), 'Confirm'));
   }
 

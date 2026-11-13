@@ -53,6 +53,7 @@
   .qitem .n { flex: 1; }
   .qitem .n b { display: block; font-weight: 500; color: var(--cocoa); }
   .qitem .n small { color: var(--muted); }
+  .badge-x { display: inline-block; background: var(--rose); color: #fff; border-radius: 999px; padding: 1px 8px; font-size: .75rem; vertical-align: middle; }
   .qitem button { border: 0; background: var(--cocoa); color: #fff; border-radius: 999px; padding: 8px 14px; font-size: .8rem; }
   .sec-t { font-size: .78rem; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin: 22px 0 4px; }
 
@@ -205,8 +206,8 @@
     const mine = myQueue();
     const all = Q.state.tickets.filter(t => t.status === 'waiting').sort((a, b) => a.createdAt - b.createdAt);
     const others = all.filter(t => !mine.includes(t));
-    const item = t => { const s = Q.service(t.serviceId); return `<div class="qitem"><span class="c">${Q.ticketCode(t)}</span><span class="n"><b>${Q.esc(t.name)}</b><small>${Q.esc(s.look.en)} · ${Q.duration(t)} min · waiting ${Math.round((Date.now() - t.createdAt) / 60000)} min${t.pref !== 'any' ? ' · asked for ' + Q.esc(Q.stylist(t.pref)?.name) : ''}</small></span>${(t.pref === 'any' || t.pref === sid) ? `<button data-call="${t.id}">Call</button>` : ''}</div>`; };
-    return `<div class="panel"><div class="lbl">Queue</div>
+    const item = t => { return `<div class="qitem"><span class="c">${Q.ticketCode(t)}</span><span class="n"><b>${Q.esc(t.name)}${Q.sizeOf(t) > 1 ? ` <span class="badge-x">×${Q.sizeOf(t)}</span>` : ''}</b><small>${Q.esc(Q.partyText(t))} · ${Q.duration(t)} min · waiting ${Math.round((Date.now() - t.createdAt) / 60000)} min${t.pref !== 'any' ? ' · asked for ' + Q.esc(Q.stylist(t.pref)?.name) : ''}</small></span>${(t.pref === 'any' || t.pref === sid) ? `<button data-call="${t.id}">Call</button>` : ''}</div>`; };
+    return `<div class="panel"><div class="lbl">Lounge now</div>${Q.loungeControl()}<div class="lbl" style="margin-top:18px">Queue</div>
       <div class="sec-t">For you (${mine.length})</div><div class="qlist">${mine.map(item).join('') || '<span class="muted">No one yet</span>'}</div>
       <div class="sec-t">Everyone waiting (${all.length})</div><div class="qlist">${others.slice(0, 8).map(item).join('') || '<span class="muted">—</span>'}</div>
       <div class="sec-t">Screens</div><p class="muted" style="font-size:.85rem;margin:6px 0 0">The client pays and rates on this screen. Card & Apple Pay tips go straight to your tips balance.</p></div>`;
@@ -217,7 +218,7 @@
     const s = next && Q.service(next.serviceId);
     return `<div class="panel">
       <div class="lbl">Ready</div><h2>Your chair is free</h2>
-      ${next ? `<p class="muted" style="margin:0">Next client</p><div class="client"><span class="av">${Q.esc(next.name[0])}</span><span><b>${Q.esc(next.name)} · ${Q.ticketCode(next)}</b><small>${Q.esc(s.look.en)} · ${Q.duration(next)} min${next.extraLong ? ' · XL hair' : ''} · waiting ${Math.round((Date.now() - next.createdAt) / 60000)} min</small></span></div>
+      ${next ? `<p class="muted" style="margin:0">Next client</p><div class="client"><span class="av">${Q.esc(next.name[0])}</span><span><b>${Q.esc(next.name)} · ${Q.ticketCode(next)}${Q.sizeOf(next) > 1 ? ` <span class="badge-x">×${Q.sizeOf(next)}</span>` : ''}</b><small>${Q.esc(Q.partyText(next))} · ${Q.duration(next)} min${next.extraLong ? ' · XL hair' : ''} · waiting ${Math.round((Date.now() - next.createdAt) / 60000)} min</small></span></div>
         <button class="btn btn-primary bigbtn" id="callBtn">Call ${Q.esc(next.name)} to seat ${seat} 🔔</button>
         <p class="muted" style="font-size:.85rem;margin-top:10px">She'll get a notification on her phone: “Your wait is over — go to seat ${seat} with ${Q.esc(Q.stylist(sid).name)}”.</p>`
       : `<p class="muted">No one in the queue right now. Time for a matcha ☾</p>`}
@@ -228,7 +229,7 @@
     const s = Q.service(t.serviceId);
     return `<div class="panel">
       <div class="lbl">Notification sent · ${mmss(Date.now() - t.calledAt)} ago</div><h2>${Q.esc(t.name)} is on her way</h2>
-      <div class="client"><span class="av">${Q.esc(t.name[0])}</span><span><b>${Q.ticketCode(t)} · ${Q.esc(s.look.en)}</b><small>${Q.duration(t)} min · waited ${waited(t)} min${t.phone ? ' · ' + Q.esc(t.phone) : ''}</small></span></div>
+      <div class="client"><span class="av">${Q.esc(t.name[0])}</span><span><b>${Q.ticketCode(t)} · ${Q.esc(Q.partyText(t))}</b><small>${Q.duration(t)} min · waited ${waited(t)} min${t.phone ? ' · ' + Q.esc(t.phone) : ''}</small></span></div>
       <button class="btn btn-primary bigbtn" id="startBtn">She's seated — start ✦</button>
       <div class="row-btns"><button class="btn btn-ghost" id="renotify">Notify again</button><button class="btn btn-ghost" id="requeue">Back to queue</button><button class="btn btn-ghost" id="noshow">No-show</button></div>
     </div>`;
@@ -243,7 +244,7 @@
     const freeLeft = s.freeMatcha && !(t.addons || []).some(a => Q.addon(a)?.kind === 'matcha');
     return `<div class="panel">
       <div class="lbl">In the chair</div>
-      <div class="client" style="margin-top:10px"><span class="av">${Q.esc(t.name[0])}</span><span><b>${Q.esc(t.name)} · ${Q.esc(s.look.en)}</b><small>${Q.esc(s.name.en)}${t.discountPct ? ' · opening −' + t.discountPct + '%' : ''}</small></span></div>
+      <div class="client" style="margin-top:10px"><span class="av">${Q.esc(t.name[0])}</span><span><b>${Q.esc(t.name)} · ${Q.esc(Q.partyText(t))}</b><small>${Q.esc(s.name.en)}${t.discountPct ? ' · opening −' + t.discountPct + '%' : ''}</small></span></div>
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px"><div class="timer ${over ? 'over' : ''}" id="timer">${mmss(el)}</div><div class="muted">target ${Q.duration(t)}:00${t.serviceId === 'express' ? '<br><b style="color:var(--rose)">35-min guarantee</b>' : ''}</div></div>
       <div class="pbar ${over ? 'over' : ''}"><i id="pbar" style="width:${Math.min(100, el / target * 100)}%"></i></div>
       <div class="sec-t">Offer a matcha ${freeLeft ? '<span class="chip" style="margin-inline-start:6px">1 free with Night Glow</span>' : ''}</div>
@@ -263,8 +264,8 @@
     const p = Q.pricing(t);
     const name = Q.stylist(sid).name;
     const lines = `<div class="lines">
-      <div><span>${Q.esc(s.look.en)}${t.extraLong ? ' + extra long' : ''}</span><span>${p.base} AED</span></div>
-      ${p.discount ? `<div><span>Opening discount −${t.discountPct}%</span><span>−${p.discount} AED</span></div>` : ''}
+      ${p.people ? p.people.map((l, i) => `<div><span>Person ${i + 1} · ${Q.esc(Q.service(l.serviceId)?.look.en || '')}${l.extraLong ? ' + extra long' : ''}${l.pct ? ` · ${Q.esc(Q.L(l.promo?.label) || 'discount')} −${l.pct}%` : ''}</span><span>${l.discount ? `<s>${l.base}</s> ` : ''}${l.total} AED</span></div>`).join('') : `<div><span>${Q.esc(s.look.en)}${t.extraLong ? ' + extra long' : ''}</span><span>${p.base} AED</span></div>`}
+      ${p.discount && !p.people ? `<div><span>Opening discount −${t.discountPct}%</span><span>−${p.discount} AED</span></div>` : ''}
       ${p.guarantee ? `<div><span>Over 35 min — on us ✦</span><span>−${p.base - p.discount} AED</span></div>` : ''}
       ${p.addons.map(a => `<div><span>${Q.esc(a.name.en)}</span><span>${a.price ? a.price + ' AED' : 'free'}</span></div>`).join('')}
     </div>`;
@@ -322,6 +323,7 @@
   function bind(t) {
     const $ = id => document.getElementById(id);
     view.querySelectorAll('[data-call]').forEach(b => b.onclick = () => { if (Q.currentOf(sid)) return Q.toast('Finish your current client first'); const tk = Q.call(sid, b.dataset.call); Q.toast(tk ? `🔔 ${tk.name} notified — seat ${seat}` : 'This client is no longer available (already called or left).'); });
+    Q.bindLounge(view, sid);
     if ($('callBtn')) $('callBtn').onclick = () => { const b = $('callBtn'); b.disabled = true; const tk = Q.call(sid); Q.toast(tk ? `🔔 ${tk.name} notified — seat ${seat}` : 'Nobody to call right now.'); };
     if (!t) return;
     if ($('startBtn')) $('startBtn').onclick = () => Q.start(t.id);

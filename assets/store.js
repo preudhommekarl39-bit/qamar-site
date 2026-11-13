@@ -49,6 +49,10 @@
   const openShift = sid => state.shifts.find(s => s.stylistId === sid && !s.out);
   const online = () => state.stylists.filter(s => openShift(s.id));
   const duration = t => Math.min(D.maxMinutes || 45, (service(t.serviceId)?.duration || 30) + (t.extraLong ? D.extraLong.minutes : 0));
+  // Visite de groupe : un ticket peut porter plusieurs personnes (t.party = [{ serviceId, extraLong, promo }]).
+  // Sans t.party, le ticket est une personne seule (anciens tickets compris).
+  const partyOf = t => (t && Array.isArray(t.party) && t.party.length ? t.party : [{ serviceId: t.serviceId, extraLong: !!t.extraLong, promo: t.promo || null }]);
+  const sizeOf = t => partyOf(t).length;
   const currentOf = sid => state.tickets.find(t => t.assignedTo === sid && ACTIVE.includes(t.status));
 
   /* Planning glouton : chaque cliente en attente est placée chez sa coiffeuse choisie
@@ -66,6 +70,11 @@
       }
       avail[s.id] = at;
     });
+    const earliest = () => Object.keys(avail).sort((a, b) => avail[a] - avail[b])[0] || null;
+    // groupe déjà au fauteuil : les autres personnes du groupe occupent les fauteuils libres suivants
+    state.tickets.filter(t => ['called', 'in_service'].includes(t.status) && sizeOf(t) > 1).forEach(t => {
+      partyOf(t).slice(1).forEach(p => { const sid = earliest(); if (sid) avail[sid] = Math.max(avail[sid], now) + duration(p) * MIN; });
+    });
     const list = state.tickets.filter(t => t.status === 'waiting').sort((a, b) => a.createdAt - b.createdAt);
     if (extra) list.push(extra);
     const out = {};
@@ -79,14 +88,18 @@
       }
       if (!sid) { out[t.id] = { stylistId: null, startAt: null }; return; }
       out[t.id] = { stylistId: sid, startAt: avail[sid] };
-      avail[sid] += duration(t) * MIN;
+      const people = partyOf(t);
+      avail[sid] += duration(people[0]) * MIN;
+      // les autres personnes du groupe passent en parallèle sur les fauteuils libres suivants
+      people.slice(1).forEach(p => { const s2 = earliest(); if (s2) avail[s2] += duration(p) * MIN; });
     });
     return out;
   }
   const minsUntil = at => (at == null ? null : Math.max(0, Math.round((at - Date.now()) / MIN)));
 
-  function estimate(serviceId, pref = 'any', extraLong = false) {
+  function estimate(serviceId, pref = 'any', extraLong = false, party = null) {
     const fake = { id: '__estimate', serviceId, pref, extraLong, createdAt: Date.now() + 1 };
+    if (Array.isArray(party) && party.length > 1) fake.party = party.map(p => ({ serviceId: p.serviceId, extraLong: !!p.extraLong }));
     const r = schedule(fake).__estimate;
     return r && r.startAt != null ? { minutes: minsUntil(r.startAt), stylistId: r.stylistId } : null;
   }
@@ -107,7 +120,9 @@
   // places « −70 % » réellement consommées : les tickets annulés ou absents libèrent leur place
   function launchUsed() {
     const since = state.launchResetAt || 0;
-    return state.tickets.filter(t => t.promo && t.promo.id === 'launch-first' && !CLOSED.includes(t.status) && t.createdAt >= since).length;
+    // une place par PERSONNE : un groupe de 4 à −70 % consomme 4 places
+    return state.tickets.filter(t => !CLOSED.includes(t.status) && t.createdAt >= since)
+      .reduce((n, t) => n + partyOf(t).filter(p => p.promo && p.promo.id === 'launch-first').length, 0);
   }
   function launchOn() { return !!(PROMO.launch && PROMO.launch.enabled && state.settings.launchMode); }
   function happyHourAt(ts) {
@@ -116,32 +131,55 @@
     return h.days.includes(p.weekday) && p.hour >= h.fromHour && p.hour < h.toHour;
   }
   // Meilleure remise applicable à un instant donné (une seule remise, jamais cumulée)
-  function bestPromo(ts = Date.now()) {
+  // ahead = personnes du même groupe déjà placées avant (places −70 % qu'elles prennent) ; size = taille du groupe
+  function bestPromo(ts = Date.now(), ahead = 0, size = 1) {
     const cands = [];
     if (launchOn()) {
       const L = PROMO.launch, st = state.settings;
-      const first = launchUsed() < (st.launchFirst ?? L.firstN);
+      const first = launchUsed() + ahead < (st.launchFirst ?? L.firstN);
       cands.push(first ? { id: 'launch-first', pct: st.launchFirstPct ?? L.firstPct, label: L.label } : { id: 'launch', pct: st.launchRestPct ?? L.restPct, label: L.label });
     }
     if (happyHourAt(ts)) cands.push({ id: 'happy-hours', pct: PROMO.happyHours.pct, label: PROMO.happyHours.label });
+    const SQ = PROMO.squad;
+    if (SQ && SQ.enabled && size >= SQ.minPeople) cands.push({ id: 'squad', pct: SQ.pct, label: SQ.label });
     return cands.sort((a, b) => b.pct - a.pct)[0] || null;
   }
   // Prix affiché AVANT inscription (site, page cliente) — même calcul que la caisse
-  function quote(serviceId, extraLong = false, ts = Date.now()) {
+  function quote(serviceId, extraLong = false, ts = Date.now(), index = 0, size = 1) {
     const s = service(serviceId); if (!s) return null;
     const base = s.price + (extraLong ? D.extraLong.price : 0);
-    const promo = bestPromo(ts);
+    const promo = bestPromo(ts, index, size);
     const discount = promo ? Math.round(base * promo.pct / 100) : 0;
     return { base, promo, discount, total: base - discount, duration: Math.min(D.maxMinutes || 45, s.duration + (extraLong ? D.extraLong.minutes : 0)) };
+  }
+  // Prix d'un groupe : chaque personne a SA meilleure remise (lancement, happy hours ou Squad dès 4), jamais cumulées
+  function groupQuote(people, ts = Date.now()) {
+    const list = (people || []).filter(p => p && service(p.serviceId)).slice(0, D.maxParty || 6);
+    const n = list.length;
+    const lines = list.map((p, i) => ({ serviceId: p.serviceId, extraLong: !!p.extraLong, ...quote(p.serviceId, !!p.extraLong, ts, i, n) }));
+    const base = lines.reduce((a, l) => a + l.base, 0), discount = lines.reduce((a, l) => a + l.discount, 0);
+    return { size: n, people: lines, base, discount, total: base - discount, squad: lines.some(l => l.promo && l.promo.id === 'squad') };
   }
   function available(s, ts = Date.now()) { return !s.fromHour || dubai(ts).hour >= s.fromHour; }
 
   function pricing(t) {
     const s = service(t.serviceId);
-    const base = (s?.price || 0) + (t.extraLong ? D.extraLong.price : 0);
     const pct = t.promo ? t.promo.pct : (t.discountPct || 0);
-    const discount = Math.round(base * pct / 100);
-    let freeMatchaLeft = s?.freeMatcha ? 1 : 0;
+    let base, discount, people = null;
+    if (sizeOf(t) > 1) {
+      // groupe : chaque personne garde la remise calculée à l'inscription
+      people = partyOf(t).map((p, i) => {
+        const b = (service(p.serviceId)?.price || 0) + (p.extraLong ? D.extraLong.price : 0);
+        const pp = p.promo ? p.promo.pct : (i === 0 ? pct : 0);
+        const d = Math.round(b * pp / 100);
+        return { serviceId: p.serviceId, extraLong: !!p.extraLong, base: b, pct: pp, promo: p.promo || null, discount: d, total: b - d };
+      });
+      base = people.reduce((a, l) => a + l.base, 0); discount = people.reduce((a, l) => a + l.discount, 0);
+    } else {
+      base = (s?.price || 0) + (t.extraLong ? D.extraLong.price : 0);
+      discount = Math.round(base * pct / 100);
+    }
+    let freeMatchaLeft = partyOf(t).filter(p => service(p.serviceId)?.freeMatcha).length;
     const lines = (t.addons || []).map(id => {
       const a = addon(id); if (!a) return null;
       let price = a.price;
@@ -149,9 +187,9 @@
       return { id, name: a.name, price };
     }).filter(Boolean);
     const addonsTotal = lines.reduce((n, l) => n + l.price, 0);
-    const guarantee = !!t.guaranteeFree;
+    const guarantee = !!t.guaranteeFree && !people;               // garantie 35 min : visites individuelles seulement
     const serviceDue = guarantee ? 0 : base - discount;
-    return { base, discount, pct, promo: t.promo || null, addons: lines, addonsTotal, guarantee, total: serviceDue + addonsTotal };
+    return { base, discount, pct, promo: t.promo || null, people, size: sizeOf(t), addons: lines, addonsTotal, guarantee, total: serviceDue + addonsTotal };
   }
 
   const fmt = n => `${Math.round(n).toLocaleString('en-US')} AED`;
@@ -176,9 +214,12 @@
     },
     on(fn) { listeners.push(fn); fn(state); },
     service, addon, stylist, ticket, openShift, online, duration, currentOf, schedule, estimate, ticketEta, position, pricing, fmt, ticketCode, minsUntil, startOfDay,
-    quote, bestPromo, launchUsed, available, dubai,
+    quote, groupQuote, bestPromo, launchUsed, available, dubai, partyOf, sizeOf,
 
-    joinQueue({ name, phone, serviceId, pref = 'any', extraLong = false, channel = 'qr' }) {
+    joinQueue({ name, phone, serviceId, pref = 'any', extraLong = false, channel = 'qr', party = null }) {
+      // visite de groupe : party = [{ serviceId, extraLong }] (2 à maxParty personnes, la première est la cliente qui inscrit)
+      let people = Array.isArray(party) && party.length > 1 ? party.slice(0, D.maxParty || 6).map(p => ({ serviceId: p && p.serviceId, extraLong: !!(p && p.extraLong) })) : null;
+      if (people) { if (people.some(p => !service(p.serviceId) || !available(service(p.serviceId)))) return null; serviceId = people[0].serviceId; extraLong = people[0].extraLong; }
       const s = service(serviceId);
       if (!s || !available(s)) return null;                                   // prestation inconnue ou hors horaire
       if (pref !== 'any' && !stylist(pref)) pref = 'any';
@@ -187,9 +228,11 @@
       if (ph) { const dup = state.tickets.find(t => t.phone === ph && ['waiting', 'called', 'in_service', 'checkout'].includes(t.status)); if (dup) return dup; }
       const today = dubai().dateKey;
       if (state.counterDay !== today) { state.counterDay = today; state.counter = 0; } // numéros remis à zéro chaque jour
-      const promo = bestPromo();
-      if (launchOn()) state.launchServed = (state.launchServed || 0) + 1;      // compteur informatif (dashboard)
+      if (people) { const g = groupQuote(people); people = g.people.map(l => ({ serviceId: l.serviceId, extraLong: l.extraLong, promo: l.promo })); }
+      const promo = people ? people[0].promo : bestPromo();
+      if (launchOn()) state.launchServed = (state.launchServed || 0) + (people ? people.length : 1); // compteur informatif (dashboard)
       const t = { id: uid(), num: ++state.counter, name: clean(name, D.limits.nameMax) || 'Guest', phone: ph, serviceId, pref, extraLong: !!extraLong, channel, promo, discountPct: promo ? promo.pct : 0, addons: [], status: 'waiting', createdAt: Date.now() };
+      if (people) t.party = people;
       state.tickets.push(t);
       commit();
       return t;
@@ -232,7 +275,7 @@
     requeue(id) { const t = ticket(id); if (t && t.status === 'called') { t.status = 'waiting'; delete t.assignedTo; delete t.seat; delete t.calledAt; commit(); return true; } return false; },
     renotify(id) { const t = ticket(id); if (t && t.status === 'called') { t.pings = (t.pings || 0) + 1; commit(); } },
     start(id) { const t = ticket(id); if (t && t.status === 'called') { t.status = 'in_service'; t.startedAt = Date.now(); commit(); return true; } return false; },
-    toggleExtraLong(id) { const t = ticket(id); if (t && ['called', 'in_service'].includes(t.status)) { t.extraLong = !t.extraLong; commit(); } },
+    toggleExtraLong(id) { const t = ticket(id); if (t && ['called', 'in_service'].includes(t.status)) { t.extraLong = !t.extraLong; if (t.party && t.party[0]) t.party[0].extraLong = t.extraLong; commit(); } },
     addAddon(id, addonId) { const t = ticket(id); if (t && addon(addonId) && ['waiting', 'called', 'in_service'].includes(t.status) && t.addons.length < 6) { t.addons.push(addonId); commit(); } },
     removeAddon(id, addonId) { const t = ticket(id); if (t && t.status !== 'paid' && t.status !== 'done') { const i = t.addons.lastIndexOf(addonId); if (i > -1) { t.addons.splice(i, 1); commit(); } } },
     setPerfume(id, p) { const t = ticket(id); if (t && D.perfumes.some(x => x.id === p)) { t.perfume = p; commit(); } },
@@ -242,7 +285,7 @@
       t.status = 'checkout'; t.finishedAt = Date.now();
       // Garantie : prestations listées dans data.js, temps mesuré du début à la fin de la prestation (l'attente ne compte pas)
       const g = D.guarantee;
-      if (g && g.serviceIds.includes(t.serviceId) && t.startedAt) {
+      if (g && g.serviceIds.includes(t.serviceId) && t.startedAt && sizeOf(t) === 1) {
         t.serviceMinutes = Math.round((t.finishedAt - t.startedAt) / 60000);
         if (t.finishedAt - t.startedAt > g.minutes * MIN) t.guaranteeFree = true;
       }
@@ -268,6 +311,33 @@
       if (n >= 1 && n <= 5) { t.rating = n; t.comment = clean(comment, D.limits.commentMax); }
       t.status = 'done'; t.doneAt = Date.now();
       commit();
+    },
+    /* Affluence en direct, réglée par le personnel (poste ou dashboard) : personnes qui attendent au salon
+       et, si on le sait, fauteuils libres. Ce n'est jamais une réservation : juste « venez quand c'est calme ». */
+    setLounge({ waiting, chairsFree } = {}, by = null) {
+      const L = D.live || {}, cur = state.lounge || {};
+      const w = waiting === undefined ? (cur.waiting || 0) : Math.max(0, Math.min(L.loungeMax || 30, Math.round(Number(waiting) || 0)));
+      let c = chairsFree === undefined ? (cur.chairsFree ?? null) : chairsFree;
+      c = c === null || c === '' ? null : Math.max(0, Math.min(state.stylists.length, Math.round(Number(c) || 0)));
+      state.lounge = { waiting: w, chairsFree: c, at: Date.now(), by: by && stylist(by) ? by : null };
+      commit();
+      return state.lounge;
+    },
+    liveStatus(ts = Date.now()) {
+      const L = D.live || {};
+      const lg = state.lounge;
+      const fresh = !!(lg && ts - lg.at < (L.staleMinutes || 120) * MIN && dubai(lg.at).dateKey === dubai(ts).dateKey);
+      const queuePeople = state.tickets.filter(t => t.status === 'waiting').reduce((n, t) => n + sizeOf(t), 0);
+      const chairs = online().length;
+      const waiting = fresh ? Math.max(lg.waiting, queuePeople) : queuePeople;
+      const chairsFree = fresh && lg.chairsFree != null ? lg.chairsFree : online().filter(s => !currentOf(s.id)).length;
+      const open = chairs > 0 || fresh;
+      if (!open) return { open: false, waiting, chairs, chairsFree: 0, minutes: null, level: null, updatedAt: null };
+      const q = chairs ? estimate('express', 'any') : null;
+      const staffMin = waiting < chairsFree ? 0 : Math.round((waiting - chairsFree + 1) / Math.max(1, chairs || chairsFree || 1) * (L.avgMinutes || 30));
+      const minutes = Math.max(q ? q.minutes : 0, fresh ? staffMin : 0);
+      const level = minutes <= (L.quietMax ?? 10) ? 'quiet' : minutes <= (L.moderateMax ?? 30) ? 'moderate' : 'busy';
+      return { open: true, waiting, chairs, chairsFree, minutes, level, updatedAt: fresh ? lg.at : null };
     },
     setSetting(k, v) { if (k in state.settings) { state.settings[k] = v; commit(); } },
     resetLaunchCounter() { state.launchServed = 0; state.launchResetAt = Date.now(); commit(); },
@@ -351,6 +421,14 @@
   };
 
   /* UI helpers */
+  // « Qamar Express » pour une personne, « ×4 · Qamar Express ×2, Qamar Glow, SOS 15 » pour un groupe (écrans du personnel)
+  Q.partyText = (t, lang = 'en') => {
+    const look = id => { const s = service(id); return s ? (s.look[lang] || s.look.en) : id; };
+    const p = partyOf(t);
+    if (p.length < 2) return look(t.serviceId);
+    const c = {}; p.forEach(x => { c[x.serviceId] = (c[x.serviceId] || 0) + 1; });
+    return `×${p.length} · ` + Object.entries(c).map(([id, n]) => look(id) + (n > 1 ? ` ×${n}` : '')).join(', ');
+  };
   Q.esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   Q.logo = (cls = 'logo-mark') => `<svg class="${cls}" viewBox="0 0 120 160" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M82 14C50 18 30 46 34 76c4 24 24 38 46 36"/><path d="M82 14C62 26 54 48 58 70"/><path d="M58 70c4 16 30 20 26 42-2 12-12 20-14 36"/><path d="M64 60c2 20 32 26 28 50-2 14-12 24-14 40"/><path d="M104 74c-4 18-14 30-24 38"/></svg>`;
   Q.toast = msg => {
@@ -478,6 +556,25 @@
     Q.alertBanner(`<div style="color:#E8CFA0;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px">New client · ${t.channel === 'whatsapp' ? 'WhatsApp' : 'QR code'}</div>
       <b style="font-weight:500;font-size:1.05rem">${Q.esc(t.name)}</b> · ${Q.esc(s?.look.en || '')} · ${Q.ticketCode(t)}<br>
       <span style="opacity:.75">${Q.flagFor(t.phone)} ${Q.esc(t.phone || 'no phone')} · ${t.pref === 'any' ? 'first available' : 'asked for ' + Q.esc(stylist(t.pref)?.name || '')}</span>`);
+  };
+
+  /* Réglage « affluence du salon » pour le personnel (postes et dashboard) : ce que les clientes voient sur queue.html */
+  Q.loungeControl = () => {
+    const L = Q.liveStatus(), lg = state.lounge, fresh = !!L.updatedAt;
+    const btn = (k, d, lbl) => `<button type="button" data-lounge="${k}" data-d="${d}" aria-label="${lbl}" style="width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:1.3rem;color:var(--cocoa)">${d > 0 ? '+' : '−'}</button>`;
+    const val = (v, id) => `<output id="${id}" style="min-width:34px;text-align:center;font-family:var(--serif);font-size:1.7rem;color:var(--cocoa)">${v}</output>`;
+    const row = (label, k, v, id) => `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0"><span>${label}</span><span style="display:flex;align-items:center;gap:4px">${btn(k, -1, label + ' minus one')}${val(v, id)}${btn(k, 1, label + ' plus one')}</span></div>`;
+    const lvl = L.open ? `${{ quiet: 'Quiet', moderate: 'Moderate', busy: 'Busy' }[L.level]} · ~${L.minutes} min` : 'Closed (nobody on shift)';
+    return `<div class="lounge-ctl">${row('Waiting in the lounge', 'waiting', fresh ? lg.waiting : L.waiting, 'lgW')}${row('Chairs free', 'chairsFree', L.chairsFree, 'lgC')}
+      <p class="muted" style="font-size:.82rem;margin:4px 0 0">Clients see: <b style="font-weight:500;color:var(--cocoa)">${lvl}</b> · ${fresh ? 'set by staff at ' + Q.clock(lg.at) : 'automatic (from the live queue)'}. Walk-in only — never shown as a booking.</p></div>`;
+  };
+  Q.bindLounge = (root, by) => {
+    root.querySelectorAll('[data-lounge]').forEach(b => b.onclick = () => {
+      const L = Q.liveStatus(), lg = state.lounge, fresh = !!L.updatedAt;
+      const cur = { waiting: fresh ? lg.waiting : L.waiting, chairsFree: L.chairsFree };
+      cur[b.dataset.lounge] = Math.max(0, cur[b.dataset.lounge] + Number(b.dataset.d));
+      Q.setLounge(cur, by);
+    });
   };
 
   /* Confirmation en deux appuis (les boîtes confirm() sont bloquées dans certains cadres) */

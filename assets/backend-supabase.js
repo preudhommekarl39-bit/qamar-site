@@ -16,6 +16,7 @@
      pay (espèces)  → rpc('confirm_cash')        carte/Apple Pay : uniquement via supabase/functions/payment-webhook
      rate           → rpc('leave_review')        seulement après paiement confirmé
      écran d'entrée → select sur la vue public_queue (prénom + initiale, sans téléphone)
+     affluence      → rpc('set_lounge') / select salon_status (004)
      temps réel     → channel('qamar').on('postgres_changes', { table: 'tickets' }, …) */
 (function () {
   const C = window.QAMAR_CONFIG || {};
@@ -43,6 +44,10 @@
     amountDue: (ticketId) => call('amount_due', { p_ticket: ticketId }),
     review: (id, token, stars, comment) => call('leave_review', { p_ticket: id, p_token: token, p_stars: stars, p_comment: comment }),
     publicQueue: async () => { const { data, error } = await sb.from('public_queue').select('*'); if (error) throw error; return data; },
+    // Affluence en direct (004_group_lounge.sql) : réglée par le personnel, lue par les pages clientes
+    setLounge: (waiting, chairsFree) => call('set_lounge', { p_waiting: waiting, p_chairs_free: chairsFree ?? null }),
+    lounge: async () => { const { data, error } = await sb.from('salon_status').select('lounge_waiting, chairs_free, updated_at').eq('id', 1).single(); if (error) throw error; return data; },
+    subscribeLounge: (onChange) => sb.channel('qamar-lounge').on('postgres_changes', { event: '*', schema: 'public', table: 'salon_status' }, onChange).subscribe(),
     subscribe: (onChange) => sb.channel('qamar').on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, onChange).subscribe()
   };
 })();

@@ -30,6 +30,9 @@ window.QAMAR_DATA = {
   ],
 
   maxMinutes: 45, // aucune formule ne dépasse 45 min
+  maxParty: 6, // visite de groupe : jusqu'à 6 personnes sur un même ticket
+  // Affluence en direct (« venez quand c'est calme ») : seuils en minutes d'attente estimée, compteur du salon valable 2 h
+  live: { quietMax: 10, moderateMax: 30, staleMinutes: 120, avgMinutes: 30, loungeMax: 30 },
   extraLong: { price: 40, minutes: 0 },
 
   /* Règles commerciales — SOURCE UNIQUE utilisée par le site, la page cliente, les postes et le dashboard.
@@ -37,8 +40,11 @@ window.QAMAR_DATA = {
      La remise porte sur la prestation (supplément cheveux longs inclus), jamais sur les boissons ni le pourboire. */
   promotions: {
     launch: { enabled: true, label: { en: 'Opening offer', ar: 'عرض الافتتاح' }, firstN: 30, firstPct: 70, restPct: 50 },
-    happyHours: { enabled: true, label: { en: 'Happy hours', ar: 'عروض الظهيرة' }, pct: 20, days: [1, 2, 3, 4, 5], fromHour: 10, toHour: 15 } // lun–ven (week-end UAE : sam–dim)
-    // Squad (−25 %), carte 4 brushings, abonnement, anniversaire et parrainage : appliqués manuellement en caisse
+    happyHours: { enabled: true, label: { en: 'Happy hours', ar: 'عروض الظهيرة' }, pct: 20, days: [1, 2, 3, 4, 5], fromHour: 10, toHour: 15 }, // lun–ven (week-end UAE : sam–dim)
+    // Squad : appliqué automatiquement à chaque personne d'une visite de groupe (un seul ticket, 4 personnes ou plus),
+    // sauf si une remise plus forte s'applique à cette personne (règle « une seule remise, la meilleure »)
+    squad: { enabled: true, label: { en: 'Squad', ar: 'سكواد' }, minPeople: 4, pct: 25 }
+    // Carte 4 brushings, abonnement, anniversaire et parrainage : appliqués manuellement en caisse
     // tant que les règles (justificatifs, plafonds, durée de validité) ne sont pas validées. Voir AUDIT.md.
   },
   guarantee: { serviceIds: ['express'], minutes: 35 }, // mesuré entre « début de prestation » et « fin de prestation », hors attente

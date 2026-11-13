@@ -122,6 +122,37 @@
   .hidden { display: none !important; }
   .stars button { min-width: 48px; min-height: 48px; }
   .stars button.on { color: var(--rose-deep, #964A62); }
+  /* Visite de groupe */
+  .party { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #fff; border-radius: 16px; padding: 10px 10px 10px 16px; margin-bottom: 12px; }
+  html[dir="rtl"] .party { padding: 10px 16px 10px 10px; }
+  .party small { display: block; color: var(--muted); font-size: .8rem; }
+  .stepper { display: flex; align-items: center; gap: 4px; flex: none; }
+  .stepper button { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--line); background: #fff; font-size: 1.35rem; line-height: 1; color: var(--cocoa); display: grid; place-items: center; }
+  .stepper button[disabled] { opacity: .35; }
+  .stepper output { min-width: 34px; text-align: center; font-family: var(--serif); font-size: 1.7rem; color: var(--cocoa); }
+  .people { display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px 14px; padding: 2px 16px 6px; scrollbar-width: none; }
+  .people::-webkit-scrollbar { display: none; }
+  .people button { flex: none; min-height: 44px; max-width: 170px; border-radius: 16px; border: 1.5px solid var(--line); background: #fff; padding: 6px 14px; color: var(--cocoa); text-align: start; font-size: .85rem; line-height: 1.25; }
+  .people button small { display: block; color: var(--muted); font-size: .74rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .people button.on { border-color: var(--rose); box-shadow: 0 0 0 3px rgba(184, 122, 98, .18); }
+  .people button.todo small { color: var(--rose-deep, #964A62); }
+  .opt .cnt { position: absolute; top: 10px; inset-inline-end: 10px; background: var(--rose); color: #fff; border-radius: 999px; padding: 3px 9px; font-size: .75rem; }
+  #groupSum { margin: 14px 0 0; }
+  #groupSum .total { font-size: 1.35rem; }
+  .gnote { display: block !important; color: var(--muted); font-size: .8rem; }
+  /* Affluence en direct */
+  .lc { background: #fff; border-radius: 20px; padding: 14px 16px; margin-bottom: 20px; box-shadow: 0 10px 30px -20px rgba(75, 45, 37, .4); }
+  .lc .hd { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--rose); }
+  .lc .hd span:first-child { display: flex; align-items: center; gap: 8px; }
+  .lc .hd small { letter-spacing: 0; text-transform: none; color: var(--muted); font-size: .75rem; }
+  html[dir="rtl"] .lc .hd { letter-spacing: 0; }
+  .lc .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .lc .row div { background: var(--pearl); border-radius: 14px; padding: 8px 4px; text-align: center; }
+  .lc .row b { display: block; font-family: var(--serif); font-size: 1.45rem; font-weight: 500; color: var(--cocoa); line-height: 1.15; }
+  .lc .row small { color: var(--muted); font-size: .72rem; }
+  .lc .lvl-quiet b { color: var(--ok); } .lc .lvl-busy b { color: var(--bad); }
+  .lc .hint { margin: 10px 2px 0; font-size: .92rem; color: var(--cocoa); }
+  .lc .walk { display: block; margin: 4px 2px 0; color: var(--muted); font-size: .78rem; }
 </style>
 </head>
 <body>
@@ -136,11 +167,16 @@
     <div class="progress"><i></i><i></i><i></i></div>
 
     <section data-step="1">
+      <div class="lc" id="liveCard" aria-live="polite"></div>
       <div id="launchPill"></div>
       <h1 data-i18n="s1_title">Choose your look</h1>
       <p class="sub" data-i18n="s1_sub">Tap the look you want — no need to explain.</p>
+      <div class="party"><div><b style="font-weight:500" data-i18n="party_t">How many of you?</b><small id="partySub"></small></div>
+        <div class="stepper"><button type="button" id="partyMinus" aria-label="One person fewer">−</button><output id="partyN" aria-live="polite">1</output><button type="button" id="partyPlus" aria-label="One more person">+</button></div></div>
+      <div class="people hidden" id="people"></div>
       <div class="grid" id="looks"></div>
       <div class="toggle"><div><b style="font-weight:500" data-i18n="long_t">Extra long or thick hair</b><br><small class="muted" data-i18n="long_s">+40 AED · same time, 45 min max</small></div><button class="switch" id="longSw" aria-label="Extra long hair"></button></div>
+      <div class="summary hidden" id="groupSum" aria-live="polite"></div>
     </section>
 
     <section data-step="2" class="hidden">
@@ -234,6 +270,19 @@
     demo: { en: 'Demo: see what the salon sees', ar: 'تجربة: شاهدي ما يراه الصالون' }, demo_open: { en: 'Open the dashboard', ar: 'افتحي لوحة التحكم' },
     demo_note: { en: 'Preview — QAMAR is not open yet. A ticket created here stays on this phone: the salon does not receive it, no message or payment is sent.', ar: 'معاينة — قمر لم يفتح بعد. التذكرة التي تُنشأ هنا تبقى على هذا الهاتف: لا يستلمها الصالون ولا تُرسل أي رسالة أو دفعة.' },
     demo_next: { en: 'Demo · simulate the next step', ar: 'تجربة · محاكاة الخطوة التالية' }, demo_next_s: { en: 'On a single phone, plays the salon’s part so you can see the whole journey.', ar: 'على هاتف واحد، يقوم بدور الصالون لتشاهدي الرحلة كاملة.' },
+    party_t: { en: 'How many of you?', ar: 'كم عددكنّ؟' }, party_s1: { en: 'Coming with friends? Add them here — one ticket for everyone.', ar: 'قادمة مع صديقاتك؟ أضيفيهنّ هنا — تذكرة واحدة للجميع.' },
+    party_s: { en: 'Pick a look for each person.', ar: 'اختاري إطلالة لكل واحدة.' }, party_minus: { en: 'One person fewer', ar: 'شخص أقل' }, party_plus: { en: 'One more person', ar: 'شخص إضافي' },
+    person: { en: 'Person {n}', ar: 'الشخص {n}' }, pick: { en: 'Choose a look', ar: 'اختاري إطلالة' }, group: { en: 'Group', ar: 'المجموعة' },
+    ppl: { en: '{n} people', ar: '{n} أشخاص' }, ppl2: { en: '2 people', ar: 'شخصان' }, grp_for: { en: 'For {n} people', ar: 'لـ{n} أشخاص' }, grp_for2: { en: 'For 2 people', ar: 'لشخصين' },
+    grp_instead: { en: 'instead of {y}', ar: 'بدلاً من {y}' }, grp_rule: { en: 'One discount per person: the best one applies.', ar: 'خصم واحد لكل شخص: نطبّق الأفضل.' },
+    squad_hint: { en: 'Come as {n} or more and each of you saves {p}% (Squad).', ar: 'تعالين {n} أو أكثر ووفّري {p}٪ لكل واحدة منكنّ (سكواد).' },
+    grp_missing: { en: 'Choose a look for everyone to continue.', ar: 'اختاري إطلالة لكل واحدة للمتابعة.' },
+    live_t: { en: 'Live at QAMAR', ar: 'قمر الآن' }, live_wait: { en: 'waiting now', ar: 'في الانتظار' }, live_est: { en: 'est. wait', ar: 'انتظار تقديري' }, live_lvl: { en: 'right now', ar: 'حالياً' },
+    lvl_quiet: { en: 'Quiet', ar: 'هادئ' }, lvl_moderate: { en: 'Moderate', ar: 'متوسط' }, lvl_busy: { en: 'Busy', ar: 'مزدحم' },
+    hint_quiet: { en: 'Good time to come.', ar: 'وقت مناسب للحضور.' }, hint_moderate: { en: 'Short wait — fine to come now.', ar: 'انتظار قصير — يمكنكِ الحضور الآن.' }, hint_busy: { en: 'Busy right now — come in about {m} min.', ar: 'مزدحم الآن — تعالي بعد حوالي {m} دقيقة.' },
+    live_closed: { en: 'The team hasn’t started yet. The queue opens with the first stylist.', ar: 'لم يبدأ الفريق بعد. يفتح الطابور مع أول مصففة.' },
+    live_walk: { en: 'Walk-in only — no appointment needed, just come in.', ar: 'بدون مواعيد — تعالي مباشرة.' },
+    upd_now: { en: 'updated just now', ar: 'محدَّث الآن' }, upd_ago: { en: 'updated {m} min ago', ar: 'محدَّث قبل {m} د' }, upd_auto: { en: 'from the live queue', ar: 'من الطابور المباشر' },
     paid_cash: { en: 'Cash with your stylist', ar: 'نقداً مع مصففتك' }, back_site: { en: 'Back to the website', ar: 'العودة إلى الموقع' }, back: { en: 'Back', ar: 'رجوع' }, opening: { en: 'The team is getting ready — your place is saved.', ar: 'الفريق يستعد — مكانك محفوظ.' }
   };
   const t = (k, v = {}) => Q.t(k).replace(/\{(\w)\}/g, (_, x) => v[x] ?? '');
@@ -246,7 +295,17 @@
   document.getElementById('cc').innerHTML = Q.countries.map(([f, code, name]) => `<option value="${code}" ${code === savedCc ? 'selected' : ''}>${f} ${code} · ${name}</option>`).join('');
   document.getElementById('phone').addEventListener('input', () => document.getElementById('phone').closest('.field').classList.remove('err'));
   const params = new URLSearchParams(location.search);
-  const sel = { serviceId: params.get('look') || null, pref: params.get('stylist') || null, extraLong: false };
+  // Visite de groupe : une entrée par personne (la première est la cliente qui inscrit)
+  const sel = { people: [{ serviceId: params.get('look') || null, extraLong: false }], active: 0, pref: params.get('stylist') || null };
+  const lead = () => sel.people[0];
+  const curP = () => sel.people[sel.active];
+  const size = () => sel.people.length;
+  const partyArg = () => size() > 1 ? sel.people : null;
+  const MAXP = D.maxParty || 6;
+  const lookName = id => { const s = Q.service(id); return s ? Q.L(s.look) : ''; };
+  const pplTxt = n => n === 2 ? t('ppl2') : t('ppl', { n: qNum(n) });
+  const forTxt = n => n === 2 ? t('grp_for2') : t('grp_for', { n: qNum(n) });
+  const partyLine = tk => { const p = Q.partyOf(tk); if (p.length < 2) return Q.esc(lookName(tk.serviceId)); const c = {}; p.forEach(x => { c[x.serviceId] = (c[x.serviceId] || 0) + 1; }); return `<bdi dir="ltr">×${qNum(p.length)}</bdi> · ` + Object.entries(c).map(([id, n]) => Q.esc(lookName(id)) + (n > 1 ? ` <bdi dir="ltr">×${qNum(n)}</bdi>` : '')).join(Q.lang === 'ar' ? '، ' : ', '); };
   let step = 1;
   let myId = params.get('t') || (() => { try { return localStorage.getItem('qamar:myTicket'); } catch (e) { return null; } })();
   let lastStatus = null, lastPings = 0, tipChoice = null, payMode = 'card', stars = 0;
@@ -263,33 +322,94 @@
     const pill = document.getElementById('launchPill');
     pill.textContent = '';
     if (promo) { const sp = document.createElement('span'); sp.className = 'launch-pill'; sp.innerHTML = `☾ ${Q.esc(Q.L(promo.label))} · <bdi dir="ltr">−${promo.pct}%</bdi>`; pill.appendChild(sp); }
+    sel.people.forEach(p => { if (p.serviceId && (!Q.service(p.serviceId) || !Q.available(Q.service(p.serviceId)))) p.serviceId = null; });
+    const me = curP(), n = size();
     document.getElementById('looks').innerHTML = D.services.map(s => {
       const ok = nightOk(s);
-      const q = Q.quote(s.id, sel.extraLong);
-      return `<button class="opt ${sel.serviceId === s.id ? 'sel' : ''}" data-id="${s.id}" ${ok ? '' : 'disabled aria-disabled="true"'} aria-pressed="${sel.serviceId === s.id}">
-        <div class="ph" style="background:radial-gradient(120% 90% at 50% 10%, ${s.tone[0]}, ${s.tone[1]})">${s.img ? `<img class="look-img" src="${s.img}" alt="${Q.esc(Q.L(s.look))}" loading="lazy" decoding="async" width="640" height="823">` : `<canvas class="look-canvas" data-look="${s.id}" aria-hidden="true"></canvas>`}<span class="t">${qNum(q.duration)} ${t('min')}</span></div>
+      const q = Q.quote(s.id, me.extraLong, Date.now(), sel.active, n);
+      const on = me.serviceId === s.id;
+      const cnt = n > 1 ? sel.people.filter(p => p.serviceId === s.id).length : 0;
+      return `<button class="opt ${on ? 'sel' : ''}" data-id="${s.id}" ${ok ? '' : 'disabled aria-disabled="true"'} aria-pressed="${on}">
+        <div class="ph" style="background:radial-gradient(120% 90% at 50% 10%, ${s.tone[0]}, ${s.tone[1]})">${s.img ? `<img class="look-img" src="${s.img}" alt="${Q.esc(Q.L(s.look))}" loading="lazy" decoding="async" width="640" height="823">` : `<canvas class="look-canvas" data-look="${s.id}" aria-hidden="true"></canvas>`}<span class="t">${qNum(q.duration)} ${t('min')}</span>${cnt ? `<span class="cnt"><bdi dir="ltr">×${qNum(cnt)}</bdi></span>` : ''}</div>
         <div class="bd"><b>${Q.esc(Q.L(s.look))}</b><small>${ok ? Q.esc(Q.L(s.name)) : t('night_only')}</small>
         <div class="pr">${q.discount ? `<s>${qNum(q.base)}</s><b>${qAed(q.total)}</b>` : `<b>${qAed(q.total)}</b>`}</div></div>
       </button>`;
     }).join('');
-    document.querySelectorAll('#looks .opt').forEach(b => b.onclick = () => { if (b.disabled) return; sel.serviceId = b.dataset.id; renderLooks(); updateBar(); });
-    if (sel.serviceId && !Q.available(Q.service(sel.serviceId))) { sel.serviceId = null; updateBar(); }
-    document.getElementById('longSw').classList.toggle('on', sel.extraLong);
-    document.getElementById('longSw').setAttribute('aria-pressed', sel.extraLong);
+    document.querySelectorAll('#looks .opt').forEach(b => b.onclick = () => {
+      if (b.disabled) return;
+      curP().serviceId = b.dataset.id;
+      // groupe : on passe tout seul à la personne suivante qui n'a pas encore de look
+      if (size() > 1) { for (let k = 1; k < size(); k++) { const j = (sel.active + k) % size(); if (!sel.people[j].serviceId) { sel.active = j; break; } } }
+      renderLooks(); updateBar();
+    });
+    document.getElementById('longSw').classList.toggle('on', me.extraLong);
+    document.getElementById('longSw').setAttribute('aria-pressed', me.extraLong);
+    renderParty();
   }
-  document.getElementById('longSw').onclick = () => { sel.extraLong = !sel.extraLong; renderLooks(); };
+  document.getElementById('longSw').onclick = () => { curP().extraLong = !curP().extraLong; renderLooks(); };
+
+  /* ---------- Visite de groupe : nombre de personnes, look de chacune, prix en direct ---------- */
+  function renderParty() {
+    const n = size(), now = Date.now();
+    document.getElementById('partyN').textContent = qNum(n);
+    document.getElementById('partyMinus').disabled = n <= 1;
+    document.getElementById('partyPlus').disabled = n >= MAXP;
+    document.getElementById('partyMinus').setAttribute('aria-label', t('party_minus'));
+    document.getElementById('partyPlus').setAttribute('aria-label', t('party_plus'));
+    document.getElementById('partySub').textContent = n > 1 ? t('party_s') : t('party_s1');
+    const pe = document.getElementById('people'), gs = document.getElementById('groupSum');
+    pe.classList.toggle('hidden', n < 2); gs.classList.toggle('hidden', n < 2);
+    if (n < 2) { pe.innerHTML = ''; gs.innerHTML = ''; return; }
+    pe.innerHTML = sel.people.map((p, i) => `<button type="button" data-p="${i}" class="${i === sel.active ? 'on' : ''} ${p.serviceId ? '' : 'todo'}" aria-pressed="${i === sel.active}"><b style="font-weight:500">${t('person', { n: qNum(i + 1) })}</b><small>${p.serviceId ? Q.esc(lookName(p.serviceId)) + (p.extraLong ? ' + XL' : '') : t('pick')}</small></button>`).join('');
+    pe.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { sel.active = +b.dataset.p; renderLooks(); });
+    const act = pe.querySelector('.on'); if (act && act.scrollIntoView) act.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    // prix par personne : chacune a SA meilleure remise (jamais cumulée), Squad dès 4
+    const lines = sel.people.map((p, i) => p.serviceId ? Q.quote(p.serviceId, p.extraLong, now, i, n) : null);
+    const base = lines.reduce((a, l) => a + (l ? l.base : 0), 0), total = lines.reduce((a, l) => a + (l ? l.total : 0), 0);
+    const promos = {}; lines.forEach(l => { if (l && l.promo) promos[l.promo.id + l.promo.pct] = l.promo; });
+    const SQ = D.promotions.squad;
+    const bestPct = Math.max(0, ...lines.map(l => (l && l.promo ? l.promo.pct : 0)));
+    const squadHint = SQ && SQ.enabled && n < SQ.minPeople && SQ.pct > bestPct;
+    const missing = lines.some(l => !l);
+    gs.innerHTML = sel.people.map((p, i) => { const l = lines[i]; return `<div><span>${t('person', { n: qNum(i + 1) })}${l ? ' · ' + Q.esc(lookName(p.serviceId)) + (p.extraLong ? ' + XL' : '') : ''}</span>${l ? `<span><bdi dir="ltr">${l.discount ? `<s class="muted">${qNum(l.base)}</s> ` : ''}${qAed(l.total)}</bdi></span>` : `<span class="muted">${t('pick')}</span>`}</div>`; }).join('')
+      + Object.values(promos).map(pr => `<div><span>${Q.esc(Q.L(pr.label))}</span><span><bdi dir="ltr">−${qNum(pr.pct)}%</bdi></span></div>`).join('')
+      + `<div class="total"><span>${forTxt(n)}</span><span><bdi dir="ltr">${qAed(total)}</bdi></span></div>`
+      + (base > total ? `<div class="gnote">${t('grp_instead', { y: `<bdi dir="ltr"><s>${qAed(base)}</s></bdi>` })} · ${t('grp_rule')}</div>` : '')
+      + (squadHint ? `<div class="gnote">✦ ${t('squad_hint', { n: qNum(SQ.minPeople), p: qNum(SQ.pct) })}</div>` : '')
+      + (missing ? `<div class="gnote">${t('grp_missing')}</div>` : '');
+  }
+  document.getElementById('partyMinus').onclick = () => { if (size() > 1) { sel.people.pop(); sel.active = Math.min(sel.active, size() - 1); renderLooks(); updateBar(); } };
+  document.getElementById('partyPlus').onclick = () => { if (size() < MAXP) { sel.people.push({ serviceId: null, extraLong: false }); sel.active = size() - 1; renderLooks(); updateBar(); } };
+
+  /* ---------- Affluence en direct (« venez quand c'est calme ») — jamais une réservation ---------- */
+  function renderLive() {
+    const el = document.getElementById('liveCard'); if (!el) return;
+    const L = Q.liveStatus();
+    const ago = L.updatedAt ? Math.round((Date.now() - L.updatedAt) / 60000) : null;
+    const upd = ago == null ? t('upd_auto') : ago < 1 ? t('upd_now') : t('upd_ago', { m: qNum(ago) });
+    const hd = `<div class="hd"><span><span class="dot live" aria-hidden="true"></span>${t('live_t')}</span><small>${L.open ? upd : ''}</small></div>`;
+    let html;
+    if (!L.open) html = hd + `<p class="hint">${t('live_closed')}</p><small class="walk">${t('live_walk')}</small>`;
+    else {
+      const est = L.minutes <= 1 ? t('now') : `~${qNum(L.minutes)} ${t('min')}`;
+      const later = Math.max(30, Math.ceil(L.minutes / 5) * 5);
+      html = hd + `<div class="row"><div><b>${qNum(L.waiting)}</b><small>${t('live_wait')}</small></div><div><b>${est}</b><small>${t('live_est')}</small></div><div class="lvl-${L.level}"><b>${t('lvl_' + L.level)}</b><small>${t('live_lvl')}</small></div></div>
+        <p class="hint">${t('hint_' + L.level, { m: qNum(later) })}</p><small class="walk">${t('live_walk')}</small>`;
+    }
+    if (el.innerHTML !== html) el.innerHTML = html;
+  }
 
   /* ---------- Étape 2 : coiffeuses ---------- */
   function waitLabel(e) { if (!e) return `<small>${t('offline')}</small>—`; return e.minutes <= 1 ? t('now') : `~${e.minutes}<small>${t('min')} ${t('wait')}</small>`; }
   function renderStylists() {
-    if (!sel.serviceId) return;
-    const anyE = Q.estimate(sel.serviceId, 'any', sel.extraLong);
+    if (!lead().serviceId) return;
+    const anyE = Q.estimate(lead().serviceId, 'any', lead().extraLong, partyArg());
     const nobody = !Q.online().length;
     let html = nobody ? `<div class="note" role="status" style="margin:0 0 12px"><span>☾</span><span>${t('nobody')}</span></div>` : '';
     html += `<button class="sty ${sel.pref === 'any' ? 'sel' : ''}" data-id="any"><span class="av" style="background:var(--night);color:var(--gold-soft)">☾</span><span class="nm"><b>${t('any')}</b><small>${t('any_s')}</small></span><span class="w">${anyE ? waitLabel(anyE) : '<small>' + t('opening') + '</small>'}</span></button>`;
     html += Q.state.stylists.map((s, i) => {
       const on = !!Q.openShift(s.id);
-      const e = on ? Q.estimate(sel.serviceId, s.id, sel.extraLong) : null;
+      const e = on ? Q.estimate(lead().serviceId, s.id, lead().extraLong, partyArg()) : null;
       return `<button class="sty ${sel.pref === s.id ? 'sel' : ''}" data-id="${s.id}" ${on ? '' : 'disabled aria-disabled="true"'}><span class="av" style="background:${tones[i % 5]}">${Q.esc(s.name[0])}</span><span class="nm"><b>${Q.esc(s.name)} <span class="dot ${on ? '' : 'off'}"></span></b><small>${Q.esc(Q.L(s.specialty))}</small></span><span class="w">${waitLabel(e)}</span></button>`;
     }).join('');
     html += `<p class="muted" style="font-size:.82rem;margin:10px 4px 0">${t('est_note')}</p>`;
@@ -299,10 +419,23 @@
 
   /* ---------- Étape 3 : récap ---------- */
   function renderSummary() {
-    const s = Q.service(sel.serviceId); if (!s) return;
-    const e = Q.estimate(sel.serviceId, sel.pref, sel.extraLong);
-    const q = Q.quote(sel.serviceId, sel.extraLong);
+    const s = Q.service(lead().serviceId); if (!s) return;
+    const e = Q.estimate(lead().serviceId, sel.pref, lead().extraLong, partyArg());
     const sty = sel.pref === 'any' ? t('any') : Q.stylist(sel.pref)?.name;
+    if (size() > 1) {
+      const g = Q.groupQuote(sel.people);
+      const promos = {}; g.people.forEach(l => { if (l.promo) promos[l.promo.id + l.promo.pct] = l.promo; });
+      document.getElementById('summary').innerHTML = `
+        <div><span>${t('group')}</span><b>${pplTxt(g.size)}</b></div>
+        ${g.people.map((l, i) => `<div><span>${t('person', { n: qNum(i + 1) })} · ${Q.esc(lookName(l.serviceId))}${l.extraLong ? ' + XL' : ''}</span><span><bdi dir="ltr">${l.discount ? `<s class="muted">${qNum(l.base)}</s> ` : ''}${qAed(l.total)}</bdi></span></div>`).join('')}
+        ${Object.values(promos).map(pr => `<div><span>${Q.esc(Q.L(pr.label))}</span><span><bdi dir="ltr">−${qNum(pr.pct)}%</bdi></span></div>`).join('')}
+        <div><span>${t('stylist')}</span><b>${Q.esc(sty)}</b></div>
+        <div><span>${t('est')}</span><b>${e ? (e.minutes <= 1 ? t('now') : '~' + qNum(e.minutes) + ' ' + t('min')) : '—'}</b></div>
+        <div><span>${forTxt(g.size)}</span><b><bdi dir="ltr">${g.discount ? `<s class="muted" style="font-weight:400">${qNum(g.base)}</s> ` : ''}${qAed(g.total)}</bdi></b></div>
+        <div style="display:block;color:var(--muted);font-size:.8rem">${t('pay_after')}</div>`;
+      return;
+    }
+    const q = Q.quote(lead().serviceId, lead().extraLong);
     document.getElementById('summary').innerHTML = `
       <div><span>${t('look')}</span><b>${Q.esc(Q.L(s.look))}</b></div>
       <div><span>${t('stylist')}</span><b>${Q.esc(sty)}</b></div>
@@ -324,7 +457,7 @@
   function updateBar() {
     const b = document.getElementById('nextBtn');
     b.textContent = step === 3 ? (submitting ? t('joining') : t('join')) : t('next');
-    b.disabled = submitting || (step === 1 && !sel.serviceId) || (step === 2 && !sel.pref);
+    b.disabled = submitting || (step === 1 && !sel.people.every(p => p.serviceId)) || (step === 2 && !sel.pref);
   }
   const homeHref = () => Q.lang === 'ar' ? 'ar.html' : 'index.html';
   document.getElementById('backBtn').onclick = () => { if (step === 1) location.href = homeHref(); else showStep(step - 1); };
@@ -342,8 +475,8 @@
     field.classList.remove('err');
     submitting = true; updateBar();                       // empêche les doubles envois
     try { localStorage.setItem('qamar:cc', fd.get('cc')); } catch (e) { /* ignore */ }
-    const tk = Q.joinQueue({ name: fd.get('name'), phone, serviceId: sel.serviceId, pref: sel.pref, extraLong: sel.extraLong, channel: 'qr' });
-    if (tk && window.QamarTrack) QamarTrack('join_queue', { service: sel.serviceId, stylist_choice: sel.pref === 'any' ? 'first_free' : 'chosen', demo: Q.isDemo }); // aucune donnée personnelle
+    const tk = Q.joinQueue({ name: fd.get('name'), phone, serviceId: lead().serviceId, pref: sel.pref, extraLong: lead().extraLong, channel: 'qr', party: partyArg() });
+    if (tk && window.QamarTrack) QamarTrack('join_queue', { service: lead().serviceId, party_size: size(), stylist_choice: sel.pref === 'any' ? 'first_free' : 'chosen', demo: Q.isDemo }); // aucune donnée personnelle
     submitting = false;
     if (!tk) { updateBar(); Q.toast(t('join_err')); return; }
     myId = tk.id;
@@ -406,7 +539,7 @@
           <div class="code">${code}</div>
           <div class="muted" style="margin-top:6px">${idle ? t('idle_t') : t('your_wait')}</div>
           <div class="ring">${ring(frac)}<div class="wait-big" id="wkBig">${idle ? `<span style="display:block;width:48px;margin:0 auto 8px;color:var(--gold)">${Q.logo('')}</span><span class="idle">#${pos}</span>` : e.minutes <= 1 ? '<small>' + t('now') + '</small>' : e.minutes + '<small>' + t('min') + '</small>'}</div></div>
-          <div class="serif" style="font-size:1.5rem;color:var(--cocoa)">${Q.esc(Q.L(s.look))}</div>
+          <div class="serif" style="font-size:1.5rem;color:var(--cocoa)">${partyLine(tk)}</div>
           <div class="meta"><div><b id="wkPos">#${pos}</b><small>${t('pos')}</small></div><div><b id="wkWho">${Q.esc(who || '—')}</b><small>${t('with')}</small></div><div><b id="wkReady">${readyAt}</b><small>${t('ready_at')}</small></div></div>
           ${idle ? `<p class="muted" style="font-size:.9rem;margin:10px 0 0">${t('idle_s')}</p>` : ''}
         </div>
@@ -451,8 +584,8 @@
           <h1 style="margin-top:10px">${t('pay_t')}</h1>
           <p class="sub">${t('pay_s')}</p>
           <div class="summary" style="background:var(--pearl);text-align:start">
-            <div><span>${Q.esc(Q.L(s.look))}${tk.extraLong ? ' + XL' : ''}</span><span>${qAed(pr.base)}</span></div>
-            ${pr.discount ? `<div><span>${t('launch_disc')} <bdi dir="ltr">−${qNum(tk.discountPct)}%</bdi></span><span><bdi dir="ltr">−${qAed(pr.discount)}</bdi></span></div>` : ''}
+            ${pr.people ? pr.people.map((l, i) => `<div><span>${t('person', { n: qNum(i + 1) })} · ${Q.esc(lookName(l.serviceId))}${l.extraLong ? ' + XL' : ''}${l.pct ? ` <bdi dir="ltr">−${qNum(l.pct)}%</bdi>` : ''}</span><span><bdi dir="ltr">${l.discount ? `<s class="muted">${qNum(l.base)}</s> ` : ''}${qAed(l.total)}</bdi></span></div>`).join('') : `<div><span>${Q.esc(Q.L(s.look))}${tk.extraLong ? ' + XL' : ''}</span><span>${qAed(pr.base)}</span></div>`}
+            ${pr.discount && !pr.people ? `<div><span>${t('launch_disc')} <bdi dir="ltr">−${qNum(tk.discountPct)}%</bdi></span><span><bdi dir="ltr">−${qAed(pr.discount)}</bdi></span></div>` : ''}
             ${pr.guarantee ? `<div><span>${t('guarantee')}</span><span><bdi dir="ltr">−${qAed(pr.base - pr.discount)}</bdi></span></div>` : ''}
             ${pr.addons.map(a => `<div><span>${Q.esc(Q.L(a.name))}</span><span>${a.price ? qAed(a.price) : t('free')}</span></div>`).join('')}
             <div class="total"><span>${t('total')}</span><span>${qAed(pr.total)}</span></div>
@@ -517,7 +650,7 @@
     myId = null; lastStatus = null; tipChoice = null; stars = 0;
     try { localStorage.removeItem('qamar:myTicket'); } catch (e) { /* ignore */ }
     history.replaceState(null, '', location.pathname);
-    sel.serviceId = null; sel.pref = null;
+    sel.people = [{ serviceId: null, extraLong: false }]; sel.active = 0; sel.pref = null;
     render(); showStep(1);
   }
 
@@ -535,6 +668,7 @@
       lastStatus = tk.status;
     } else {
       renderLooks();
+      renderLive();
       if (step === 2) renderStylists();
       if (step === 3) renderSummary();
       updateBar();
@@ -546,7 +680,7 @@
   // Aperçu avant ouverture : dit clairement que le salon ne reçoit pas ces tickets
   if (Q.isDemo) { const n = document.createElement('p'); n.className = 'demo-note'; n.setAttribute('role', 'note'); n.dataset.i18n = 'demo_note'; document.querySelector('.top').after(n); }
   Q.i18n(dict);
-  if (sel.serviceId && Q.service(sel.serviceId)) showStep(1);
+  if (lead().serviceId && Q.service(lead().serviceId)) showStep(1);
   Q.on(render);
   // Ticket en attente : toutes les 5 s on ne met à jour que les valeurs (attente, rang, heure), sans reconstruire la carte
   const setTxt = (id, v) => { const el = document.getElementById(id); if (el && el.textContent !== v) el.textContent = v; };
