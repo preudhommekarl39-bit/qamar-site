@@ -836,6 +836,59 @@
   .film-sound { top: auto; bottom: 12px; }
   @media (pointer: coarse) { footer .cols a, footer .legal a { padding-block: 12px; min-height: 44px; } .hnav .brand { min-height: 44px; display: inline-flex; align-items: center; } }
   @media (max-width: 600px) { .club-bars .v, .club-bars .m { font-size: 12px; } }
+
+  /* ---------- Hero v3 : arche-photo du rituel, appel à l'action clair, bandeau « 45 min » ---------- */
+  .hgrid { position: relative; width: 100%; flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; padding: 0 0 112px; }
+  .htext { padding: 20px 16px 0; }
+  .htext h1 { font-size: clamp(2.7rem, 6.4vw, 96px); }
+  .hcta { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 24px; animation: fade .8s .4s both; }
+  .h-primary, .h-ghost { display: inline-flex; align-items: center; min-height: 48px; border-radius: 999px; text-decoration: none; font-size: .95rem; white-space: nowrap; }
+  .h-primary { position: relative; overflow: hidden; gap: 12px; padding-inline: 22px 7px; color: #fff; font-weight: 500; background: linear-gradient(135deg, #CC7593 0%, #A9566F 55%, #964A62 100%); box-shadow: 0 16px 32px -16px rgba(150, 74, 98, .75), inset 0 1px 0 rgba(255, 255, 255, .3); transition: transform .25s, box-shadow .25s; }
+  .h-primary .bub { width: 34px; height: 34px; border-radius: 50%; background: rgba(255, 255, 255, .22); display: grid; place-items: center; transition: transform .25s; }
+  .h-primary .bub .ic { font-size: 18px; }
+  .h-primary::after { content: ''; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .35) 50%, transparent 65%); transform: translateX(-120%); animation: hShine 6s ease-in-out 2.5s infinite; pointer-events: none; }
+  @keyframes hShine { 0% { transform: translateX(-120%); } 30%, 100% { transform: translateX(120%); } }
+  .h-ghost { padding-inline: 20px; color: var(--rose-deep); background: rgba(255, 255, 255, .7); border: 1px solid rgba(150, 74, 98, .28); transition: background .25s; }
+  @media (hover: hover) { .h-primary:hover { transform: translateY(-2px); box-shadow: 0 22px 36px -16px rgba(150, 74, 98, .8), inset 0 1px 0 rgba(255, 255, 255, .3); } .h-primary:hover .bub { transform: rotate(45deg); } .h-ghost:hover { background: #fff; } }
+  .hsteps { list-style: none; display: inline-flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 2px; margin: 18px 0 0; padding: 4px; border-radius: 999px; background: rgba(255, 255, 255, .78); border: 1px solid rgba(196, 154, 90, .32); box-shadow: 0 10px 24px -18px rgba(150, 74, 98, .5); animation: fade .8s .5s both; }
+  .hsteps li { font-size: .78rem; color: var(--ink-2); padding: 6px 9px; border-radius: 999px; transition: background .6s, color .6s, box-shadow .6s; }
+  .hsteps li.on { background: #FDE8EE; color: var(--rose-deep); box-shadow: inset 0 0 0 1px rgba(201, 120, 143, .35); }
+  .hsteps .hs-k { padding: 0; }
+  .hsteps .hs-k b { display: block; font-weight: 600; color: #fff; padding: 6px 11px; border-radius: 999px; background: linear-gradient(135deg, #CC7593, #964A62); }
+  .hvis { position: relative; width: min(78vw, 340px); margin: 40px auto 0; }
+  .harch { position: relative; width: 100%; aspect-ratio: 4 / 5; border-radius: 999px 999px 26px 26px; animation: up 1s .3s both; }
+  .harch::before, .harch::after { content: ''; position: absolute; border-radius: 999px 999px 32px 32px; pointer-events: none; }
+  .harch::before { inset: -10px; border: 1px solid rgba(196, 154, 90, .55); }
+  .harch::after { inset: -22px; border: 1px solid rgba(201, 120, 143, .22); border-radius: 999px 999px 40px 40px; }
+  .harch-in { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; background: #F3D9E0; box-shadow: 0 40px 70px -36px rgba(150, 74, 98, .55), inset 0 0 0 1px rgba(255, 255, 255, .5); transform: translateZ(0); }
+  .harch-in img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--op, 50% 50%); opacity: 0; transition: opacity 1.4s ease; transform: scale(1.08); }
+  .harch-in img.on { opacity: 1; animation: hKen 9s ease-out both; }
+  @keyframes hKen { from { transform: scale(1.14); } to { transform: scale(1.04); } }
+  .harch-sweep { position: absolute; inset: 0; background: linear-gradient(105deg, transparent 38%, rgba(255, 248, 250, .38) 50%, transparent 62%); transform: translateX(-110%); animation: hShine 8s ease-in-out 1.5s infinite; pointer-events: none; }
+  .harch-in::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(252, 230, 236, 0) 60%, rgba(252, 230, 236, .28)); pointer-events: none; }
+  .hvis .hcard { position: relative; inset: auto; margin: -58px auto 0; width: calc(100% - 24px); min-width: 0; max-width: 320px; animation: up .8s .5s both; box-shadow: 0 24px 40px -28px rgba(150, 74, 98, .55); }
+  @media (max-width: 1023px) {
+    .stage-outer { height: auto; min-height: calc(100svh - 44px); max-height: none; }
+    .stage-layer { height: auto; flex: 1 0 auto; }
+    .htext { margin-bottom: 0; }
+    .hvis { margin-bottom: 70px; }
+  }
+  @media (max-width: 420px) { .hsteps li { font-size: .74rem; padding: 6px 7px; } .hsteps .hs-k b { padding: 6px 9px; } .hcta { gap: 8px; } .h-primary, .h-ghost { font-size: .88rem; } .h-primary { padding-inline: 16px 6px; gap: 10px; } .h-ghost { padding-inline: 14px; } }
+  @media (min-width: 640px) and (max-width: 1023px) { .hvis { width: 360px; } }
+  @media (min-width: 1024px) {
+    .hgrid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); grid-template-rows: minmax(0, 1fr); align-items: center; gap: clamp(32px, 4vw, 80px); max-width: 1360px; flex: 1 1 auto; min-height: 0; padding: 0 clamp(40px, 5vw, 88px) clamp(96px, 12vh, 140px); }
+    .htext { align-items: flex-start; text-align: start; padding: 0; max-width: 42rem; }
+    .htext::before { left: 40%; }
+    .htext p { max-width: 33rem; }
+    .hcta { justify-content: flex-start; margin-top: 30px; }
+    .hsteps { margin-top: 22px; }
+    .hsteps li { font-size: .84rem; padding: 7px 12px; }
+    .hvis { justify-self: center; align-self: center; width: auto; height: min(100%, 640px); aspect-ratio: 4 / 5.2; max-width: 100%; margin: 0; }
+    .harch { position: absolute; inset: 0; width: auto; aspect-ratio: auto; }
+    .hvis .hcard { position: absolute; inset: auto; inset-inline-start: -56px; bottom: 7%; margin: 0; width: auto; min-width: 250px; }
+  }
+  @media (min-width: 1024px) and (max-height: 760px) { .htext p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; } }
+  @media (prefers-reduced-motion: reduce) { .harch-in img.on, .harch-sweep, .h-primary::after { animation: none; } }
 </style>
 </head>
 <body>
@@ -865,17 +918,37 @@
           <button class="menu-btn glass" type="button" aria-label="Menu" aria-controls="mnav" aria-expanded="false" data-menu><span></span><span></span></button>
         </div>
       </nav>
+      <div class="hgrid">
       <div class="htext">
         <span class="h-eyebrow" data-i18n="hero_badge">Women-only walk-in blowdry lounge · Dubai</span>
         <h1 data-i18n="hero_title">Walk in. Glow out.</h1>
         <p data-i18n="hero_lead">No appointment, ever. A private shower while we steam your outfit, abaya or hijab, then your blow-dry. Your phone shows your place in line and tells you the moment your chair is ready.</p>
-        <ul class="hproof" aria-label="QAMAR"><li data-i18n="hp1">No appointment</li><li data-i18n="hp2">Live queue on your phone</li><li data-i18n="hp3">Every look in 45 min or less</li></ul>
+        <div class="hcta">
+          <a class="h-primary" href="#club" data-track="club_click" data-track-loc="hero"><span data-i18n="cta_club">Discover the Club</span><span class="bub"><i data-icon="arrow"></i></span></a>
+          <a class="h-ghost" href="#how" data-i18n="nav_how">How it works</a>
+        </div>
+        <ol class="hsteps" aria-label="QAMAR">
+          <li class="hs-k"><b data-i18n="hs_k">45 min</b></li>
+          <li data-step="0" data-i18n="hs1">Shower</li><li data-step="1" data-i18n="hs2">Steam</li><li data-step="2" data-i18n="hs3">Blow-dry</li><li data-step="3" data-i18n="hs4">Drink</li>
+        </ol>
       </div>
-      <div class="hcard" aria-live="polite">
-        <span class="hc-k"><span class="dot off" id="liveDot"></span><span id="liveLabel">—</span></span>
-        <div class="num" id="liveWait">—</div>
-        <div class="hc-sub" id="liveSub">—</div>
-        <a class="white-btn" href="queue.html"><span class="bub"><i data-icon="arrow"></i></span><span data-i18n="cta_join_now">Join the queue now</span></a>
+      <div class="hvis">
+        <div class="harch" aria-hidden="true">
+          <div class="harch-in">
+            <img class="on" data-step="2" src="assets/img/look-glow.webp" alt="" width="640" height="823" fetchpriority="high" decoding="async" style="--op:50% 30%">
+            <img data-step="3" src="assets/img/ritual-drinks.webp" alt="" width="1200" height="800" loading="lazy" decoding="async" style="--op:58% 50%">
+            <img data-step="0" src="assets/img/ritual-shower.webp" alt="" width="1200" height="800" loading="lazy" decoding="async" style="--op:74% 50%">
+            <img data-step="1" src="assets/img/ritual-hijab.webp" alt="" width="1200" height="800" loading="lazy" decoding="async" style="--op:72% 40%">
+            <span class="harch-sweep"></span>
+          </div>
+        </div>
+        <div class="hcard" aria-live="polite">
+          <span class="hc-k"><span class="dot off" id="liveDot"></span><span id="liveLabel">—</span></span>
+          <div class="num" id="liveWait">—</div>
+          <div class="hc-sub" id="liveSub">—</div>
+          <a class="white-btn" href="queue.html"><span class="bub"><i data-icon="arrow"></i></span><span data-i18n="cta_join_now">Join the queue now</span></a>
+        </div>
+      </div>
       </div>
       <a class="hcorner" href="#looks">
         <span class="mask mask-top"><svg viewBox="0 0 56 56" fill="none"><path d="M56 56V0C56 30.9279 30.9279 56 0 56H56Z" fill="currentColor"/></svg></span>
@@ -1412,6 +1485,8 @@
     hero_badge: { en: 'Women-only walk-in blowdry lounge · Dubai', ar: 'صالون سشوار نسائي بدون موعد · دبي' }, hc_city: { en: 'Dubai', ar: 'دبي' }, hc_hours: { en: 'Every day, 8 AM to midnight', ar: 'يومياً من ٨ صباحاً حتى منتصف الليل' }, hc_staff: { en: '{n} of 5 stylists on the floor', ar: '{n} من ٥ مصففات متواجدات' },
     hero_title: { en: 'Walk in. Glow out.', ar: 'ادخلي… واخرجي متألقة.' },
     hero_lead: { en: 'No appointment, ever. A private shower while we steam your outfit, abaya or hijab, then your blow-dry. Your phone shows your place in line and tells you the moment your chair is ready.', ar: 'بدون موعد أبداً. دشّ خاص بينما نكوي ملابسكِ أو عباءتكِ أو شيلتكِ بالبخار، ثم السشوار. يعرض هاتفكِ دوركِ ويُعلمكِ فور جاهزية كرسيكِ.' },
+    cta_club: { en: 'Discover the Club', ar: 'اكتشفي النادي' },
+    hs_k: { en: '45 min', ar: '٤٥ دقيقة' }, hs1: { en: 'Shower', ar: 'استحمام' }, hs2: { en: 'Steam', ar: 'تبخير' }, hs3: { en: 'Blow-dry', ar: 'سشوار' }, hs4: { en: 'Drink', ar: 'مشروب' },
     hp1: { en: 'No appointment', ar: 'بدون موعد' }, hp2: { en: 'Live queue on your phone', ar: 'طابور مباشر على هاتفك' }, hp3: { en: 'Every look in 45 min or less', ar: 'كل إطلالة خلال ٤٥ دقيقة أو أقل' },
     live_label: { en: 'Live wait', ar: 'الانتظار الآن' }, live_open: { en: 'Stylists on the floor', ar: 'مصففات متواجدات' },
     corner_t: { en: 'The look menu', ar: 'قائمة الإطلالات' }, corner_s: { en: 'Prices and durations', ar: 'الأسعار والمدة' },
@@ -1788,6 +1863,30 @@
   // Hors écran : animations CSS en boucle (reflets des titres, défilé, ticket doré, halos du hero) en pause, rendu identique à l'écran
   const offIo = new IntersectionObserver(es => es.forEach(en => en.target.classList.toggle('anim-off', !en.isIntersecting)), { rootMargin: '120px 0px' });
   document.querySelectorAll('header.stage-outer, main > section:not(#how), footer').forEach(el => offIo.observe(el)); // #how a déjà sa propre pause (.inview)
+})();
+</script>
+<script>
+/* Hero : fondu entre les photos du rituel dans l'arche (synchronisé avec le bandeau 45 min) + léger relief à la souris et au défilement */
+(() => {
+  const arch = document.querySelector('.harch'), vis = document.querySelector('.hvis');
+  if (!arch) return;
+  const imgs = [...arch.querySelectorAll('img')], steps = document.querySelectorAll('.hsteps [data-step]');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches, touch = matchMedia('(pointer: coarse)').matches;
+  let i = 0, timer = 0, inView = true;
+  const mark = () => steps.forEach(s => s.classList.toggle('on', s.dataset.step === imgs[i].dataset.step));
+  const show = n => { imgs[i].classList.remove('on'); i = n; imgs[i].classList.add('on'); mark(); const nx = imgs[(i + 1) % imgs.length]; if (nx.loading === 'lazy') nx.loading = 'eager'; };
+  const tick = () => { const n = (i + 1) % imgs.length; if (imgs[n].complete && imgs[n].naturalWidth) show(n); else imgs[n].loading = 'eager'; };
+  const run = () => { clearInterval(timer); timer = 0; if (!reduce && inView && !document.hidden) timer = setInterval(tick, 4200); };
+  mark();
+  addEventListener('load', () => { imgs[1].loading = 'eager'; }, { once: true });
+  new IntersectionObserver(([e]) => { inView = e.isIntersecting; run(); }).observe(arch);
+  document.addEventListener('visibilitychange', run);
+  if (reduce || touch) return;
+  let raf = 0, mx = 0, my = 0;
+  const apply = () => { raf = 0; const y = Math.min(scrollY, innerHeight) * .1; vis.style.transform = `translate3d(${mx.toFixed(1)}px, ${(my + y).toFixed(1)}px, 0)`; };
+  const req = () => { if (!raf && inView) raf = requestAnimationFrame(apply); };
+  addEventListener('scroll', req, { passive: true });
+  document.querySelector('.stage').addEventListener('pointermove', e => { mx = (e.clientX / innerWidth - .5) * -16; my = (e.clientY / innerHeight - .5) * -10; req(); });
 })();
 </script>
 <script src="assets/stage-fx.js"></script>

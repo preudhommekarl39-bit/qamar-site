@@ -16,69 +16,79 @@
   const pointer = { x: -9999, y: -9999, active: false };
 
   /* ---------- Sprites pré-dessinés (performances) ---------- */
+  // Pétale de sakura : deux lobes arrondis et l'échancrure en cœur au bout
   function petalPath(c, r) {
     c.beginPath();
     c.moveTo(0, 0);
-    c.bezierCurveTo(-r * .58, -r * .3, -r * .56, -r * .92, -r * .14, -r);
-    c.lineTo(0, -r * .84);                       // l'échancrure typique du sakura
-    c.lineTo(r * .14, -r);
-    c.bezierCurveTo(r * .56, -r * .92, r * .58, -r * .3, 0, 0);
+    c.bezierCurveTo(-r * .2, -r * .1, -r * .64, -r * .42, -r * .5, -r * .8);
+    c.bezierCurveTo(-r * .42, -r * .98, -r * .24, -r * 1.02, -r * .12, -r * .98);
+    c.quadraticCurveTo(-r * .04, -r * .95, 0, -r * .85);
+    c.quadraticCurveTo(r * .04, -r * .95, r * .12, -r * .98);
+    c.bezierCurveTo(r * .24, -r * 1.02, r * .42, -r * .98, r * .5, -r * .8);
+    c.bezierCurveTo(r * .64, -r * .42, r * .2, -r * .1, 0, 0);
     c.closePath();
   }
+  // un pétale peint : dégradé rose (base) → blanc (bout), nervures, reflet nacré, ombre douce
+  function paintPetal(g, r, pal, back) {
+    g.save();
+    g.shadowColor = 'rgba(176, 82, 112, .22)'; g.shadowBlur = r * .14; g.shadowOffsetY = r * .05;
+    const gr = g.createRadialGradient(0, 0, 0, 0, -r * .2, r * 1.02);
+    gr.addColorStop(0, back ? pal[2] : pal[2]); gr.addColorStop(.42, pal[1]); gr.addColorStop(1, back ? pal[1] : pal[0]);
+    g.fillStyle = gr; petalPath(g, r); g.fill();
+    g.restore();
+    g.save(); petalPath(g, r); g.clip();
+    g.strokeStyle = back ? 'rgba(214, 104, 140, .22)' : 'rgba(222, 120, 152, .16)'; g.lineWidth = Math.max(.4, r / 46);
+    [-.3, 0, .3].forEach(k => { g.beginPath(); g.moveTo(0, -r * .06); g.quadraticCurveTo(k * r * .45, -r * .5, k * r * .62, -r * .9); g.stroke(); });
+    const sh = g.createLinearGradient(-r * .5, 0, r * .5, 0);
+    sh.addColorStop(0, back ? 'rgba(255,255,255,0)' : 'rgba(255,255,255,.4)'); sh.addColorStop(.45, 'rgba(255,255,255,0)'); sh.addColorStop(1, 'rgba(200, 96, 128, .1)');
+    g.fillStyle = sh; g.fillRect(-r, -r * 1.1, r * 2, r * 1.2);
+    g.restore();
+  }
   const PALETTES = [
-    ['#FFFFFF', '#FFE6EE', '#F7B3C6'],
-    ['#FFF6F9', '#FFD3E0', '#F29BB4'],
-    ['#FFFFFF', '#FDEAF0', '#EFC0CF'],
-    ['#FFF0F4', '#FFC9D8', '#EC8FAB']
+    ['#FFFFFF', '#FFE6EE', '#F4A9BF'],
+    ['#FFF8FA', '#FFD9E4', '#EE98B2'],
+    ['#FFFFFF', '#FDEAF0', '#EDB6C7'],
+    ['#FFF4F7', '#FFD0DD', '#E88AA8']
   ];
   function makeBlossom(size, pal, blur) {
-    const pad = blur ? 8 : 2, s = size * 2 + pad * 2;
+    const pad = blur ? 8 : 4, s = size * 2 + pad * 2;
     const c = document.createElement('canvas'); c.width = c.height = Math.ceil(s);
     const g = c.getContext('2d');
     if (blur && 'filter' in g) g.filter = `blur(${blur}px)`;
-    g.translate(s / 2, s / 2);
-    for (let i = 0; i < 5; i++) {
-      g.save(); g.rotate(i * TAU / 5);
-      const gr = g.createLinearGradient(0, 0, 0, -size);
-      gr.addColorStop(0, pal[2]); gr.addColorStop(.45, pal[1]); gr.addColorStop(1, pal[0]);
-      g.fillStyle = gr; petalPath(g, size); g.fill();
-      g.strokeStyle = 'rgba(236, 143, 171, .25)'; g.lineWidth = Math.max(.5, size / 40); g.stroke();
-      // nervure centrale
-      g.beginPath(); g.moveTo(0, -size * .12); g.lineTo(0, -size * .7);
-      g.strokeStyle = 'rgba(232, 120, 155, .18)'; g.lineWidth = Math.max(.4, size / 50); g.stroke();
-      g.restore();
-    }
-    // cœur et étamines
-    const core = g.createRadialGradient(0, 0, 0, 0, 0, size * .32);
-    core.addColorStop(0, 'rgba(214, 74, 120, .85)'); core.addColorStop(1, 'rgba(214, 74, 120, 0)');
-    g.fillStyle = core; g.beginPath(); g.arc(0, 0, size * .32, 0, TAU); g.fill();
-    for (let i = 0; i < 9; i++) {
-      const a = i * TAU / 9 + .2, l = size * rnd(.24, .34);
-      g.strokeStyle = 'rgba(205, 70, 110, .7)'; g.lineWidth = Math.max(.5, size / 45);
-      g.beginPath(); g.moveTo(0, 0); g.lineTo(Math.cos(a) * l, Math.sin(a) * l); g.stroke();
-      g.fillStyle = '#F6C66B'; g.beginPath(); g.arc(Math.cos(a) * l, Math.sin(a) * l, Math.max(.8, size / 22), 0, TAU); g.fill();
+    g.translate(s / 2, s / 2); g.rotate(rnd(0, TAU));
+    for (let i = 0; i < 5; i++) { g.save(); g.rotate(i * TAU / 5 + rnd(-.06, .06)); paintPetal(g, size * rnd(.94, 1.04), pal, false); g.restore(); }
+    // cœur rose et étamines (pointes rose cuivré, jamais jaunes)
+    const core = g.createRadialGradient(0, 0, 0, 0, 0, size * .36);
+    core.addColorStop(0, 'rgba(200, 70, 112, .8)'); core.addColorStop(1, 'rgba(214, 90, 130, 0)');
+    g.fillStyle = core; g.beginPath(); g.arc(0, 0, size * .36, 0, TAU); g.fill();
+    for (let i = 0; i < 11; i++) {
+      const a = i * TAU / 11 + rnd(-.15, .15), l = size * rnd(.26, .38);
+      g.strokeStyle = 'rgba(206, 92, 128, .55)'; g.lineWidth = Math.max(.5, size / 50);
+      g.beginPath(); g.moveTo(0, 0); g.quadraticCurveTo(Math.cos(a + .2) * l * .5, Math.sin(a + .2) * l * .5, Math.cos(a) * l, Math.sin(a) * l); g.stroke();
+      g.fillStyle = '#C98577'; g.beginPath(); g.arc(Math.cos(a) * l, Math.sin(a) * l, Math.max(.8, size / 24), 0, TAU); g.fill();
     }
     return c;
   }
-  function makePetal(size, pal, blur) {
-    const pad = blur ? 8 : 2, s = size * 1.3 + pad * 2;
+  function makePetal(size, pal, blur, back) {
+    const pad = blur ? 8 : 4, s = size * 1.3 + pad * 2;
     const c = document.createElement('canvas'); c.width = c.height = Math.ceil(s);
     const g = c.getContext('2d');
     if (blur && 'filter' in g) g.filter = `blur(${blur}px)`;
     g.translate(s / 2, s / 2 + size * .5);
-    const gr = g.createLinearGradient(0, 0, 0, -size);
-    gr.addColorStop(0, pal[2]); gr.addColorStop(.5, pal[1]); gr.addColorStop(1, pal[0]);
-    g.fillStyle = gr; petalPath(g, size); g.fill();
+    paintPetal(g, size, pal, back);
     return c;
   }
-  let SPR = { blossom: [], petal: [], blurBlossom: [], blurPetal: [] };
+  // sprites dessinés en 2x (Q) puis réduits : pétales nets même sur écran Retina
+  const Q = 2;
+  let SPR = { blossom: [], petal: [], back: [], blurBlossom: [], blurPetal: [] };
   function buildSprites() {
-    SPR = { blossom: [], petal: [], blurBlossom: [], blurPetal: [] };
+    SPR = { blossom: [], petal: [], back: [], blurBlossom: [], blurPetal: [] };
     PALETTES.forEach(p => {
-      SPR.blossom.push(makeBlossom(30, p, 0));
-      SPR.petal.push(makePetal(26, p, 0));
-      SPR.blurBlossom.push(makeBlossom(30, p, 3.5));
-      SPR.blurPetal.push(makePetal(26, p, 3.5));
+      SPR.blossom.push(makeBlossom(30 * Q, p, 0));
+      SPR.petal.push(makePetal(26 * Q, p, 0));
+      SPR.back.push(makePetal(26 * Q, p, 0, true));
+      SPR.blurBlossom.push(makeBlossom(30 * Q, p, 3.5 * Q));
+      SPR.blurPetal.push(makePetal(26 * Q, p, 3.5 * Q));
     });
   }
 
@@ -110,7 +120,7 @@
       const n = 2 + (i % 3);
       for (let k = 0; k < n; k++) {
         const spr = SPR.blossom[(i + k) % SPR.blossom.length];
-        const s = rnd(.75, 1.25), ox = rnd(-18, 18), oy = rnd(-14, 14);
+        const s = rnd(.75, 1.25) / Q, ox = rnd(-18, 18), oy = rnd(-14, 14);
         g.save(); g.translate(x + ox, y + oy); g.rotate(rnd(0, TAU));
         g.drawImage(spr, -spr.width * s / 2, -spr.height * s / 2, spr.width * s, spr.height * s);
         g.restore();
@@ -126,7 +136,7 @@
   let flowers = [], bokeh = [];
   function newFlower(anywhere, x, y) {
     const z = Math.random() < .18 ? rnd(1.25, 1.7) : Math.random() < .5 ? rnd(.75, 1.15) : rnd(.35, .7);
-    const isBlossom = Math.random() < .45;
+    const isBlossom = Math.random() < .28;
     return {
       x: x ?? rnd(-60, W + 60), y: y ?? (anywhere ? rnd(-H, H) : rnd(-120, -30)),
       z, isBlossom, pal: Math.floor(Math.random() * PALETTES.length),
@@ -143,7 +153,7 @@
     floorCv = document.createElement('canvas');
     floorCv.width = Math.round(W * dpr); floorCv.height = Math.round(FH * dpr);
     const g = floorCv.getContext('2d'); g.scale(dpr, dpr);
-    const cx = W / 2, persp = v => Math.pow(v, 1.7);
+    const cx = vpX(), persp = v => Math.pow(v, 1.7);
     const toScreen = (u, v) => [cx + u * W * .8 * (.12 + persp(v) * .88), FH * persp(v)];
     // fond crème satiné
     const base = g.createLinearGradient(0, 0, 0, FH);
@@ -168,7 +178,7 @@
     // pétales tombés au sol
     for (let k = 0; k < 16; k++) {
       const v = rnd(.15, 1), [x, y] = toScreen(rnd(-1, 1), v);
-      const spr = SPR.petal[k % SPR.petal.length], sc = (.35 + persp(v) * .75);
+      const spr = SPR.petal[k % SPR.petal.length], sc = (.35 + persp(v) * .75) / Q;
       g.save(); g.translate(x, y); g.scale(1, .5); g.rotate(rnd(0, TAU)); g.globalAlpha = .85;
       g.drawImage(spr, -spr.width * sc / 2, -spr.height * sc / 2, spr.width * sc, spr.height * sc); g.restore();
     }
@@ -180,12 +190,14 @@
     g.globalCompositeOperation = 'source-over';
   }
 
+  // sur ordinateur, le couloir d'arches s'aligne sur l'arche-photo du hero (à droite, à gauche en arabe)
+  const vpX = () => W >= 1024 ? W * (document.documentElement.dir === 'rtl' ? .3 : .7) : W * .5;
   function resize() {
     dpr = Math.min(lite ? 1.25 : 1.5, window.devicePixelRatio || 1);
     W = cv.clientWidth; H = cv.clientHeight;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const n = lite ? 26 : W < 700 ? 34 : 70;
+    const n = lite ? 18 : W < 700 ? 24 : 46;
     flowers = Array.from({ length: n }, () => newFlower(true)).sort((a, b) => a.z - b.z);
     bokeh = Array.from({ length: lite ? 6 : W < 700 ? 10 : 18 }, () => ({ x: rnd(0, W), y: rnd(0, H), r: rnd(40, W < 700 ? 90 : 160), vx: rnd(-5, 5), vy: rnd(-6, -2), a: rnd(.25, .5), ph: rnd(0, TAU), white: Math.random() < .5 }));
     buildBranch();
@@ -199,14 +211,14 @@
   }
 
   function drawFlower(f, t) {
-    const sprList = f.z > 1.22 ? (f.isBlossom ? SPR.blurBlossom : SPR.blurPetal) : (f.isBlossom ? SPR.blossom : SPR.petal);
+    const flipX = Math.cos(f.flip), flipY = .78 + .22 * Math.cos(f.flip * .63 + f.ph);   // retournement en 3D sur deux axes
+    const sprList = f.z > 1.22 ? (f.isBlossom ? SPR.blurBlossom : SPR.blurPetal) : (f.isBlossom ? SPR.blossom : flipX < 0 ? SPR.back : SPR.petal);
     const spr = sprList[f.pal];
-    const flipX = Math.cos(f.flip);                      // effet de retournement en 3D
-    const w = spr.width * f.size, h = spr.height * f.size;
+    const w = spr.width * f.size / Q, h = spr.height * f.size / Q;
     ctx.save();
-    ctx.globalAlpha = f.z < .6 ? .55 : f.z > 1.22 ? .8 : .95;
+    ctx.globalAlpha = f.z < .6 ? .5 : f.z > 1.22 ? .75 : .95;
     ctx.translate(f.x, f.y); ctx.rotate(f.rot);
-    ctx.scale(Math.abs(flipX) < .08 ? .08 : flipX, 1);
+    ctx.scale(Math.abs(flipX) < .08 ? .08 : flipX, flipY);
     ctx.drawImage(spr, -w / 2, -h / 2, w, h);
     ctx.restore();
   }
@@ -221,7 +233,7 @@
     if (floorCv && floorCv.width && floorCv.height && H > horizon) ctx.drawImage(floorCv, 0, horizon, W, H - horizon);
 
     // Couloir d'arches architecturales : moulure en relief rose-or, ombre intérieure, brume de profondeur
-    const cx = W * .5, vy = H * .62, phase = (t / 14) % 1, N = 6, base = Math.min(W, H) * .17;
+    const cx = vpX(), vy = H * .62, phase = (t / 14) % 1, N = 6, base = Math.min(W, H) * .17;
     const addArch = (x, by, w, h) => { const r = w / 2; ctx.moveTo(x - r, by); ctx.lineTo(x - r, by - h + r); ctx.arc(x, by - h + r, r, Math.PI, 0); ctx.lineTo(x + r, by); };
     for (let i = 0; i < N; i++) {
       const k = i + phase, s = base * Math.pow(1.6, k), w = s, h = s * 1.55, baseY = vy + s * .62;
@@ -386,6 +398,8 @@
   buildSprites();
   resize();
   let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { resize(); if (reduce || !running) frame(performance.now()); }, 150); });
+  // le hero change de hauteur quand ses photos se chargent (téléphone) : on redimensionne le canevas, sans le déformer
+  if ('ResizeObserver' in window) { let ph = 0; new ResizeObserver(() => { const h = cv.clientHeight; if (Math.abs(h - ph) > 2 && ph) { clearTimeout(rt); rt = setTimeout(() => { resize(); if (reduce || !running) frame(performance.now()); }, 150); } ph = h; }).observe(cv); }
   let inView = true;
   new IntersectionObserver(([en]) => {
     inView = en.isIntersecting;

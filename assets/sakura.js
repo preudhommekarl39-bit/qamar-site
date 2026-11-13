@@ -5,52 +5,63 @@
   const TAU = Math.PI * 2;
   const rnd = (a, b) => a + Math.random() * (b - a);
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const PALETTES = [
-    ['#FFFFFF', '#FFE6EE', '#F7B3C6'],
-    ['#FFF6F9', '#FFD3E0', '#F29BB4'],
-    ['#FFFFFF', '#FDEAF0', '#EFC0CF'],
-    ['#FFF0F4', '#FFC9D8', '#EC8FAB']
-  ];
-
+  // Pétale de sakura : deux lobes arrondis et l'échancrure en cœur au bout
   function petalPath(c, r) {
     c.beginPath();
     c.moveTo(0, 0);
-    c.bezierCurveTo(-r * .58, -r * .3, -r * .56, -r * .92, -r * .14, -r);
-    c.lineTo(0, -r * .84);
-    c.lineTo(r * .14, -r);
-    c.bezierCurveTo(r * .56, -r * .92, r * .58, -r * .3, 0, 0);
+    c.bezierCurveTo(-r * .2, -r * .1, -r * .64, -r * .42, -r * .5, -r * .8);
+    c.bezierCurveTo(-r * .42, -r * .98, -r * .24, -r * 1.02, -r * .12, -r * .98);
+    c.quadraticCurveTo(-r * .04, -r * .95, 0, -r * .85);
+    c.quadraticCurveTo(r * .04, -r * .95, r * .12, -r * .98);
+    c.bezierCurveTo(r * .24, -r * 1.02, r * .42, -r * .98, r * .5, -r * .8);
+    c.bezierCurveTo(r * .64, -r * .42, r * .2, -r * .1, 0, 0);
     c.closePath();
   }
+  // un pétale peint : dégradé rose (base) → blanc (bout), nervures, reflet nacré, ombre douce
+  function paintPetal(g, r, pal, back) {
+    g.save();
+    g.shadowColor = 'rgba(176, 82, 112, .22)'; g.shadowBlur = r * .14; g.shadowOffsetY = r * .05;
+    const gr = g.createRadialGradient(0, 0, 0, 0, -r * .2, r * 1.02);
+    gr.addColorStop(0, back ? pal[2] : pal[2]); gr.addColorStop(.42, pal[1]); gr.addColorStop(1, back ? pal[1] : pal[0]);
+    g.fillStyle = gr; petalPath(g, r); g.fill();
+    g.restore();
+    g.save(); petalPath(g, r); g.clip();
+    g.strokeStyle = back ? 'rgba(214, 104, 140, .22)' : 'rgba(222, 120, 152, .16)'; g.lineWidth = Math.max(.4, r / 46);
+    [-.3, 0, .3].forEach(k => { g.beginPath(); g.moveTo(0, -r * .06); g.quadraticCurveTo(k * r * .45, -r * .5, k * r * .62, -r * .9); g.stroke(); });
+    const sh = g.createLinearGradient(-r * .5, 0, r * .5, 0);
+    sh.addColorStop(0, back ? 'rgba(255,255,255,0)' : 'rgba(255,255,255,.4)'); sh.addColorStop(.45, 'rgba(255,255,255,0)'); sh.addColorStop(1, 'rgba(200, 96, 128, .1)');
+    g.fillStyle = sh; g.fillRect(-r, -r * 1.1, r * 2, r * 1.2);
+    g.restore();
+  }
+  const PALETTES = [
+    ['#FFFFFF', '#FFE6EE', '#F4A9BF'],
+    ['#FFF8FA', '#FFD9E4', '#EE98B2'],
+    ['#FFFFFF', '#FDEAF0', '#EDB6C7'],
+    ['#FFF4F7', '#FFD0DD', '#E88AA8']
+  ];
   function blossom(size, pal) {
-    const s = Math.ceil(size * 2 + 4);
+    const s = Math.ceil(size * 2 + 8);
     const c = document.createElement('canvas'); c.width = c.height = s;
-    const g = c.getContext('2d'); g.translate(s / 2, s / 2);
-    for (let i = 0; i < 5; i++) {
-      g.save(); g.rotate(i * TAU / 5);
-      const gr = g.createLinearGradient(0, 0, 0, -size);
-      gr.addColorStop(0, pal[2]); gr.addColorStop(.45, pal[1]); gr.addColorStop(1, pal[0]);
-      g.fillStyle = gr; petalPath(g, size); g.fill();
-      g.strokeStyle = 'rgba(236, 143, 171, .25)'; g.lineWidth = Math.max(.5, size / 40); g.stroke();
-      g.restore();
-    }
-    const core = g.createRadialGradient(0, 0, 0, 0, 0, size * .32);
-    core.addColorStop(0, 'rgba(214, 74, 120, .85)'); core.addColorStop(1, 'rgba(214, 74, 120, 0)');
-    g.fillStyle = core; g.beginPath(); g.arc(0, 0, size * .32, 0, TAU); g.fill();
-    for (let i = 0; i < 9; i++) {
-      const a = i * TAU / 9 + .2, l = size * rnd(.24, .34);
-      g.strokeStyle = 'rgba(205, 70, 110, .7)'; g.lineWidth = Math.max(.5, size / 45);
-      g.beginPath(); g.moveTo(0, 0); g.lineTo(Math.cos(a) * l, Math.sin(a) * l); g.stroke();
-      g.fillStyle = '#F6C66B'; g.beginPath(); g.arc(Math.cos(a) * l, Math.sin(a) * l, Math.max(.8, size / 22), 0, TAU); g.fill();
+    const g = c.getContext('2d'); g.translate(s / 2, s / 2); g.rotate(rnd(0, TAU));
+    for (let i = 0; i < 5; i++) { g.save(); g.rotate(i * TAU / 5 + rnd(-.06, .06)); paintPetal(g, size * rnd(.94, 1.04), pal, false); g.restore(); }
+    const core = g.createRadialGradient(0, 0, 0, 0, 0, size * .36);
+    core.addColorStop(0, 'rgba(200, 70, 112, .8)'); core.addColorStop(1, 'rgba(214, 90, 130, 0)');
+    g.fillStyle = core; g.beginPath(); g.arc(0, 0, size * .36, 0, TAU); g.fill();
+    for (let i = 0; i < 11; i++) {
+      const a = i * TAU / 11 + rnd(-.15, .15), l = size * rnd(.26, .38);
+      g.strokeStyle = 'rgba(206, 92, 128, .55)'; g.lineWidth = Math.max(.5, size / 50);
+      g.beginPath(); g.moveTo(0, 0); g.quadraticCurveTo(Math.cos(a + .2) * l * .5, Math.sin(a + .2) * l * .5, Math.cos(a) * l, Math.sin(a) * l); g.stroke();
+      g.fillStyle = '#C98577'; g.beginPath(); g.arc(Math.cos(a) * l, Math.sin(a) * l, Math.max(.8, size / 24), 0, TAU); g.fill();
     }
     return c;
   }
-  function petal(size, pal) {
-    const s = Math.ceil(size * 1.3 + 4);
+  function petal(size, pal, back, blur) {
+    const pad = blur ? blur * 3 : 4, s = Math.ceil(size * 1.3 + pad * 2);
     const c = document.createElement('canvas'); c.width = c.height = s;
-    const g = c.getContext('2d'); g.translate(s / 2, s / 2 + size * .5);
-    const gr = g.createLinearGradient(0, 0, 0, -size);
-    gr.addColorStop(0, pal[2]); gr.addColorStop(.5, pal[1]); gr.addColorStop(1, pal[0]);
-    g.fillStyle = gr; petalPath(g, size); g.fill();
+    const g = c.getContext('2d');
+    if (blur && 'filter' in g) g.filter = `blur(${blur}px)`;
+    g.translate(s / 2, s / 2 + size * .5);
+    paintPetal(g, size, pal, back);
     return c;
   }
 
@@ -102,32 +113,43 @@
     cv.className = 'sakura-rain'; cv.setAttribute('aria-hidden', 'true');
     document.body.appendChild(cv);
     const ctx = cv.getContext('2d');
-    const sprB = PALETTES.map(p => blossom(16, p)), sprP = PALETTES.map(p => petal(14, p));
+    // sprites 2x (Q) : nets jusqu'à devicePixelRatio 1,5 ; recto/verso pour le retournement, version floue pour le plan lointain
+    const Q = 2;
+    const sprF = PALETTES.map(p => petal(14 * Q, p, false)), sprR = PALETTES.map(p => petal(14 * Q, p, true)), sprZ = PALETTES.map(p => petal(14 * Q, p, false, 2.4 * Q)), sprB = PALETTES.map(p => blossom(15 * Q, p));
+    const LAYERS = [{ s: .55, a: .42, v: .6 }, { s: .85, a: .78, v: .85 }, { s: 1.15, a: .92, v: 1.1 }]; // loin, milieu, près
     const hasHero = !!document.querySelector('.stage');
     let W = 0, H = 0, dpr = 1, items = [], raf = 0, last = 0, on = !hasHero;
-    const make = top => ({ x: rnd(0, W), y: top ? rnd(-80, -20) : rnd(-H, H), b: Math.random() < .35, pal: Math.floor(rnd(0, 4)), s: rnd(.55, 1.05), vy: rnd(22, 42), sway: rnd(18, 46), ph: rnd(0, TAU), rot: rnd(0, TAU), vr: rnd(-1.4, 1.4), fl: rnd(0, TAU), vf: rnd(1.4, 3) });
+    const make = top => {
+      const L = Math.random() < .35 ? 0 : Math.random() < .6 ? 1 : 2, ly = LAYERS[L];
+      return { x: rnd(0, W), y: top ? rnd(-80, -20) : rnd(-H * .2, H), L, b: L > 0 && Math.random() < .14, pal: Math.floor(rnd(0, 4)), s: ly.s * rnd(.85, 1.15), a: ly.a, vy: rnd(24, 38) * ly.v, sway: rnd(16, 40) * ly.v, ph: rnd(0, TAU), rot: rnd(0, TAU), vr: rnd(-1.1, 1.1), fl: rnd(0, TAU), vf: rnd(1.6, 3.2), fl2: rnd(0, TAU) };
+    };
     function size() {
-      dpr = 1; W = innerWidth; H = innerHeight;
-      cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      items = Array.from({ length: W < 700 ? 5 : 16 }, () => make(false));
+      dpr = Math.min(1.5, devicePixelRatio || 1); W = innerWidth; H = innerHeight;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      items = Array.from({ length: W < 700 ? 5 : 14 }, () => make(false)).sort((a, b) => a.L - b.L);
     }
     // iOS déclenche « resize » quand la barre d'adresse bouge : on ne relance la pluie que si la largeur change
     function onResize() {
       if (innerWidth !== W) return size();
-      if (innerHeight !== H) { H = innerHeight; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+      if (innerHeight !== H) { H = innerHeight; cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
     }
     function frame(ms) {
       if (last && ms - last < 33) { if (on && !document.hidden) raf = requestAnimationFrame(frame); return; }
       const dt = Math.min(.05, last ? (ms - last) / 1000 : .016); last = ms;
-      const t = ms / 1000, wind = Math.sin(t * .2) * 10;
+      const t = ms / 1000, wind = Math.sin(t * .2) * 10 + Math.sin(t * .53) * 4;
       ctx.clearRect(0, 0, W, H);
       for (const p of items) {
-        p.y += p.vy * dt; p.x += (wind + Math.sin(t * .8 + p.ph) * p.sway * .6) * dt; p.rot += p.vr * dt; p.fl += p.vf * dt;
-        if (p.y > H + 30) Object.assign(p, make(true));
-        const spr = (p.b ? sprB : sprP)[p.pal], fx = Math.cos(p.fl);
-        ctx.save(); ctx.globalAlpha = .85; ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.scale(Math.abs(fx) < .1 ? .1 : fx, 1);
-        ctx.drawImage(spr, -spr.width * p.s / 2, -spr.height * p.s / 2, spr.width * p.s, spr.height * p.s); ctx.restore();
+        // chute en feuille morte : la dérive latérale suit l'inclinaison du pétale
+        const sw = Math.sin(t * .8 + p.ph);
+        p.y += p.vy * dt * (1 - .25 * Math.abs(sw)); p.x += (wind * LAYERS[p.L].v + sw * p.sway * .7) * dt; p.rot += (p.vr + sw * .5) * dt; p.fl += p.vf * dt; p.fl2 += p.vf * .55 * dt;
+        if (p.y > H + 30) { Object.assign(p, make(true), { L: p.L, s: p.s, a: p.a }); }
+        const fx = Math.cos(p.fl), fy = .75 + .25 * Math.cos(p.fl2);
+        const spr = (p.b ? sprB : p.L === 0 ? sprZ : fx < 0 ? sprR : sprF)[p.pal], k = p.s / Q;
+        ctx.globalAlpha = p.a;
+        ctx.setTransform(dpr, 0, 0, dpr, dpr * p.x, dpr * p.y); ctx.rotate(p.rot); ctx.scale(Math.abs(fx) < .1 ? (fx < 0 ? -.1 : .1) : fx, fy);
+        ctx.drawImage(spr, -spr.width * k / 2, -spr.height * k / 2, spr.width * k, spr.height * k);
       }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalAlpha = 1;
       if (on && !document.hidden) raf = requestAnimationFrame(frame);
     }
     const start = () => { cancelAnimationFrame(raf); last = 0; raf = requestAnimationFrame(frame); };
