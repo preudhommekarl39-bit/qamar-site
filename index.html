@@ -574,6 +574,9 @@
   .forms form { display: grid; gap: 14px; }
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .f label { display: block; font-size: .82rem; color: var(--ink-3); margin: 0 0 6px 4px; }
+  .f select { width: 100%; border: 0; border-radius: 14px; background: var(--s2); padding: 15px 16px; font-size: 1rem; color: var(--ink); font-family: inherit; outline: none; -webkit-appearance: none; appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--rose) 50%), linear-gradient(135deg, var(--rose) 50%, transparent 50%); background-position: calc(100% - 22px) 52%, calc(100% - 16px) 52%; background-size: 6px 6px; background-repeat: no-repeat; }
+  [dir="rtl"] .f select { background-position: 22px 52%, 16px 52%; }
+  .f select:focus { background-color: #fff; box-shadow: 0 0 0 2px var(--rose); }
   .f input { width: 100%; border: 0; border-radius: 14px; background: var(--s2); padding: 15px 16px; font-size: 1rem; color: var(--ink); font-family: inherit; outline: none; transition: box-shadow .2s, background .2s; }
   .f input:focus { background: #fff; box-shadow: 0 0 0 2px var(--rose); }
   @media (max-width: 860px) { .forms { grid-template-columns: 1fr; gap: 60px; } .forms .divider { display: none; } .two { grid-template-columns: 1fr; } }
@@ -914,7 +917,7 @@
         </ul>
         <div class="side end">
           <div class="lang glass-lang" role="group" aria-label="Language"><button data-lang="en">EN</button><button data-lang="ar">عربي</button></div>
-          <a class="pill-btn" href="queue.html" data-track="join_queue_click" data-track-loc="hero_nav"><span class="bub"><i data-icon="arrow"></i></span><span data-i18n="cta_join">Join the queue</span></a>
+          <a class="pill-btn" href="#private" data-track="event_click" data-track-loc="hero_nav"><span class="bub"><i data-icon="arrow"></i></span><span data-i18n="cta_event">Book an event</span></a>
           <button class="menu-btn glass" type="button" aria-label="Menu" aria-controls="mnav" aria-expanded="false" data-menu><span></span><span></span></button>
         </div>
       </nav>
@@ -946,7 +949,7 @@
           <span class="hc-k"><span class="dot off" id="liveDot"></span><span id="liveLabel">—</span></span>
           <div class="num" id="liveWait">—</div>
           <div class="hc-sub" id="liveSub">—</div>
-          <a class="white-btn" href="queue.html"><span class="bub"><i data-icon="arrow"></i></span><span data-i18n="cta_join_now">Join the queue now</span></a>
+          <a class="white-btn" href="#private"><span class="bub"><i data-icon="arrow"></i></span><span data-i18n="cta_event">Book an event</span></a>
         </div>
       </div>
       </div>
@@ -973,7 +976,7 @@
       <a href="#contact" data-i18n="nav_contact">Contact</a>
     </nav>
     <div class="lang" role="group" aria-label="Language"><button data-lang="en">EN</button><button data-lang="ar">عربي</button></div>
-    <a class="cta" href="queue.html" data-track="join_queue_click" data-track-loc="top_bar" data-i18n="cta_join">Join the queue</a>
+    <a class="cta" href="#private" data-track="event_click" data-track-loc="top_bar" data-i18n="cta_event">Book an event</a>
     <button class="menu-btn" type="button" aria-label="Menu" aria-controls="mnav" aria-expanded="false" data-menu><span></span><span></span></button>
   </div>
 </div>
@@ -1000,7 +1003,7 @@
     </nav>
     <div class="mnav-foot">
       <div class="lang" role="group" aria-label="Language"><button data-lang="en">EN</button><button data-lang="ar">عربي</button></div>
-      <a class="mnav-cta" href="queue.html" data-track="join_queue_click" data-track-loc="mobile_menu" data-i18n="cta_join">Join the queue</a>
+      <a class="mnav-cta" href="#private" data-close data-track="event_click" data-track-loc="mobile_menu" data-i18n="cta_event">Book an event</a>
       <div class="mnav-row">
         <a href="#" data-install-app data-close data-i18n="get_app">Get the app</a>
         <a id="mnavWa" data-track="whatsapp_click" data-track-loc="mobile_menu" target="_blank" rel="noopener">WhatsApp</a>
@@ -1058,7 +1061,7 @@
       <span class="kicker reveal" data-i18n="film_kicker">Opening March 2027</span>
       <h2 class="title reveal"><span data-i18n="film_t1">Your night</span><br><span class="grad" data-i18n="film_t2">starts here.</span></h2>
       <p class="sub reveal" data-i18n="film_sub">Walk in, freshen up, get your blowdry and a matcha on us. Ready in 45 minutes.</p>
-      <div class="actions"><a class="btn-a light" href="queue.html" data-track="join_queue_click" data-track-loc="film" data-i18n="cta_join">Join the queue</a></div>
+      <div class="actions"><a class="btn-a light" href="#private" data-track="event_click" data-track-loc="film" data-i18n="cta_event">Book an event</a></div>
     </div>
     <div class="film-reel reveal">
       <figure class="film-item">
@@ -1282,7 +1285,7 @@
       <span class="kicker" data-i18n="night_kicker">Open until midnight</span>
       <h2 class="title"><span class="grad" data-i18n="night_title">Qamar after dark.</span></h2>
       <p class="sub" data-i18n="night_sub">Dinner at 10. Wedding at 11. We're still here.</p>
-      <div class="actions"><a class="btn-a light" href="#private" data-i18n="cta_private">Book a private night</a><a class="more" href="queue.html"><span data-i18n="cta_join">Join the queue</span> ›</a></div>
+      <div class="actions"><a class="btn-a light" href="#private" data-i18n="cta_private">Book a private night</a><a class="more" href="queue.html#liveCard"><span data-i18n="cta_live">See how busy we are</span> ›</a></div>
     </div>
     <div class="ncols">
       <div class="ncol reveal"><span class="when" data-i18n="n1w">Every night, 8 PM to midnight</span><h3 data-i18n="n1t">Night Glow</h3><p data-i18n="n1p">Any blow-dry of your choice, with a matcha on us.</p><div class="price" data-i18n="n1price">179 AED</div></div>
@@ -1324,6 +1327,26 @@
 <section class="sec" id="private">
   <div class="wrap forms">
     <div class="reveal">
+      <span class="kicker" data-i18n="bride_kicker">Private events</span>
+      <h3 data-i18n="bride_title">The lounge is yours after 10 PM.</h3>
+      <p data-i18n="bride_p">Bridal parties, birthdays, shoots. Tell us the date, we answer on WhatsApp.</p>
+      <form id="brideForm">
+        <div class="f"><label for="bType" data-i18n="ev_type">Type of event</label><select id="bType" name="type" required><option value="wedding" data-i18n="ev_wedding">wedding</option><option value="henna" data-i18n="ev_henna">henna</option><option value="engagement" data-i18n="ev_engagement">engagement</option><option value="bridal_shower" data-i18n="ev_bridal_shower">bridal_shower</option><option value="birthday" data-i18n="ev_birthday">birthday</option><option value="graduation" data-i18n="ev_graduation">graduation</option><option value="baby" data-i18n="ev_baby">baby</option><option value="eid" data-i18n="ev_eid">eid</option><option value="shoot" data-i18n="ev_shoot">shoot</option><option value="corporate" data-i18n="ev_corporate">corporate</option><option value="other" data-i18n="ev_other">other</option></select></div>
+        <div class="two">
+          <div class="f"><label for="bName" data-i18n="f_name">Name</label><input id="bName" name="name" required></div>
+          <div class="f"><label for="bDate" data-i18n="f_date">Date</label><input id="bDate" type="date" name="date" required></div>
+        </div>
+        <div class="f"><label for="bGuests" data-i18n="f_guests">Number of guests</label><input id="bGuests" type="number" min="2" max="30" name="guests" value="6"></div>
+        <div class="f"><label for="bNote" data-i18n="ev_note">Anything we should know?</label><input id="bNote" name="note" data-i18n-ph="ev_note_ph" placeholder="Hair for the bride and 5 guests, makeup…"></div>
+        <div class="actions" style="margin-top:12px">
+          <button class="btn-a" type="submit" data-i18n="bride_cta">Prepare my request</button>
+          <a class="more" id="brideLink" hidden target="_blank" rel="noopener"><span data-i18n="bride_open">Send it on WhatsApp</span> ›</a>
+        </div>
+        <p class="form-soon" data-i18n="form_soon">Requests open on our WhatsApp line shortly before launch.</p>
+      </form>
+    </div>
+    <div class="divider"></div>
+    <div class="reveal">
       <span class="kicker" data-i18n="contest_kicker">Contest</span>
       <h3 data-i18n="contest_title">Name our next look.</h3>
       <p data-i18n="contest_p">The winning name goes on the menu. The winner gets a month of free blow-dries.</p>
@@ -1336,24 +1359,6 @@
         <div class="actions" style="margin-top:12px">
           <button class="btn-a" type="submit" data-i18n="contest_cta">Submit</button>
           <a class="more" id="contestLink" hidden target="_blank" rel="noopener"><span data-i18n="bride_open">Send it on WhatsApp</span> ›</a>
-        </div>
-        <p class="form-soon" data-i18n="form_soon">Requests open on our WhatsApp line shortly before launch.</p>
-      </form>
-    </div>
-    <div class="divider"></div>
-    <div class="reveal">
-      <span class="kicker" data-i18n="bride_kicker">Private events</span>
-      <h3 data-i18n="bride_title">The lounge is yours after 10 PM.</h3>
-      <p data-i18n="bride_p">Bridal parties, birthdays, shoots. Tell us the date, we answer on WhatsApp.</p>
-      <form id="brideForm">
-        <div class="two">
-          <div class="f"><label for="bName" data-i18n="f_name">Name</label><input id="bName" name="name" required></div>
-          <div class="f"><label for="bDate" data-i18n="f_date">Date</label><input id="bDate" type="date" name="date" required></div>
-        </div>
-        <div class="f"><label for="bGuests" data-i18n="f_guests">Number of guests</label><input id="bGuests" type="number" min="2" max="30" name="guests" value="6"></div>
-        <div class="actions" style="margin-top:12px">
-          <button class="btn-a" type="submit" data-i18n="bride_cta">Prepare my request</button>
-          <a class="more" id="brideLink" hidden target="_blank" rel="noopener"><span data-i18n="bride_open">Send it on WhatsApp</span> ›</a>
         </div>
         <p class="form-soon" data-i18n="form_soon">Requests open on our WhatsApp line shortly before launch.</p>
       </form>
@@ -1388,7 +1393,7 @@
     <span class="kicker" data-i18n="soon_chip">Opening soon</span>
     <h2 class="title"><span data-i18n="soon_t1">Dubai.</span><br><span class="grad" data-i18n="soon_t2">Very soon.</span></h2>
     <p class="sub" data-i18n="soon_p">Message us to get the address and opening date first, and a shot at the first 30 spots at −70%.</p>
-    <div class="actions"><a class="btn-a" id="waLink" data-track="whatsapp_click" data-track-loc="contact" target="_blank" rel="noopener" data-i18n="v_wa_cta">Message us on WhatsApp</a><a class="more" href="queue.html"><span data-i18n="cta_join">Join the queue</span> ›</a></div>
+    <div class="actions"><a class="btn-a" id="waLink" data-track="whatsapp_click" data-track-loc="contact" target="_blank" rel="noopener" data-i18n="v_wa_cta">Message us on WhatsApp</a><a class="more" href="#private"><span data-i18n="cta_event">Book an event</span> ›</a></div>
     <div class="facts">
       <div><b data-i18n="v_hours_t">Every day</b><span data-i18n="v_hours">8 AM to midnight. Happy hours 10 AM to 3 PM on weekdays.</span></div>
       <div><b data-i18n="v_wa_t">WhatsApp</b><span data-i18n="v_wa">Text “I want a blow-dry” to join the queue.</span></div>
@@ -1403,7 +1408,7 @@
   <div class="wrap">
     <p class="note" data-i18n="foot_p">Qamar means “moon”. In Arabic, the most beautiful compliment is “you're as beautiful as the moon”. Prices shown are indicative and may change before opening; whether they include VAT will be confirmed. Opening offers apply on opening day only.</p>
     <div class="cols">
-      <div><h2 data-i18n="foot_lounge">Lounge</h2><a href="queue.html" data-i18n="cta_join">Join the queue</a><a href="#" data-install-app data-i18n="get_app">Get the app</a><a href="#looks" data-i18n="nav_looks">Looks</a><a href="#menu" data-i18n="nav_menu">Menu</a><a href="#faq" data-i18n="faq_kicker">Questions</a></div>
+      <div><h2 data-i18n="foot_lounge">Lounge</h2><a href="queue.html#liveCard" data-i18n="cta_live">See how busy we are</a><a href="#" data-install-app data-i18n="get_app">Get the app</a><a href="#looks" data-i18n="nav_looks">Looks</a><a href="#menu" data-i18n="nav_menu">Menu</a><a href="#faq" data-i18n="faq_kicker">Questions</a></div>
       <div><h2 data-i18n="foot_exp">Experience</h2><a href="#rituals" data-i18n="nav_rituals">Rituals</a><a href="#night" data-i18n="nav_night">Night</a><a href="#private" data-i18n="foot_private">Private events</a></div>
       <div><h2 data-i18n="foot_guides">Guides</h2><a href="guides/get-ready-after-work-dubai.html" data-guide="get-ready-after-work-dubai" data-i18n="g1_link">Get ready after work in Dubai</a><a href="guides/blow-dry-dubai-humidity.html" data-guide="blow-dry-dubai-humidity" data-i18n="g2_link">Make a blow-dry last in the humidity</a><a href="guides/steam-abaya-hijab.html" data-guide="steam-abaya-hijab" data-i18n="g3_link">Steam your abaya and hijab</a><a href="services/" data-i18n="ft_services">Services & areas</a></div>
       <div><h2 data-i18n="foot_rew">Offers</h2><a href="#rewards" data-i18n="foot_squad">Squad & referral</a><a href="#club" data-i18n="foot_packs">Packs & membership</a></div>
@@ -1541,7 +1546,12 @@
     on_shift: { en: 'In the lounge now', ar: 'في الصالون الآن' }, off_shift: { en: 'Off today', ar: 'غير متواجدة اليوم' },
     contest_kicker: { en: 'Contest', ar: 'مسابقة' }, contest_title: { en: 'Name our next look.', ar: 'سمّي إطلالتنا القادمة.' }, contest_p: { en: 'The winning name goes on the menu. The winner gets a month of free blow-dries.', ar: 'الاسم الفائز يدخل القائمة. والفائزة تحصل على شهر من السشوار المجاني.' },
     f_look: { en: 'Your look name', ar: 'اسم الإطلالة' }, ph_look: { en: 'e.g. Sunset Curls', ar: 'مثلاً: تموجات الغروب' }, f_name: { en: 'Name', ar: 'الاسم' }, f_insta: { en: 'Instagram', ar: 'إنستغرام' }, contest_cta: { en: 'Submit', ar: 'إرسال' },
-    bride_kicker: { en: 'Private events', ar: 'مناسبات خاصة' }, bride_title: { en: 'The lounge is yours after 10 PM.', ar: 'الصالون لكِ بعد ١٠ مساءً.' }, bride_p: { en: 'Bridal parties, birthdays, shoots. Tell us the date, we answer on WhatsApp.', ar: 'حفلات العرائس، أعياد الميلاد، جلسات التصوير. أخبرينا بالتاريخ ونرد على واتساب.' },
+    bride_kicker: { en: 'Private events', ar: 'مناسبات خاصة' }, bride_title: { en: 'Book the lounge for your event.', ar: 'احجزي الصالون لمناسبتكِ.' }, bride_p: { en: 'Weddings, henna nights, birthdays and more: after 10 PM the lounge is all yours, with the team, the showers and the drinks tray. Tell us the date, we confirm on WhatsApp.', ar: 'أعراس، ليالي الحناء، أعياد ميلاد وأكثر: بعد ١٠ مساءً يصبح الصالون لكِ وحدكِ، مع الفريق والدشات وصينية المشروبات. أخبرينا بالتاريخ ونؤكد على واتساب.' },
+    cta_event: { en: 'Book an event', ar: 'احجزي مناسبة' }, cta_live: { en: 'See how busy we are', ar: 'شاهدي الازدحام الآن' },
+    ev_type: { en: 'Type of event', ar: 'نوع المناسبة' }, ev_note: { en: 'Anything we should know?', ar: 'تفاصيل إضافية؟' }, ev_note_ph: { en: 'Hair for the bride and 5 guests, makeup…', ar: 'شعر العروس و٥ ضيفات، مكياج…' },
+    ev_wedding: { en: 'Wedding: bride & bridal party', ar: 'زفاف: العروس ورفيقاتها' }, ev_henna: { en: 'Henna night', ar: 'ليلة الحناء' }, ev_engagement: { en: 'Engagement', ar: 'خطوبة' }, ev_bridal_shower: { en: 'Bridal shower', ar: 'حفلة توديع العزوبية' },
+    ev_birthday: { en: 'Birthday', ar: 'عيد ميلاد' }, ev_graduation: { en: 'Graduation', ar: 'تخرّج' }, ev_baby: { en: 'Baby shower / gender reveal', ar: 'استقبال مولود / كشف جنس المولود' }, ev_eid: { en: 'Eid or Ramadan gathering', ar: 'تجمّع العيد أو رمضان' },
+    ev_shoot: { en: 'Photo or video shoot', ar: 'جلسة تصوير' }, ev_corporate: { en: "Ladies' corporate event", ar: 'فعالية نسائية للشركات' }, ev_other: { en: 'Other', ar: 'أخرى' },
     f_date: { en: 'Date', ar: 'التاريخ' }, f_guests: { en: 'Number of guests', ar: 'عدد الضيفات' }, bride_cta: { en: 'Prepare my request', ar: 'جهّزي طلبكِ' }, bride_open: { en: 'Send it on WhatsApp', ar: 'أرسليه على واتساب' },
     soon_chip: { en: 'Opening soon', ar: 'الافتتاح قريباً' }, soon_t1: { en: 'Dubai.', ar: 'دبي.' }, soon_t2: { en: 'Very soon.', ar: 'قريباً جداً.' },
     soon_p: { en: 'Message us to get the address and opening date first, and a shot at the first 30 spots at −70%.', ar: 'راسلينا لتعرفي العنوان وتاريخ الافتتاح أولاً، مع فرصة لتكوني من أول ٣٠ ضيفة بخصم ٧٠٪.' },
@@ -1557,7 +1567,7 @@
     wa_soon: { en: 'WhatsApp line opens soon', ar: 'خط واتساب يفتح قريباً' },
     form_soon: { en: 'Requests open on our WhatsApp line shortly before launch.', ar: 'تُفتح الطلبات عبر خط واتساب الخاص بنا قبيل الافتتاح.' },
     wa_contest: { en: 'Hello QAMAR, my idea for your next look:', ar: 'مرحباً قمر، اقتراحي لإطلالتكم القادمة:' },
-    wa_bride: { en: 'Hello QAMAR! I would like to book the lounge after 10 PM.', ar: 'مرحباً قمر! أرغب في حجز الصالون بعد الساعة ١٠ مساءً.' },
+    wa_bride: { en: 'Hello QAMAR! I would like to book the lounge for an event.', ar: 'مرحباً قمر! أرغب في حجز الصالون لمناسبة.' },
     wa_join: { en: 'I want a blow-dry', ar: 'أريد سشوار' },
     n1price: { en: '179 AED', ar: '١٧٩ درهماً' }, w1b: { en: '−25%', ar: 'خصم ٢٥٪' }, w2b: { en: '50 AED', ar: '٥٠ درهماً' },
     v_wa_t: { en: 'WhatsApp', ar: 'واتساب' }, foot_copy: { en: '© 2026 QAMAR Blowdry Lounge · Dubai', ar: '© ٢٠٢٦ قمر بلودراي لاونج · دبي' },
@@ -1577,7 +1587,7 @@
   function renderLooks() {
     document.getElementById('looksGrid').innerHTML = D.services.map(s => {
       const q = Q.quote(s.id);
-      return `<a class="tile-look" href="queue.html?look=${s.id}" ${matches(s) ? '' : 'hidden'}>
+      return `<a class="tile-look" href="#how" ${matches(s) ? '' : 'hidden'}>
         <span class="meta">${num(q.duration)} ${Q.t('min')}${s.fromHour ? ` · ${Q.t('n1w')}` : ''}</span>
         <h3>${Q.esc(Q.L(s.look))}</h3>
         <p>${Q.esc(Q.L(s.desc))}</p>
@@ -1714,7 +1724,7 @@
     document.getElementById('waFab').hidden = !on; if (on) document.getElementById('waFab').href = join;
     document.getElementById('mnavWa').hidden = !on; if (on) document.getElementById('mnavWa').href = join;
     document.querySelectorAll('#contestForm, #brideForm').forEach(f => {
-      f.querySelectorAll('input, button').forEach(el => el.disabled = !on);
+      f.querySelectorAll('input, button, select').forEach(el => el.disabled = !on);
       f.querySelector('.form-soon').hidden = on;
     });
     const a = document.getElementById('announce');
@@ -1852,7 +1862,7 @@
   });
   document.getElementById('brideForm').addEventListener('submit', e => {
     e.preventDefault();
-    const f = new FormData(e.target), href = wa(`${Q.t('wa_bride')}\n${f.get('name')} · ${f.get('date')} · ${f.get('guests')}`);
+    const f = new FormData(e.target), typ = e.target.querySelector('#bType'), href = wa(`${Q.t('wa_bride')}\n${typ.options[typ.selectedIndex].text} · ${f.get('name')} · ${f.get('date')} · ${f.get('guests')}${f.get('note') ? '\n' + f.get('note') : ''}`);
     if (!href) return;
     const link = document.getElementById('brideLink'); link.href = href; link.hidden = false; link.focus();
   });

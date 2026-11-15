@@ -23,9 +23,9 @@
   addEventListener('appinstalled', () => { deferred = null; close(); });
 
   const T = {
-    en: { title: 'Get the QAMAR app', sub: 'Join the queue in one tap, right from your home screen.', install: 'Install the app', later: 'Not now',
+    en: { title: 'Get the QAMAR app', sub: 'See how busy we are and book your events, right from your home screen.', install: 'Install the app', later: 'Not now',
       ios1: 'Tap', ios1b: 'Share', ios2: 'then', ios2b: 'Add to Home Screen', desk: 'Open this page on your phone to install the app.', done: 'The app is already installed on this device.', and1: 'Open the browser menu', and2: 'Install app' },
-    ar: { title: 'حمّلي تطبيق قمر', sub: 'انضمي إلى الطابور بلمسة واحدة من شاشتك الرئيسية.', install: 'تثبيت التطبيق', later: 'ليس الآن',
+    ar: { title: 'حمّلي تطبيق قمر', sub: 'شاهدي الازدحام واحجزي مناسباتكِ من شاشتك الرئيسية.', install: 'تثبيت التطبيق', later: 'ليس الآن',
       ios1: 'اضغطي على', ios1b: 'مشاركة', ios2: 'ثم', ios2b: 'إضافة إلى الشاشة الرئيسية', desk: 'افتحي هذه الصفحة على هاتفك لتثبيت التطبيق.', done: 'التطبيق مثبّت بالفعل على هذا الجهاز.', and1: 'افتحي قائمة المتصفح', and2: 'تثبيت التطبيق' }
   };
   const t = k => (T[(window.Q && Q.lang) || document.documentElement.lang] || T.en)[k] || T.en[k];
