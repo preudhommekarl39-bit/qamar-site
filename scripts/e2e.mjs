@@ -82,7 +82,7 @@ await test('pre-opening honesty: no WhatsApp link, forms closed, preview CTA', a
   await page.goto(BASE + '/', { waitUntil: 'networkidle' });
   const r = await page.evaluate(() => ({ wa: document.querySelectorAll('a[href*="wa.me"]').length, disabled: document.querySelector('#contestForm button').disabled, cta: document.querySelector('.hnav .pill-btn').textContent.trim(), social: [...document.querySelectorAll('a[href*="instagram.com"]')].filter(a => a.offsetParent).length }));
   await ctx.close();
-  return r.wa === 0 && r.disabled === true && /Preview/i.test(r.cta) && r.social === 0 || r;
+  return r.wa === 0 && r.disabled === true && /Book an event/i.test(r.cta) && r.social === 0 || r;
 });
 
 await test('keyboard: first Tab reaches the "Skip to content" link', async () => {
@@ -100,7 +100,7 @@ await test('queue: full demo journey on a phone (join → called → in service 
   const note = await page.locator('.demo-note').isVisible();
   await page.locator('#looks .opt:not([disabled])').first().click();
   await page.getByRole('button', { name: /Continue/ }).click();
-  await page.locator('.opt', { hasText: /First available/i }).first().click();
+  await page.locator('#stylists .sty[data-id="any"]').first().click();
   await page.getByRole('button', { name: /Continue/ }).click();
   await page.fill('#fname', 'Test E2E');
   await page.fill('#phone', '50' + String(Date.now()).slice(-7));
