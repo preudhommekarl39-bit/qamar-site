@@ -892,48 +892,46 @@
   }
   @media (min-width: 1024px) and (max-height: 760px) { .htext p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; } }
   @media (prefers-reduced-motion: reduce) { .harch-in img.on, .harch-sweep, .h-primary::after { animation: none; } }
-  /* ---------- Prête en 45 minutes (#ready) : frise à deux pistes + comparatif ---------- */
-  .rt { --u: .058s; margin: 64px auto 0; background: #fff; border: 1px solid var(--line); border-radius: 28px; padding: 30px 30px 32px; box-shadow: 0 24px 60px -36px rgba(94, 42, 60, .35); }
-  .rt-start { display: flex; align-items: baseline; gap: 10px; margin: 0 0 18px; font-size: 1rem; color: var(--ink-2); }
-  .rt-start b, .rt-end b { font-weight: 700; color: var(--rose-deep); font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .rt-body { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 0 26px; align-items: stretch; }
-  .rt-lanes { position: relative; display: grid; gap: 18px; padding-top: 22px; }
-  .rt-ticks { position: absolute; inset: 0 0 auto; height: 18px; font-size: 12px; color: var(--ink-3); }
-  .rt-ticks span { position: absolute; inset-inline-start: calc(var(--m) / 45 * 100%); transform: translateX(-50%); white-space: nowrap; }
-  html[dir="rtl"] .rt-ticks span { transform: translateX(50%); }
-  .rt-ticks span:first-child { transform: none !important; }
-  .rt-ticks span:last-child { transform: translateX(-100%); }
-  html[dir="rtl"] .rt-ticks span:last-child { transform: translateX(100%); }
-  .rt-who { margin: 0 0 8px; font-size: .95rem; font-weight: 600; color: var(--ink); letter-spacing: -.01em; }
-  .rt-bar { list-style: none; margin: 0; padding: 0; display: flex; gap: 4px; height: 76px; }
-  .rt-seg { flex: var(--d) 1 0; min-width: 0; position: relative; overflow: hidden; border-radius: 14px; background: var(--s3); padding: 12px 12px; display: flex; flex-direction: column; justify-content: center; gap: 3px; }
-  .rt-seg::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, #F7D3DE, #EFBACB); transform-origin: left center; }
-  html[dir="rtl"] .rt-seg::before { transform-origin: right center; }
-  .things .rt-seg::before { background: linear-gradient(135deg, #F6E6C8, #EED3A4); }
-  .rt-seg b, .rt-seg small { position: relative; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .rt-seg b { font-size: .95rem; font-weight: 600; color: var(--ink); }
-  .rt-seg small { font-size: 12.5px; color: var(--ink-2); }
-  .rt-seg.xs { padding-inline: 6px; text-align: center; align-items: center; }
-  .rt-seg.xs b { font-size: 12.5px; white-space: normal; line-height: 1.15; }
-  .rt-seg.xs small { display: none; }
-  .rt-end { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 6px; padding-inline-start: 26px; margin-top: 22px; }
-  .rt-end::before { content: ''; position: absolute; inset-block: 22px 14px; inset-inline-start: 0; width: 14px; border: 2px solid var(--rose); border-inline-start: 0; border-radius: 0 18px 18px 0; }
-  html[dir="rtl"] .rt-end::before { border-radius: 18px 0 0 18px; }
-  .rt-end b { font-size: clamp(2rem, 3vw, 2.6rem); line-height: 1; letter-spacing: -.03em; }
-  .rt-end p { margin: 0; font-size: 1rem; line-height: 1.4; color: var(--ink); }
-  /* Animation unique à l'entrée dans l'écran : la frise se remplit de 0 à 45 min (armée seulement par JS, et jamais si mouvement réduit) */
-  .rt.armed .rt-seg::before { transform: scaleX(0); }
-  .rt.armed .rt-seg b, .rt.armed .rt-seg small { opacity: 0; }
-  .rt.armed .rt-end { opacity: 0; transform: translateY(10px); }
-  .rt.armed.in .rt-seg::before { transform: none; transition: transform calc(var(--d) * var(--u)) linear calc(var(--a) * var(--u)); }
-  .rt.armed.in .rt-seg b, .rt.armed.in .rt-seg small { opacity: 1; transition: opacity .4s ease calc((var(--a) + var(--d) * .4) * var(--u)); }
-  .rt.armed.in .rt-end { opacity: 1; transform: none; transition: opacity .6s ease calc(45 * var(--u)), transform .6s cubic-bezier(.2, .7, .2, 1) calc(45 * var(--u)); }
-  @media (prefers-reduced-motion: reduce) { .rt.armed .rt-seg::before, .rt.armed .rt-end { transform: none; opacity: 1; } .rt.armed .rt-seg b, .rt.armed .rt-seg small { opacity: 1; } }
+  /* ---------- Prête en 45 minutes (#ready) : parcours photo 0 → 45 min, une ligne fine relie les étapes ---------- */
+  .rr { --g: clamp(20px, 2.4vw, 36px); margin: 64px auto 0; display: grid; grid-template-columns: minmax(0, 3.4fr) minmax(0, 1fr); gap: 30px var(--g); align-items: start; }
+  .rr-steps { grid-column: 1; grid-row: 1; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1fr); gap: var(--g); align-items: start; }
+  .rr-step, .rr-end { position: relative; padding-top: 46px; }
+  .rr-m { position: absolute; top: 0; inset-inline-start: 0; font-size: 13px; line-height: 16px; letter-spacing: .02em; color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .rr-step::before, .rr-end::before, .rr-mean::before { content: ''; position: absolute; z-index: 1; top: 24px; inset-inline-start: 0; box-sizing: border-box; width: 9px; height: 9px; border-radius: 50%; background: #fff; border: 1.5px solid var(--rose); }
+  .rr-end::before { top: 23px; width: 11px; height: 11px; background: var(--rose-deep); border-color: var(--rose-deep); }
+  .rr-step::after { content: ''; position: absolute; top: 28px; inset-inline-start: 9px; width: calc(100% + var(--g) - 9px); height: 1px; background: var(--rose); transform-origin: left center; }
+  html[dir="rtl"] .rr-step::after { transform-origin: right center; }
+  .rr-ph, .rr-arch { --rv: 37.5%; margin: 0; overflow: hidden; aspect-ratio: 3 / 4; border-radius: 50% 50% 16px 16px / var(--rv) var(--rv) 16px 16px; background: var(--s3); box-shadow: 0 26px 56px -38px rgba(94, 42, 60, .5); }
+  .rr-ph img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: var(--op, 50% 50%); }
+  .rr-step.hero .rr-ph { --rv: 33.34%; aspect-ratio: 2 / 3; box-shadow: 0 34px 70px -40px rgba(94, 42, 60, .6); }
+  .rr-arch { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: var(--berry-grad); color: #fff; text-align: center; }
+  .rr-arch b { font-size: clamp(3.4rem, 6vw, 5.6rem); font-weight: 600; line-height: .9; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+  .rr-arch span { font-size: 1rem; letter-spacing: .14em; text-transform: uppercase; color: #F7D3DE; }
+  html[dir="rtl"] .rr-arch b, html[dir="rtl"] .rr-arch span { letter-spacing: 0; }
+  .rr-t { text-wrap: balance; margin: 18px 0 6px; font-size: 1.12rem; font-weight: 600; line-height: 1.25; letter-spacing: -.01em; color: var(--ink); }
+  .rr-end { grid-column: 2; grid-row: 1 / span 2; }
+  .rr-end .rr-t { color: var(--rose-deep); }
+  .rr-p { margin: 0; max-width: 30ch; font-size: .98rem; line-height: 1.45; color: var(--ink-2); text-wrap: pretty; }
+  /* « Meanwhile » : une seule ligne, parallèle au parcours, sous les trois premières étapes */
+  .rr-mean { grid-column: 1; grid-row: 2; position: relative; display: flex; align-items: center; gap: 16px; margin: 0; padding-top: 18px; border-top: 1px dashed rgba(201, 120, 143, .6); font-size: 1.02rem; line-height: 1.4; color: var(--ink-2); }
+  .rr-mean::before { display: none; }
+  .rr-mean img { flex: 0 0 auto; width: 96px; height: 64px; object-fit: cover; border-radius: 14px; }
+  .rr-mean b { font-weight: 600; color: var(--rose-deep); }
+  /* Animation unique à l'entrée dans l'écran (armée par JS seulement, jamais si mouvement réduit) */
+  .rr.armed .rr-step::after { transform: scaleX(0); }
+  .rr.armed .rr-step::before, .rr.armed .rr-end::before { transform: scale(0); }
+  .rr.armed .rr-ph, .rr.armed .rr-arch, .rr.armed .rr-t, .rr.armed .rr-p, .rr.armed .rr-m, .rr.armed .rr-mean { opacity: 0; transform: translateY(12px); }
+  .rr.armed.in .rr-step::before, .rr.armed.in .rr-end::before { transform: none; transition: transform .35s cubic-bezier(.3, 1.4, .5, 1) calc(var(--i) * .5s); }
+  .rr.armed.in .rr-step::after { transform: none; transition: transform .55s cubic-bezier(.5, 0, .3, 1) calc(var(--i) * .5s + .2s); }
+  .rr.armed.in .rr-ph, .rr.armed.in .rr-arch, .rr.armed.in .rr-m { opacity: 1; transform: none; transition: opacity .6s ease calc(var(--i) * .5s), transform .7s cubic-bezier(.2, .7, .2, 1) calc(var(--i) * .5s); }
+  .rr.armed.in .rr-t, .rr.armed.in .rr-p { opacity: 1; transform: none; transition: opacity .6s ease calc(var(--i) * .5s + .15s), transform .7s cubic-bezier(.2, .7, .2, 1) calc(var(--i) * .5s + .15s); }
+  .rr.armed.in .rr-mean { opacity: 1; transform: none; transition: opacity .7s ease 1.3s, transform .7s cubic-bezier(.2, .7, .2, 1) 1.3s; }
+  @media (prefers-reduced-motion: reduce) { .rr.armed * , .rr.armed *::before, .rr.armed *::after { opacity: 1 !important; transform: none !important; transition: none !important; } }
 
-  .rd-diff { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 56px; align-items: center; margin-top: 90px; }
-  .rd-yukata { margin: 0; }
-  .rd-yukata img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 170px 170px 26px 26px; box-shadow: 0 30px 70px -40px rgba(94, 42, 60, .55); }
-  .rd-yukata figcaption { margin-top: 14px; font-size: .95rem; color: var(--ink-3); text-align: center; }
+  /* « Why QAMAR is different » : le yukata est maintenant mis en avant dans le parcours, le comparatif se centre */
+  .rd-diff { max-width: 920px; margin: 96px auto 0; }
+  .rd-h { text-align: center; }
+  .rd-diff .rd-cta { justify-content: center; }
   .rd-h { margin: 0 0 22px; font-size: clamp(1.7rem, 3vw, 2.5rem); font-weight: 600; letter-spacing: -.03em; line-height: 1.1; color: var(--ink); }
   html[dir="rtl"] .rd-h { letter-spacing: 0; line-height: 1.3; }
   .rd-cards { display: grid; grid-template-columns: 1fr 1.15fr; gap: 16px; align-items: start; }
@@ -950,25 +948,28 @@
   .rd-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; margin-top: 26px; }
   .rd-link { color: var(--rose-deep); font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
 
-  @media (max-width: 960px) { .rd-diff { grid-template-columns: 1fr; gap: 44px; } .rd-yukata { max-width: 360px; margin-inline: auto; } }
-  /* Mobile : la frise devient verticale, les deux pistes côte à côte, et se rejoignent en bas */
+  @media (max-width: 960px) { .rr { grid-template-columns: minmax(0, 2.6fr) minmax(0, 1fr); } .rr-p { font-size: .94rem; } }
+  /* Mobile : parcours vertical, la ligne fine descend le long des étapes */
   @media (max-width: 760px) {
-    .rt { margin-top: 44px; padding: 22px 16px 22px; border-radius: 22px; --u: .05s; }
-    .rt-body { grid-template-columns: 1fr; }
-    .rt-lanes { grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 0; }
-    .rt-ticks { display: none; }
-    .rt-lane { display: flex; flex-direction: column; min-width: 0; }
-    .rt-who { min-height: 2.6em; font-size: .9rem; line-height: 1.3; }
-    .rt-bar { flex-direction: column; height: 470px; }
-    .rt-seg { min-height: 40px; padding: 10px; }
-    .rt-seg::before { transform-origin: center top !important; }
-    .rt.armed .rt-seg::before { transform: scaleY(0); }
-    .rt-seg b { white-space: normal; font-size: .9rem; line-height: 1.2; }
-    .rt-seg small { white-space: normal; font-size: 12px; line-height: 1.3; }
-    .rt-seg.xs { text-align: start; align-items: stretch; padding-inline: 10px; }
-    .rt-seg.xs b { font-size: .85rem; }
-    .rt-end { margin-top: 14px; padding: 22px 4px 0; text-align: center; align-items: center; }
-    .rt-end::before { inset: 0 18% auto; width: auto; height: 12px; border: 2px solid var(--rose); border-top: 0; border-radius: 0 0 18px 18px !important; }
+    .rr { display: block; margin-top: 44px; --g: 30px; }
+    .rr-steps { display: block; }
+    .rr-step, .rr-end, .rr-mean { display: grid; grid-template-columns: minmax(0, 44%) minmax(0, 1fr); column-gap: 16px; align-items: center; padding-top: 0; padding-inline-start: 26px; margin-bottom: var(--g); }
+    .rr-m { position: static; grid-column: 1 / -1; margin-bottom: 10px; }
+    .rr-step::before, .rr-end::before, .rr-mean::before { display: block; top: 4px; }
+    .rr-end::before { top: 3px; }
+    .rr-step::after, .rr-mean::after { content: ''; position: absolute; top: 13px; inset-inline-start: 4px; width: 1px; height: calc(100% + var(--g) - 9px); background: var(--rose); transform-origin: center top !important; }
+    .rr.armed .rr-step::after { transform: scaleY(0); }
+    .rr-step.hero { grid-template-columns: 1fr; }
+    .rr-step.hero .rr-ph { width: min(70%, 270px); }
+    .rr-t { margin-top: 0; font-size: 1.05rem; }
+    .rr-step.hero .rr-t { margin-top: 16px; }
+    .rr-p { font-size: .94rem; }
+    .rr-mean { grid-template-columns: auto minmax(0, 1fr); align-items: start; border-top: 0; padding-top: 0; font-size: .96rem; }
+    .rr-mean::before { background: var(--s3); }
+    .rr-mean img { width: 84px; height: 56px; }
+    .rr-end { margin-bottom: 0; }
+    .rr-arch b { font-size: 3.4rem; }
+    .rr-arch span { font-size: .85rem; }
     .rd-diff { margin-top: 64px; }
     .rd-cards { grid-template-columns: 1fr; }
     .rd-card { padding: 20px 18px 22px; }
@@ -1136,7 +1137,7 @@
   </div>
 </section>
 
-<!-- Prête en 45 minutes : deux pistes en parallèle (toi / tes affaires) + ce qui différencie QAMAR -->
+<!-- Prête en 45 minutes : parcours photo (douche, yukata, parfum, sortie) relié par une ligne fine + ce qui différencie QAMAR -->
 <section class="sec alt" id="ready">
   <div class="wrap">
     <div class="center">
@@ -1145,42 +1146,33 @@
       <p class="sub reveal" data-i18n="rd_sub">Walk in, no appointment. While you shower and get your blow-dry, we steam and perfume your clothes. You walk out fresh, styled and dressed in 45 minutes or less.</p>
     </div>
 
-    <div class="rt" id="readyTrack">
-      <p class="rt-start"><b data-i18n="rd_m0">0 min</b><span data-i18n="rd_start">Walk in. No appointment.</span></p>
-      <div class="rt-body">
-        <div class="rt-lanes">
-          <div class="rt-ticks" aria-hidden="true"><span style="--m:0" data-i18n="rd_k0">0</span><span style="--m:10" data-i18n="rd_k10">10</span><span style="--m:20" data-i18n="rd_k20">20</span><span style="--m:30" data-i18n="rd_k30">30</span><span style="--m:45" data-i18n="rd_k45">45 min</span></div>
-          <div class="rt-lane you">
-            <h3 class="rt-who" data-i18n="rd_you">You</h3>
-            <ol class="rt-bar">
-              <li class="rt-seg" style="--a:0;--d:10"><b data-i18n="rd_y1">Private shower</b><small data-i18n="rd_y1s">about 10 min</small></li>
-              <li class="rt-seg xs" style="--a:10;--d:3"><b data-i18n="rd_y2">Yukata</b><small data-i18n="rd_y2s">embroidered satin</small></li>
-              <li class="rt-seg" style="--a:13;--d:29"><b data-i18n="rd_y3">Blow-dry and hair perfume</b><small data-i18n="rd_y3s">about 30 min</small></li>
-              <li class="rt-seg xs" style="--a:42;--d:3"><b data-i18n="rd_y4">Dressed</b></li>
-            </ol>
-          </div>
-          <div class="rt-lane things">
-            <h3 class="rt-who" data-i18n="rd_things">Your clothes, at the same time</h3>
-            <ol class="rt-bar">
-              <li class="rt-seg" style="--a:0;--d:20"><b data-i18n="rd_c1">Steamed</b><small data-i18n="rd_c1s">abaya, clothes and hijab</small></li>
-              <li class="rt-seg" style="--a:20;--d:7"><b data-i18n="rd_c2">Perfumed</b><small data-i18n="rd_c2s">a light scent</small></li>
-              <li class="rt-seg" style="--a:27;--d:15"><b data-i18n="rd_c3">Ready for you</b><small data-i18n="rd_c3s">pressed and scented</small></li>
-              <li class="rt-seg xs" style="--a:42;--d:3"><b data-i18n="rd_c4">Back to you</b></li>
-            </ol>
-          </div>
-        </div>
-        <div class="rt-end">
-          <b data-i18n="rd_m45">45 min</b>
-          <p data-i18n="rd_end">You leave fresh and styled, hair perfumed, in clothes pressed and perfumed.</p>
-        </div>
+    <div class="rr" id="readyTrack">
+      <ol class="rr-steps">
+        <li class="rr-step" style="--i:0">
+          <span class="rr-m" data-i18n="rd_m0">0 min</span>
+          <figure class="rr-ph"><img src="assets/img/ritual-shower.webp" alt="Miniature QAMAR team preparing a private marble shower with fluffy towels" width="1200" height="800" loading="lazy" decoding="async" style="--op:80% 50%"></figure>
+          <div class="rr-tx"><h3 class="rr-t" data-i18n="rd_s1t">Private shower</h3><p class="rr-p" data-i18n="rd_s1p">Walk in, no appointment. Your own marble shower, towels ready.</p></div>
+        </li>
+        <li class="rr-step hero" style="--i:1">
+          <span class="rr-m" data-i18n="rd_m10">about 10 min</span>
+          <figure class="rr-ph"><img src="assets/img/yukata-480.webp" srcset="assets/img/yukata-480.webp 480w, assets/img/yukata-900.webp 900w" sizes="(max-width: 760px) 78vw, 340px" alt="A woman in a hooded rose satin QAMAR yukata, embroidered with a crescent, walking out of a private marble shower" width="480" height="720" loading="lazy" decoding="async"></figure>
+          <div class="rr-tx"><h3 class="rr-t" data-i18n="rd_s2t">Yukata, then blow-dry</h3><p class="rr-p" data-i18n="rd_s2p">Out of the shower, into embroidered rose satin. Then your blow-dry, any look.</p></div>
+        </li>
+        <li class="rr-step" style="--i:2">
+          <span class="rr-m" data-i18n="rd_m40">about 40 min</span>
+          <figure class="rr-ph"><img src="assets/img/ritual-perfume.webp" alt="Miniature QAMAR team spraying hair perfume on a lock of hair and testing oud, rose and musk" width="1200" height="800" loading="lazy" decoding="async" style="--op:70% 50%"></figure>
+          <div class="rr-tx"><h3 class="rr-t" data-i18n="rd_s3t">Hair perfume. Dressed.</h3><p class="rr-p" data-i18n="rd_s3p">A light scent in your hair, then your own clothes, ready for you.</p></div>
+        </li>
+      </ol>
+      <p class="rr-mean"><img src="assets/img/ritual-hijab.webp" alt="" width="1200" height="800" loading="lazy" decoding="async"><span data-i18n="rd_mean">Meanwhile, your abaya, clothes and hijab are steamed and perfumed.</span></p>
+      <div class="rr-end" style="--i:3">
+        <span class="rr-m" data-i18n="rd_m45">45 min</span>
+        <div class="rr-arch" aria-hidden="true"><b data-i18n="rd_n45">45</b><span data-i18n="rd_min">min</span></div>
+        <div class="rr-tx"><h3 class="rr-t" data-i18n="rd_endt">Out in 45.</h3><p class="rr-p" data-i18n="rd_endp">Fresh, styled and dressed, with no appointment.</p></div>
       </div>
     </div>
 
     <div class="rd-diff" id="readyDiff">
-      <figure class="rd-yukata reveal">
-        <img src="assets/img/yukata-480.webp" srcset="assets/img/yukata-480.webp 480w, assets/img/yukata-900.webp 900w" sizes="(max-width: 760px) 92vw, 340px" alt="A woman in a hooded rose satin QAMAR yukata, embroidered with a gold crescent, walking out of a private marble shower" width="480" height="720" loading="lazy" decoding="async">
-        <figcaption data-i18n="rd_ycap">Out of the shower, into your embroidered QAMAR yukata.</figcaption>
-      </figure>
       <div class="rd-cmp">
         <h3 class="rd-h reveal" data-i18n="rd_diff_t">Why QAMAR is different.</h3>
         <div class="rd-cards">
@@ -1660,15 +1652,12 @@
     film_sub: { en: 'Walk in, freshen up, get your blowdry and a matcha on us. Ready in 45 minutes.', ar: 'ادخلي، انتعشي، واحصلي على السشوار مع ماتشا على حسابنا. جاهزة خلال ٤٥ دقيقة.' }, film_sound: { en: 'Tap for sound', ar: 'الصوت' }, film_cap1: { en: 'From work to dinner, in 45 min', ar: 'من العمل إلى العشاء، في ٤٥ دقيقة' }, film_cap2: { en: 'The QAMAR ritual', ar: 'طقوس قمر' },
     rd_kicker: { en: 'Ready in 45 minutes', ar: 'جاهزة خلال ٤٥ دقيقة' }, rd_t1: { en: 'Shower. Blow-dry. Dressed.', ar: 'دشّ. سشوار. ملابسكِ جاهزة.' }, rd_t2: { en: 'Out in 45.', ar: 'وتخرجين خلال ٤٥ دقيقة.' },
     rd_sub: { en: 'Walk in, no appointment. While you shower and get your blow-dry, we steam and perfume your clothes. You walk out fresh, styled and dressed in 45 minutes or less.', ar: 'ادخلي بدون موعد. بينما تستحمّين وتصفّفين شعركِ، نكوي ملابسكِ بالبخار ونعطّرها. تخرجين منتعشة، بتسريحتكِ وملابسكِ، خلال ٤٥ دقيقة أو أقل.' },
-    rd_m0: { en: '0 min', ar: '٠ د' }, rd_start: { en: 'Walk in. No appointment.', ar: 'ادخلي. بدون موعد.' },
-    rd_k0: { en: '0', ar: '٠' }, rd_k10: { en: '10', ar: '١٠' }, rd_k20: { en: '20', ar: '٢٠' }, rd_k30: { en: '30', ar: '٣٠' }, rd_k45: { en: '45 min', ar: '٤٥ د' },
-    rd_you: { en: 'You', ar: 'أنتِ' }, rd_things: { en: 'Your clothes, at the same time', ar: 'ملابسكِ، في الوقت نفسه' },
-    rd_y1: { en: 'Private shower', ar: 'دشّ خاص' }, rd_y1s: { en: 'about 10 min', ar: 'حوالي ١٠ د' }, rd_y2: { en: 'Yukata', ar: 'يوكاتا' }, rd_y2s: { en: 'embroidered satin', ar: 'ساتان مطرّز' },
-    rd_y3: { en: 'Blow-dry and hair perfume', ar: 'سشوار وعطر للشعر' }, rd_y3s: { en: 'about 30 min', ar: 'حوالي ٣٠ د' }, rd_y4: { en: 'Dressed', ar: 'تلبسين' },
-    rd_c1: { en: 'Steamed', ar: 'كيّ بالبخار' }, rd_c1s: { en: 'abaya, clothes and hijab', ar: 'العباءة والملابس والحجاب' }, rd_c2: { en: 'Perfumed', ar: 'تعطير' }, rd_c2s: { en: 'a light scent', ar: 'لمسة عطر خفيفة' },
-    rd_c3: { en: 'Ready for you', ar: 'جاهزة لكِ' }, rd_c3s: { en: 'pressed and scented', ar: 'مكويّة ومعطّرة' }, rd_c4: { en: 'Back to you', ar: 'بين يديكِ' },
-    rd_m45: { en: '45 min', ar: '٤٥ د' }, rd_end: { en: 'You leave fresh and styled, hair perfumed, in clothes pressed and perfumed.', ar: 'تخرجين منتعشة بتسريحتكِ وشعركِ المعطّر، وملابسكِ مكويّة ومعطّرة.' },
-    rd_ycap: { en: 'Out of the shower, into your embroidered QAMAR yukata.', ar: 'من الدشّ إلى يوكاتا قمر المطرّزة.' },
+    rd_m0: { en: '0 min', ar: '٠ د' }, rd_m10: { en: 'about 10 min', ar: 'حوالي ١٠ د' }, rd_m40: { en: 'about 40 min', ar: 'حوالي ٤٠ د' }, rd_m45: { en: '45 min', ar: '٤٥ د' }, rd_n45: { en: '45', ar: '٤٥' }, rd_min: { en: 'min', ar: 'دقيقة' },
+    rd_s1t: { en: 'Private shower', ar: 'دشّ خاص' }, rd_s1p: { en: 'Walk in, no appointment. Your own marble shower, towels ready.', ar: 'ادخلي بدون موعد. دشّ رخامي خاص بكِ، والمناشف جاهزة.' },
+    rd_s2t: { en: 'Yukata, then blow-dry', ar: 'يوكاتا قمر، ثم السشوار' }, rd_s2p: { en: 'Out of the shower, into embroidered rose satin. Then your blow-dry, any look.', ar: 'من الدشّ إلى الساتان الوردي المطرّز. ثم السشوار، بالإطلالة التي تختارينها.' },
+    rd_s3t: { en: 'Hair perfume. Dressed.', ar: 'عطر للشعر. وتلبسين.' }, rd_s3p: { en: 'A light scent in your hair, then your own clothes, ready for you.', ar: 'لمسة عطر خفيفة في شعركِ، ثم ملابسكِ جاهزة لكِ.' },
+    rd_mean: { en: 'Meanwhile, your abaya, clothes and hijab are steamed and perfumed.', ar: 'في الأثناء، نكوي عباءتكِ وملابسكِ وحجابكِ بالبخار ونعطّرها.' },
+    rd_endt: { en: 'Out in 45.', ar: 'تخرجين خلال ٤٥ دقيقة.' }, rd_endp: { en: 'Fresh, styled and dressed, with no appointment.', ar: 'منتعشة، بتسريحتكِ وملابسكِ، وبدون موعد.' },
     rd_diff_t: { en: 'Why QAMAR is different.', ar: 'لماذا قمر مختلف؟' }, rd_u_t: { en: 'A usual salon', ar: 'صالون عادي' }, rd_q_t: { en: 'QAMAR', ar: 'قمر' },
     rd_u1: { en: 'Appointment needed', ar: 'موعد مسبق' }, rd_u2: { en: 'Blow-dry only', ar: 'سشوار فقط' }, rd_u3: { en: 'No shower', ar: 'بدون دشّ' }, rd_u4: { en: 'You leave in the clothes you came in', ar: 'تخرجين بالملابس نفسها التي أتيتِ بها' }, rd_u5: { en: 'Every service paid separately', ar: 'كل خدمة بسعرها' },
     rd_q1: { en: 'Walk in, no appointment', ar: 'ادخلي بدون موعد' }, rd_q2: { en: 'Your own private shower', ar: 'دشّ خاص بكِ' }, rd_q3: { en: 'An embroidered QAMAR yukata to wear', ar: 'يوكاتا قمر مطرّزة ترتدينها' }, rd_q4: { en: 'Clothes and hijab steamed and perfumed', ar: 'ملابسكِ وحجابكِ مكويّة بالبخار ومعطّرة' },
@@ -2043,11 +2032,11 @@
 
   const io = new IntersectionObserver(entries => entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }), { threshold: .12 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-  /* Frise « Ready in 45 » : se remplit une seule fois à l'entrée dans l'écran (rien d'armé si mouvement réduit) */
+  /* Parcours « Ready in 45 » : se dessine une seule fois à l'entrée dans l'écran (rien d'armé si mouvement réduit) */
   const rdTrack = document.getElementById('readyTrack');
   if (rdTrack && 'IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
     rdTrack.classList.add('armed');
-    const rdIo = new IntersectionObserver(([e]) => { if (e.isIntersecting) { rdTrack.classList.add('in'); rdIo.disconnect(); } }, { threshold: .35 });
+    const rdIo = new IntersectionObserver(([e]) => { if (e.isIntersecting) { rdTrack.classList.add('in'); rdIo.disconnect(); } }, { threshold: .12 });
     rdIo.observe(rdTrack);
   }
 
