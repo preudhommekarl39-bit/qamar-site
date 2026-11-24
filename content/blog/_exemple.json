@@ -1,0 +1,51 @@
+{
+  "slug": "exemple-walk-in-blow-dry",
+  "status": "draft",
+  "category": "guides",
+  "title": {
+    "en": "Example article: how a walk-in blow-dry works",
+    "ar": "مقال تجريبي: كيف يعمل السشوار بدون موعد"
+  },
+  "summary": {
+    "en": "This is a test article used by the automated checks. It shows every block type and is never published.",
+    "ar": "هذا مقال تجريبي تستخدمه الفحوص الآلية. يعرض كل أنواع الفقرات ولا يُنشر أبداً."
+  },
+  "metaTitle": {
+    "en": "Example: how a walk-in blow-dry works | QAMAR",
+    "ar": "مثال: كيف يعمل السشوار بدون موعد | قمر"
+  },
+  "metaDescription": {
+    "en": "Test article for the QAMAR journal: a paragraph, a section title, a callout, a list and an internal link to the walk-in blow-dry page.",
+    "ar": "مقال تجريبي لمدونة قمر: فقرة وعنوان قسم وملاحظة وقائمة ورابط داخلي إلى صفحة السشوار بدون موعد."
+  },
+  "blocks": {
+    "en": [
+      { "type": "p", "text": "At QAMAR you do not book. You arrive, join the queue from your phone and sit down when your chair is ready. Read more on our [walk-in blow-dry page](/services/walk-in-blow-dry-dubai.html)." },
+      { "type": "h2", "text": "How long does it take?" },
+      { "type": "p", "text": "Every look on the menu takes **45 minutes or less**." },
+      { "type": "callout", "title": "Good to know", "text": "QAMAR opens in March 2027. Prices on the site are indicative until opening." },
+      { "type": "list", "items": ["Join the queue from your phone", "Wait with a drink", "Choose your look in the chair", "See the [QAMAR Club](/#club) if you come often"] }
+    ],
+    "ar": [
+      { "type": "p", "text": "في قمر لا تحجزين. تصلين، تنضمين إلى الطابور من هاتفكِ، وتجلسين عندما يجهز كرسيكِ. اقرئي المزيد في [صفحة السشوار بدون موعد](/services/walk-in-blow-dry-dubai.html)." },
+      { "type": "h2", "text": "كم يستغرق الأمر؟" },
+      { "type": "p", "text": "كل إطلالة في القائمة تأخذ **٤٥ دقيقة أو أقل**." },
+      { "type": "callout", "title": "معلومة مهمة", "text": "يفتح قمر في مارس ٢٠٢٧. الأسعار على الموقع تقريبية حتى الافتتاح." },
+      { "type": "list", "items": ["انضمي إلى الطابور من هاتفكِ", "انتظري مع مشروب", "اختاري إطلالتكِ على الكرسي", "اكتشفي [نادي قمر](/#club) إذا كنتِ تأتين كثيراً"] }
+    ]
+  },
+  "service": "walk-in-blow-dry-dubai",
+  "image": {
+    "src": "assets/img/look-glow.webp",
+    "alt": {
+      "en": "Glossy blow-dry finished by the miniature QAMAR team, the Qamar Glow look",
+      "ar": "شعر لامع تضع عليه فرقة قمر الصغيرة اللمسات الأخيرة، إطلالة لمعة قمر"
+    },
+    "width": 640,
+    "height": 823
+  },
+  "author": { "en": "QAMAR team", "ar": "فريق قمر", "type": "Organization" },
+  "reviewedBy": { "en": "", "ar": "" },
+  "datePublished": "2026-11-25",
+  "dateModified": "2026-11-25"
+}

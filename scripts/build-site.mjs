@@ -5,14 +5,16 @@
 //   • canonical + hreflang (en, ar, x-default) + og:url + images de partage en URL absolues
 //   • données structurées HairSalon générées depuis assets/data.js (uniquement les informations confirmées)
 //   • sitemap.xml et robots.txt pour l'URL du site
+//   • journal (blog/ et blog/ar/) : articles de content/blog/*.json + table Supabase « articles » (voir scripts/blog.mjs)
 // Le jour où le domaine définitif est acheté : changer SITE_URL (workflow .github/workflows/site.yml), rien d'autre.
 import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync, existsSync, readdirSync } from 'node:fs';
 import vm from 'node:vm';
 import { extractDict, translateHtml, setHeadTag, setMeta } from './lib.mjs';
+import { loadJsonArticles, fetchSupabaseArticles, mergeArticles, siteContext, buildBlog, sitemapEntry } from './blog.mjs';
 
 const SITE = (process.env.SITE_URL || 'https://qamarlounge.com/').replace(/\/?$/, '/');
 const OUT = '_site';
-const PUBLIC = ['index.html', 'queue.html', 'privacy.html', 'legal.html', 'entrance.html', 'station.html', 'admin.html', 'tests.html', 'manifest.webmanifest', 'sw.js', '.nojekyll', 'llms.txt', 'googlee7662b1241ccf348.html', 'googlec84b0f1aa4069954.html', 'de2cfe638b66c13233e988a305c0c8d8.txt'];
+const PUBLIC = ['index.html', 'queue.html', 'privacy.html', 'legal.html', 'entrance.html', 'station.html', 'admin.html', 'blog-admin.html', 'tests.html', 'manifest.webmanifest', 'sw.js', '.nojekyll', 'llms.txt', 'googlee7662b1241ccf348.html', 'googlec84b0f1aa4069954.html', 'de2cfe638b66c13233e988a305c0c8d8.txt'];
 const PUBLIC_DIRS = ['assets', 'tests', 'guides', 'services', 'areas'];
 
 rmSync(OUT, { recursive: true, force: true });
@@ -107,6 +109,7 @@ ar = ar.replace('<meta property="og:locale" content="en_AE">', '<meta property="
 ar = ar.replace(/<video src="([^"]+)" poster="([^"]+)" data-src-ar="([^"]+)" data-poster-ar="([^"]+)"/g, '<video src="$3" poster="$4" data-src-ar="$3" data-poster-ar="$4"');
 ar = ar.replace(/href="guides\/([a-z-]+)\.html" data-guide=/g, 'href="guides/ar/$1.html" data-guide=');
 ar = ar.replace('href="services/" data-i18n="ft_services"', 'href="services/ar/" data-i18n="ft_services"');
+ar = ar.replace('href="blog/" data-i18n="ft_blog"', 'href="blog/ar/" data-i18n="ft_blog"');
 ar = ar.replaceAll('family=Cormorant+Garamond:wght@400;500&family=Yellowtail&display=swap', 'family=Cormorant+Garamond:wght@400;500&family=Tajawal:wght@400;500;700&family=Yellowtail&family=Amiri&display=swap');
 if (!ar.includes('family=Tajawal')) { console.error('Arabic fonts (Tajawal + Amiri) not added to ar.html'); process.exit(1); }
 ar = setMeta(ar, 'name', 'twitter:title', 'قمر بلودراي لاونج دبي — ادخلي… واخرجي متألقة.');
@@ -117,6 +120,32 @@ for (const [en, arL] of [['Menu', 'القائمة'], ['Close', 'إغلاق'], ['
 ar = ar.replace('target="_blank" rel="noopener">WhatsApp</a>', 'target="_blank" rel="noopener">واتساب</a>');
 ar = seoHead(ar, 'ar', URLS.ar);
 writeFileSync(`${OUT}/ar.html`, ar);
+
+// ---- Journal (blog) : JSON du dépôt + Supabase, pages statiques EN/AR ----
+const jsonArticles = loadJsonArticles();
+const db = process.env.BLOG_OFFLINE ? { ok: false, reason: 'BLOG_OFFLINE set', articles: [] }
+  : await fetchSupabaseArticles({ url: process.env.SUPABASE_URL || CFG.supabaseUrl, key: process.env.SUPABASE_ANON_KEY || CFG.supabaseAnonKey });
+console.log(db.ok ? `Blog: ${db.articles.length} published article(s) from Supabase` : `Blog: ${db.reason}. Using content/blog only.`);
+const blog = buildBlog({ out: OUT, site: SITE, articles: mergeArticles(jsonArticles, db.articles), ctx: siteContext() });
+for (const e of blog.errors) console.error(`Blog: "${e.slug}" (${e.source}) not published:\n  - ` + e.errors.join('\n  - '));
+if (blog.errors.some(e => e.source !== 'supabase')) { console.error('Blog: fix the article file(s) in content/blog above.'); process.exit(1); }
+console.log(`Blog: ${blog.published.length} article(s) published, ${blog.published.filter(a => a.title.ar && a.blocks.ar.length).length} with an Arabic version.`);
+// Pages services : lien retour vers les articles liés ; pages services/areas/guides : lien « Journal » dans le pied de page
+for (const dir of ['services', 'areas', 'guides']) for (const sub of ['', 'ar/']) {
+  const d = `${OUT}/${dir}/${sub}`;
+  if (!existsSync(d)) continue;
+  for (const f of readdirSync(d).filter(n => n.endsWith('.html'))) {
+    const isAr = sub === 'ar/';
+    let h = readFileSync(d + f, 'utf8');
+    h = h.replace(/(<footer>[\s\S]*?)(<a href="((?:\.\.\/)+)privacy\.html">)/, (m, pre, a, P) => `${pre}<a href="${P}blog/${isAr ? 'ar/' : ''}">${isAr ? 'المدونة' : 'Journal'}</a>${a}`);
+    if (dir === 'services' && f !== 'index.html') {
+      const rel = blog.published.filter(a => a.service === f.slice(0, -5) && (!isAr || (a.title.ar && a.blocks.ar.length)));
+      const P = isAr ? '../../' : '../';
+      if (rel.length) h = h.replace('<div class="more">', `<div class="more"><h2>${isAr ? 'من المدونة' : 'From the journal'}</h2><ul>${rel.map(a => `<li><a href="${P}blog/${isAr ? 'ar/' : ''}${a.slug}.html">${a.title[isAr ? 'ar' : 'en'].replace(/&/g, '&amp;').replace(/</g, '&lt;')}</a></li>`).join('')}</ul>`);
+    }
+    writeFileSync(d + f, h);
+  }
+}
 
 // ---- Pages légales : canonical ----
 for (const f of ['privacy.html', 'legal.html']) {
@@ -141,7 +170,7 @@ writeFileSync(`${OUT}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>
   </url>
   <url><loc>${URLS.ar}</loc><lastmod>${today}</lastmod>${alt}${vsm('ar')}
   </url>
-${['services', 'areas'].flatMap(d => readdirSync(d).filter(f => f.endsWith('.html')).sort((a, b) => (a === 'index.html' ? -1 : b === 'index.html' ? 1 : a.localeCompare(b))).map(f => { const p = f === 'index.html' ? '' : f; const en = abs(`${d}/${p}`), arU = abs(`${d}/ar/${p}`); const has = existsSync(`${d}/ar/${f}`); const a = has ? `\n    <xhtml:link rel="alternate" hreflang="en" href="${en}"/>\n    <xhtml:link rel="alternate" hreflang="ar" href="${arU}"/>\n    <xhtml:link rel="alternate" hreflang="x-default" href="${en}"/>` : ''; return `  <url><loc>${en}</loc><lastmod>${today}</lastmod>${a}\n  </url>\n` + (has ? `  <url><loc>${arU}</loc><lastmod>${today}</lastmod>${a}\n  </url>\n` : ''); })).join('')}${readdirSync('guides').filter(f => f.endsWith('.html')).map(f => { const en = abs('guides/' + f), arU = abs('guides/ar/' + f); const has = existsSync('guides/ar/' + f); const a = has ? `\n    <xhtml:link rel="alternate" hreflang="en" href="${en}"/>\n    <xhtml:link rel="alternate" hreflang="ar" href="${arU}"/>` : ''; return `  <url><loc>${en}</loc><lastmod>${today}</lastmod>${a}\n  </url>\n` + (has ? `  <url><loc>${arU}</loc><lastmod>${today}</lastmod>${a}\n  </url>\n` : ''); }).join('')}</urlset>
+${['services', 'areas'].flatMap(d => readdirSync(d).filter(f => f.endsWith('.html')).sort((a, b) => (a === 'index.html' ? -1 : b === 'index.html' ? 1 : a.localeCompare(b))).map(f => { const p = f === 'index.html' ? '' : f; const en = abs(`${d}/${p}`), arU = abs(`${d}/ar/${p}`); const has = existsSync(`${d}/ar/${f}`); const a = has ? `\n    <xhtml:link rel="alternate" hreflang="en" href="${en}"/>\n    <xhtml:link rel="alternate" hreflang="ar" href="${arU}"/>\n    <xhtml:link rel="alternate" hreflang="x-default" href="${en}"/>` : ''; return `  <url><loc>${en}</loc><lastmod>${today}</lastmod>${a}\n  </url>\n` + (has ? `  <url><loc>${arU}</loc><lastmod>${today}</lastmod>${a}\n  </url>\n` : ''); })).join('')}${readdirSync('guides').filter(f => f.endsWith('.html')).map(f => { const en = abs('guides/' + f), arU = abs('guides/ar/' + f); const has = existsSync('guides/ar/' + f); const a = has ? `\n    <xhtml:link rel="alternate" hreflang="en" href="${en}"/>\n    <xhtml:link rel="alternate" hreflang="ar" href="${arU}"/>` : ''; return `  <url><loc>${en}</loc><lastmod>${today}</lastmod>${a}\n  </url>\n` + (has ? `  <url><loc>${arU}</loc><lastmod>${today}</lastmod>${a}\n  </url>\n` : ''); }).join('')}${blog.sitemap.map(sitemapEntry).join('')}</urlset>
 `);
 
 console.log(`Built ${OUT}/ for ${SITE}:`, readdirSync(OUT).join(', '));

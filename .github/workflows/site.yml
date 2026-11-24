@@ -2,6 +2,8 @@
 # 1. test   : tests du moteur et des règles, traductions EN/AR, liens internes, garde-fous (lieux interdits, secrets…)
 # 2. deploy : construit _site/ (page arabe, canonical, hreflang, sitemap, robots, données structurées) et le publie
 # Une erreur à l'étape 1 bloque la publication : la version en ligne reste la précédente.
+# Journal : une exécution planifiée chaque heure relit la table Supabase « articles » (articles publiés depuis blog-admin.html)
+# et ne redéploie que si le contenu publié du journal a changé (blog/content-hash.txt). Délai : visible en ligne dans l'heure.
 # Domaine définitif acheté ? Changer SITE_URL ci-dessous (et config.js → siteUrl), rien d'autre.
 name: Site
 
@@ -9,6 +11,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '7 * * * *'   # toutes les heures, à HH:07 UTC (GitHub peut retarder de quelques minutes)
 
 permissions:
   contents: read
@@ -47,9 +51,19 @@ jobs:
           node-version: 20
       - name: Construction du site
         run: node scripts/build-site.mjs
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - name: Journal modifié ? (exécution planifiée seulement)
+        id: changed
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then echo "deploy=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          live=$(curl -fsSL --max-time 20 "${SITE_URL}blog/content-hash.txt?t=$(date +%s)" || echo none)
+          new=$(cat _site/blog/content-hash.txt)
+          if [ "$live" = "$new" ]; then echo "deploy=false" >> "$GITHUB_OUTPUT"; echo "Journal inchangé : pas de redéploiement."; else echo "deploy=true" >> "$GITHUB_OUTPUT"; echo "Journal modifié : redéploiement."; fi
+      - if: steps.changed.outputs.deploy == 'true'
+        uses: actions/configure-pages@v5
+      - if: steps.changed.outputs.deploy == 'true'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: _site
       - id: deployment
+        if: steps.changed.outputs.deploy == 'true'
         uses: actions/deploy-pages@v4

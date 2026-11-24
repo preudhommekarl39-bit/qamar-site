@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>QAMAR · Journal admin</title>
+<link rel="icon" href="assets/app/favicon-32.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Jost:wght@300;400;500&family=Tajawal:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--rose:#C9788F;--rose-ink:#A4506A;--gold:#C49A5A;--cream:#FAF5F0;--ink:#1F1417;--ink2:#5E4A50;--line:rgba(196,154,90,.35);--ok:#2E7D5B;--err:#B3261E}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font:400 16px/1.55 Jost,system-ui,sans-serif}
+header{background:linear-gradient(120deg,#F8E1DC,#F3D3D6 60%,#EFC6CC)}
+header .w{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;flex-wrap:wrap}
+.w{width:min(1040px,100% - 32px);margin:auto}
+.brand{font:500 22px 'Cormorant Garamond',serif;letter-spacing:.3em;color:var(--ink);text-decoration:none}
+.brand small{font:400 13px Jost,sans-serif;letter-spacing:.1em;margin-inline-start:10px;color:var(--ink2)}
+h1,h2{font-family:'Cormorant Garamond',serif;font-weight:500;line-height:1.15}
+h1{font-size:34px;margin:26px 0 10px}h2{font-size:24px;margin:24px 0 8px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin:16px 0}
+label{display:block;font-size:13px;font-weight:500;letter-spacing:.04em;color:var(--ink2);margin:12px 0 4px}
+input,select,textarea{width:100%;font:inherit;color:inherit;background:#fff;border:1px solid rgba(94,74,80,.3);border-radius:12px;padding:10px 12px;min-height:44px}
+textarea{min-height:96px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+[dir=rtl],[lang=ar] textarea,[lang=ar] input{font-family:Tajawal,system-ui,sans-serif}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 16px}
+.hint{font-size:13px;color:var(--ink2);margin:4px 0 0}
+.count{float:inline-end;font-weight:400}.count.bad{color:var(--err)}
+button,.btn{font:500 15px Jost,sans-serif;border-radius:999px;border:1px solid var(--rose-ink);background:#fff;color:var(--rose-ink);padding:0 18px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+button.primary{background:var(--rose-ink);color:#fff}
+button.small{min-height:36px;padding:0 12px;font-size:13px}
+button:disabled{opacity:.5;cursor:default}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0}
+.msg{border-radius:12px;padding:10px 14px;margin:12px 0;font-size:15px}
+.msg.err{background:#FBE9E7;color:var(--err)}.msg.ok{background:#E6F4EC;color:var(--ok)}.msg.info{background:#FFF6E5;color:#7A5A12}
+.msg ul{margin:6px 0 0;padding-inline-start:20px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:start;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);font-weight:500}
+td a{color:var(--rose-ink)}
+.tbl{overflow-x:auto}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:500}
+.pill.published{background:#E6F4EC;color:var(--ok)}.pill.draft{background:#F1E9EB;color:var(--ink2)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-top:18px}
+.tabs button{border-radius:12px 12px 0 0;border-bottom:0}
+.tabs button[aria-selected=true]{background:var(--rose-ink);color:#fff}
+.block{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:10px 0;background:#FFFCFA}
+.block .bh{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.block .bh select{width:auto;min-height:36px;padding:4px 10px}
+.block .bh .sp{flex:1}
+.preview{background:var(--cream);border:1px solid var(--line);border-radius:18px;padding:8px 24px 24px;font:300 18px/1.7 Jost,system-ui,sans-serif}
+.preview[dir=rtl]{font-family:Tajawal,system-ui,sans-serif}
+.preview h1{font-size:clamp(30px,5vw,44px);margin:16px 0}.preview h2{font-size:28px;margin:32px 0 8px}
+.preview[dir=rtl] h1,.preview[dir=rtl] h2{font-family:Tajawal,serif}
+.preview .lead{color:var(--ink2);font-size:20px}.preview .kicker{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--rose-ink);font-weight:500;margin:20px 0 0}
+.preview .callout{background:#fff;border:1px solid var(--line);border-inline-start:4px solid var(--rose);border-radius:16px;padding:4px 20px;margin:24px 0}
+.preview .callout-t{font-weight:500;margin-bottom:0}.preview img{max-width:100%;border-radius:16px;max-height:420px;object-fit:cover}
+.preview a{color:var(--rose-ink)}
+.serp{font-family:Arial,sans-serif;background:#fff;border-radius:12px;padding:12px 14px;margin:12px 0;border:1px solid #eee}
+.serp .t{color:#1a0dab;font-size:18px}.serp .u{color:#006621;font-size:13px}.serp .d{color:#4d5156;font-size:14px}
+[hidden]{display:none!important}
+@media(max-width:600px){h1{font-size:28px}.preview{padding:4px 14px 16px}}
+</style>
+</head>
+<body>
+<header><div class="w"><a class="brand" href="./" translate="no">QAMAR<small>Journal admin</small></a><div class="actions" style="margin:0"><span id="who" class="hint"></span><button id="logout" class="small" hidden>Sign out</button></div></div></header>
+<main class="w">
+
+<div id="cfgWarn" class="msg info" hidden></div>
+<div id="globalMsg" hidden></div>
+
+<!-- Connexion -->
+<section id="vLogin" hidden>
+  <h1>Sign in</h1>
+  <p class="hint">Journal editors only. Your account is created by the site owner in Supabase; there is no sign-up here.</p>
+  <form id="loginForm" class="card" style="max-width:440px" novalidate>
+    <label for="email">E-mail</label><input id="email" type="email" autocomplete="username" required>
+    <label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required>
+    <div class="actions"><button class="primary" type="submit" id="loginBtn">Sign in</button></div>
+    <div id="loginMsg" role="alert"></div>
+  </form>
+</section>
+
+<!-- Liste -->
+<section id="vList" hidden>
+  <h1>Journal articles</h1>
+  <p class="hint">Published articles appear on qamarlounge.com/blog/ after the next automatic rebuild: <b>visible online within the hour</b>.</p>
+  <div class="actions"><button class="primary" id="newBtn" type="button">New article</button><button id="reloadBtn" type="button">Refresh</button></div>
+  <div class="card tbl"><table><thead><tr><th>Title</th><th>Status</th><th>Published</th><th>Updated</th><th>Arabic</th></tr></thead><tbody id="rows"><tr><td colspan="5">Loading…</td></tr></tbody></table></div>
+</section>
+
+<!-- Éditeur -->
+<section id="vEdit" hidden>
+  <div class="actions" style="margin-top:20px"><button type="button" id="backBtn">Back to the list</button><span id="editState" class="hint"></span></div>
+  <h1 id="editTitle">New article</h1>
+  <div class="card">
+    <div class="row">
+      <div><label for="f_slug">Slug (web address)</label><input id="f_slug" dir="ltr" placeholder="walk-in-blow-dry-guide" autocomplete="off"><p class="hint" id="slugHint">qamarlounge.com/blog/<b id="slugPrev">…</b>.html</p></div>
+      <div><label for="f_category">Category</label><select id="f_category"></select></div>
+      <div><label for="f_service">Linked service page</label><select id="f_service"></select></div>
+    </div>
+    <div class="row">
+      <div><label for="f_date">Publication date</label><input id="f_date" type="date"><p class="hint">Empty: set automatically when you publish. A future date schedules the article.</p></div>
+      <div><label>Last real update</label><p id="f_modified" class="hint" style="min-height:44px;display:flex;align-items:center">Set automatically when the text changes.</p></div>
+      <div><label for="f_authorType">Author type</label><select id="f_authorType"><option value="Organization">Team (organisation)</option><option value="Person">Real person</option></select><p class="hint">Never a fake expert: “QAMAR team” or a real name.</p></div>
+    </div>
+    <div class="row">
+      <div><label for="f_image">Image (optional)</label><input id="f_image" dir="ltr" placeholder="assets/img/look-glow.webp"><p class="hint">A file of the site (assets/img/…) or an https:// address. Empty: no image.</p></div>
+    </div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" data-tab="en" aria-selected="true">English</button>
+    <button type="button" role="tab" data-tab="ar" aria-selected="false">العربية</button>
+    <button type="button" role="tab" data-tab="pen" aria-selected="false">Preview EN</button>
+    <button type="button" role="tab" data-tab="par" aria-selected="false">Preview AR</button>
+  </div>
+  <div id="langPanes"></div>
+  <div id="previewPane" hidden></div>
+
+  <div id="editMsg" role="alert"></div>
+  <div class="actions">
+    <button type="button" id="saveBtn">Save draft</button>
+    <button type="button" class="primary" id="publishBtn">Publish</button>
+    <button type="button" id="unpublishBtn" hidden>Unpublish (back to draft)</button>
+  </div>
+  <p class="hint">Links inside a paragraph, a callout or a list: <code>[link text](/services/walk-in-blow-dry-dubai.html)</code>. Allowed: /services/…, /areas/…, /guides/…, /blog/…, / and /#club. Bold: <code>**text**</code>. No emoji, no em dash.</p>
+</section>
+
+</main>
+
+<script src="assets/config.js"></script>
+<script src="assets/blog-core.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  const C = window.QAMAR_CONFIG || {}, BL = window.QAMAR_BLOG;
+  const $ = id => document.getElementById(id);
+  const show = v => ['vLogin', 'vList', 'vEdit'].forEach(x => { $(x).hidden = x !== v; });
+  const msg = (el, kind, text, list) => { el.className = 'msg ' + kind; el.hidden = false; el.textContent = text; if (list && list.length) { const ul = document.createElement('ul'); list.forEach(t => { const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); }); el.appendChild(ul); } };
+  const clear = el => { el.className = ''; el.textContent = ''; };
+  const LANG = { en: { name: 'English', dir: 'ltr' }, ar: { name: 'العربية', dir: 'rtl' } };
+
+  // Pages services et cibles de liens (générées au build dans blog/link-targets.json)
+  let targets = { services: [], areas: [], guides: [] };
+  const serviceSlugs = () => targets.services.map(s => s.slug);
+
+  // ---- Client Supabase (clé publique anon uniquement) ----
+  let sb = null;
+  if (!C.supabaseUrl || !C.supabaseAnonKey) msg($('cfgWarn'), 'info', 'Setup not finished: the public Supabase "anon" key is missing in assets/config.js (supabaseAnonKey). Sign-in cannot work until it is added. See supabase/README.md, section Blog.');
+  if (window.supabase && C.supabaseUrl) {
+    try { sb = window.supabase.createClient(C.supabaseUrl, C.supabaseAnonKey || 'missing-anon-key', { auth: { persistSession: true, storageKey: 'qamar-blog-admin' } }); } catch (e) { sb = null; }
+  }
+
+  async function boot() {
+    try { const r = await fetch('blog/link-targets.json', { cache: 'no-store' }); if (r.ok) targets = await r.json(); } catch (_) {}
+    // Aperçu local de l'éditeur, sans connexion (localhost seulement ; l'enregistrement reste refusé par la base sans session admin)
+    if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && location.hash === '#local-editor') { openEditor(null); return; }
+    if (!sb) { show('vLogin'); return; }
+    let session = null;
+    try { session = (await sb.auth.getSession()).data.session; } catch (_) {}
+    session ? afterLogin(session) : show('vLogin');
+  }
+
+  // ---- Connexion ----
+  $('loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const m = $('loginMsg'); clear(m);
+    const email = $('email').value.trim(), password = $('password').value;
+    if (!email || !password) return msg(m, 'err', 'Enter your e-mail and password.');
+    if (!sb) return msg(m, 'err', 'Sign-in is not available: the Supabase library or configuration did not load. Check your connection and assets/config.js.');
+    $('loginBtn').disabled = true;
+    try {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) {
+        const t = /invalid login|invalid_credentials/i.test(error.message) ? 'Wrong e-mail or password, or this account does not exist.'
+          : /api key|apikey/i.test(error.message) || !C.supabaseAnonKey ? 'Sign-in failed: the Supabase anon key is missing or wrong in assets/config.js.'
+          : /failed to fetch|network|load failed/i.test(error.message) ? 'Sign-in failed: the Supabase server could not be reached. Check your connection and try again.'
+          : 'Sign-in failed: ' + error.message;
+        msg(m, 'err', t);
+      } else { $('password').value = ''; afterLogin(data.session); }
+    } catch (err) { msg(m, 'err', 'Sign-in failed: the server could not be reached (' + (err.message || err) + ').'); }
+    $('loginBtn').disabled = false;
+  });
+  $('logout').addEventListener('click', async () => { try { await sb.auth.signOut(); } catch (_) {} location.reload(); });
+
+  async function afterLogin(session) {
+    $('who').textContent = session.user.email || ''; $('logout').hidden = false;
+    let isAdmin = false;
+    try { const { data, error } = await sb.rpc('is_blog_admin'); isAdmin = !error && data === true; } catch (_) {}
+    if (!isAdmin) { show('vLogin'); return msg($('loginMsg'), 'err', 'This account is signed in but is not on the journal admin list (table blog_admins). Ask the site owner.'); }
+    show('vList'); loadList();
+  }
+
+  // ---- Liste ----
+  let rows = [];
+  async function loadList() {
+    const tb = $('rows'); tb.innerHTML = '<tr><td colspan="5">Loading…</td></tr>';
+    const { data, error } = await sb.from('articles').select('*').order('updated_at', { ascending: false });
+    if (error) { tb.innerHTML = ''; const tr = tb.insertRow(); const td = tr.insertCell(); td.colSpan = 5; td.textContent = 'Could not load the articles: ' + error.message; return; }
+    rows = data || []; tb.innerHTML = '';
+    if (!rows.length) { const td = tb.insertRow().insertCell(); td.colSpan = 5; td.textContent = 'No article yet.'; }
+    rows.forEach(r => {
+      const tr = tb.insertRow();
+      const a = document.createElement('a'); a.href = '#'; a.textContent = r.title_en || r.slug; a.addEventListener('click', e => { e.preventDefault(); openEditor(r); });
+      const c1 = tr.insertCell(); c1.appendChild(a); const sm = document.createElement('div'); sm.className = 'hint'; sm.textContent = r.slug; c1.appendChild(sm);
+      const p = document.createElement('span'); p.className = 'pill ' + r.status; p.textContent = r.status === 'published' ? 'Published' : 'Draft'; tr.insertCell().appendChild(p);
+      tr.insertCell().textContent = r.date_published || '';
+      tr.insertCell().textContent = r.date_modified || '';
+      tr.insertCell().textContent = r.title_ar && (r.blocks_ar || []).length ? 'Yes' : 'No';
+    });
+  }
+  $('reloadBtn').addEventListener('click', loadList);
+  $('newBtn').addEventListener('click', () => openEditor(null));
+  $('backBtn').addEventListener('click', () => { show('vList'); loadList(); });
+
+  // ---- Éditeur ----
+  let cur = null, curRow = null, tab = 'en';
+  const fillSelect = (sel, items, val) => { sel.innerHTML = ''; items.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; sel.appendChild(o); }); if (val && ![...sel.options].some(o => o.value === val)) { const o = document.createElement('option'); o.value = val; o.textContent = val; sel.appendChild(o); } sel.value = val || (items[0] && items[0][0]) || ''; };
+
+  function openEditor(row) {
+    curRow = row; cur = row ? BL.fromRow(row) : BL.normalize({ status: 'draft' });
+    clear($('editMsg'));
+    $('editTitle').textContent = row ? (cur.title.en || cur.slug) : 'New article';
+    $('editState').textContent = row ? (row.status === 'published' ? 'Published' : 'Draft') + (row.updated_at ? ' · saved ' + new Date(row.updated_at).toLocaleString('en-GB') : '') : 'Not saved yet';
+    $('f_slug').value = cur.slug; $('f_slug').readOnly = !!(row && row.status === 'published');
+    fillSelect($('f_category'), Object.entries(BL.CATEGORIES).map(([k, v]) => [k, v.en + ' / ' + v.ar]), cur.category);
+    fillSelect($('f_service'), [['', 'Choose…']].concat(targets.services.map(s => [s.slug, s.en])), cur.service);
+    $('f_date').value = cur.datePublished || '';
+    $('f_modified').textContent = cur.dateModified ? cur.dateModified + ' (automatic)' : 'Set automatically when the text changes.';
+    $('f_authorType').value = cur.author.type;
+    $('f_image').value = cur.image ? cur.image.src : '';
+    const pub = row && row.status === 'published';
+    $('saveBtn').textContent = pub ? 'Save changes (stays published)' : 'Save draft';
+    $('publishBtn').hidden = !!pub; $('unpublishBtn').hidden = !pub;
+    buildLangPanes(); selectTab('en'); updateSlug(); show('vEdit'); window.scrollTo(0, 0);
+  }
+
+  function field(pane, lang, key, label, opts = {}) {
+    const id = `f_${key}_${lang}`;
+    const lb = document.createElement('label'); lb.htmlFor = id; lb.textContent = label;
+    const el = document.createElement(opts.area ? 'textarea' : 'input'); el.id = id; el.dir = LANG[lang].dir; el.lang = lang;
+    if (opts.max) { const c = document.createElement('span'); c.className = 'count'; lb.appendChild(c); const upd = () => { const n = el.value.length; c.textContent = n + ' / ' + opts.max; c.classList.toggle('bad', n > opts.max); }; el.addEventListener('input', upd); setTimeout(upd); }
+    if (opts.ph) el.placeholder = opts.ph;
+    pane.appendChild(lb); pane.appendChild(el);
+    if (opts.hint) { const h = document.createElement('p'); h.className = 'hint'; h.textContent = opts.hint; pane.appendChild(h); }
+    return el;
+  }
+
+  const blockLabels = { p: 'Paragraph', h2: 'Section title (H2)', callout: 'Callout', list: 'Bullet list (one item per line)' };
+  function blockEditor(lang, b, list) {
+    const box = document.createElement('div'); box.className = 'block';
+    const bh = document.createElement('div'); bh.className = 'bh';
+    const sel = document.createElement('select'); sel.setAttribute('aria-label', 'Block type');
+    BL.BLOCK_TYPES.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = blockLabels[t]; sel.appendChild(o); }); sel.value = b.type;
+    const sp = document.createElement('span'); sp.className = 'sp';
+    const mk = (t, fn) => { const x = document.createElement('button'); x.type = 'button'; x.className = 'small'; x.textContent = t; x.addEventListener('click', fn); return x; };
+    bh.append(sel, sp, mk('Up', () => { const i = [...list.children].indexOf(box); if (i > 0) list.insertBefore(box, list.children[i - 1]); }), mk('Down', () => { const n = box.nextSibling; if (n) list.insertBefore(n, box); }), mk('Remove', () => { if (confirm('Remove this block?')) box.remove(); }));
+    const title = document.createElement('input'); title.placeholder = 'Callout title (optional), e.g. Good to know'; title.dir = LANG[lang].dir; title.lang = lang; title.className = 'b-title'; title.value = b.title || ''; title.style.marginTop = '8px';
+    const ta = document.createElement('textarea'); ta.dir = LANG[lang].dir; ta.lang = lang; ta.className = 'b-text'; ta.style.marginTop = '8px';
+    ta.value = b.type === 'list' ? (b.items || []).join('\n') : (b.text || '');
+    const sync = () => { title.hidden = sel.value !== 'callout'; ta.style.minHeight = sel.value === 'h2' ? '48px' : '96px'; };
+    sel.addEventListener('change', sync); sync();
+    box.dataset.kind = 'block'; box.append(bh, title, ta);
+    box._read = () => sel.value === 'list' ? { type: 'list', items: ta.value.split('\n').map(s => s.trim()).filter(Boolean) } : sel.value === 'callout' ? { type: 'callout', title: title.value.trim(), text: ta.value.trim() } : { type: sel.value, text: ta.value.trim() };
+    return box;
+  }
+
+  function buildLangPanes() {
+    const host = $('langPanes'); host.innerHTML = '';
+    ['en', 'ar'].forEach(lang => {
+      const pane = document.createElement('div'); pane.className = 'card'; pane.id = 'pane_' + lang; pane.lang = lang; pane.dir = LANG[lang].dir;
+      const ar = lang === 'ar';
+      if (ar) { const h = document.createElement('p'); h.className = 'hint'; h.textContent = 'النسخة العربية اختيارية. إن بدأتِها، املئي العنوان والملخص والوصف وفقرة واحدة على الأقل. لا ترجمة حرفية.'; pane.appendChild(h); }
+      field(pane, lang, 'title', ar ? 'العنوان (H1)' : 'Title (H1)', { max: 110 }).value = cur.title[lang];
+      field(pane, lang, 'summary', ar ? 'الملخص (يظهر تحت العنوان وفي قائمة المقالات)' : 'Summary (shown under the title and on the journal page)', { area: true, max: 300 }).value = cur.summary[lang];
+      field(pane, lang, 'metaTitle', ar ? 'عنوان جوجل (meta title)' : 'Meta title (Google)', { max: 65, hint: ar ? 'فارغ: العنوان + « | قمر ».' : 'Empty: the title + " | QAMAR".' }).value = cur.metaTitle[lang];
+      field(pane, lang, 'metaDescription', ar ? 'وصف جوجل (meta description)' : 'Meta description (Google)', { area: true, max: 160 }).value = cur.metaDescription[lang];
+      const rowA = document.createElement('div'); rowA.className = 'row'; pane.appendChild(rowA);
+      const c1 = document.createElement('div'), c2 = document.createElement('div'), c3 = document.createElement('div'); rowA.append(c1, c2, c3);
+      field(c1, lang, 'author', ar ? 'الكاتب' : 'Author', { ph: ar ? 'فريق قمر' : 'QAMAR team' }).value = cur.author[lang];
+      field(c2, lang, 'reviewedBy', ar ? 'راجعته (اسم حقيقي، اختياري)' : 'Reviewed by (real name, optional)').value = cur.reviewedBy[lang];
+      field(c3, lang, 'imageAlt', ar ? 'وصف الصورة' : 'Image description (alt)').value = cur.image ? cur.image.alt[lang] : '';
+      const h2 = document.createElement('h2'); h2.textContent = ar ? 'المحتوى' : 'Content blocks'; pane.appendChild(h2);
+      const list = document.createElement('div'); list.id = 'blocks_' + lang; pane.appendChild(list);
+      (cur.blocks[lang].length ? cur.blocks[lang] : [{ type: 'p', text: '' }]).forEach(b => list.appendChild(blockEditor(lang, b, list)));
+      const add = document.createElement('div'); add.className = 'actions';
+      BL.BLOCK_TYPES.forEach(t => { const x = document.createElement('button'); x.type = 'button'; x.className = 'small'; x.textContent = '+ ' + blockLabels[t].replace(/ \(.*/, ''); x.addEventListener('click', () => { const be = blockEditor(lang, { type: t, text: '', items: [] }, list); list.appendChild(be); be.querySelector('textarea').focus(); }); add.appendChild(x); });
+      pane.appendChild(add);
+      host.appendChild(pane);
+    });
+    $('f_title_en').addEventListener('input', () => { if (!curRow && !$('f_slug').dataset.touched) { $('f_slug').value = slugify($('f_title_en').value); updateSlug(); } });
+  }
+  const slugify = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
+  const updateSlug = () => { $('slugPrev').textContent = $('f_slug').value || '…'; };
+  $('f_slug').addEventListener('input', () => { $('f_slug').dataset.touched = '1'; updateSlug(); });
+
+  function readForm() {
+    const v = id => ($(id) ? $(id).value.trim() : '');
+    const pr = k => ({ en: v(`f_${k}_en`), ar: v(`f_${k}_ar`) });
+    const blocks = lang => [...$('blocks_' + lang).children].map(b => b._read()).filter(b => b.type === 'list' ? b.items.length : b.text);
+    const img = v('f_image');
+    return BL.normalize({
+      slug: v('f_slug'), status: cur.status, category: v('f_category'), service: v('f_service'),
+      title: pr('title'), summary: pr('summary'), metaTitle: pr('metaTitle'), metaDescription: pr('metaDescription'),
+      blocks: { en: blocks('en'), ar: blocks('ar') },
+      image: img ? { src: img, alt: pr('imageAlt'), width: cur.image && cur.image.src === img ? cur.image.width : null, height: cur.image && cur.image.src === img ? cur.image.height : null } : null,
+      author: { ...pr('author'), type: v('f_authorType') }, reviewedBy: pr('reviewedBy'),
+      datePublished: v('f_date'), dateModified: cur.dateModified
+    });
+  }
+
+  // ---- Onglets et aperçu ----
+  document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => selectTab(b.dataset.tab)));
+  function selectTab(t) {
+    tab = t;
+    document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
+    $('pane_en').hidden = t !== 'en'; $('pane_ar').hidden = t !== 'ar';
+    const pv = $('previewPane'); pv.hidden = !(t === 'pen' || t === 'par');
+    if (!pv.hidden) renderPreview(t === 'par' ? 'ar' : 'en');
+  }
+  function renderPreview(lang) {
+    const a = readForm(), pv = $('previewPane'); pv.innerHTML = '';
+    const resolve = p => { const m = p.match(BL.ALLOWED_PATH); if (!m) return null; const [, dir, slug, h = ''] = m; if (!dir) return (lang === 'ar' ? 'ar.html' : './') + h; return dir + '/' + (lang === 'ar' && dir !== 'guides' ? 'ar/' : '') + (slug ? slug + '.html' : '') + h; };
+    const cat = (BL.CATEGORIES[a.category] || {})[lang] || '';
+    const title = a.metaTitle[lang] || (a.title[lang] ? a.title[lang] + (lang === 'ar' ? ' | قمر' : ' | QAMAR') : '');
+    const serp = `<div class="serp" dir="${LANG[lang].dir}"><div class="u">qamarlounge.com › blog${lang === 'ar' ? ' › ar' : ''} › ${BL.esc(a.slug || '…')}</div><div class="t">${BL.esc(title || '(no title)')}</div><div class="d">${BL.esc(a.metaDescription[lang] || '(no meta description)')}</div></div>`;
+    const img = a.image ? `<figure><img src="${BL.esc(a.image.src)}" alt="${BL.esc(a.image.alt[lang] || '')}"></figure>` : '';
+    const empty = lang === 'ar' && !BL.hasArabic(a) ? '<p class="msg info">No Arabic version yet: only the English page will be published.</p>' : '';
+    const svc = targets.services.find(s => s.slug === a.service);
+    pv.innerHTML = `<p class="hint">Google result preview</p>${serp}<div class="preview" dir="${LANG[lang].dir}" lang="${lang}">${empty}<p class="kicker">${BL.esc(cat)}</p><h1>${BL.esc(a.title[lang])}</h1><p class="lead">${BL.esc(a.summary[lang])}</p><p class="hint">${BL.esc(a.author[lang] || a.author.en)} · ${BL.formatDate(a.datePublished || new Date().toISOString().slice(0, 10), lang)} · ${BL.readingLabel(BL.readingMinutes(a.blocks[lang]), lang)}</p>${img}${BL.renderBlocks(a.blocks[lang], resolve)}${svc ? `<p><b>${lang === 'ar' ? 'الخدمة المرتبطة' : 'Related service'}:</b> <a href="${resolve('/services/' + svc.slug + '.html')}" target="_blank" rel="noopener">${BL.esc(lang === 'ar' ? svc.ar : svc.en)}</a></p>` : ''}</div>`;
+    pv.querySelectorAll('.preview a').forEach(x => { x.target = '_blank'; x.rel = 'noopener'; });
+  }
+
+  // ---- Enregistrement ----
+  const exists = p => { const m = p.match(BL.ALLOWED_PATH); if (!m) return false; const [, dir, slug] = m; if (!dir || !slug) return true; if (dir === 'blog') return true; return (targets[dir] || []).some(x => x.slug === slug); };
+  async function save(status) {
+    const m = $('editMsg'); clear(m);
+    const a = readForm(); a.status = status;
+    if (status === 'published') {
+      const errs = BL.validate(a, { services: serviceSlugs().length ? serviceSlugs() : null, exists: targets.services.length ? exists : null });
+      if (errs.length) return msg(m, 'err', 'Not published yet. Please fix:', errs);
+      if (!confirm('Publish this article? It will be visible on qamarlounge.com within the hour.')) return;
+    } else if (!BL.SLUG_RE.test(a.slug)) return msg(m, 'err', 'Slug: lowercase letters, digits and hyphens only (e.g. walk-in-blow-dry-guide).');
+    const row = BL.toRow(a);
+    delete row.date_modified;                       // posée par la base (vraie date de modification)
+    if (!row.date_published) delete row.date_published; // posée par la base à la publication
+    ['saveBtn', 'publishBtn', 'unpublishBtn'].forEach(id => { $(id).disabled = true; });
+    try {
+      const q = curRow ? sb.from('articles').update(row).eq('id', curRow.id) : sb.from('articles').insert(row);
+      const { data, error } = await q.select().single();
+      if (error) throw error;
+      openEditor(data);
+      msg($('editMsg'), 'ok', status === 'published'
+        ? (data.date_published > new Date().toISOString().slice(0, 10) ? 'Saved and scheduled for ' + data.date_published + '. It goes online with the first rebuild on that day.' : 'Published. It will be visible on qamarlounge.com/blog/ within the hour (next automatic rebuild).')
+        : 'Draft saved. Drafts are never put online.');
+    } catch (err) {
+      const t = /duplicate key|articles_slug_key/i.test(err.message || '') ? 'This slug is already used by another article.' : /row-level security|permission/i.test(err.message || '') ? 'Not allowed: this account is not a journal admin.' : (err.message || String(err));
+      msg(m, 'err', 'Not saved: ' + t);
+    }
+    ['saveBtn', 'publishBtn', 'unpublishBtn'].forEach(id => { $(id).disabled = false; });
+  }
+  $('saveBtn').addEventListener('click', () => save(curRow && curRow.status === 'published' ? 'published' : 'draft'));
+  $('publishBtn').addEventListener('click', () => save('published'));
+  $('unpublishBtn').addEventListener('click', () => { if (confirm('Take this article offline? It disappears from the site at the next rebuild (within the hour).')) save('draft'); });
+
+  boot();
+})();
+</script>
+</body>
+</html>
