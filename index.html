@@ -892,6 +892,87 @@
   }
   @media (min-width: 1024px) and (max-height: 760px) { .htext p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; } }
   @media (prefers-reduced-motion: reduce) { .harch-in img.on, .harch-sweep, .h-primary::after { animation: none; } }
+  /* ---------- Prête en 45 minutes (#ready) : frise à deux pistes + comparatif ---------- */
+  .rt { --u: .058s; margin: 64px auto 0; background: #fff; border: 1px solid var(--line); border-radius: 28px; padding: 30px 30px 32px; box-shadow: 0 24px 60px -36px rgba(94, 42, 60, .35); }
+  .rt-start { display: flex; align-items: baseline; gap: 10px; margin: 0 0 18px; font-size: 1rem; color: var(--ink-2); }
+  .rt-start b, .rt-end b { font-weight: 700; color: var(--rose-deep); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .rt-body { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 0 26px; align-items: stretch; }
+  .rt-lanes { position: relative; display: grid; gap: 18px; padding-top: 22px; }
+  .rt-ticks { position: absolute; inset: 0 0 auto; height: 18px; font-size: 12px; color: var(--ink-3); }
+  .rt-ticks span { position: absolute; inset-inline-start: calc(var(--m) / 45 * 100%); transform: translateX(-50%); white-space: nowrap; }
+  html[dir="rtl"] .rt-ticks span { transform: translateX(50%); }
+  .rt-ticks span:first-child { transform: none !important; }
+  .rt-ticks span:last-child { transform: translateX(-100%); }
+  html[dir="rtl"] .rt-ticks span:last-child { transform: translateX(100%); }
+  .rt-who { margin: 0 0 8px; font-size: .95rem; font-weight: 600; color: var(--ink); letter-spacing: -.01em; }
+  .rt-bar { list-style: none; margin: 0; padding: 0; display: flex; gap: 4px; height: 76px; }
+  .rt-seg { flex: var(--d) 1 0; min-width: 0; position: relative; overflow: hidden; border-radius: 14px; background: var(--s3); padding: 12px 12px; display: flex; flex-direction: column; justify-content: center; gap: 3px; }
+  .rt-seg::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, #F7D3DE, #EFBACB); transform-origin: left center; }
+  html[dir="rtl"] .rt-seg::before { transform-origin: right center; }
+  .things .rt-seg::before { background: linear-gradient(135deg, #F6E6C8, #EED3A4); }
+  .rt-seg b, .rt-seg small { position: relative; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rt-seg b { font-size: .95rem; font-weight: 600; color: var(--ink); }
+  .rt-seg small { font-size: 12.5px; color: var(--ink-2); }
+  .rt-seg.xs { padding-inline: 6px; text-align: center; align-items: center; }
+  .rt-seg.xs b { font-size: 12.5px; white-space: normal; line-height: 1.15; }
+  .rt-seg.xs small { display: none; }
+  .rt-end { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 6px; padding-inline-start: 26px; margin-top: 22px; }
+  .rt-end::before { content: ''; position: absolute; inset-block: 22px 14px; inset-inline-start: 0; width: 14px; border: 2px solid var(--rose); border-inline-start: 0; border-radius: 0 18px 18px 0; }
+  html[dir="rtl"] .rt-end::before { border-radius: 18px 0 0 18px; }
+  .rt-end b { font-size: clamp(2rem, 3vw, 2.6rem); line-height: 1; letter-spacing: -.03em; }
+  .rt-end p { margin: 0; font-size: 1rem; line-height: 1.4; color: var(--ink); }
+  /* Animation unique à l'entrée dans l'écran : la frise se remplit de 0 à 45 min (armée seulement par JS, et jamais si mouvement réduit) */
+  .rt.armed .rt-seg::before { transform: scaleX(0); }
+  .rt.armed .rt-seg b, .rt.armed .rt-seg small { opacity: 0; }
+  .rt.armed .rt-end { opacity: 0; transform: translateY(10px); }
+  .rt.armed.in .rt-seg::before { transform: none; transition: transform calc(var(--d) * var(--u)) linear calc(var(--a) * var(--u)); }
+  .rt.armed.in .rt-seg b, .rt.armed.in .rt-seg small { opacity: 1; transition: opacity .4s ease calc((var(--a) + var(--d) * .4) * var(--u)); }
+  .rt.armed.in .rt-end { opacity: 1; transform: none; transition: opacity .6s ease calc(45 * var(--u)), transform .6s cubic-bezier(.2, .7, .2, 1) calc(45 * var(--u)); }
+  @media (prefers-reduced-motion: reduce) { .rt.armed .rt-seg::before, .rt.armed .rt-end { transform: none; opacity: 1; } .rt.armed .rt-seg b, .rt.armed .rt-seg small { opacity: 1; } }
+
+  .rd-diff { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 56px; align-items: center; margin-top: 90px; }
+  .rd-yukata { margin: 0; }
+  .rd-yukata img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 170px 170px 26px 26px; box-shadow: 0 30px 70px -40px rgba(94, 42, 60, .55); }
+  .rd-yukata figcaption { margin-top: 14px; font-size: .95rem; color: var(--ink-3); text-align: center; }
+  .rd-h { margin: 0 0 22px; font-size: clamp(1.7rem, 3vw, 2.5rem); font-weight: 600; letter-spacing: -.03em; line-height: 1.1; color: var(--ink); }
+  html[dir="rtl"] .rd-h { letter-spacing: 0; line-height: 1.3; }
+  .rd-cards { display: grid; grid-template-columns: 1fr 1.15fr; gap: 16px; align-items: start; }
+  .rd-card { border-radius: 24px; padding: 24px 24px 26px; background: rgba(255, 255, 255, .6); border: 1px solid var(--line); }
+  .rd-card.qamar { background: #fff; border-color: rgba(201, 120, 143, .45); box-shadow: 0 22px 50px -34px rgba(94, 42, 60, .45); }
+  .rd-card h4 { margin: 0 0 14px; font-size: 1.1rem; font-weight: 600; color: var(--ink-3); }
+  .rd-card.qamar h4 { color: var(--rose-deep); letter-spacing: .14em; }
+  html[dir="rtl"] .rd-card.qamar h4 { letter-spacing: 0; }
+  .rd-card ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 11px; }
+  .rd-card li { display: flex; gap: 10px; font-size: .98rem; line-height: 1.4; color: var(--ink-3); }
+  .rd-card li::before { content: ''; flex: 0 0 12px; height: 2px; margin-top: .68em; background: rgba(116, 98, 106, .55); border-radius: 2px; }
+  .rd-card.qamar li { color: var(--ink); }
+  .rd-card.qamar li::before { flex-basis: 16px; height: 16px; margin-top: 3px; background: var(--rose); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15.5 3.2A9 9 0 1 0 20.8 15 7 7 0 0 1 15.5 3.2Z'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15.5 3.2A9 9 0 1 0 20.8 15 7 7 0 0 1 15.5 3.2Z'/%3E%3C/svg%3E") center / contain no-repeat; }
+  .rd-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; margin-top: 26px; }
+  .rd-link { color: var(--rose-deep); font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+
+  @media (max-width: 960px) { .rd-diff { grid-template-columns: 1fr; gap: 44px; } .rd-yukata { max-width: 360px; margin-inline: auto; } }
+  /* Mobile : la frise devient verticale, les deux pistes côte à côte, et se rejoignent en bas */
+  @media (max-width: 760px) {
+    .rt { margin-top: 44px; padding: 22px 16px 22px; border-radius: 22px; --u: .05s; }
+    .rt-body { grid-template-columns: 1fr; }
+    .rt-lanes { grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 0; }
+    .rt-ticks { display: none; }
+    .rt-lane { display: flex; flex-direction: column; min-width: 0; }
+    .rt-who { min-height: 2.6em; font-size: .9rem; line-height: 1.3; }
+    .rt-bar { flex-direction: column; height: 470px; }
+    .rt-seg { min-height: 40px; padding: 10px; }
+    .rt-seg::before { transform-origin: center top !important; }
+    .rt.armed .rt-seg::before { transform: scaleY(0); }
+    .rt-seg b { white-space: normal; font-size: .9rem; line-height: 1.2; }
+    .rt-seg small { white-space: normal; font-size: 12px; line-height: 1.3; }
+    .rt-seg.xs { text-align: start; align-items: stretch; padding-inline: 10px; }
+    .rt-seg.xs b { font-size: .85rem; }
+    .rt-end { margin-top: 14px; padding: 22px 4px 0; text-align: center; align-items: center; }
+    .rt-end::before { inset: 0 18% auto; width: auto; height: 12px; border: 2px solid var(--rose); border-top: 0; border-radius: 0 0 18px 18px !important; }
+    .rd-diff { margin-top: 64px; }
+    .rd-cards { grid-template-columns: 1fr; }
+    .rd-card { padding: 20px 18px 22px; }
+  }
 </style>
 </head>
 <body>
@@ -1051,6 +1132,84 @@
       <div class="stat reveal"><b data-i18n="p3b">45 min</b><span data-i18n="p3">maximum, for any look</span></div>
       <div class="stat reveal"><b data-i18n="p4b">00:00</b><span data-i18n="p4">closing time, every day</span></div>
       <div class="stat reveal"><b data-i18n="p5b">48 h</b><span data-i18n="p5">free touch-up for members</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Prête en 45 minutes : deux pistes en parallèle (toi / tes affaires) + ce qui différencie QAMAR -->
+<section class="sec alt" id="ready">
+  <div class="wrap">
+    <div class="center">
+      <span class="kicker reveal" data-i18n="rd_kicker">Ready in 45 minutes</span>
+      <h2 class="title sm reveal"><span data-i18n="rd_t1">Shower. Blow-dry. Dressed.</span><br><span class="grad" data-i18n="rd_t2">Out in 45.</span></h2>
+      <p class="sub reveal" data-i18n="rd_sub">Walk in, no appointment. While you shower and get your blow-dry, we steam and perfume your clothes. You walk out fresh, styled and dressed in 45 minutes or less.</p>
+    </div>
+
+    <div class="rt" id="readyTrack">
+      <p class="rt-start"><b data-i18n="rd_m0">0 min</b><span data-i18n="rd_start">Walk in. No appointment.</span></p>
+      <div class="rt-body">
+        <div class="rt-lanes">
+          <div class="rt-ticks" aria-hidden="true"><span style="--m:0" data-i18n="rd_k0">0</span><span style="--m:10" data-i18n="rd_k10">10</span><span style="--m:20" data-i18n="rd_k20">20</span><span style="--m:30" data-i18n="rd_k30">30</span><span style="--m:45" data-i18n="rd_k45">45 min</span></div>
+          <div class="rt-lane you">
+            <h3 class="rt-who" data-i18n="rd_you">You</h3>
+            <ol class="rt-bar">
+              <li class="rt-seg" style="--a:0;--d:10"><b data-i18n="rd_y1">Private shower</b><small data-i18n="rd_y1s">about 10 min</small></li>
+              <li class="rt-seg xs" style="--a:10;--d:3"><b data-i18n="rd_y2">Yukata</b><small data-i18n="rd_y2s">embroidered satin</small></li>
+              <li class="rt-seg" style="--a:13;--d:29"><b data-i18n="rd_y3">Blow-dry and hair perfume</b><small data-i18n="rd_y3s">about 30 min</small></li>
+              <li class="rt-seg xs" style="--a:42;--d:3"><b data-i18n="rd_y4">Dressed</b></li>
+            </ol>
+          </div>
+          <div class="rt-lane things">
+            <h3 class="rt-who" data-i18n="rd_things">Your clothes, at the same time</h3>
+            <ol class="rt-bar">
+              <li class="rt-seg" style="--a:0;--d:20"><b data-i18n="rd_c1">Steamed</b><small data-i18n="rd_c1s">abaya, clothes and hijab</small></li>
+              <li class="rt-seg" style="--a:20;--d:7"><b data-i18n="rd_c2">Perfumed</b><small data-i18n="rd_c2s">a light scent</small></li>
+              <li class="rt-seg" style="--a:27;--d:15"><b data-i18n="rd_c3">Ready for you</b><small data-i18n="rd_c3s">pressed and scented</small></li>
+              <li class="rt-seg xs" style="--a:42;--d:3"><b data-i18n="rd_c4">Back to you</b></li>
+            </ol>
+          </div>
+        </div>
+        <div class="rt-end">
+          <b data-i18n="rd_m45">45 min</b>
+          <p data-i18n="rd_end">You leave fresh and styled, hair perfumed, in clothes pressed and perfumed.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rd-diff" id="readyDiff">
+      <figure class="rd-yukata reveal">
+        <img src="assets/img/yukata-480.webp" srcset="assets/img/yukata-480.webp 480w, assets/img/yukata-900.webp 900w" sizes="(max-width: 760px) 92vw, 340px" alt="A woman in a hooded rose satin QAMAR yukata, embroidered with a gold crescent, walking out of a private marble shower" width="480" height="720" loading="lazy" decoding="async">
+        <figcaption data-i18n="rd_ycap">Out of the shower, into your embroidered QAMAR yukata.</figcaption>
+      </figure>
+      <div class="rd-cmp">
+        <h3 class="rd-h reveal" data-i18n="rd_diff_t">Why QAMAR is different.</h3>
+        <div class="rd-cards">
+          <div class="rd-card usual reveal">
+            <h4 data-i18n="rd_u_t">A usual salon</h4>
+            <ul>
+              <li data-i18n="rd_u1">Appointment needed</li>
+              <li data-i18n="rd_u2">Blow-dry only</li>
+              <li data-i18n="rd_u3">No shower</li>
+              <li data-i18n="rd_u4">You leave in the clothes you came in</li>
+              <li data-i18n="rd_u5">Every service paid separately</li>
+            </ul>
+          </div>
+          <div class="rd-card qamar reveal">
+            <h4 data-i18n="rd_q_t">QAMAR</h4>
+            <ul>
+              <li data-i18n="rd_q1">Walk in, no appointment</li>
+              <li data-i18n="rd_q2">Your own private shower</li>
+              <li data-i18n="rd_q3">An embroidered QAMAR yukata to wear</li>
+              <li data-i18n="rd_q4">Clothes and hijab steamed and perfumed</li>
+              <li data-i18n="rd_q5">45 minutes maximum, any look</li>
+              <li data-i18n="rd_q6">Monthly Club from 329 AED, extras included</li>
+              <li data-i18n="rd_q7">100% women</li>
+              <li data-i18n="rd_q8">Discreet entrance, with parking</li>
+            </ul>
+          </div>
+        </div>
+        <div class="actions rd-cta"><a class="btn-a" href="#club" data-track="club_click" data-track-loc="ready" data-i18n="cta_club">Discover the Club</a><a class="rd-link" href="#how" data-i18n="nav_how">How it works</a></div>
+      </div>
     </div>
   </div>
 </section>
@@ -1499,6 +1658,21 @@
     announce: { en: '<span class="tag">Grand opening</span>The first 30 guests get <b>−70%</b>, everyone else <b>−50%</b> all day.', ar: '<span class="tag">الافتتاح الكبير</span>أول ٣٠ ضيفة <b>خصم ٧٠٪</b>، وباقي اليوم <b>خصم ٥٠٪</b>.' },
     film_kicker: { en: 'Opening March 2027', ar: 'الافتتاح في مارس ٢٠٢٧' }, film_t1: { en: 'Your night', ar: 'ليلتكِ' }, film_t2: { en: 'starts here.', ar: 'تبدأ هنا.' },
     film_sub: { en: 'Walk in, freshen up, get your blowdry and a matcha on us. Ready in 45 minutes.', ar: 'ادخلي، انتعشي، واحصلي على السشوار مع ماتشا على حسابنا. جاهزة خلال ٤٥ دقيقة.' }, film_sound: { en: 'Tap for sound', ar: 'الصوت' }, film_cap1: { en: 'From work to dinner, in 45 min', ar: 'من العمل إلى العشاء، في ٤٥ دقيقة' }, film_cap2: { en: 'The QAMAR ritual', ar: 'طقوس قمر' },
+    rd_kicker: { en: 'Ready in 45 minutes', ar: 'جاهزة خلال ٤٥ دقيقة' }, rd_t1: { en: 'Shower. Blow-dry. Dressed.', ar: 'دشّ. سشوار. ملابسكِ جاهزة.' }, rd_t2: { en: 'Out in 45.', ar: 'وتخرجين خلال ٤٥ دقيقة.' },
+    rd_sub: { en: 'Walk in, no appointment. While you shower and get your blow-dry, we steam and perfume your clothes. You walk out fresh, styled and dressed in 45 minutes or less.', ar: 'ادخلي بدون موعد. بينما تستحمّين وتصفّفين شعركِ، نكوي ملابسكِ بالبخار ونعطّرها. تخرجين منتعشة، بتسريحتكِ وملابسكِ، خلال ٤٥ دقيقة أو أقل.' },
+    rd_m0: { en: '0 min', ar: '٠ د' }, rd_start: { en: 'Walk in. No appointment.', ar: 'ادخلي. بدون موعد.' },
+    rd_k0: { en: '0', ar: '٠' }, rd_k10: { en: '10', ar: '١٠' }, rd_k20: { en: '20', ar: '٢٠' }, rd_k30: { en: '30', ar: '٣٠' }, rd_k45: { en: '45 min', ar: '٤٥ د' },
+    rd_you: { en: 'You', ar: 'أنتِ' }, rd_things: { en: 'Your clothes, at the same time', ar: 'ملابسكِ، في الوقت نفسه' },
+    rd_y1: { en: 'Private shower', ar: 'دشّ خاص' }, rd_y1s: { en: 'about 10 min', ar: 'حوالي ١٠ د' }, rd_y2: { en: 'Yukata', ar: 'يوكاتا' }, rd_y2s: { en: 'embroidered satin', ar: 'ساتان مطرّز' },
+    rd_y3: { en: 'Blow-dry and hair perfume', ar: 'سشوار وعطر للشعر' }, rd_y3s: { en: 'about 30 min', ar: 'حوالي ٣٠ د' }, rd_y4: { en: 'Dressed', ar: 'تلبسين' },
+    rd_c1: { en: 'Steamed', ar: 'كيّ بالبخار' }, rd_c1s: { en: 'abaya, clothes and hijab', ar: 'العباءة والملابس والحجاب' }, rd_c2: { en: 'Perfumed', ar: 'تعطير' }, rd_c2s: { en: 'a light scent', ar: 'لمسة عطر خفيفة' },
+    rd_c3: { en: 'Ready for you', ar: 'جاهزة لكِ' }, rd_c3s: { en: 'pressed and scented', ar: 'مكويّة ومعطّرة' }, rd_c4: { en: 'Back to you', ar: 'بين يديكِ' },
+    rd_m45: { en: '45 min', ar: '٤٥ د' }, rd_end: { en: 'You leave fresh and styled, hair perfumed, in clothes pressed and perfumed.', ar: 'تخرجين منتعشة بتسريحتكِ وشعركِ المعطّر، وملابسكِ مكويّة ومعطّرة.' },
+    rd_ycap: { en: 'Out of the shower, into your embroidered QAMAR yukata.', ar: 'من الدشّ إلى يوكاتا قمر المطرّزة.' },
+    rd_diff_t: { en: 'Why QAMAR is different.', ar: 'لماذا قمر مختلف؟' }, rd_u_t: { en: 'A usual salon', ar: 'صالون عادي' }, rd_q_t: { en: 'QAMAR', ar: 'قمر' },
+    rd_u1: { en: 'Appointment needed', ar: 'موعد مسبق' }, rd_u2: { en: 'Blow-dry only', ar: 'سشوار فقط' }, rd_u3: { en: 'No shower', ar: 'بدون دشّ' }, rd_u4: { en: 'You leave in the clothes you came in', ar: 'تخرجين بالملابس نفسها التي أتيتِ بها' }, rd_u5: { en: 'Every service paid separately', ar: 'كل خدمة بسعرها' },
+    rd_q1: { en: 'Walk in, no appointment', ar: 'ادخلي بدون موعد' }, rd_q2: { en: 'Your own private shower', ar: 'دشّ خاص بكِ' }, rd_q3: { en: 'An embroidered QAMAR yukata to wear', ar: 'يوكاتا قمر مطرّزة ترتدينها' }, rd_q4: { en: 'Clothes and hijab steamed and perfumed', ar: 'ملابسكِ وحجابكِ مكويّة بالبخار ومعطّرة' },
+    rd_q5: { en: '45 minutes maximum, any look', ar: '٤٥ دقيقة كحد أقصى لأي إطلالة' }, rd_q6: { en: 'Monthly Club from 329 AED, extras included', ar: 'نادٍ شهري من <bdi>٣٢٩ درهماً</bdi>، الإضافات مشمولة' }, rd_q7: { en: '100% women', ar: '<bdi>١٠٠٪</bdi> للنساء' }, rd_q8: { en: 'Discreet entrance, with parking', ar: 'مدخل هادئ بعيد عن الأنظار، مع مواقف' },
     m_kicker: { en: 'Blowdry, reinvented', ar: 'السشوار بأسلوب جديد' }, m_t1: { en: 'No appointment.', ar: 'بدون موعد.' }, m_t2: { en: 'Ever.', ar: 'أبداً.' },
     m_sub: { en: 'Come whenever you want, from 8 AM to midnight. We call you the moment your chair is ready.', ar: 'تعالي متى شئتِ، من ٨ صباحاً حتى منتصف الليل. نُعلمكِ فور جاهزية كرسيكِ.' },
     p2b: { en: '35 min', ar: '٣٥ د' }, p2: { en: 'or your express blow-dry is free', ar: 'أو السشوار السريع مجاناً' },
@@ -1869,6 +2043,13 @@
 
   const io = new IntersectionObserver(entries => entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }), { threshold: .12 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  /* Frise « Ready in 45 » : se remplit une seule fois à l'entrée dans l'écran (rien d'armé si mouvement réduit) */
+  const rdTrack = document.getElementById('readyTrack');
+  if (rdTrack && 'IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    rdTrack.classList.add('armed');
+    const rdIo = new IntersectionObserver(([e]) => { if (e.isIntersecting) { rdTrack.classList.add('in'); rdIo.disconnect(); } }, { threshold: .35 });
+    rdIo.observe(rdTrack);
+  }
 
   // Hors écran : animations CSS en boucle (reflets des titres, défilé, ticket doré, halos du hero) en pause, rendu identique à l'écran
   const offIo = new IntersectionObserver(es => es.forEach(en => en.target.classList.toggle('anim-off', !en.isIntersecting)), { rootMargin: '120px 0px' });
