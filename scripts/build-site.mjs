@@ -13,7 +13,7 @@ import { extractDict, translateHtml, setHeadTag, setMeta } from './lib.mjs';
 import { loadJsonArticles, fetchSupabaseArticles, mergeArticles, siteContext, buildBlog, sitemapEntry } from './blog.mjs';
 
 const SITE = (process.env.SITE_URL || 'https://qamarlounge.com/').replace(/\/?$/, '/');
-const OUT = '_site';
+const OUT = process.env.SITE_OUT || '_site'; // SITE_OUT : dossier de sortie (tests)
 const PUBLIC = ['index.html', 'queue.html', 'privacy.html', 'legal.html', 'entrance.html', 'station.html', 'admin.html', 'blog-admin.html', 'tests.html', 'manifest.webmanifest', 'sw.js', '.nojekyll', 'llms.txt', 'googlee7662b1241ccf348.html', 'googlec84b0f1aa4069954.html', 'de2cfe638b66c13233e988a305c0c8d8.txt'];
 const PUBLIC_DIRS = ['assets', 'tests', 'guides', 'services', 'areas'];
 
@@ -126,6 +126,8 @@ const jsonArticles = loadJsonArticles();
 const db = process.env.BLOG_OFFLINE ? { ok: false, reason: 'BLOG_OFFLINE set', articles: [] }
   : await fetchSupabaseArticles({ url: process.env.SUPABASE_URL || CFG.supabaseUrl, key: process.env.SUPABASE_ANON_KEY || CFG.supabaseAnonKey });
 console.log(db.ok ? `Blog: ${db.articles.length} published article(s) from Supabase` : `Blog: ${db.reason}. Using content/blog only.`);
+// Clé anon renseignée mais Supabase muet : on n'écrase pas le site en ligne par une version sans les articles de l'admin
+if (!db.ok && !process.env.BLOG_OFFLINE && (process.env.SUPABASE_ANON_KEY || CFG.supabaseAnonKey)) { console.error('Blog: Supabase is configured but did not answer. Build stopped so the live journal keeps its Supabase articles. (BLOG_OFFLINE=1 to build without Supabase.)'); process.exit(1); }
 const blog = buildBlog({ out: OUT, site: SITE, articles: mergeArticles(jsonArticles, db.articles), ctx: siteContext() });
 for (const e of blog.errors) console.error(`Blog: "${e.slug}" (${e.source}) not published:\n  - ` + e.errors.join('\n  - '));
 if (blog.errors.some(e => e.source !== 'supabase')) { console.error('Blog: fix the article file(s) in content/blog above.'); process.exit(1); }

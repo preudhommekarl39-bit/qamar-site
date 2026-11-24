@@ -197,9 +197,10 @@ td a{color:var(--rose-ink)}
 
   // ---- Liste ----
   let rows = [];
+  const COLS = 'id,slug,status,category,title_en,title_ar,summary_en,summary_ar,meta_title_en,meta_title_ar,meta_description_en,meta_description_ar,blocks_en,blocks_ar,service,image_src,image_alt_en,image_alt_ar,image_width,image_height,author_en,author_ar,author_type,reviewed_by_en,reviewed_by_ar,date_published,date_modified,updated_at'; // colonnes lisibles (migration 006), sans created_by / updated_by
   async function loadList() {
     const tb = $('rows'); tb.innerHTML = '<tr><td colspan="5">Loading…</td></tr>';
-    const { data, error } = await sb.from('articles').select('*').order('updated_at', { ascending: false });
+    const { data, error } = await sb.from('articles').select(COLS).order('updated_at', { ascending: false });
     if (error) { tb.innerHTML = ''; const tr = tb.insertRow(); const td = tr.insertCell(); td.colSpan = 5; td.textContent = 'Could not load the articles: ' + error.message; return; }
     rows = data || []; tb.innerHTML = '';
     if (!rows.length) { const td = tb.insertRow().insertCell(); td.colSpan = 5; td.textContent = 'No article yet.'; }
@@ -351,7 +352,7 @@ td a{color:var(--rose-ink)}
     ['saveBtn', 'publishBtn', 'unpublishBtn'].forEach(id => { $(id).disabled = true; });
     try {
       const q = curRow ? sb.from('articles').update(row).eq('id', curRow.id) : sb.from('articles').insert(row);
-      const { data, error } = await q.select().single();
+      const { data, error } = await q.select(COLS).single();
       if (error) throw error;
       openEditor(data);
       msg($('editMsg'), 'ok', status === 'published'

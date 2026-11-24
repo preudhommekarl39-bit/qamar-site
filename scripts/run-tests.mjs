@@ -115,6 +115,22 @@ test('Supabase unreachable or not configured: no crash, repo articles kept', () 
   const adm = readFileSync('blog-admin.html', 'utf8');
   test('blog-admin.html: noindex, anon key only, no sign-up', () => /<meta name="robots" content="noindex, nofollow">/.test(adm) && !/service_role|signUp\(/.test(adm) && /signInWithPassword/.test(adm));
 }
+{
+  const sql = readFileSync('supabase/migrations/006_articles.sql', 'utf8');
+  const grants = [...sql.matchAll(/grant select \(([^)]*)\) on articles to ([^;]+);/g)];
+  test('migration 006: authenticated and anon read only public columns; writes granted separately', () => grants.length === 1 && /anon, authenticated/.test(grants[0][2]) && !/created_by|updated_by/.test(grants[0][1])
+    && !/grant select[^;(]*on articles/.test(sql) && /grant insert, update, delete on articles to authenticated;/.test(sql) && /articles_admin_read\s+on articles for select to authenticated using \(is_blog_admin\(\)\)/.test(sql));
+  test('blog-admin.html never selects * on articles', () => !/from\('articles'\)\.select\('\*'\)|\.select\(\)\.single/.test(readFileSync('blog-admin.html', 'utf8')));
+}
+// Clé anon renseignée + Supabase muet : le build doit échouer (pas de redéploiement sans les articles de l'admin)
+{
+  const out = mkdtempSync(join(tmpdir(), 'qamar-site-'));
+  let code = 0, err = '';
+  try { execFileSync(process.execPath, ['scripts/build-site.mjs'], { env: { ...process.env, BLOG_OFFLINE: '', SITE_OUT: out, SUPABASE_URL: 'http://127.0.0.1:9', SUPABASE_ANON_KEY: 'test-anon-key' }, stdio: 'pipe', timeout: 60000 }); }
+  catch (e) { code = e.status; err = String(e.stderr || ''); }
+  test('build fails when the anon key is set but Supabase does not answer', () => code === 1 && /Supabase is configured but did not answer/.test(err) ? true : { code, err: err.slice(-200) });
+  rmSync(out, { recursive: true, force: true });
+}
 // Build complet hors ligne : aucun brouillon en ligne, admin hors sitemap
 try {
   execFileSync(process.execPath, ['scripts/build-site.mjs'], { env: { ...process.env, BLOG_OFFLINE: '1', SITE_URL: 'https://qamarlounge.com/' }, stdio: 'pipe' });

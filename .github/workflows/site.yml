@@ -49,6 +49,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      # Échoue si la clé anon est renseignée mais que Supabase ne répond pas : rien n'est redéployé, le site en ligne garde ses articles.
       - name: Construction du site
         run: node scripts/build-site.mjs
       - name: Journal modifié ? (exécution planifiée seulement)

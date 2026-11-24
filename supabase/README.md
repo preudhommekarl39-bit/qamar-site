@@ -53,6 +53,8 @@ Deux sources, fusionnées au build (même slug dans les deux : la version modifi
 2. **Table Supabase `articles`**, remplie depuis `blog-admin.html`. Lue au build avec la clé publique anon : la RLS ne renvoie
    que les articles publiés. Si Supabase est injoignable ou la clé absente, le build continue avec les fichiers du dépôt.
    Un article Supabase invalide est ignoré (message dans le journal du build), sans bloquer le reste.
+   Exception voulue : si la clé anon est renseignée et que Supabase ne répond pas, le build **échoue** (le site en ligne reste
+   tel quel, avec ses articles Supabase) au lieu de redéployer un journal amputé. `BLOG_OFFLINE=1` force un build sans Supabase.
 
 Format d'un article : `slug`, `status` (`draft` | `published`), `category` (`guides`, `hair-care`, `occasions`, `news`),
 `title`, `summary`, `metaTitle`, `metaDescription` (chacun `{ "en": "…", "ar": "…" }`), `blocks.en` / `blocks.ar`
@@ -99,11 +101,13 @@ anglaise est publiée (sans hreflang). Une `datePublished` dans le futur program
      ```
    - Vérifier : `select * from blog_admins;` doit montrer une ligne.
    - Pour retirer un admin : `delete from blog_admins where email = '…';`
-4. Optionnel, recommandé : Authentication → Sign In / Providers → Email → désactiver « Allow new users to sign up »
-   (les inscriptions publiques ne donneraient de toute façon aucun droit d'écriture, mais autant les fermer).
+4. **Désactiver les inscriptions** (obligatoire) : Authentication → Sign In / Providers (selon la version : Settings) →
+   décocher « Enable sign-ups » / « Allow new users to sign up » → Save. Sinon n'importe qui pourrait créer un compte avec la
+   clé anon ; ce compte n'aurait aucun droit d'écriture (il n'est pas dans `blog_admins`), mais il ne doit pas exister.
+   Créer ensuite les comptes uniquement depuis Authentication → Users → Add user.
 5. Tester : ouvrir `blog-admin.html`, se connecter, créer un brouillon, le publier, puis lancer « Run workflow » et vérifier
    `https://qamarlounge.com/blog/`.
 
-Sécurité : lecture publique limitée aux articles `published` (et sans les colonnes internes `created_by` / `updated_by`) ;
+Sécurité : lecture publique limitée aux articles `published` ; colonnes internes `created_by` / `updated_by` illisibles par anon comme par les comptes connectés ; brouillons lisibles par les seuls admins ;
 insertion, modification et suppression réservées aux comptes présents dans `blog_admins` ; aucun secret dans le site.
 `blog-admin.html` est en `noindex, nofollow` et hors du sitemap.

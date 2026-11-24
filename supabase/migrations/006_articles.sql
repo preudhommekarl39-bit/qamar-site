@@ -91,8 +91,12 @@ create policy articles_admin_insert on articles for insert to authenticated with
 create policy articles_admin_update on articles for update to authenticated using (is_blog_admin()) with check (is_blog_admin());
 create policy articles_admin_delete on articles for delete to authenticated using (is_blog_admin());
 
-revoke all on articles from anon, authenticated;
+revoke all on articles from public, anon, authenticated;
+-- Lecture : mêmes colonnes publiques pour anon et authenticated (jamais created_by / updated_by).
+-- Les politiques décident des lignes : articles_public_read (publiés, pour tous) ; articles_admin_read (brouillons, admins seulement).
 grant select (id, slug, status, category, title_en, title_ar, summary_en, summary_ar, meta_title_en, meta_title_ar, meta_description_en, meta_description_ar,
               blocks_en, blocks_ar, service, image_src, image_alt_en, image_alt_ar, image_width, image_height, author_en, author_ar, author_type, reviewed_by_en, reviewed_by_ar,
-              date_published, date_modified, updated_at) on articles to anon;
-grant select, insert, update, delete on articles to authenticated;   -- filtré par les politiques ci-dessus : sans ligne blog_admins, rien d'autre que les publiés
+              date_published, date_modified, updated_at) on articles to anon, authenticated;
+-- Écriture : grant séparé, filtré par les politiques articles_admin_insert / _update / _delete (is_blog_admin()).
+-- Un compte connecté absent de blog_admins ne peut rien écrire.
+grant insert, update, delete on articles to authenticated;

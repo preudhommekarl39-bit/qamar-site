@@ -234,7 +234,7 @@
 
     // Couloir d'arches architecturales : moulure en relief rose-or, ombre intérieure, brume de profondeur
     const cx = vpX(), vy = H * .62, phase = (t / 14) % 1, N = 6, base = Math.min(W, H) * .17;
-    const addArch = (x, by, w, h) => { const r = w / 2; ctx.moveTo(x - r, by); ctx.lineTo(x - r, by - h + r); ctx.arc(x, by - h + r, r, Math.PI, 0); ctx.lineTo(x + r, by); };
+    const addArch = (x, by, w, h) => { const r = w / 2; ctx.moveTo(x - r, by); ctx.lineTo(x - r, by - h + r); ctx.arc(x, by - h + r, Math.max(0, r), Math.PI, 0); ctx.lineTo(x + r, by); };
     for (let i = 0; i < N; i++) {
       const k = i + phase, s = base * Math.pow(1.6, k), w = s, h = s * 1.55, baseY = vy + s * .62;
       const a = Math.min(1, k / 1.6) * Math.max(0, 1 - Math.max(0, s - Math.max(W, H) * 1.15) / (Math.max(W, H) * .8));

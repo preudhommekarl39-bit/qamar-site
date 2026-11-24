@@ -20,106 +20,228 @@
   },
   "blocks": {
     "en": [
-      { "type": "p", "text": "If you wear a hijab, your hair spends most of the day under one or two layers of fabric, in a city where summer lasts half the year. It does not need a complicated routine. It needs a few habits: dry hair before you cover, a style that does not pull, the right underscarf, and a wash rhythm that follows your scalp. This guide covers those habits, plus how to wear a fresh blow-dry under a shayla." },
-      { "type": "h2", "text": "Should you cover damp hair?" },
-      { "type": "p", "text": "No. This is the habit that matters most. Under a scarf, damp hair stays damp for hours. It can smell musty by the afternoon, it frizzes once it dries, and a bun tied while wet sets a crease you cannot brush out." },
-      { "type": "p", "text": "If you wash your hair in the morning, give yourself time to dry it fully, roots included. A few minutes with a hairdryer on a medium setting is kinder than covering wet hair and hoping. If mornings are too rushed, wash in the evening and let it dry completely before bed." },
-      { "type": "h2", "text": "Which underscarf is best for your hair?" },
-      { "type": "p", "text": "The underscarf, or bonnet, touches your hair all day, so its fabric counts more than the hijab on top." },
-      { "type": "list", "items": [
-        "Cotton and bamboo jersey breathe well. Choose them for long, hot days and when you feel your scalp sweat.",
-        "Satin-lined caps reduce friction, which helps if your hair is dry, curly or breaks along the hairline. Pick one with a breathable outer layer.",
-        "Wash underscarves often. They collect sweat, oil and product, and a clean one keeps your hair fresher between washes.",
-        "Choose the right size. An underscarf that grips too tightly leaves a line on your forehead and pulls at the edges."
-      ] },
-      { "type": "h2", "text": "How do you tie your hair without pulling it?" },
-      { "type": "p", "text": "Many women tie a bun every day in the same spot. Over months, that steady pull falls on the same strands at the hairline and the temples. A few small changes help." },
-      { "type": "list", "items": [
-        "Change the position of your bun: higher one day, lower the next.",
-        "Use a fabric scrunchie or a spiral hair tie instead of a thin elastic band.",
-        "Keep the bun soft. If your scalp aches when you take your hijab off, the bun was too tight.",
-        "Let your hair down at home. A few hours loose each day gives the roots a break.",
-        "Pin the hijab to the fabric, never through a section of hair."
-      ] },
-      { "type": "p", "text": "If you notice thinning at the hairline or patches where the hair seems to be breaking, see a dermatologist. A salon can make your hair look good, but only a doctor can tell you why it changes." },
-      { "type": "h2", "text": "How often should you wash hair you cover?" },
-      { "type": "p", "text": "As often as your scalp needs, and that can change with the season. In summer, when you sweat under the fabric, you may want to wash every two or three days. In winter you may go longer. Shampoo the scalp, where sweat and oil gather, and put conditioner on the lengths and ends only. Rinse well: leftover product under a scarf feels heavy by the end of the day." },
-      { "type": "callout", "title": "Key points", "text": "Never cover damp hair. Choose a breathable underscarf and wash it often. Move your bun and keep it soft. Wash on your scalp's rhythm, and see a dermatologist if your hairline changes." },
-      { "type": "h2", "text": "How do you cover a blow-dry without flattening it?" },
-      { "type": "p", "text": "A blow-dry under a hijab is for you: for the moment you take it off at a women's gathering, at a wedding or at home. A few steps keep it intact." },
-      { "type": "list", "items": [
-        "Ask for volume at the crown and the back. Flat, sleek sides sit comfortably under fabric, and the lift at the back gives your shayla a soft shape.",
-        "Let your hair cool completely before you cover it. Warm hair takes the shape of whatever presses on it.",
-        "Twist the lengths into a loose low knot, held with a silk scrunchie, rather than a tight bun.",
-        "Choose a satin or silk underscarf on blow-dry days, and tie it loosely.",
-        "When you arrive, take it off, shake out the knot and run your fingers through the lengths. The waves come back within minutes."
-      ] },
-      { "type": "h2", "text": "How do you add scent to your hair and hijab?" },
-      { "type": "p", "text": "Scent and the hijab go together in the Gulf: oud, rose, musk, a little bakhoor before going out. A few cautions keep it pleasant for your hair and your fabric." },
-      { "type": "list", "items": [
-        "Use a perfume made for hair, which is lighter than a regular perfume. Spray it on the lengths, not on the scalp.",
-        "Spray your usual perfume on the hijab from a distance instead of on your hair.",
-        "Keep bakhoor smoke at a distance from your hair and away from fine fabrics. Let the smoke pass over the hijab, then shake it out.",
-        "Test any oil-based scent on a hidden seam first. Oils can mark light silk and chiffon."
-      ] },
-      { "type": "p", "text": "Our guide on [steaming and scenting your abaya and hijab](/guides/steam-abaya-hijab.html) covers fabric care in more detail." },
-      { "type": "h2", "text": "At QAMAR" },
-      { "type": "p", "text": "QAMAR is women-only, guests and team, so you can take off your hijab without a second thought. While you shower, a team member steams your hijab or abaya and gives it a light scent, and you can finish your blow-dry with a hair perfume in oud, rose or white musk. The [Moon Ritual](/services/hair-care-ritual-dubai.html) adds a wash, a mask and steam before the blow-dry. There is a prayer room, and you walk in without an appointment. Read more on our [women-only salon page](/services/women-only-salon-dubai.html). We open in March 2027." },
-      { "type": "h2", "text": "Frequently asked questions" },
-      { "type": "p", "text": "**Does wearing a hijab damage your hair?** The hijab itself does not need to. Damp hair under fabric, tight buns in the same spot and rough fabric cause most problems, and you can change all three." },
-      { "type": "p", "text": "**Can I sleep in my underscarf?** A loose satin cap or a silk pillowcase is fine for the night. Avoid sleeping in a tight daytime underscarf." },
-      { "type": "p", "text": "**How long does a blow-dry last under a hijab?** Often as long as one worn uncovered, sometimes longer, because the fabric shields it from wind and humidity. Keeping it dry and loosely tied matters most." }
+      {
+        "type": "p",
+        "text": "If you wear a hijab, your hair spends most of the day under one or two layers of fabric, in a city where summer lasts half the year. A few habits keep it healthy: dry hair before you cover, a style that does not pull, the right underscarf, and a wash rhythm that follows your scalp. This guide covers those habits, plus how to wear a fresh blow-dry under a shayla."
+      },
+      {
+        "type": "h2",
+        "text": "Should you cover damp hair?"
+      },
+      {
+        "type": "p",
+        "text": "No. This is the habit that matters most. Under a scarf, damp hair stays damp for hours. It can smell musty by the afternoon, it frizzes once it dries, and a bun tied while wet sets a crease you cannot brush out."
+      },
+      {
+        "type": "p",
+        "text": "If you wash your hair in the morning, give yourself time to dry it fully, roots included. A few minutes with a hairdryer on a medium setting is kinder than covering wet hair and hoping. If mornings are too rushed, wash in the evening and let it dry completely before bed."
+      },
+      {
+        "type": "h2",
+        "text": "Which underscarf is best for your hair?"
+      },
+      {
+        "type": "p",
+        "text": "The underscarf, or bonnet, touches your hair all day, so its fabric counts more than the hijab on top."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Cotton and bamboo jersey breathe well. Choose them for long, hot days and when you feel your scalp sweat.",
+          "Satin-lined caps reduce friction, which helps if your hair is dry, curly or breaks along the hairline. Pick one with a breathable outer layer.",
+          "Wash underscarves often. They collect sweat, oil and product, and a clean one keeps your hair fresher between washes.",
+          "Choose the right size. An underscarf that grips too tightly leaves a line on your forehead and pulls at the edges."
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "How do you tie your hair without pulling it?"
+      },
+      {
+        "type": "p",
+        "text": "Many women tie a bun every day in the same spot. Over months, that steady pull falls on the same strands at the hairline and the temples. A few small changes help."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Change the position of your bun: higher one day, lower the next.",
+          "Use a fabric scrunchie or a spiral hair tie instead of a thin elastic band.",
+          "Keep the bun soft. If your scalp aches when you take your hijab off, the bun was too tight.",
+          "Let your hair down at home. A few hours loose each day gives the roots a break.",
+          "Pin the hijab to the fabric only, away from your hair."
+        ]
+      },
+      {
+        "type": "p",
+        "text": "If you notice thinning at the hairline or patches where the hair seems to be breaking, see a dermatologist. She can find the cause; a salon can only style what is there."
+      },
+      {
+        "type": "h2",
+        "text": "How often should you wash hair you cover?"
+      },
+      {
+        "type": "p",
+        "text": "As often as your scalp needs, and that can change with the season. In summer, when you sweat under the fabric, you may want to wash every two or three days. In winter you may go longer. Shampoo the scalp, where sweat and oil gather, and put conditioner on the lengths and ends only. Rinse well: leftover product under a scarf feels heavy by the end of the day."
+      },
+      {
+        "type": "h2",
+        "text": "How do you cover a blow-dry without flattening it?"
+      },
+      {
+        "type": "p",
+        "text": "A blow-dry under a hijab is for you: for the moment you take it off at a women's gathering, at a wedding or at home. A few steps keep it intact."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Ask for volume at the crown and the back. Flat, sleek sides sit comfortably under fabric, and the lift at the back gives your shayla a soft shape.",
+          "Let your hair cool completely before you cover it. Warm hair takes the shape of whatever presses on it.",
+          "Twist the lengths into a loose low knot, held with a silk scrunchie, rather than a tight bun.",
+          "Choose a satin or silk underscarf on blow-dry days, and tie it loosely.",
+          "When you arrive, take it off, shake out the knot and run your fingers through the lengths. Give the movement a few minutes to return; a crease from a tight tie may stay until your next wash."
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "How do you add scent to your hair and hijab?"
+      },
+      {
+        "type": "p",
+        "text": "Scent and the hijab go together in the Gulf: oud, rose, musk, a little bakhoor before going out. A few cautions keep it pleasant for your hair and your fabric."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Use a perfume made for hair, which is lighter than a regular perfume. Spray it on the lengths and keep it off your scalp.",
+          "Spray your usual perfume on the hijab from a distance instead of on your hair.",
+          "Keep bakhoor smoke at a distance from your hair and away from fine fabrics. Let the smoke pass over the hijab, then shake it out.",
+          "Test any oil-based scent on a hidden seam first. Oils can mark light silk and chiffon."
+        ]
+      },
+      {
+        "type": "p",
+        "text": "Our guide on [steaming and scenting your abaya and hijab](/guides/steam-abaya-hijab.html) covers fabric care in more detail."
+      },
+      {
+        "type": "h2",
+        "text": "At QAMAR"
+      },
+      {
+        "type": "p",
+        "text": "QAMAR is women-only, guests and team, so you can take off your hijab without a second thought. While you shower, a team member steams your hijab or abaya and gives it a light scent, and you can finish your blow-dry with a hair perfume in oud, rose or white musk. The [Moon Ritual](/services/hair-care-ritual-dubai.html) adds a wash, a mask and steam before the blow-dry. There is a prayer room, and you walk in without an appointment. Read more on our [women-only salon page](/services/women-only-salon-dubai.html). We open in March 2027."
+      }
     ],
     "ar": [
-      { "type": "p", "text": "إذا كنتِ ترتدين الحجاب، فشعركِ يقضي معظم يومه تحت طبقة أو طبقتين من القماش، في مدينة يستمر صيفها نصف السنة. لا يحتاج إلى روتين معقد، بل إلى عادات قليلة: شعر جاف قبل التغطية، وتسريحة لا تشد، وبونيه مناسب، وغسل يتبع حاجة فروة رأسكِ. في هذا الدليل نشرح هذه العادات، وكيف تحافظين على سشوار جديد تحت الشيلة." },
-      { "type": "h2", "text": "هل تغطين شعركِ وهو رطب؟" },
-      { "type": "p", "text": "لا، وهذه أهم عادة على الإطلاق. تحت الحجاب يبقى الشعر الرطب رطباً لساعات. قد تصبح رائحته غير مستحبة بعد الظهر، وينتفش حين يجف أخيراً، والكعكة المربوطة على شعر مبلل تترك أثراً لا تزيله الفرشاة." },
-      { "type": "p", "text": "إذا كنتِ تغسلين شعركِ صباحاً، فامنحي نفسكِ وقتاً لتجفيفه بالكامل مع الجذور. بضع دقائق بمجفف الشعر على حرارة متوسطة أرحم من تغطية شعر مبلل. وإذا كان الصباح مزدحماً، فاغسليه مساءً واتركيه يجف تماماً قبل النوم." },
-      { "type": "h2", "text": "أي بونيه أفضل لشعركِ؟" },
-      { "type": "p", "text": "البونيه يلامس شعركِ طوال اليوم، لذا فقماشه أهم من الحجاب الذي فوقه." },
-      { "type": "list", "items": [
-        "القطن وجيرسيه البامبو يسمحان بمرور الهواء. اختاريهما للأيام الطويلة الحارة وحين تشعرين بتعرّق فروة الرأس.",
-        "البونيه المبطن بالساتان يخفف الاحتكاك، وهذا مفيد إذا كان شعركِ جافاً أو مجعداً أو يتقصف عند المنبت. اختاري واحداً طبقته الخارجية تتنفس.",
-        "اغسلي البونيه كثيراً، فهو يجمع العرق والزيوت وبقايا المنتجات، والبونيه النظيف يبقي شعركِ منعشاً بين الغسلات.",
-        "اختاري المقاس المناسب. البونيه الضيق جداً يترك خطاً على جبينكِ ويشد الأطراف."
-      ] },
-      { "type": "h2", "text": "كيف تربطين شعركِ بدون شدّ؟" },
-      { "type": "p", "text": "كثير من النساء يربطن الكعكة كل يوم في المكان نفسه تماماً. ومع الأشهر يقع هذا الشد المستمر على الشعرات نفسها عند المنبت والصدغين. تغييرات بسيطة تساعد:" },
-      { "type": "list", "items": [
-        "غيّري مكان الكعكة: أعلى يوماً وأسفل في اليوم التالي.",
-        "استعملي ربطة قماش أو ربطة حلزونية بدلاً من المطاط الرفيع.",
-        "اجعلي الكعكة مرتخية. إذا شعرتِ بألم في فروة الرأس عند خلع الحجاب، فقد كانت مشدودة أكثر من اللازم.",
-        "اتركي شعركِ منسدلاً في البيت. بضع ساعات كل يوم تريح الجذور.",
-        "ثبّتي دبوس الحجاب في القماش، وليس في خصلة من الشعر."
-      ] },
-      { "type": "p", "text": "إذا لاحظتِ خفّة عند منبت الشعر أو مناطق يبدو فيها الشعر متكسراً، فراجعي طبيبة جلدية. الصالون يجعل شعركِ جميلاً، لكن الطبيبة وحدها تستطيع أن تخبركِ لماذا يتغير." },
-      { "type": "h2", "text": "كم مرة تغسلين الشعر المغطى؟" },
-      { "type": "p", "text": "بقدر ما تحتاج فروة رأسكِ، وقد يتغير ذلك مع الفصول. في الصيف، حين تتعرقين تحت القماش، قد ترغبين في الغسل كل يومين أو ثلاثة، وفي الشتاء قد تنتظرين أكثر. ضعي الشامبو على فروة الرأس حيث يتجمع العرق والزيوت، والبلسم على الأطوال والأطراف فقط. واشطفي جيداً، فبقايا المنتج تحت الحجاب تجعل الشعر ثقيلاً في آخر النهار." },
-      { "type": "callout", "title": "باختصار", "text": "لا تغطي شعركِ وهو رطب. اختاري بونيه يتنفس واغسليه كثيراً. غيّري مكان الكعكة واجعليها مرتخية. اغسلي شعركِ على إيقاع فروة رأسكِ، وراجعي طبيبة جلدية إذا تغيّر منبت الشعر." },
-      { "type": "h2", "text": "كيف تغطين السشوار بدون أن يتسطّح؟" },
-      { "type": "p", "text": "السشوار تحت الحجاب هو لكِ أنتِ: للحظة التي تخلعينه فيها في جلسة نسائية أو حفل زفاف أو في البيت. خطوات قليلة تحافظ عليه:" },
-      { "type": "list", "items": [
-        "اطلبي حجماً عند أعلى الرأس والخلف. الجوانب الناعمة المسطحة ترتاح تحت القماش، والارتفاع في الخلف يعطي الشيلة شكلاً ناعماً.",
-        "اتركي شعركِ يبرد تماماً قبل تغطيته، فالشعر الدافئ يأخذ شكل أي شيء يضغط عليه.",
-        "لفّي الأطوال في عقدة منخفضة مرتخية بربطة حريرية، بدلاً من كعكة مشدودة.",
-        "في أيام السشوار اختاري بونيه من الساتان أو الحرير، واربطيه بلطف.",
-        "حين تصلين اخلعيه، وفكّي العقدة ومرّري أصابعكِ في الأطوال. تعود التموجات خلال دقائق."
-      ] },
-      { "type": "h2", "text": "كيف تعطّرين شعركِ وحجابكِ؟" },
-      { "type": "p", "text": "العطر والحجاب رفيقان في الخليج: عود وورد ومسك وقليل من البخور قبل الخروج. بعض الاحتياطات تجعل التجربة لطيفة على شعركِ وقماشكِ:" },
-      { "type": "list", "items": [
-        "استعملي عطراً مخصصاً للشعر، فهو أخف من العطر العادي. رشّيه على الأطوال لا على فروة الرأس.",
-        "رشّي عطركِ المعتاد على الحجاب من مسافة بدلاً من شعركِ.",
-        "أبعدي دخان البخور عن شعركِ وعن الأقمشة الرقيقة. مرّري الدخان فوق الحجاب ثم انفضيه.",
-        "جرّبي أي عطر زيتي على درزة مخفية أولاً، فالزيوت قد تترك أثراً على الحرير والشيفون الفاتح."
-      ] },
-      { "type": "p", "text": "دليلنا عن [كيّ العباءة والحجاب بالبخار وتعطيرهما](/guides/steam-abaya-hijab.html) يشرح العناية بالأقمشة بتفصيل أكبر." },
-      { "type": "h2", "text": "في قمر" },
-      { "type": "p", "text": "قمر للنساء فقط، ضيوفاً وفريقاً، فتخلعين حجابكِ وأنتِ مطمئنة. وأنتِ في الدش، تكوي إحدى عضوات الفريق حجابكِ أو عباءتكِ بالبخار وتعطّرها بلطف، ويمكنكِ أن تختمي السشوار بعطر للشعر: عود أو ورد أو مسك أبيض. أما [طقوس القمر](/services/hair-care-ritual-dubai.html) فتضيف غسلاً وماسكاً وبخاراً قبل السشوار. لدينا غرفة صلاة، وتأتين بدون موعد. اقرئي المزيد في [صفحة الصالون النسائي](/services/women-only-salon-dubai.html). نفتح في مارس ٢٠٢٧." },
-      { "type": "h2", "text": "أسئلة متكررة" },
-      { "type": "p", "text": "**هل يضر الحجاب بالشعر؟** الحجاب نفسه ليس السبب. الشعر الرطب تحت القماش، والكعكة المشدودة في المكان نفسه، والأقمشة الخشنة هي وراء معظم المشاكل، ويمكنكِ تغيير الثلاثة." },
-      { "type": "p", "text": "**هل أنام بالبونيه؟** لا بأس ببونيه ساتان مرتخٍ أو غطاء وسادة حريري في الليل. تجنّبي النوم ببونيه النهار الضيق." },
-      { "type": "p", "text": "**كم يدوم السشوار تحت الحجاب؟** غالباً مثل السشوار المكشوف، وأحياناً أطول، لأن القماش يحميه من الهواء والرطوبة. الأهم أن يبقى جافاً ومربوطاً بلطف." }
+      {
+        "type": "p",
+        "text": "إذا كنتِ ترتدين الحجاب، فشعركِ يقضي معظم يومه تحت طبقة أو طبقتين من القماش، في مدينة يستمر صيفها نصف السنة. تكفيه عادات قليلة: شعر جاف قبل التغطية، وتسريحة لا تشد، وبونيه مناسب (غطاء الشعر القماشي الذي يُلبس تحت الحجاب)، وغسل يتبع حاجة فروة رأسكِ. في هذا الدليل نشرح هذه العادات، وكيف تحافظين على سشوار جديد تحت الشيلة."
+      },
+      {
+        "type": "h2",
+        "text": "هل تغطين شعركِ وهو رطب؟"
+      },
+      {
+        "type": "p",
+        "text": "لا، وهذه أهم عادة على الإطلاق. تحت الحجاب يبقى الشعر الرطب رطباً لساعات. قد تصبح رائحته غير مستحبة بعد الظهر، وينتفش حين يجف أخيراً، والكعكة المربوطة على شعر مبلل تترك أثراً لا تزيله الفرشاة."
+      },
+      {
+        "type": "p",
+        "text": "إذا كنتِ تغسلين شعركِ صباحاً، فامنحي نفسكِ وقتاً لتجفيفه بالكامل مع الجذور. بضع دقائق بمجفف الشعر على حرارة متوسطة أرحم من تغطية شعر مبلل. وإذا كان الصباح مزدحماً، فاغسليه مساءً واتركيه يجف تماماً قبل النوم."
+      },
+      {
+        "type": "h2",
+        "text": "أي بونيه أفضل لشعركِ؟"
+      },
+      {
+        "type": "p",
+        "text": "البونيه يلامس شعركِ طوال اليوم، لذا فقماشه أهم من الحجاب الذي فوقه."
+      },
+      {
+        "type": "list",
+        "items": [
+          "القطن وجيرسيه البامبو يسمحان بمرور الهواء. اختاريهما للأيام الطويلة الحارة وحين تشعرين بتعرّق فروة الرأس.",
+          "البونيه المبطن بالساتان يخفف الاحتكاك، وهذا مفيد إذا كان شعركِ جافاً أو مجعداً أو يتقصف عند المنبت. اختاري واحداً طبقته الخارجية تتنفس.",
+          "اغسلي البونيه كثيراً، فهو يجمع العرق والزيوت وبقايا المنتجات، والبونيه النظيف يبقي شعركِ منعشاً بين الغسلات.",
+          "اختاري المقاس المناسب. البونيه الضيق جداً يترك خطاً على جبينكِ ويشد الأطراف."
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "كيف تربطين شعركِ بدون شدّ؟"
+      },
+      {
+        "type": "p",
+        "text": "كثير من النساء يربطن الكعكة كل يوم في المكان نفسه تماماً. ومع الأشهر يقع هذا الشد المستمر على الشعرات نفسها عند المنبت والصدغين. تغييرات بسيطة تساعد:"
+      },
+      {
+        "type": "list",
+        "items": [
+          "غيّري مكان الكعكة: أعلى يوماً وأسفل في اليوم التالي.",
+          "استعملي ربطة قماش أو ربطة حلزونية بدلاً من المطاط الرفيع.",
+          "اجعلي الكعكة مرتخية. إذا شعرتِ بألم في فروة الرأس عند خلع الحجاب، فقد كانت مشدودة أكثر من اللازم.",
+          "اتركي شعركِ منسدلاً في البيت. بضع ساعات كل يوم تريح الجذور.",
+          "ثبّتي دبوس الحجاب في القماش وحده، بعيداً عن شعركِ."
+        ]
+      },
+      {
+        "type": "p",
+        "text": "إذا لاحظتِ خفّة عند منبت الشعر أو مناطق يبدو فيها الشعر متكسراً، فراجعي طبيبة جلدية. الطبيبة تبحث عن السبب، أما الصالون فيصفّف الشعر كما هو."
+      },
+      {
+        "type": "h2",
+        "text": "كم مرة تغسلين الشعر المغطى؟"
+      },
+      {
+        "type": "p",
+        "text": "بقدر ما تحتاج فروة رأسكِ، وقد يتغير ذلك مع الفصول. في الصيف، حين تتعرقين تحت القماش، قد ترغبين في الغسل كل يومين أو ثلاثة، وفي الشتاء قد تنتظرين أكثر. ضعي الشامبو على فروة الرأس حيث يتجمع العرق والزيوت، والبلسم على الأطوال والأطراف فقط. واشطفي جيداً، فبقايا المنتج تحت الحجاب تجعل الشعر ثقيلاً في آخر النهار."
+      },
+      {
+        "type": "h2",
+        "text": "كيف تغطين السشوار بدون أن يتسطّح؟"
+      },
+      {
+        "type": "p",
+        "text": "السشوار تحت الحجاب هو لكِ أنتِ: للحظة التي تخلعينه فيها في جلسة نسائية أو حفل زفاف أو في البيت. خطوات قليلة تحافظ عليه:"
+      },
+      {
+        "type": "list",
+        "items": [
+          "اطلبي حجماً عند أعلى الرأس والخلف. الجوانب الناعمة المسطحة ترتاح تحت القماش، والارتفاع في الخلف يعطي الشيلة شكلاً ناعماً.",
+          "اتركي شعركِ يبرد تماماً قبل تغطيته، فالشعر الدافئ يأخذ شكل أي شيء يضغط عليه.",
+          "لفّي الأطوال في عقدة منخفضة مرتخية بربطة حريرية، بدلاً من كعكة مشدودة.",
+          "في أيام السشوار اختاري بونيه من الساتان أو الحرير، واربطيه بلطف.",
+          "حين تصلين اخلعيه، وفكّي العقدة ومرّري أصابعكِ في الأطوال. امنحي الشعر بضع دقائق لتعود حركته، وقد يبقى أثر الربطة المشدودة حتى الغسلة التالية."
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "كيف تعطّرين شعركِ وحجابكِ؟"
+      },
+      {
+        "type": "p",
+        "text": "العطر والحجاب رفيقان في الخليج: عود وورد ومسك وقليل من البخور قبل الخروج. بعض الاحتياطات تجعل التجربة لطيفة على شعركِ وقماشكِ:"
+      },
+      {
+        "type": "list",
+        "items": [
+          "استعملي عطراً مخصصاً للشعر، فهو أخف من العطر العادي. رشّيه على الأطوال وأبعديه عن فروة الرأس.",
+          "رشّي عطركِ المعتاد على الحجاب من مسافة بدلاً من شعركِ.",
+          "أبعدي دخان البخور عن شعركِ وعن الأقمشة الرقيقة. مرّري الدخان فوق الحجاب ثم انفضيه.",
+          "جرّبي أي عطر زيتي على درزة مخفية أولاً، فالزيوت قد تترك أثراً على الحرير والشيفون الفاتح."
+        ]
+      },
+      {
+        "type": "p",
+        "text": "دليلنا عن [كيّ العباءة والحجاب بالبخار وتعطيرهما](/guides/steam-abaya-hijab.html) يشرح العناية بالأقمشة بتفصيل أكبر."
+      },
+      {
+        "type": "h2",
+        "text": "في قمر"
+      },
+      {
+        "type": "p",
+        "text": "قمر للنساء فقط، ضيوفاً وفريقاً، فتخلعين حجابكِ وأنتِ مطمئنة. وأنتِ في الدش، تكوي إحدى عضوات الفريق حجابكِ أو عباءتكِ بالبخار وتعطّرها بلطف، ويمكنكِ أن تختمي السشوار بعطر للشعر: عود أو ورد أو مسك أبيض. أما [طقوس القمر](/services/hair-care-ritual-dubai.html) فتضيف غسلاً وماسكاً وبخاراً قبل السشوار. لدينا غرفة صلاة، وتأتين بدون موعد. اقرئي المزيد في [صفحة الصالون النسائي](/services/women-only-salon-dubai.html). نفتح في مارس ٢٠٢٧."
+      }
     ]
   },
   "service": "hair-care-ritual-dubai",
@@ -132,8 +254,15 @@
     "width": 1200,
     "height": 800
   },
-  "author": { "en": "QAMAR team", "ar": "فريق قمر", "type": "Organization" },
-  "reviewedBy": { "en": "", "ar": "" },
+  "author": {
+    "en": "QAMAR team",
+    "ar": "فريق قمر",
+    "type": "Organization"
+  },
+  "reviewedBy": {
+    "en": "",
+    "ar": ""
+  },
   "datePublished": "2026-11-25",
   "dateModified": "2026-11-25"
 }
