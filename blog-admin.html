@@ -65,7 +65,7 @@ td a{color:var(--rose-ink)}
 </style>
 </head>
 <body>
-<header><div class="w"><a class="brand" href="./" translate="no">QAMAR<small>Journal admin</small></a><div class="actions" style="margin:0"><span id="who" class="hint"></span><button id="logout" class="small" hidden>Sign out</button></div></div></header>
+<header><div class="w"><a class="brand" href="./" translate="no">QAMAR<small>Journal admin</small></a><div class="actions" style="margin:0"><span id="who" class="hint"></span><a class="btn small" href="office.html">Back-office</a><button id="logout" class="small" hidden>Sign out</button></div></div></header>
 <main class="w">
 
 <div id="cfgWarn" class="msg info" hidden></div>
@@ -235,7 +235,7 @@ td a{color:var(--rose-ink)}
     $('who').textContent = session.user.email || ''; $('logout').hidden = false;
     let isAdmin = false;
     try { const { data, error } = await sb.rpc('is_blog_admin'); isAdmin = !error && data === true; } catch (_) {}
-    if (!isAdmin) { show('vLogin'); return msg($('loginMsg'), 'err', 'This account is signed in but is not on the journal admin list (table blog_admins). Ask the site owner.'); }
+    if (!isAdmin) { show('vLogin'); return msg($('loginMsg'), 'err', 'This account is signed in but cannot edit the journal (owner role or table blog_admins). Ask the site owner.'); }
     show('vList'); loadList();
   }
 

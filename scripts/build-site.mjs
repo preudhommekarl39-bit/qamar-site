@@ -6,15 +6,19 @@
 //   • données structurées HairSalon générées depuis assets/data.js (uniquement les informations confirmées)
 //   • sitemap.xml et robots.txt pour l'URL du site
 //   • journal (blog/ et blog/ar/) : articles de content/blog/*.json + table Supabase « articles » (voir scripts/blog.mjs)
+//   • prix : ceux du back-office (vue Supabase public_prices) dans _site/assets/data.js et les pages services/areas (voir scripts/prices.mjs)
 // Le jour où le domaine définitif est acheté : changer SITE_URL (workflow .github/workflows/site.yml), rien d'autre.
 import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync, existsSync, readdirSync } from 'node:fs';
 import vm from 'node:vm';
 import { extractDict, translateHtml, setHeadTag, setMeta } from './lib.mjs';
 import { loadJsonArticles, fetchSupabaseArticles, mergeArticles, siteContext, buildBlog, sitemapEntry } from './blog.mjs';
+import { fetchSupabasePrices, applyPrices } from './prices.mjs';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 
 const SITE = (process.env.SITE_URL || 'https://qamarlounge.com/').replace(/\/?$/, '/');
 const OUT = process.env.SITE_OUT || '_site'; // SITE_OUT : dossier de sortie (tests)
-const PUBLIC = ['index.html', 'queue.html', 'privacy.html', 'legal.html', 'entrance.html', 'station.html', 'admin.html', 'blog-admin.html', 'tests.html', 'manifest.webmanifest', 'sw.js', '.nojekyll', 'llms.txt', 'googlee7662b1241ccf348.html', 'googlec84b0f1aa4069954.html', 'de2cfe638b66c13233e988a305c0c8d8.txt'];
+const PUBLIC = ['index.html', 'queue.html', 'privacy.html', 'legal.html', 'entrance.html', 'station.html', 'admin.html', 'blog-admin.html', 'office.html', 'tests.html', 'manifest.webmanifest', 'sw.js', '.nojekyll', 'llms.txt', 'googlee7662b1241ccf348.html', 'googlec84b0f1aa4069954.html', 'de2cfe638b66c13233e988a305c0c8d8.txt'];
 const PUBLIC_DIRS = ['assets', 'tests', 'guides', 'services', 'areas'];
 
 rmSync(OUT, { recursive: true, force: true });
@@ -128,6 +132,28 @@ const db = process.env.BLOG_OFFLINE ? { ok: false, reason: 'BLOG_OFFLINE set', a
 console.log(db.ok ? `Blog: ${db.articles.length} published article(s) from Supabase` : `Blog: ${db.reason}. Using content/blog only.`);
 // Clé anon renseignée mais Supabase muet : on n'écrase pas le site en ligne par une version sans les articles de l'admin
 if (!db.ok && !process.env.BLOG_OFFLINE && (process.env.SUPABASE_ANON_KEY || CFG.supabaseAnonKey)) { console.error('Blog: Supabase is configured but did not answer. Build stopped so the live journal keeps its Supabase articles. (BLOG_OFFLINE=1 to build without Supabase.)'); process.exit(1); }
+
+// ---- Prix (back-office → site) : vue public_prices ; en cas de doute, prix de assets/data.js ----
+const offline = process.env.BLOG_OFFLINE || process.env.PRICES_OFFLINE;
+const pdb = offline ? { ok: false, reason: 'offline flag set', rows: [] }
+  : await fetchSupabasePrices({ url: process.env.SUPABASE_URL || CFG.supabaseUrl, key: process.env.SUPABASE_ANON_KEY || CFG.supabaseAnonKey });
+// Supabase a répondu pour le journal mais pas pour les prix (hors vue absente) : on ne redéploie pas d'anciens prix
+if (!pdb.ok && !pdb.missing && !offline && (process.env.SUPABASE_ANON_KEY || CFG.supabaseAnonKey)) { console.error(`Prices: ${pdb.reason}. Build stopped so the live site keeps its current prices. (PRICES_OFFLINE=1 to build with assets/data.js prices.)`); process.exit(1); }
+const priceSrc = readFileSync('assets/data.js', 'utf8');
+const pr = applyPrices({ src: priceSrc, rows: pdb.ok ? pdb.rows : null });
+console.log(pdb.ok ? `Prices: ${pdb.rows.length} row(s) from Supabase, ${pr.changes.length} change(s) vs assets/data.js, using ${pr.used}.` : `Prices: ${pdb.reason}. Using assets/data.js.`);
+for (const w of pr.warnings) console.log('Prices: ' + w);
+if (pr.errors.length) console.error('Prices: Supabase prices NOT used (' + pr.reason + '):\n  - ' + pr.errors.join('\n  - '));
+for (const c of pr.changes) console.log(`Prices: ${c.kind} ${c.id} ${c.field} ${c.from} -> ${c.to}`);
+if (pr.source !== priceSrc) {
+  writeFileSync(`${OUT}/assets/data.js`, pr.source);
+  // Pages services/ et areas/ régénérées avec les nouveaux prix (sinon : arrêt, le site en ligne reste tel quel)
+  try { execFileSync('python3', ['scripts/seo_pages.py'], { env: { ...process.env, QAMAR_DATA_JS: `${OUT}/assets/data.js`, QAMAR_SEO_OUT: OUT }, stdio: 'pipe' }); }
+  catch (e) { console.error('Prices: could not regenerate the services/areas pages with the new prices (python3 scripts/seo_pages.py):\n' + (e.stderr || e.message)); process.exit(1); }
+}
+mkdirSync(`${OUT}/assets`, { recursive: true });
+writeFileSync(`${OUT}/assets/prices-hash.txt`, pr.hash + '\n');
+
 const blog = buildBlog({ out: OUT, site: SITE, articles: mergeArticles(jsonArticles, db.articles), ctx: siteContext() });
 for (const e of blog.errors) console.error(`Blog: "${e.slug}" (${e.source}) not published:\n  - ` + e.errors.join('\n  - '));
 if (blog.errors.some(e => e.source !== 'supabase')) { console.error('Blog: fix the article file(s) in content/blog above.'); process.exit(1); }
@@ -148,6 +174,9 @@ for (const dir of ['services', 'areas', 'guides']) for (const sub of ['', 'ar/']
     writeFileSync(d + f, h);
   }
 }
+
+// Empreinte du contenu piloté par Supabase (journal + prix) : l'exécution planifiée ne redéploie que si elle change
+writeFileSync(`${OUT}/content-hash.txt`, createHash('sha256').update(readFileSync(`${OUT}/blog/content-hash.txt`, 'utf8') + pr.hash).digest('hex').slice(0, 16) + '\n');
 
 // ---- Pages légales : canonical ----
 for (const f of ['privacy.html', 'legal.html']) {

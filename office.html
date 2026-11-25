@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>QAMAR · Back-office</title>
+<link rel="icon" href="assets/app/favicon-32.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Jost:wght@300;400;500&family=Tajawal:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--rose:#C9788F;--rose-ink:#A4506A;--gold:#C49A5A;--cream:#FAF5F0;--ink:#1F1417;--ink2:#5E4A50;--line:rgba(196,154,90,.35);--ok:#2E7D5B;--err:#B3261E;--night:#2A1A20}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font:400 16px/1.55 Jost,system-ui,sans-serif}
+header.top{background:linear-gradient(120deg,#F8E1DC,#F3D3D6 60%,#EFC6CC)}
+header.top .w{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;flex-wrap:wrap}
+.w{width:min(1240px,100% - 32px);margin:auto}
+.brand{font:500 22px 'Cormorant Garamond',serif;letter-spacing:.3em;color:var(--ink);text-decoration:none}
+.brand small{font:400 13px Jost,sans-serif;letter-spacing:.1em;margin-inline-start:10px;color:var(--ink2)}
+h1,h2,h3{font-family:'Cormorant Garamond',serif;font-weight:500;line-height:1.15}
+h1{font-size:34px;margin:22px 0 8px}h2{font-size:24px;margin:20px 0 8px}h3{font-size:20px;margin:0 0 6px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin:16px 0}
+label{display:block;font-size:13px;font-weight:500;letter-spacing:.04em;color:var(--ink2);margin:12px 0 4px}
+label.inline{display:flex;align-items:center;gap:8px;font-size:15px;letter-spacing:0;color:var(--ink);margin:14px 0 4px}
+label.inline input{width:22px;height:22px;min-height:0}
+input,select,textarea{width:100%;font:inherit;color:inherit;background:#fff;border:1px solid rgba(94,74,80,.3);border-radius:12px;padding:10px 12px;min-height:44px}
+textarea{min-height:88px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+[lang=ar],[dir=rtl]{font-family:Tajawal,system-ui,sans-serif}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 16px}
+.hint{font-size:13px;color:var(--ink2);margin:4px 0 0}
+button,.btn{font:500 15px Jost,sans-serif;border-radius:999px;border:1px solid var(--rose-ink);background:#fff;color:var(--rose-ink);padding:0 18px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+button.primary,.btn.primary{background:var(--rose-ink);color:#fff}
+button.small,.btn.small{min-height:36px;padding:0 12px;font-size:13px}
+button.danger{border-color:var(--err);color:var(--err)}
+button:disabled{opacity:.5;cursor:default}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.msg{border-radius:12px;padding:10px 14px;margin:12px 0;font-size:15px}
+.msg.err{background:#FBE9E7;color:var(--err)}.msg.ok{background:#E6F4EC;color:var(--ok)}.msg.info{background:#FFF6E5;color:#7A5A12}
+.msg ul,.msg ol{margin:6px 0 0;padding-inline-start:20px}
+.msg code,code{font-size:13px;background:rgba(94,74,80,.08);border-radius:6px;padding:1px 5px;word-break:break-all}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:start;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);font-weight:500;white-space:nowrap}
+td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl{overflow-x:auto}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:500;white-space:nowrap;background:#F1E9EB;color:var(--ink2)}
+.pill.new{background:#FDE7EE;color:var(--rose-ink)}.pill.contacted{background:#FFF6E5;color:#7A5A12}.pill.confirmed,.pill.on{background:#E6F4EC;color:var(--ok)}.pill.declined,.pill.off{background:#F1E9EB;color:var(--ink2)}
+.pill.owner{background:var(--night);color:#F3DDB0}.pill.manager{background:#F3D3D6;color:var(--rose-ink)}
+[hidden]{display:none!important}
+/* coquille : menu à gauche sur ordinateur, bandeau défilant sur téléphone */
+.shell{display:grid;grid-template-columns:230px minmax(0,1fr);gap:28px;align-items:start}
+nav.side{position:sticky;top:12px;background:var(--night);color:#F6E3E8;border-radius:20px;padding:16px 12px;margin-top:22px}
+nav.side .grp{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:14px 10px 4px}
+nav.side .grp:first-child{margin-top:2px}
+nav.side a{display:flex;align-items:center;justify-content:space-between;gap:8px;color:inherit;text-decoration:none;padding:9px 10px;border-radius:12px;font-size:15px;opacity:.82;min-height:40px}
+nav.side a:hover,nav.side a[aria-current=page]{background:rgba(255,255,255,.09);opacity:1}
+nav.side a .ext{font-size:12px;opacity:.6}
+nav.side .badge{background:var(--rose);color:#fff;border-radius:999px;font-size:12px;padding:0 8px;min-width:22px;text-align:center}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:16px 0}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 16px;text-decoration:none;color:inherit;display:block}
+.kpi small{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
+.kpi b{font:500 34px/1.2 'Cormorant Garamond',serif}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.chips button[aria-pressed=true]{background:var(--rose-ink);color:#fff}
+.req{border:1px solid var(--line);border-radius:18px;background:#fff;padding:14px 16px;margin:12px 0}
+.req .rh{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.req .meta{font-size:14px;color:var(--ink2);margin:2px 0}
+.req .contact{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.req blockquote{margin:8px 0;padding:8px 12px;border-inline-start:3px solid var(--rose);background:#FFFCFA;border-radius:8px;font-size:15px}
+.req .edit{display:grid;grid-template-columns:200px 1fr auto;gap:10px;align-items:end;margin-top:8px}
+.req .edit label{margin-top:0}
+.demo{background:var(--night);color:#F3DDB0;font-size:14px}
+.demo .w{display:flex;gap:10px;align-items:center;flex-wrap:wrap;min-height:44px}
+.demo a{color:#fff}
+.diff{font-size:13px;color:var(--ink2)}
+@media(max-width:820px){
+  .shell{display:block}
+  nav.side{position:static;margin:12px 0 0;display:flex;gap:6px;overflow-x:auto;padding:8px;border-radius:16px;scrollbar-width:none}
+  nav.side .grp{display:none}
+  nav.side a{flex:0 0 auto;white-space:nowrap;padding:8px 12px}
+  nav.side a .ext{display:none}
+  h1{font-size:28px}
+  .req .edit{grid-template-columns:1fr}
+  /* tableaux en fiches sur téléphone : chaque cellule porte son intitulé (data-label) */
+  table.stack thead{display:none}
+  table.stack tr{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;padding:12px 0;border-bottom:1px solid var(--line)}
+  table.stack td{border:0;padding:0}
+  table.stack td[data-label]::before{content:attr(data-label);display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
+  table.stack td.wide{grid-column:1/-1}
+  .card{padding:14px}
+}
+</style>
+</head>
+<body>
+<div class="demo" id="demoBar" hidden><div class="w"><b>Local demo</b><span>Fake data, nothing is saved. View as:</span><a href="#local-demo-owner">Owner</a><a href="#local-demo-manager">Manager</a><a href="#local-demo-stylist">Stylist</a></div></div>
+<header class="top"><div class="w"><a class="brand" href="./" translate="no">QAMAR<small>Back-office</small></a><div class="actions" style="margin:0"><span id="who" class="hint"></span><span id="rolePill" class="pill" hidden></span><button id="logout" class="small" hidden>Sign out</button></div></div></header>
+
+<main class="w">
+<div id="cfgWarn" class="msg info" hidden></div>
+
+<!-- Connexion (même compte Supabase que le journal) -->
+<section id="vLogin" hidden>
+  <h1>Sign in</h1>
+  <p class="hint">QAMAR team only. Accounts are created by invitation from the owner; there is no sign-up here.</p>
+  <form id="loginForm" class="card" style="max-width:440px" novalidate>
+    <label for="email">E-mail</label><input id="email" type="email" autocomplete="username" required>
+    <label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required>
+    <div class="actions"><button class="primary" type="submit" id="loginBtn">Sign in</button><button type="button" class="small" id="forgotBtn">Forgot password?</button></div>
+    <div id="loginMsg" role="alert"></div>
+  </form>
+</section>
+
+<!-- Choix du mot de passe (lien d'invitation ou de réinitialisation reçu par e-mail) -->
+<section id="vPassword" hidden>
+  <h1>Choose your password</h1>
+  <p class="hint">You opened the link from your invitation or reset e-mail. Choose a password (at least 10 characters) to finish.</p>
+  <form id="pwForm" class="card" style="max-width:440px" novalidate>
+    <label for="newPw">New password</label><input id="newPw" type="password" autocomplete="new-password" minlength="10" required>
+    <label for="newPw2">Repeat it</label><input id="newPw2" type="password" autocomplete="new-password" minlength="10" required>
+    <div class="actions"><button class="primary" type="submit" id="pwBtn">Save my password</button></div>
+    <div id="pwMsg" role="alert"></div>
+  </form>
+</section>
+
+<!-- Back-office -->
+<section id="vShell" hidden>
+  <div class="shell">
+    <nav class="side" id="nav" aria-label="Back-office menu"></nav>
+    <div id="view" tabindex="-1"></div>
+  </div>
+</section>
+</main>
+
+<script src="assets/config.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/office-core.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  const C = window.QAMAR_CONFIG || {}, O = window.QAMAR_OFFICE;
+  const $ = id => document.getElementById(id);
+  const show = v => ['vLogin', 'vPassword', 'vShell'].forEach(x => { $(x).hidden = x !== v; });
+
+  // ---- Construction du DOM sans innerHTML (toutes les données passent par textContent) ----
+  function h(tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v == null || v === false) continue;
+      if (k === 'class') el.className = v; else if (k === 'text') el.textContent = v;
+      else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+      else if (k === 'value') el.value = v; else if (k === 'checked') el.checked = !!v;
+      else el.setAttribute(k, v === true ? '' : v);
+    }
+    for (const c of kids.flat()) if (c != null && c !== false) el.appendChild(typeof c === 'string' || typeof c === 'number' ? document.createTextNode(String(c)) : c);
+    return el;
+  }
+  const msg = (el, kind, text, list) => { el.className = 'msg ' + kind; el.hidden = false; el.textContent = text; if (list && list.length) el.appendChild(h('ul', {}, list.map(t => h('li', { text: t })))); };
+  const clear = el => { el.className = ''; el.textContent = ''; };
+  const fmtDate = d => (d ? new Date(d.length === 10 ? d + 'T12:00:00' : d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
+  const fmtTime = d => (d ? new Date(d).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
+  let uid = 0;
+  // Champ étiqueté (label relié à l'input : accessibilité)
+  function field(label, el, hint) { el.id = el.id || 'f' + (++uid); return h('div', {}, h('label', { for: el.id, text: label }), el, hint ? h('p', { class: 'hint', text: hint }) : null); }
+  const input = (value, attrs = {}) => h('input', { value: value == null ? '' : String(value), ...attrs });
+  const select = (options, value, attrs = {}) => { const s = h('select', attrs, Object.entries(options).map(([v, t]) => h('option', { value: v, text: t }))); s.value = value == null ? '' : String(value); return s; };
+  const check = (label, value) => { const i = h('input', { type: 'checkbox', checked: !!value }); return { el: h('label', { class: 'inline' }, i, label), get: () => i.checked, input: i }; };
+
+  // ---- Client Supabase (clé publique anon uniquement ; session partagée avec blog-admin.html) ----
+  const linkHash = new URLSearchParams(location.hash.replace(/^#/, ''));
+  const linkType = /^(invite|recovery)$/.test(linkHash.get('type') || '') ? linkHash.get('type') : null;
+  const linkError = linkHash.get('error_description');
+  const local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  const demoMatch = location.hash.match(/^#local-demo(?:-(owner|manager|stylist))?(?:\/([a-z]+))?$/);
+  let sb = null, api = null, me = null, demo = false;
+  if (!C.supabaseUrl || !C.supabaseAnonKey) msg($('cfgWarn'), 'info', 'Setup not finished: the public Supabase "anon" key is missing in assets/config.js. Sign-in cannot work until it is added.');
+  if (window.supabase && C.supabaseUrl) {
+    try { sb = window.supabase.createClient(C.supabaseUrl, C.supabaseAnonKey || 'missing-anon-key', { auth: { persistSession: true, storageKey: 'qamar-blog-admin' } }); } catch (e) { sb = null; }
+  }
+
+  // ---- Accès aux données (Supabase). La démo locale fournit le même objet (assets/office-demo.js, localhost seulement) ----
+  const COLS = {
+    services: 'id,look_en,look_ar,name_en,name_ar,duration_min,price_aed,from_hour,free_matcha,active,sort_order,updated_at',
+    addons: 'id,name_en,name_ar,kind,price_aed,active,sort_order,updated_at',
+    promo_codes: 'code,pct,label_en,label_ar,valid_until,min_people,enabled,created_at',
+    event_requests: 'id,created_at,updated_at,event_type,event_date,guests,name,phone,email,note,lang,source,status,staff_notes,handled_by',
+    club_members: 'id,created_at,updated_at,name,phone,email,tier,founding,lang,source,status,staff_notes,handled_by',
+    staff: 'id,display_name,role,email,instagram,specialty_en,specialty_ar,active,created_at',
+    audit_logs: 'id,actor,action,target,details,at',
+    salon_status: 'id,lounge_waiting,chairs_free,mode,message_en,message_ar,wait_minutes,updated_at,updated_by'
+  };
+  const KEY = { promo_codes: 'code' };
+  const ORDER = { services: ['sort_order', true], addons: ['sort_order', true], promo_codes: ['created_at', false], event_requests: ['created_at', false], club_members: ['created_at', false], staff: ['display_name', true], audit_logs: ['at', false], salon_status: ['id', true] };
+  function supabaseApi() {
+    const ok = ({ data, error }) => { if (error) throw error; return data; };
+    const rpc = async (fn, args) => ok(await sb.rpc(fn, args));
+    return {
+      async me() { const u = (await sb.auth.getUser()).data.user; if (!u) return null; const { data } = await sb.from('staff').select(COLS.staff).eq('id', u.id).maybeSingle(); return data ? { ...data, email: data.email || u.email } : { id: u.id, email: u.email, role: null }; },
+      async list(t) { const [col, asc] = ORDER[t]; let q = sb.from(t).select(COLS[t]).order(col, { ascending: asc }); if (t === 'audit_logs') q = q.limit(150); return ok(await q); },
+      async save(t, row, isNew) { const k = KEY[t] || 'id'; const q = isNew ? sb.from(t).insert(row) : sb.from(t).update(row).eq(k, row[k]); return ok(await q.select(COLS[t]).single()); },
+      async remove(t, key) { return ok(await sb.from(t).delete().eq(KEY[t] || 'id', key)); },
+      updateStaff: a => rpc('admin_update_staff', a),
+      linkStaff: (email, name, role) => rpc('admin_link_staff', { p_email: email, p_display_name: name, p_role: role }),
+      updateMyProfile: a => rpc('update_my_profile', a),
+      setSalonStatus: a => rpc('admin_set_salon_status', a),
+      async invite(body) {
+        const { data, error } = await sb.functions.invoke('invite-staff', { body });
+        if (!error) return { ok: true, data };
+        let code = '', status = error.context && error.context.status;
+        try { code = (await error.context.json()).error || ''; } catch (_) {}
+        // Fonction absente ou injoignable : on propose la méthode manuelle
+        if (status === 404 || /FunctionsFetchError|FunctionsRelayError|Failed to send/i.test(error.name + ' ' + error.message)) return { ok: false, notDeployed: true };
+        return { ok: false, code: code || error.message };
+      },
+      async changePassword(pw) { const { error } = await sb.auth.updateUser({ password: pw }); if (error) throw error; },
+      async signOut() { try { await sb.auth.signOut(); } catch (_) {} }
+    };
+  }
+
+  // ---- Démarrage ----
+  async function boot() {
+    if (local && demoMatch) {
+      // Démo locale : chargée seulement ici (jamais sur le site en ligne), données factices en mémoire
+      await new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'assets/office-demo.js'; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+      if (!window.QAMAR_OFFICE_DEMO) return;
+      demo = true; $('demoBar').hidden = false;
+      api = window.QAMAR_OFFICE_DEMO.create(demoMatch[1] || 'owner', window.QAMAR_DATA);
+      return enter(demoMatch[2]);
+    }
+    if (!sb) { show('vLogin'); return; }
+    api = supabaseApi();
+    let session = null;
+    try { session = (await sb.auth.getSession()).data.session; } catch (_) {}
+    if (linkError) { show('vLogin'); return msg($('loginMsg'), 'err', 'This e-mail link is no longer valid (' + linkError + '). Use "Forgot password?" to get a new one.'); }
+    if (session && linkType) { $('who').textContent = session.user.email || ''; show('vPassword'); return; }
+    session ? enter(location.hash.replace(/^#/, '')) : show('vLogin');
+  }
+  addEventListener('hashchange', () => { if (local && /^#local-demo/.test(location.hash) && demo) { const m = location.hash.match(/^#local-demo(?:-(owner|manager|stylist))?(?:\/([a-z]+))?$/); if (m && (m[1] || 'owner') !== me.role) location.reload(); } });
+
+  $('pwForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const m = $('pwMsg'); clear(m);
+    const a = $('newPw').value, b = $('newPw2').value;
+    if (a.length < 10) return msg(m, 'err', 'Use at least 10 characters.');
+    if (a !== b) return msg(m, 'err', 'The two passwords are different.');
+    $('pwBtn').disabled = true;
+    try { await api.changePassword(a); $('newPw').value = $('newPw2').value = ''; history.replaceState(null, '', location.pathname); enter(''); }
+    catch (err) { msg(m, 'err', 'Could not save the password: ' + O.dbError(err)); }
+    $('pwBtn').disabled = false;
+  });
+  $('forgotBtn').addEventListener('click', async () => {
+    const m = $('loginMsg'); clear(m);
+    const email = $('email').value.trim();
+    if (!email) return msg(m, 'err', 'Type your e-mail above first, then click "Forgot password?".');
+    if (!sb) return msg(m, 'err', 'Not available: the Supabase configuration did not load.');
+    try { await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }); } catch (_) {}
+    msg(m, 'info', 'If this address has a team account, a reset link has been sent. Open it on this device.');
+  });
+  $('loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const m = $('loginMsg'); clear(m);
+    const email = $('email').value.trim(), password = $('password').value;
+    if (!email || !password) return msg(m, 'err', 'Enter your e-mail and password.');
+    if (!sb) return msg(m, 'err', 'Sign-in is not available: the Supabase library or configuration did not load. Check your connection.');
+    $('loginBtn').disabled = true;
+    try {
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) msg(m, 'err', /invalid login|invalid_credentials/i.test(error.message) ? 'Wrong e-mail or password, or this account does not exist.' : 'Sign-in failed: ' + O.dbError(error));
+      else { $('password').value = ''; enter(location.hash.replace(/^#/, '')); }
+    } catch (err) { msg(m, 'err', 'Sign-in failed: ' + O.dbError(err)); }
+    $('loginBtn').disabled = false;
+  });
+  $('logout').addEventListener('click', async () => { if (demo) return; await api.signOut(); location.hash = ''; location.reload(); });
+
+  async function enter(section) {
+    try { me = await api.me(); } catch (err) { show('vLogin'); return msg($('loginMsg'), 'err', 'Could not load your account: ' + O.dbError(err)); }
+    if (!me) { show('vLogin'); return; }
+    $('who').textContent = me.email || ''; $('logout').hidden = demo;
+    if (!O.ROLES.includes(me.role) || me.active === false) {
+      show('vLogin');
+      return msg($('loginMsg'), 'err', me.active === false ? 'This team account is deactivated. Ask the owner.' : 'This account is signed in but has no back-office role yet (no row in the staff table). Ask the owner.');
+    }
+    $('rolePill').hidden = false; $('rolePill').className = 'pill ' + me.role; $('rolePill').textContent = O.ROLE_LABELS[me.role];
+    show('vShell');
+    go(O.canSee(me.role, section) && !(O.MENU.find(m => m.id === section) || {}).href ? section : O.home(me.role));
+  }
+
+  // ---- Menu et navigation ----
+  let current = null, counts = {};
+  function renderNav() {
+    const nav = $('nav'); nav.textContent = '';
+    let grp = null;
+    for (const m of O.menuFor(me.role)) {
+      if (m.group !== grp) { grp = m.group; nav.appendChild(h('div', { class: 'grp', text: grp })); }
+      const a = h('a', { href: m.href || (demo ? `#local-demo-${me.role}/${m.id}` : '#' + m.id), 'aria-current': current === m.id ? 'page' : null },
+        h('span', { text: m.label }), m.href ? h('span', { class: 'ext', text: 'opens page' }) : counts[m.id] ? h('span', { class: 'badge', text: String(counts[m.id]), 'aria-label': counts[m.id] + ' new' }) : null);
+      if (!m.href) a.addEventListener('click', e => { e.preventDefault(); go(m.id); });
+      nav.appendChild(a);
+    }
+  }
+  async function refreshCounts() {
+    if (!O.canSee(me.role, 'events')) return;
+    try {
+      const [ev, cl] = await Promise.all([api.list('event_requests'), api.list('club_members')]);
+      counts = { events: ev.filter(r => r.status === 'new').length, club: cl.filter(r => r.status === 'new').length };
+    } catch (_) { counts = {}; }
+    renderNav();
+  }
+  async function go(id) {
+    current = id;
+    history.replaceState(null, '', demo ? `#local-demo-${me.role}/${id}` : '#' + id);
+    renderNav();
+    const v = $('view'); v.textContent = ''; v.appendChild(h('p', { class: 'hint', text: 'Loading…' }));
+    try { const node = await VIEWS[id](O.canEdit(me.role, id)); v.textContent = ''; v.appendChild(node); }
+    catch (err) { v.textContent = ''; v.appendChild(h('h1', { text: (O.MENU.find(m => m.id === id) || {}).label || '' })); const e = h('div'); msg(e, 'err', 'Could not load this page: ' + O.dbError(err) + (/relation|does not exist|schema cache/i.test(String(err && err.message)) ? ' (Is migration 007 applied in Supabase?)' : '')); v.appendChild(e); }
+    if (id !== 'profile') refreshCounts();
+  }
+  // Message à afficher en haut de la page suivante (après un enregistrement qui recharge la vue)
+  let flash = null;
+  const page = (title, intro, ...kids) => { const f = flash; flash = null; let fm = null; if (f) { fm = h('div', { role: 'status' }); msg(fm, f[0], f[1]); } return h('div', {}, h('h1', { text: title }), intro ? h('p', { class: 'hint', text: intro }) : null, fm, ...kids); };
+  const readOnlyNote = () => h('p', { class: 'msg info', text: 'Read only for your role.' });
+
+  // ---- Vues ----
+  const VIEWS = {
+    async overview() {
+      const [ev, cl, sv, st, ss] = await Promise.all([api.list('event_requests'), api.list('club_members'), api.list('services'), api.list('staff'), api.list('salon_status')]);
+      const s = ss[0] || {};
+      const kpi = (label, n, to) => h('a', { class: 'kpi', href: demo ? `#local-demo-${me.role}/${to}` : '#' + to, onclick: e => { e.preventDefault(); go(to); } }, h('small', { text: label }), h('b', { text: String(n) }));
+      return page('Overview', 'Hello ' + (me.display_name || '') + '. What needs your attention.',
+        h('div', { class: 'kpis' }, kpi('New event requests', ev.filter(r => r.status === 'new').length, 'events'), kpi('New Club requests', cl.filter(r => r.status === 'new').length, 'club'),
+          kpi('Looks on the menu', sv.filter(r => r.active).length, 'services'), kpi('Active team', st.filter(r => r.active).length, 'team')),
+        h('div', { class: 'card' }, h('h2', { text: 'Salon status' }), h('p', {}, h('span', { class: 'pill ' + (s.mode === 'open' ? 'on' : 'off'), text: O.SALON_MODES[s.mode] || 'Not set' }),
+          s.wait_minutes != null ? ' Estimated wait: ' + s.wait_minutes + ' min.' : ''), s.message_en ? h('p', { class: 'hint', text: s.message_en }) : null,
+          h('p', { class: 'hint', text: s.updated_at ? 'Updated ' + fmtTime(s.updated_at) : '' })),
+        h('div', { class: 'card' }, h('h2', { text: 'Good to know' }), h('ul', {},
+          h('li', { text: 'Price changes go online on qamarlounge.com within the hour (automatic rebuild).' }),
+          h('li', { text: 'Event and Club requests still arrive on WhatsApp: log them here so nothing is forgotten.' }),
+          h('li', { text: 'The live queue, the stylist tablet and the floor screen are still in demo mode until opening.' }))));
+    },
+
+    async status(canEdit) {
+      const s = (await api.list('salon_status'))[0] || { mode: 'preopening', lounge_waiting: 0 };
+      const mode = select(O.SALON_MODES, s.mode || 'preopening'), en = input(s.message_en, { maxlength: 160 }), ar = input(s.message_ar, { maxlength: 160, dir: 'rtl', lang: 'ar' });
+      const wait = input(s.wait_minutes, { type: 'number', min: 0, max: 240, inputmode: 'numeric' }), lw = input(s.lounge_waiting || 0, { type: 'number', min: 0, max: 30, inputmode: 'numeric' }), cf = input(s.chairs_free, { type: 'number', min: 0, max: 10, inputmode: 'numeric' });
+      const out = h('div', { role: 'alert' });
+      [mode, en, ar, wait, lw, cf].forEach(x => { x.disabled = !canEdit; });
+      const save = h('button', { class: 'primary', type: 'submit', text: 'Save status' });
+      const form = h('form', { class: 'card', novalidate: true, onsubmit: async e => {
+        e.preventDefault(); clear(out);
+        const v = { mode: mode.value, message_en: en.value, message_ar: ar.value, wait_minutes: wait.value === '' ? null : Number(wait.value), lounge_waiting: Number(lw.value || 0) };
+        const errs = O.validateSalonStatus(v); if (errs.length) return msg(out, 'err', 'Not saved. Please fix:', errs);
+        save.disabled = true;
+        try { await api.setSalonStatus({ p_mode: v.mode, p_message_en: v.message_en, p_message_ar: v.message_ar, p_wait_minutes: v.wait_minutes, p_lounge_waiting: v.lounge_waiting, p_chairs_free: cf.value === '' ? null : Number(cf.value) }); msg(out, 'ok', 'Saved.'); }
+        catch (err) { msg(out, 'err', 'Not saved: ' + O.dbError(err)); }
+        save.disabled = false;
+      } },
+        h('div', { class: 'row' }, field('Mode', mode), field('Estimated wait (minutes)', wait, 'Empty: not shown.')),
+        h('div', { class: 'row' }, field('Message in English', en, 'Short, 160 characters maximum. e.g. Opening March 2027.'), field('Message in Arabic', ar)),
+        h('div', { class: 'row' }, field('Guests waiting in the lounge', lw), field('Free chairs', cf, 'Empty: unknown.')),
+        canEdit ? h('div', { class: 'actions' }, save) : null, out,
+        h('p', { class: 'hint', text: s.updated_at ? 'Last change: ' + fmtTime(s.updated_at) : '' }));
+      return page('Salon status', 'Stored for the live floor and the public pages. In this phase the public website keeps its pre-opening texts: nothing here can make the site say the salon is open.', canEdit ? null : readOnlyNote(), form);
+    },
+
+    services: canEdit => catalogue({ table: 'services', title: 'Services and prices', canEdit,
+      intro: 'Prices and durations go online on qamarlounge.com within the hour. A new look or a hidden look also needs photos and texts on the website: ask for a site update.',
+      blank: { id: '', look_en: '', look_ar: '', name_en: '', name_ar: '', duration_min: 40, price_aed: '', from_hour: '', free_matcha: false, active: true, sort_order: 100 },
+      cols: [['Order', r => r.sort_order, 'n'], ['Look', r => h('span', {}, r.look_en, h('div', { class: 'hint', lang: 'ar', dir: 'rtl', text: r.look_ar }))], ['Service', r => r.name_en], ['Time', r => r.duration_min + ' min', 'n'], ['Price', r => r.price_aed + ' AED', 'n'], ['Status', r => h('span', { class: 'pill ' + (r.active ? 'on' : 'off'), text: r.active ? 'Active' : 'Hidden' })]],
+      form: (r, isNew) => {
+        const f = { id: input(r.id, { readonly: !isNew || null, autocomplete: 'off', dir: 'ltr' }), look_en: input(r.look_en, { maxlength: 60 }), look_ar: input(r.look_ar, { maxlength: 60, dir: 'rtl', lang: 'ar' }), name_en: input(r.name_en, { maxlength: 80 }), name_ar: input(r.name_ar, { maxlength: 80, dir: 'rtl', lang: 'ar' }),
+          duration_min: input(r.duration_min, { type: 'number', min: 5, max: 45, inputmode: 'numeric' }), price_aed: input(r.price_aed, { type: 'number', min: 1, step: 1, inputmode: 'numeric' }), from_hour: input(r.from_hour, { type: 'number', min: 0, max: 23, inputmode: 'numeric' }), sort_order: input(r.sort_order, { type: 'number', step: 1, inputmode: 'numeric' }) };
+        const fm = check('Free matcha included', r.free_matcha), act = check('Active (offered at the lounge)', r.active);
+        return { nodes: [h('div', { class: 'row' }, field('Code', f.id, isNew ? 'Lowercase, e.g. express. Cannot be changed later.' : 'Cannot be changed.'), field('Order on the menu', f.sort_order, 'Smaller comes first.')),
+          h('div', { class: 'row' }, field('Look name (English)', f.look_en), field('Look name (Arabic)', f.look_ar)),
+          h('div', { class: 'row' }, field('Service name (English)', f.name_en), field('Service name (Arabic)', f.name_ar)),
+          h('div', { class: 'row' }, field('Price (AED)', f.price_aed), field('Duration (minutes)', f.duration_min, '45 minutes maximum.'), field('Available from (hour)', f.from_hour, 'e.g. 20 for Night Glow. Empty: all day.')), fm.el, act.el],
+          read: () => ({ id: f.id.value.trim(), look_en: f.look_en.value.trim(), look_ar: f.look_ar.value.trim(), name_en: f.name_en.value.trim(), name_ar: f.name_ar.value.trim(), duration_min: Number(f.duration_min.value), price_aed: Number(f.price_aed.value), from_hour: f.from_hour.value === '' ? null : Number(f.from_hour.value), free_matcha: fm.get(), active: act.get(), sort_order: Number(f.sort_order.value || 100) }),
+          validate: (v, rows) => O.validateService(v, { isNew, existingIds: rows.map(x => x.id) }) };
+      } }),
+
+    addons: canEdit => catalogue({ table: 'addons', title: 'Extras and drinks', canEdit,
+      intro: 'Extras (shower, steaming, perfume…), the complete ritual and the drinks. Prices go online within the hour. Extra long hair (40 AED) is fixed in the checkout rules and is not edited here.',
+      blank: { id: '', name_en: '', name_ar: '', kind: 'extra', price_aed: '', active: true, sort_order: 100 },
+      cols: [['Order', r => r.sort_order, 'n'], ['Name', r => h('span', {}, r.name_en, h('div', { class: 'hint', lang: 'ar', dir: 'rtl', text: r.name_ar }))], ['Type', r => O.ADDON_KINDS[r.kind] || r.kind], ['Price', r => r.price_aed + ' AED', 'n'], ['Status', r => h('span', { class: 'pill ' + (r.active ? 'on' : 'off'), text: r.active ? 'Active' : 'Hidden' })]],
+      form: (r, isNew) => {
+        const f = { id: input(r.id, { readonly: !isNew || null, autocomplete: 'off', dir: 'ltr' }), name_en: input(r.name_en, { maxlength: 80 }), name_ar: input(r.name_ar, { maxlength: 80, dir: 'rtl', lang: 'ar' }), kind: select(O.ADDON_KINDS, r.kind), price_aed: input(r.price_aed, { type: 'number', min: 1, step: 1, inputmode: 'numeric' }), sort_order: input(r.sort_order, { type: 'number', step: 1, inputmode: 'numeric' }) };
+        const act = check('Active', r.active);
+        return { nodes: [h('div', { class: 'row' }, field('Code', f.id, isNew ? 'Lowercase, e.g. shower. Cannot be changed later.' : 'Cannot be changed.'), field('Type', f.kind), field('Order', f.sort_order)),
+          h('div', { class: 'row' }, field('Name (English)', f.name_en), field('Name (Arabic)', f.name_ar)), h('div', { class: 'row' }, field('Price (AED)', f.price_aed)), act.el],
+          read: () => ({ id: f.id.value.trim(), name_en: f.name_en.value.trim(), name_ar: f.name_ar.value.trim(), kind: f.kind.value, price_aed: Number(f.price_aed.value), active: act.get(), sort_order: Number(f.sort_order.value || 100) }),
+          validate: (v, rows) => O.validateAddon(v, { isNew, existingIds: rows.map(x => x.id) }) };
+      } }),
+
+    promos: canEdit => catalogue({ table: 'promo_codes', key: 'code', title: 'Promo codes', canEdit, removable: true,
+      intro: 'Codes a guest types when joining the queue. One discount per person, the best one, never added together. They work once the live queue is switched on (at opening).',
+      blank: { code: '', pct: 10, label_en: '', label_ar: '', valid_until: '', min_people: 1, enabled: true },
+      cols: [['Code', r => h('b', { text: r.code })], ['Discount', r => r.pct + '%', 'n'], ['Label', r => r.label_en || ''], ['Valid until', r => r.valid_until ? fmtDate(r.valid_until) : 'No end date'], ['Min. group', r => r.min_people, 'n'], ['Status', r => h('span', { class: 'pill ' + (r.enabled ? 'on' : 'off'), text: r.enabled ? 'Active' : 'Off' })]],
+      form: (r, isNew) => {
+        const f = { code: input(r.code, { readonly: !isNew || null, autocomplete: 'off', dir: 'ltr', style: 'text-transform:uppercase' }), pct: input(r.pct, { type: 'number', min: 1, max: 100, inputmode: 'numeric' }), label_en: input(r.label_en, { maxlength: 60 }), label_ar: input(r.label_ar, { maxlength: 60, dir: 'rtl', lang: 'ar' }), valid_until: input(r.valid_until, { type: 'date' }), min_people: input(r.min_people, { type: 'number', min: 1, max: 6, inputmode: 'numeric' }) };
+        const en = check('Active', r.enabled);
+        return { nodes: [h('div', { class: 'row' }, field('Code', f.code, 'Letters and digits, e.g. GLOW10.'), field('Discount (%)', f.pct), field('Valid until (included)', f.valid_until, 'Empty: no end date.'), field('Minimum group size', f.min_people)),
+          h('div', { class: 'row' }, field('Label (English, optional)', f.label_en), field('Label (Arabic, optional)', f.label_ar)), en.el],
+          read: () => ({ code: f.code.value.trim().toUpperCase(), pct: Number(f.pct.value), label_en: f.label_en.value.trim() || null, label_ar: f.label_ar.value.trim() || null, valid_until: f.valid_until.value || null, min_people: Number(f.min_people.value || 1), enabled: en.get() }),
+          validate: (v, rows) => O.validatePromoCode(v, { isNew, existingCodes: rows.map(x => x.code) }) };
+      } }),
+
+    events: canEdit => requests('event', canEdit),
+    club: canEdit => requests('club', canEdit),
+
+    async team(canEdit) {
+      const rows = await api.list('staff');
+      const box = h('div');
+      const editor = h('div');
+      const tb = h('tbody');
+      rows.forEach(r => tb.appendChild(h('tr', {}, h('td', { class: 'wide' }, h('b', { text: r.display_name }), h('div', { class: 'hint', text: r.email || '' })),
+        h('td', { 'data-label': 'Role' }, h('span', { class: 'pill ' + r.role, text: O.ROLE_LABELS[r.role] || r.role })), h('td', { 'data-label': 'Specialty', text: r.specialty_en || '-' }), h('td', { 'data-label': 'Instagram', text: r.instagram ? '@' + r.instagram : '-' }),
+        h('td', { 'data-label': 'Status' }, h('span', { class: 'pill ' + (r.active ? 'on' : 'off'), text: r.active ? 'Active' : 'Deactivated' })),
+        canEdit ? h('td', {}, h('button', { class: 'small', type: 'button', text: 'Edit', 'aria-label': 'Edit ' + r.display_name, onclick: () => editStaff(r) })) : null)));
+      function editStaff(r) {
+        editor.textContent = '';
+        const f = { display_name: input(r.display_name, { maxlength: 40 }), role: select(O.ROLE_LABELS, r.role), specialty_en: input(r.specialty_en, { maxlength: 60 }), specialty_ar: input(r.specialty_ar, { maxlength: 60, dir: 'rtl', lang: 'ar' }), instagram: input(r.instagram, { maxlength: 31, dir: 'ltr', placeholder: 'qamar.name' }) };
+        const act = check('Active (can sign in and work)', r.active);
+        const out = h('div', { role: 'alert' });
+        const save = h('button', { class: 'primary', type: 'submit', text: 'Save' });
+        editor.appendChild(h('form', { class: 'card', novalidate: true, onsubmit: async e => {
+          e.preventDefault(); clear(out);
+          const v = { display_name: f.display_name.value.trim(), role: f.role.value, specialty_en: f.specialty_en.value.trim(), specialty_ar: f.specialty_ar.value.trim(), instagram: f.instagram.value.trim().replace(/^@/, '') };
+          const errs = O.validateStaff(v); if (errs.length) return msg(out, 'err', 'Not saved. Please fix:', errs);
+          if (r.id === me.id && (v.role !== 'owner' || !act.get()) && !confirm('You are changing your own access. Continue?')) return;
+          save.disabled = true;
+          try { await api.updateStaff({ p_id: r.id, p_display_name: v.display_name, p_role: v.role, p_active: act.get(), p_specialty_en: v.specialty_en, p_specialty_ar: v.specialty_ar, p_instagram: v.instagram }); flash = ['ok', 'Saved: ' + v.display_name + '.']; go('team'); }
+          catch (err) { msg(out, 'err', 'Not saved: ' + O.dbError(err)); save.disabled = false; }
+        } }, h('h2', { text: 'Edit ' + r.display_name }), h('div', { class: 'row' }, field('Display name', f.display_name), field('Role', f.role, 'Owner: everything. Manager: menu, prices, requests, status. Stylist: own profile.')),
+          h('div', { class: 'row' }, field('Specialty (English)', f.specialty_en), field('Specialty (Arabic)', f.specialty_ar), field('Instagram', f.instagram)), act.el,
+          h('div', { class: 'actions' }, save, h('button', { type: 'button', text: 'Cancel', onclick: () => { editor.textContent = ''; } })), out));
+        editor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      box.append(canEdit ? inviteCard() : readOnlyNote(), editor, h('div', { class: 'card tbl' }, h('table', { class: 'stack' }, h('thead', {}, h('tr', {}, ['Name', 'Role', 'Specialty', 'Instagram', 'Status'].map(t => h('th', { text: t })), canEdit ? h('th', { text: '' }) : null)), tb)));
+      box.appendChild(h('p', { class: 'hint', text: 'Stylist tablet: the 4-digit PIN screen stays in demo for now. At opening, each PIN will be linked to one of these accounts (checked by the server, never stored in the page).' }));
+      return page('Team', canEdit ? 'Invite people, change roles, deactivate an account when someone leaves (their history is kept).' : 'The team list. Only the owner can change it.', box);
+    },
+
+    async activity() {
+      const [rows, staff] = await Promise.all([api.list('audit_logs'), api.list('staff')]);
+      const name = id => (staff.find(s => s.id === id) || {}).display_name || (id ? 'System' : 'Automatic');
+      const tb = h('tbody');
+      rows.forEach(r => tb.appendChild(h('tr', {}, h('td', { class: 'n', 'data-label': 'When', text: fmtTime(r.at) }), h('td', { 'data-label': 'Who', text: name(r.actor) }), h('td', { 'data-label': 'What', text: describe(r.action) }), h('td', { 'data-label': 'Item', text: r.target || '' }), h('td', { class: 'diff wide', 'data-label': 'Change', text: diff(r.details) }))));
+      if (!rows.length) tb.appendChild(h('tr', {}, h('td', { colspan: 5, text: 'Nothing yet.' })));
+      return page('Activity log', 'Every change to the menu, prices, codes, team, salon status and request statuses: who, when, before and after. The last 150 entries.',
+        h('div', { class: 'card tbl' }, h('table', { class: 'stack' }, h('thead', {}, h('tr', {}, ['When', 'Who', 'What', 'Item', 'Change'].map(t => h('th', { text: t })))), tb)));
+    },
+
+    async profile(canEdit) {
+      const f = { specialty_en: input(me.specialty_en, { maxlength: 60 }), specialty_ar: input(me.specialty_ar, { maxlength: 60, dir: 'rtl', lang: 'ar' }), instagram: input(me.instagram, { maxlength: 31, dir: 'ltr', placeholder: 'qamar.name' }) };
+      const out = h('div', { role: 'alert' }), pwOut = h('div', { role: 'alert' });
+      const pw1 = input('', { type: 'password', autocomplete: 'new-password', minlength: 10 }), pw2 = input('', { type: 'password', autocomplete: 'new-password', minlength: 10 });
+      return page('My profile', 'Your information. Your display name and role are set by the owner.',
+        h('div', { class: 'card' }, h('div', { class: 'row' }, h('div', {}, h('label', { text: 'Display name' }), h('p', { text: me.display_name || '' })), h('div', {}, h('label', { text: 'Role' }), h('p', {}, h('span', { class: 'pill ' + me.role, text: O.ROLE_LABELS[me.role] }))), h('div', {}, h('label', { text: 'E-mail' }), h('p', { text: me.email || '' })))),
+        h('form', { class: 'card', novalidate: true, onsubmit: async e => {
+          e.preventDefault(); clear(out);
+          const v = { display_name: me.display_name, role: me.role, specialty_en: f.specialty_en.value.trim(), specialty_ar: f.specialty_ar.value.trim(), instagram: f.instagram.value.trim().replace(/^@/, '') };
+          const errs = O.validateStaff(v); if (errs.length) return msg(out, 'err', 'Not saved. Please fix:', errs);
+          try { const r = await api.updateMyProfile({ p_specialty_en: v.specialty_en, p_specialty_ar: v.specialty_ar, p_instagram: v.instagram }); Object.assign(me, r || v); msg(out, 'ok', 'Saved.'); } catch (err) { msg(out, 'err', 'Not saved: ' + O.dbError(err)); }
+        } }, h('h2', { text: 'Shown to guests (when the team is announced)' }), h('div', { class: 'row' }, field('Specialty (English)', f.specialty_en), field('Specialty (Arabic)', f.specialty_ar), field('Instagram', f.instagram, 'Account name only.')),
+          canEdit ? h('div', { class: 'actions' }, h('button', { class: 'primary', type: 'submit', text: 'Save' })) : null, out),
+        h('form', { class: 'card', novalidate: true, onsubmit: async e => {
+          e.preventDefault(); clear(pwOut);
+          if (pw1.value.length < 10) return msg(pwOut, 'err', 'Use at least 10 characters.');
+          if (pw1.value !== pw2.value) return msg(pwOut, 'err', 'The two passwords are different.');
+          try { await api.changePassword(pw1.value); pw1.value = pw2.value = ''; msg(pwOut, 'ok', 'Password changed.'); } catch (err) { msg(pwOut, 'err', 'Not changed: ' + O.dbError(err)); }
+        } }, h('h2', { text: 'Change my password' }), h('div', { class: 'row' }, field('New password', pw1), field('Repeat it', pw2)), h('div', { class: 'actions' }, h('button', { type: 'submit', text: 'Change password' })), pwOut),
+        h('p', { class: 'hint', text: 'At the lounge, the stylist tablet uses your 4-digit PIN (demo for now).' }));
+    }
+  };
+
+  const ACTIONS = { 'update:services': 'Look changed', 'insert:services': 'Look added', 'update:addons': 'Extra changed', 'insert:addons': 'Extra added', 'insert:promo_codes': 'Promo code added', 'update:promo_codes': 'Promo code changed', 'delete:promo_codes': 'Promo code deleted',
+    'update:staff': 'Team member changed', 'insert:staff': 'Team member added', 'invite:staff': 'Invitation sent', 'update:salon_status': 'Salon status changed', 'insert:event_requests': 'Event request received', 'update:event_requests': 'Event request updated', 'insert:club_members': 'Club request received', 'update:club_members': 'Club request updated' };
+  const describe = a => ACTIONS[a] || a;
+  function diff(d) {
+    if (!d) return '';
+    const b = d.before || {}, a = d.after || {};
+    if (!d.before && !d.after) return Object.entries(d).map(([k, v]) => k + ': ' + v).join(', ');
+    const skip = ['updated_at', 'created_at', 'updated_by'];
+    const keys = [...new Set([...Object.keys(b), ...Object.keys(a)])].filter(k => !skip.includes(k) && JSON.stringify(b[k]) !== JSON.stringify(a[k]));
+    return keys.map(k => k + ': ' + (b[k] == null ? 'empty' : b[k]) + ' to ' + (a[k] == null ? 'empty' : a[k])).join(' · ');
+  }
+
+  // ---- Catalogue générique (looks, extras, codes) : liste + formulaire, validation avant envoi ----
+  async function catalogue(cfg) {
+    const rows = await api.list(cfg.table);
+    const key = cfg.key || 'id';
+    const editor = h('div');
+    const tb = h('tbody');
+    rows.forEach(r => tb.appendChild(h('tr', {}, cfg.cols.map(([t, fn, cls]) => { const v = fn(r); return h('td', { class: cls || null, 'data-label': t }, v); }),
+      cfg.canEdit ? h('td', {}, h('button', { class: 'small', type: 'button', text: 'Edit', 'aria-label': 'Edit ' + r[key], onclick: () => open(r, false) })) : null)));
+    if (!rows.length) tb.appendChild(h('tr', {}, h('td', { colspan: cfg.cols.length + 1, text: 'Nothing yet.' })));
+    function open(r, isNew) {
+      editor.textContent = '';
+      const F = cfg.form({ ...r, valid_until: r.valid_until || '' }, isNew);
+      const out = h('div', { role: 'alert' });
+      const save = h('button', { class: 'primary', type: 'submit', text: isNew ? 'Add' : 'Save changes' });
+      const del = cfg.removable && !isNew ? h('button', { class: 'danger', type: 'button', text: 'Delete', onclick: async () => {
+        if (!confirm('Delete ' + r[key] + '? This cannot be undone.')) return;
+        try { await api.remove(cfg.table, r[key]); go(current); } catch (err) { msg(out, 'err', 'Not deleted: ' + O.dbError(err)); }
+      } }) : null;
+      editor.appendChild(h('form', { class: 'card', novalidate: true, onsubmit: async e => {
+        e.preventDefault(); clear(out);
+        const v = F.read(); const errs = F.validate(v, rows);
+        if (errs.length) return msg(out, 'err', 'Not saved. Please fix:', errs);
+        save.disabled = true;
+        try { await api.save(cfg.table, v, isNew); flash = ['ok', (isNew ? 'Added: ' : 'Saved: ') + v[key] + '.' + (cfg.table !== 'promo_codes' ? ' Online on qamarlounge.com within the hour.' : '')]; go(current); }
+        catch (err) { msg(out, 'err', 'Not saved: ' + O.dbError(err)); save.disabled = false; }
+      } }, h('h2', { text: isNew ? 'Add' : 'Edit ' + r[key] }), ...F.nodes, h('div', { class: 'actions' }, save, h('button', { type: 'button', text: 'Cancel', onclick: () => { editor.textContent = ''; } }), del), out));
+      editor.querySelector('input:not([readonly])') && editor.querySelector('input:not([readonly])').focus();
+    }
+    return page(cfg.title, cfg.intro, cfg.canEdit ? h('div', { class: 'actions' }, h('button', { class: 'primary', type: 'button', text: 'Add', onclick: () => open(cfg.blank, true) })) : readOnlyNote(), editor,
+      h('div', { class: 'card tbl' }, h('table', { class: 'stack' }, h('thead', {}, h('tr', {}, cfg.cols.map(([t]) => h('th', { text: t })), cfg.canEdit ? h('th', { text: '' }) : null)), tb)));
+  }
+
+  // ---- Demandes (événements, Club) : filtre par statut, contact, statut + notes ----
+  let reqFilter = 'new';
+  async function requests(kind, canEdit) {
+    const table = kind === 'event' ? 'event_requests' : 'club_members';
+    const rows = await api.list(table);
+    const list = h('div'), addBox = h('div');
+    const chips = h('div', { class: 'chips', role: 'group', 'aria-label': 'Filter by status' });
+    const filters = { all: 'All', ...O.STATUS_LABELS };
+    function paint() {
+      chips.textContent = '';
+      Object.entries(filters).forEach(([k, t]) => { const n = k === 'all' ? rows.length : rows.filter(r => r.status === k).length; chips.appendChild(h('button', { type: 'button', class: 'small', 'aria-pressed': String(reqFilter === k), text: t + ' (' + n + ')', onclick: () => { reqFilter = k; paint(); } })); });
+      list.textContent = '';
+      const shown = rows.filter(r => reqFilter === 'all' || r.status === reqFilter);
+      if (!shown.length) list.appendChild(h('p', { class: 'card hint', text: 'No request here.' }));
+      shown.forEach(r => list.appendChild(card(r)));
+    }
+    function card(r) {
+      const st = select(O.STATUS_LABELS, r.status, { 'aria-label': 'Status' }), notes = h('textarea', { 'aria-label': 'Staff notes', maxlength: 2000, placeholder: 'Notes for the team (not shared with the client)' }); notes.value = r.staff_notes || '';
+      const out = h('div', { role: 'alert' });
+      st.disabled = notes.disabled = !canEdit;
+      const wa = O.waHref(r.phone);
+      const title = kind === 'event' ? (O.EVENT_TYPES[r.event_type] || r.event_type) + ' · ' + r.name : r.name + ' · ' + (O.TIERS[r.tier] || r.tier) + (r.founding ? ' · Founding member' : '');
+      const metaBits = kind === 'event' ? [r.event_date ? 'Event on ' + fmtDate(r.event_date) : 'Date not set', r.guests ? r.guests + ' guests' : null] : [r.lang === 'ar' ? 'Prefers Arabic' : 'Prefers English'];
+      return h('article', { class: 'req' },
+        h('div', { class: 'rh' }, h('div', {}, h('h3', { text: title }), h('p', { class: 'meta', text: metaBits.filter(Boolean).join(' · ') }), h('p', { class: 'meta', text: 'Received ' + fmtTime(r.created_at) + ' via ' + (O.SOURCES[r.source] || r.source) })), h('span', { class: 'pill ' + r.status, text: O.STATUS_LABELS[r.status] })),
+        h('div', { class: 'contact' }, r.phone ? h('a', { class: 'btn small', href: 'tel:' + r.phone, text: 'Call ' + r.phone }) : null, wa ? h('a', { class: 'btn small', href: wa, target: '_blank', rel: 'noopener', text: 'WhatsApp' }) : null, r.email ? h('a', { class: 'btn small', href: 'mailto:' + r.email, text: r.email }) : null),
+        r.note ? h('blockquote', { text: r.note }) : null,
+        h('form', { class: 'edit', novalidate: true, onsubmit: async e => {
+          e.preventDefault(); clear(out);
+          const v = { ...r, status: st.value, staff_notes: notes.value.trim() };
+          const errs = O.validateRequest(v, kind); if (errs.length) return msg(out, 'err', 'Not saved:', errs);
+          try { const saved = await api.save(table, { id: r.id, status: v.status, staff_notes: v.staff_notes || null, handled_by: me.id }, false); Object.assign(r, saved || v); paint(); }
+          catch (err) { msg(out, 'err', 'Not saved: ' + O.dbError(err)); }
+        } }, field('Status', st), field('Notes', notes), canEdit ? h('button', { class: 'primary', type: 'submit', text: 'Save' }) : h('span')), out);
+    }
+    function addForm() {
+      addBox.textContent = '';
+      const f = { name: input('', { maxlength: 60 }), phone: input('', { type: 'tel', placeholder: '+971501234567', dir: 'ltr' }), email: input('', { type: 'email', dir: 'ltr' }), source: select(O.SOURCES, 'whatsapp'), notes: h('textarea', { maxlength: 2000 }) };
+      if (kind === 'event') Object.assign(f, { event_type: select(O.EVENT_TYPES, 'wedding'), event_date: input('', { type: 'date' }), guests: input('', { type: 'number', min: 1, max: 60, inputmode: 'numeric' }), note: h('textarea', { maxlength: 500 }) });
+      else Object.assign(f, { tier: select(O.TIERS, 'undecided') });
+      const founding = kind === 'club' ? check('Founding member (first 100)', false) : null;
+      const out = h('div', { role: 'alert' });
+      addBox.appendChild(h('form', { class: 'card', novalidate: true, onsubmit: async e => {
+        e.preventDefault(); clear(out);
+        const v = { name: f.name.value.trim(), phone: f.phone.value.replace(/[\s()-]/g, '') || null, email: f.email.value.trim().toLowerCase() || null, source: f.source.value, status: 'new', staff_notes: f.notes.value.trim() || null };
+        if (kind === 'event') Object.assign(v, { event_type: f.event_type.value, event_date: f.event_date.value || null, guests: f.guests.value === '' ? null : Number(f.guests.value), note: f.note.value.trim() || null });
+        else Object.assign(v, { tier: f.tier.value, founding: founding.get() });
+        const errs = O.validateRequest(v, kind); if (errs.length) return msg(out, 'err', 'Not saved. Please fix:', errs);
+        try { await api.save(table, v, true); reqFilter = 'new'; flash = ['ok', 'Request added.']; go(current); } catch (err) { msg(out, 'err', 'Not saved: ' + O.dbError(err)); }
+      } }, h('h2', { text: kind === 'event' ? 'Log an event request' : 'Log a Club request' }), h('p', { class: 'hint', text: 'For a request received on WhatsApp, Instagram, by phone or at the lounge.' }),
+        kind === 'event' ? h('div', { class: 'row' }, field('Type of event', f.event_type), field('Date of the event', f.event_date), field('Guests', f.guests)) : h('div', { class: 'row' }, field('Plan', f.tier)),
+        h('div', { class: 'row' }, field('Name', f.name), field('Phone (with +)', f.phone), field('E-mail', f.email), field('Received via', f.source)),
+        founding ? founding.el : null, kind === 'event' ? field('What the client asked', f.note) : null, field('Notes for the team', f.notes),
+        h('div', { class: 'actions' }, h('button', { class: 'primary', type: 'submit', text: 'Add request' }), h('button', { type: 'button', text: 'Cancel', onclick: () => { addBox.textContent = ''; } })), out));
+      f.name.focus();
+    }
+    paint();
+    const intro = kind === 'event'
+      ? 'Weddings, henna nights, birthdays, shoots and group visits. The website form still prepares a WhatsApp message (nothing is stored from the site yet): log each request here and follow it up.'
+      : 'People who want to join the QAMAR Club. Plans and prices are still a proposal: no payment is taken here.';
+    return page(kind === 'event' ? 'Event requests' : 'Club members', intro, canEdit ? h('div', { class: 'actions' }, h('button', { class: 'primary', type: 'button', text: 'Log a request', onclick: addForm })) : null, addBox, chips, list);
+  }
+
+  // ---- Invitation (propriétaire) : fonction Edge invite-staff, sinon méthode manuelle ----
+  function inviteCard() {
+    const email = input('', { type: 'email', dir: 'ltr', autocomplete: 'off' }), name = input('', { maxlength: 40 }), role = select(O.ROLE_LABELS, 'stylist');
+    const out = h('div', { role: 'alert' });
+    const btn = h('button', { class: 'primary', type: 'submit', text: 'Send invitation' });
+    const link = h('button', { type: 'button', text: 'Link an account invited from Supabase', onclick: async () => {
+      clear(out);
+      const v = { email: email.value.trim().toLowerCase(), display_name: name.value.trim(), role: role.value };
+      const errs = O.validateInvite(v); if (errs.length) return msg(out, 'err', 'Please fix:', errs);
+      try { await api.linkStaff(v.email, v.display_name, v.role); flash = ['ok', v.display_name + ' is now in the team.']; go('team'); } catch (err) { msg(out, 'err', 'Not linked: ' + O.dbError(err)); }
+    } });
+    return h('form', { class: 'card', novalidate: true, onsubmit: async e => {
+      e.preventDefault(); clear(out);
+      const v = { email: email.value.trim().toLowerCase(), display_name: name.value.trim(), role: role.value };
+      const errs = O.validateInvite(v); if (errs.length) return msg(out, 'err', 'Please fix:', errs);
+      btn.disabled = true;
+      let r; try { r = await api.invite(v); } catch (err) { r = { ok: false, code: O.dbError(err) }; }
+      btn.disabled = false;
+      if (r.ok) { flash = ['ok', 'Invitation sent to ' + v.email + '. The link in the e-mail opens this page to choose a password.']; return go('team'); }
+      if (r.notDeployed) {
+        const sql = `insert into staff (id, display_name, role, email) select id, '${v.display_name.replace(/'/g, "''")}', '${v.role}', email from auth.users where email = '${v.email.replace(/'/g, "''")}';`;
+        out.className = 'msg info'; out.textContent = '';
+        out.append(h('b', { text: 'E-mail invitations are not switched on yet (the invite-staff function is not deployed in Supabase). Meanwhile:' }),
+          h('ol', {}, h('li', { text: 'Supabase dashboard, Authentication, Users, "Invite user": type ' + v.email + '.' }),
+            h('li', {}, 'Then click "Link an account invited from Supabase" below, or run this line in the SQL Editor: ', h('code', { text: sql }))));
+        return;
+      }
+      msg(out, 'err', 'Not sent: ' + ({ already_registered: 'this e-mail already has an account. Use "Link an account invited from Supabase".', already_staff: 'this person is already in the team.', forbidden: 'only an owner can invite.', invalid_email: 'the e-mail is not valid.' }[r.code] || r.code));
+    } }, h('h2', { text: 'Invite someone' }), h('div', { class: 'row' }, field('E-mail', email), field('Display name', name, 'First name shown to the team.'), field('Role', role)),
+      h('div', { class: 'actions' }, btn, link), out);
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>

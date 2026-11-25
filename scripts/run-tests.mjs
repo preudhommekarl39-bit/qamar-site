@@ -8,6 +8,7 @@ import { readFileSync, existsSync, readdirSync, statSync, mkdtempSync, rmSync } 
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { applyPrices, mergePrices, patchDataSource, runData, fetchSupabasePrices } from './prices.mjs';
 import { loadCore, loadJsonArticles, fetchSupabaseArticles, mergeArticles, siteContext, buildBlog, sitemapEntry } from './blog.mjs';
 import vm from 'node:vm';
 import { extractDict, translateHtml, localRefs } from './lib.mjs';
@@ -58,7 +59,7 @@ test('no placeholder WhatsApp number', () => { const bad = publicText.filter(([,
 // Un JWT n'est accepté que s'il s'agit de la clé publique « anon » de Supabase (faite pour être servie au navigateur).
 const jwtRole = j => { try { return JSON.parse(Buffer.from(j.split('.')[1], 'base64url').toString()).role; } catch { return null; } };
 test('no secret-looking value in public files', () => { const bad = publicText.filter(([, t]) => /service_role["']?\s*[:=]\s*["'][^"']+|sk_live_[0-9a-z]+|sb_secret_/i.test(t) || (t.match(/eyJhbGciOi[0-9A-Za-z_-]{10,}\.[0-9A-Za-z_-]+\.[0-9A-Za-z_-]*/g) || []).some(j => jwtRole(j) !== 'anon')).map(([p]) => p); return bad.length ? bad : true; });
-test('staff pages are noindex', () => ['admin.html', 'blog-admin.html', 'station.html', 'entrance.html', 'tests.html', 'queue.html'].every(f => /<meta name="robots" content="noindex/.test(readFileSync(f, 'utf8'))));
+test('staff pages are noindex', () => ['admin.html', 'blog-admin.html', 'office.html', 'station.html', 'entrance.html', 'tests.html', 'queue.html'].every(f => /<meta name="robots" content="noindex/.test(readFileSync(f, 'utf8'))));
 test('every indexable page has a unique title and a description', () => { const pages = ['index.html', 'privacy.html', 'legal.html']; const titles = pages.map(f => (readFileSync(f, 'utf8').match(/<title>([^<]+)<\/title>/) || [])[1]); return new Set(titles).size === pages.length && pages.every(f => /<meta name="description" content="[^"]{50,}"/.test(readFileSync(f, 'utf8'))); });
 test('structured data contains no unconfirmed hours, address, rating or price', () => { const ld = (readFileSync('index.html', 'utf8').match(/application\/ld\+json"[^>]*>([^<]+)</) || [])[1]; const o = JSON.parse(ld); return !o.openingHours && !o.openingHoursSpecification && !o.address && !o.aggregateRating && !o.priceRange; });
 
@@ -124,6 +125,71 @@ test('Supabase unreachable or not configured: no crash, repo articles kept', () 
     && !/grant select[^;(]*on articles/.test(sql) && /grant insert, update, delete on articles to authenticated;/.test(sql) && /articles_admin_read\s+on articles for select to authenticated using \(is_blog_admin\(\)\)/.test(sql));
   test('blog-admin.html never selects * on articles', () => !/from\('articles'\)\.select\('\*'\)|\.select\(\)\.single/.test(readFileSync('blog-admin.html', 'utf8')));
 }
+// ---- 6. Back-office (office.html, migration 007, prix au build) ----
+console.log('Back-office');
+{
+  const sql = readFileSync('supabase/migrations/007_backoffice.sql', 'utf8');
+  const code = sql.replace(/--[^\n]*/g, '');
+  const tables = [...code.matchAll(/create table\s+(?:if not exists\s+)?(\w+)/gi)].map(m => m[1]);
+  test('migration 007: present, creates event_requests and club_members', () => tables.includes('event_requests') && tables.includes('club_members'));
+  test('migration 007: re-runnable (if not exists, or replace, drop policy/trigger before create)', () => {
+    const bad = [];
+    if (/create table (?!if not exists)/i.test(code)) bad.push('create table without if not exists');
+    if (/create (?:unique )?index (?!if not exists)/i.test(code)) bad.push('create index without if not exists');
+    if (/create function/i.test(code) || /create view/i.test(code)) bad.push('create without or replace');
+    if (/add column (?!if not exists)/i.test(code)) bad.push('add column without if not exists');
+    if (/add value (?!if not exists)/i.test(code)) bad.push('enum value without if not exists');
+    for (const m of code.matchAll(/create policy (\w+) on (\w+)/gi)) if (!new RegExp(`drop policy if exists ${m[1]} on ${m[2]}`, 'i').test(code)) bad.push('policy ' + m[1]);
+    for (const m of code.matchAll(/create trigger (\w+)/gi)) if (!new RegExp(`drop trigger if exists ${m[1]} on`, 'i').test(code)) bad.push('trigger ' + m[1]);
+    for (const m of code.matchAll(/add constraint (\w+)/gi)) if (!new RegExp(`drop constraint if exists ${m[1]}`, 'i').test(code)) bad.push('constraint ' + m[1]);
+    return bad.length ? bad : true;
+  });
+  test('migration 007: never drops or empties data', () => !/drop table|drop column|truncate|delete from (?!event_requests|club_members)/i.test(code) && !/drop type/i.test(code));
+  test('migration 007: RLS enabled on every new table, no policy for anon writes', () => tables.every(t => new RegExp(`alter table ${t} enable row level security`, 'i').test(code)) && !/for (insert|update|delete|all) to anon/i.test(code) && tables.every(t => new RegExp(`revoke all on ${t} from public, anon`, 'i').test(code)));
+  test('migration 007: every security definer function sets search_path = public', () => { const fns = code.split(/create or replace function/i).slice(1); const bad = fns.filter(f => /security definer/i.test(f.split('$$')[0]) && !/set search_path = public/i.test(f.split('$$')[0])).map(f => f.trim().split('(')[0]); return bad.length ? bad : true; });
+  test('migration 007: owner role, is_owner(), managers include owner, blog access = blog_admins or owner', () => /add value if not exists 'owner'/.test(code) && /function is_owner\(\)/.test(code) && /role::text in \('manager', 'owner'\)/.test(code) && /from blog_admins where user_id = auth\.uid\(\)\) or is_owner\(\)/.test(code));
+  test('migration 007: staff writes only through owner-checked functions; public writes only through RPCs', () => /drop policy if exists staff_manager_write on staff/.test(code) && /revoke insert, update, delete on staff from anon, authenticated/.test(code)
+    && (code.match(/if not is_owner\(\) then raise exception 'forbidden'/g) || []).length >= 2 && /grant execute on function request_event\([^)]*\), request_club\([^)]*\) to anon, authenticated/.test(code));
+  test('migration 007: catalogue, team and requests are audited (before / after)', () => ['services', 'addons', 'promo_codes', 'staff', 'event_requests', 'club_members'].every(t => new RegExp(`after insert or update or delete on ${t} for each row execute function audit_row`).test(code)) && /'before', b, 'after', a/.test(code));
+  test('migration 007: public price view exposes only safe columns', () => { const v = (code.match(/create or replace view public_prices[\s\S]*?;/) || [''])[0]; return !!v && !/\*/.test(v) && !/name_|look_|created_by|updated_by/.test(v) && /grant select on public_prices to anon, authenticated/.test(code); });
+  test('migration 007: no secret in SQL', () => !/service_role|eyJhbGciOi/.test(sql));
+
+  const fn = readFileSync('supabase/functions/invite-staff/index.ts', 'utf8');
+  test('invite-staff function: checks an owner JWT, invites by e-mail, secret key from the environment only', () => /auth\.getUser\(\)/.test(fn) && /role !== 'owner'/.test(fn) && /inviteUserByEmail\(email, \{ redirectTo: OFFICE_URL/.test(fn) && /Deno\.env\.get\('SUPABASE_SERVICE_ROLE_KEY'\)/.test(fn) && !/eyJhbGciOi/.test(fn));
+
+  const off = readFileSync('office.html', 'utf8'), demoJs = readFileSync('assets/office-demo.js', 'utf8'), coreJs = readFileSync('assets/office-core.js', 'utf8');
+  test('office.html: noindex, anon key only, no sign-up, no secret key name anywhere in the back-office files', () => /<meta name="robots" content="noindex, nofollow">/.test(off) && /signInWithPassword/.test(off) && !/signUp\(/.test(off) && ![off, demoJs, coreJs].some(t => /service_role|SERVICE_ROLE|sb_secret_/i.test(t)));
+  test('office.html: invite and recovery links, "Forgot password?"', () => /type'\) \|\| ''\) \? linkHash/.test(off) && /resetPasswordForEmail/.test(off) && /Choose your password/.test(off) && /Forgot password\?/.test(off));
+  test('office.html: the local demo loads only on localhost, and refuses other hosts itself', () => { const gate = "/^(localhost|127\\.0\\.0\\.1)$/.test(location.hostname)"; return off.includes('const local = ' + gate) && off.includes('if (local && demoMatch)') && (off.match(/src = 'assets\/office-demo\.js'/g) || []).length === 1 && !/<script[^>]+office-demo/.test(off) && demoJs.includes('if (!' + gate + ') return;'); });
+  test('office.html: no emoji and no em dash in the page', () => !/[—\u{1F300}-\u{1FAFF}☀-➿]/u.test(off));
+  test('build publishes office.html', () => /'office\.html'/.test(readFileSync('scripts/build-site.mjs', 'utf8')));
+
+  const sbx = {}; vm.runInNewContext(coreJs, sbx); const O = sbx.QAMAR_OFFICE;
+  const ids = r => O.menuFor(r).map(m => m.id);
+  test('menu per role: owner sees everything, including team edits and the journal', () => O.MENU.every(m => ids('owner').includes(m.id)) && O.canEdit('owner', 'team') && O.canSee('owner', 'journal'));
+  test('menu per role: manager runs the menu and requests, team read-only, no journal', () => ['services', 'addons', 'promos', 'events', 'club', 'status', 'team'].every(i => ids('manager').includes(i)) && !O.canEdit('manager', 'team') && O.canEdit('manager', 'services') && !O.canSee('manager', 'journal'));
+  test('menu per role: stylist sees only her profile and the tablet; unknown role sees nothing', () => JSON.stringify(ids('stylist')) === JSON.stringify(['profile', 'station']) && !O.canEdit('stylist', 'services') && O.menuFor('admin').length === 0 && O.menuFor(undefined).length === 0 && O.home('stylist') === 'profile');
+  const svc = { id: 'express', look_en: 'Qamar Express', look_ar: 'قمر إكسبريس', name_en: 'Express Blow-Dry', name_ar: 'سشوار سريع', duration_min: 35, price_aed: 139, from_hour: null, sort_order: 10 };
+  test('validation: a correct look passes; price 0, decimal price, missing or non-Arabic AR name, 50 min are refused', () => O.validateService(svc).length === 0 && O.validateService({ ...svc, price_aed: 0 }).length === 1 && O.validateService({ ...svc, price_aed: 139.5 }).length === 1
+    && O.validateService({ ...svc, look_ar: '' }).length === 1 && O.validateService({ ...svc, name_ar: 'Express' }).length === 1 && O.validateService({ ...svc, duration_min: 50 }).length === 1 && O.validateService({ ...svc, look_en: '<b>x</b>' }).length === 1);
+  test('validation: promo codes, requests and invitations', () => O.validatePromoCode({ code: 'glow10', pct: 10, min_people: 1 }).length === 0 && O.validatePromoCode({ code: 'GLOW 10', pct: 0, min_people: 9 }).length === 3
+    && O.validateRequest({ name: 'A', phone: '+971501234567', status: 'new', source: 'whatsapp', event_type: 'wedding', guests: 6 }, 'event').length === 0 && O.validateRequest({ name: 'A', status: 'new', source: 'whatsapp', tier: 'half' }, 'club').length === 1
+    && O.validateInvite({ email: 'x@example.com', display_name: 'Noor', role: 'stylist' }).length === 0 && O.validateInvite({ email: 'x', display_name: '', role: 'boss' }).length === 3 && O.waHref('+971 50 123 4567') === 'https://wa.me/971501234567' && O.waHref('050') === '');
+
+  // Prix au build
+  const src = readFileSync('assets/data.js', 'utf8'), D = runData(src);
+  const rows = D.services.map(x => ({ kind: 'service', id: x.id, price_aed: x.price, duration_min: x.duration, active: true }));
+  const up = applyPrices({ src, rows: rows.map(r => r.id === 'express' ? { ...r, price_aed: 149 } : r).concat([{ kind: 'addon', id: 'shower', price_aed: 55 }, { kind: 'addon', id: 'ritual', price_aed: 89 }, { kind: 'addon', id: 'long', price_aed: 99 }, { kind: 'service', id: 'brand-new', price_aed: 100, duration_min: 30 }]) });
+  test('prices: Supabase prices are written into data.js (same format, only numbers change)', () => up.used === 'supabase' && up.data.services.find(x => x.id === 'express').price === 149 && up.data.extras.find(x => x.id === 'shower').price === 55 && up.data.ritual.price === 89
+    && up.data.extras.find(x => x.id === 'long').price === D.extras.find(x => x.id === 'long').price && up.source.split('\n').length === src.split('\n').length && /\{ id: 'express', art:[^\n]*duration: 35, price: 149,/.test(up.source));
+  test('prices: same prices = data.js untouched', () => { const r = applyPrices({ src, rows }); return r.source === src && r.changes.length === 0; });
+  test('prices: invalid or empty data falls back to data.js (never an empty or broken menu)', () => [[], [{ kind: 'service', id: 'express', price_aed: 0, duration_min: 35 }], [{ kind: 'service', id: 'express', price_aed: 139.5, duration_min: 35 }], [{ kind: 'service', id: 'express', price_aed: 139, duration_min: 90 }], [{ kind: 'service', id: 'brand-new', price_aed: 100, duration_min: 30 }], [{ id: 'x' }], null]
+    .every(rs => { const r = applyPrices({ src, rows: rs }); return r.used === 'data.js' && r.source === src; }) && mergePrices(D, 'nope').ok === false);
+  test('prices: data.js patterns used by scripts/seo_pages.py still match after a rewrite', () => { const t = patchDataSource(src, up.prices); return (t.match(/\{ id: '[a-z]+', art:.*?duration: \d+, price: \d+/g) || []).length === D.services.length && /ritual: \{ price: 89/.test(t); });
+  const pUnreach = await fetchSupabasePrices({ url: 'http://127.0.0.1:9', key: 'anon', timeoutMs: 3000 }), pNone = await fetchSupabasePrices({ url: '', key: '' });
+  test('prices: Supabase unreachable or not configured, no crash', () => pUnreach.ok === false && !pUnreach.missing && pNone.ok === false && pUnreach.rows.length === 0);
+  test('workflow: the hourly rebuild redeploys when the journal OR prices change', () => { const y = readFileSync('.github/workflows/site.yml', 'utf8'); return /\$\{SITE_URL\}content-hash\.txt/.test(y) && /_site\/content-hash\.txt/.test(y); });
+}
 // Clé anon renseignée + Supabase muet : le build doit échouer (pas de redéploiement sans les articles de l'admin)
 {
   const out = mkdtempSync(join(tmpdir(), 'qamar-site-'));
@@ -142,6 +208,9 @@ try {
   test('full build: sitemap is well formed and excludes the admin pages', () => sm.startsWith('<?xml') && sm.trim().endsWith('</urlset>') && (sm.match(/<url>/g) || []).length === (sm.match(/<\/url>/g) || []).length && !/admin\.html|blog-admin/.test(sm));
   test('full build: Journal link in EN and AR footers (home, services, guides)', () => readFileSync('_site/index.html', 'utf8').includes('href="blog/" data-i18n="ft_blog"') && readFileSync('_site/ar.html', 'utf8').includes('href="blog/ar/" data-i18n="ft_blog">المدونة') && readFileSync('_site/services/walk-in-blow-dry-dubai.html', 'utf8').includes('<a href="../blog/">Journal</a>') && readFileSync('_site/guides/ar/steam-abaya-hijab.html', 'utf8').includes('blog/ar/">المدونة'));
   test('full build: blog-admin.html is published with noindex', () => /noindex/.test(readFileSync('_site/blog-admin.html', 'utf8')));
+  test('full build offline: data.js prices kept, price data valid, content hash written', () => readFileSync('_site/assets/data.js', 'utf8') === readFileSync('assets/data.js', 'utf8') && /^[0-9a-f]{16}\n$/.test(readFileSync('_site/content-hash.txt', 'utf8')) && /^[0-9a-f]{16}\n$/.test(readFileSync('_site/assets/prices-hash.txt', 'utf8'))
+    && runData(readFileSync('_site/assets/data.js', 'utf8')).services.every(x => Number.isInteger(x.price) && x.price > 0 && x.duration <= 45));
+  test('full build: office.html is published with noindex and out of the sitemap', () => /noindex/.test(readFileSync('_site/office.html', 'utf8')) && !/office\.html/.test(sm));
 } catch (e) { test('full build runs', () => 'build failed: ' + (e.stderr || e.message)); }
 
 console.log(`\n${pass} passed · ${fail} failed`);

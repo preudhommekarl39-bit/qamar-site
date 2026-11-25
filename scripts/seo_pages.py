@@ -10,7 +10,9 @@ SITE = 'https://qamarlounge.com/'
 DATE = '2026-11-12'
 
 # ---------- Données (assets/data.js) ----------
-DJ = open('assets/data.js', encoding='utf-8').read()
+# Au build (scripts/build-site.mjs), QAMAR_DATA_JS = data.js aux prix du back-office et QAMAR_SEO_OUT = _site : le dépôt n'est pas modifié.
+DJ = open(os.environ.get('QAMAR_DATA_JS') or 'assets/data.js', encoding='utf-8').read()
+OUT_ROOT = os.environ.get('QAMAR_SEO_OUT') or '.'
 SV = {}
 for m in re.finditer(r"\{ id: '([a-z]+)', art:.*?look: \{ en: '([^']+)', ar: '([^']+)' \}, name: \{ en: '([^']+)', ar: '([^']+)' \}.*?duration: (\d+), price: (\d+)", DJ):
     SV[m[1]] = dict(look={'en': m[2], 'ar': m[3]}, name={'en': m[4], 'ar': m[5]}, dur=int(m[6]), price=int(m[7]))
@@ -713,6 +715,7 @@ def page(kind, item, lang):
     return out
 
 def write(path, s):
+    path = os.path.join(OUT_ROOT, path)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     open(path, 'w', encoding='utf-8').write(s)
 

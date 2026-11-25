@@ -10,7 +10,12 @@
 |---|---|---|
 | Cliente (anonyme) | s'inscrire (`join_queue`), suivre SON ticket avec son `access_token`, l'annuler, laisser un avis après paiement | lire les autres tickets, voir des téléphones, modifier un prix |
 | Coiffeuse | se pointer, appeler la prochaine cliente éligible, faire avancer SES tickets, confirmer un paiement en espèces | voir les pointages des autres, le CA global, exporter |
-| Gérante | tout lire, gérer catalogue, promotions et personnel, exports | contourner les contraintes (double appel, double pointage) |
+| Gérante (`manager`) | tout lire, gérer catalogue, prix, codes promo, demandes (événements, Club), statut du salon | modifier l'équipe ou les rôles (lecture seule), le journal ; contourner les contraintes (double appel, double pointage) |
+| Propriétaire (`owner`, 007) | tout ce que fait la gérante + équipe (invitation, rôle, désactivation), journal, suppression de demandes | retirer la dernière propriétaire active |
+
+Back-office `office.html` (migration 007) : écritures du personnel par RLS ou fonctions `SECURITY DEFINER` vérifiant le rôle, chaque changement
+tracé dans `audit_logs` (avant / après). Les invitations passent par la fonction Edge `invite-staff` (seul endroit où la clé secrète existe,
+fournie par Supabase) qui vérifie que l'appelante est `owner`. La démo locale (`#local-demo`) ne se charge que sur localhost.
 
 ## Authentification du personnel
 - Supabase Auth (e-mail + mot de passe fort, ou lien magique) sur les tablettes. Sessions persistantes par appareil, déconnexion = fin de pointage.
