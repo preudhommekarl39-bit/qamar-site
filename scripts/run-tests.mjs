@@ -315,7 +315,7 @@ console.log('Back-office');
   const ids = r => O.menuFor(r).map(m => m.id);
   test('menu per role: owner sees everything, including team edits and the journal', () => O.MENU.every(m => ids('owner').includes(m.id)) && O.canEdit('owner', 'team') && O.canSee('owner', 'journal'));
   test('menu per role: manager runs the menu and requests, team read-only, no journal', () => ['services', 'addons', 'promos', 'events', 'club', 'status', 'team'].every(i => ids('manager').includes(i)) && !O.canEdit('manager', 'team') && O.canEdit('manager', 'services') && !O.canSee('manager', 'journal'));
-  test('menu per role: stylist sees only her profile and the tablet; unknown role sees nothing', () => JSON.stringify(ids('stylist')) === JSON.stringify(['profile', 'station']) && !O.canEdit('stylist', 'services') && O.menuFor('admin').length === 0 && O.menuFor(undefined).length === 0 && O.home('stylist') === 'profile');
+  test('menu per role: stylist sees only her profile and the tablet; unknown role sees nothing', () => JSON.stringify(ids('stylist')) === JSON.stringify(['schedule', 'profile', 'station']) && !O.canEdit('stylist', 'schedule') && O.canEdit('manager', 'schedule') && O.canEdit('manager', 'cash') && !O.canSee('stylist', 'cash') && !O.canEdit('stylist', 'services') && O.menuFor('admin').length === 0 && O.menuFor(undefined).length === 0 && O.home('stylist') === 'profile');
   const svc = { id: 'express', look_en: 'Qamar Express', look_ar: 'قمر إكسبريس', name_en: 'Express Blow-Dry', name_ar: 'سشوار سريع', duration_min: 35, price_aed: 139, from_hour: null, sort_order: 10 };
   test('validation: a correct look passes; price 0, decimal price, missing or non-Arabic AR name, 50 min are refused', () => O.validateService(svc).length === 0 && O.validateService({ ...svc, price_aed: 0 }).length === 1 && O.validateService({ ...svc, price_aed: 139.5 }).length === 1
     && O.validateService({ ...svc, look_ar: '' }).length === 1 && O.validateService({ ...svc, name_ar: 'Express' }).length === 1 && O.validateService({ ...svc, duration_min: 50 }).length === 1 && O.validateService({ ...svc, look_en: '<b>x</b>' }).length === 1);
@@ -323,6 +323,9 @@ console.log('Back-office');
     && O.validateRequest({ name: 'A', phone: '+971501234567', status: 'new', source: 'whatsapp', event_type: 'wedding', guests: 6 }, 'event').length === 0 && O.validateRequest({ name: 'A', status: 'new', source: 'whatsapp', tier: 'half' }, 'club').length === 1
     && O.validateInvite({ email: 'x@example.com', display_name: 'Noor', role: 'stylist' }).length === 0 && O.validateInvite({ email: 'x', display_name: '', role: 'boss' }).length === 3 && O.waHref('+971 50 123 4567') === 'https://wa.me/971501234567' && O.waHref('050') === '');
 
+  test('validation: station PIN (4 digits, not 1111 / 1234 / 4321), cash closing, schedule', () => O.validatePin('4826').length === 0 && ['1111', '1234', '4321', '12a4', '123'].every(p => O.validatePin(p).length === 1)
+    && O.validateCash({ day: '2026-12-01', cash_aed: 120, card_aed: '', other_aed: 0 }).length === 0 && O.validateCash({ day: '', cash_aed: -1, card_aed: 'x', other_aed: 0 }).length === 3
+    && O.validateShiftPlan({ staff_id: 'a', day: '2026-12-01', start_time: '10:00', end_time: '18:00' }).length === 0 && O.validateShiftPlan({ staff_id: 'a', day: '2026-12-01', start_time: '18:00', end_time: '10:00' }).length === 1 && O.dbError({ message: 'weak_pin' }).includes('too easy'));
   // Prix au build
   const src = readFileSync('assets/data.js', 'utf8'), D = runData(src);
   const rows = D.services.map(x => ({ kind: 'service', id: x.id, price_aed: x.price, duration_min: x.duration, active: true }));

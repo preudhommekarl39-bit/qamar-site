@@ -188,10 +188,12 @@ nav.side .badge{background:var(--rose);color:#fff;border-radius:999px;font-size:
     club_members: 'id,created_at,updated_at,name,phone,email,tier,founding,lang,source,status,staff_notes,handled_by',
     staff: 'id,display_name,role,email,instagram,specialty_en,specialty_ar,active,created_at',
     audit_logs: 'id,actor,action,target,details,at',
-    salon_status: 'id,lounge_waiting,chairs_free,mode,message_en,message_ar,wait_minutes,updated_at,updated_by'
+    salon_status: 'id,lounge_waiting,chairs_free,mode,message_en,message_ar,wait_minutes,updated_at,updated_by',
+    cash_closings: 'id,day,cash_aed,card_aed,other_aed,expected,note,closed_by,created_at,updated_at',
+    staff_schedule: 'id,staff_id,day,start_time,end_time,note,created_at'
   };
   const KEY = { promo_codes: 'code' };
-  const ORDER = { services: ['sort_order', true], addons: ['sort_order', true], promo_codes: ['created_at', false], event_requests: ['created_at', false], club_members: ['created_at', false], staff: ['display_name', true], audit_logs: ['at', false], salon_status: ['id', true] };
+  const ORDER = { services: ['sort_order', true], addons: ['sort_order', true], promo_codes: ['created_at', false], event_requests: ['created_at', false], club_members: ['created_at', false], staff: ['display_name', true], audit_logs: ['at', false], salon_status: ['id', true], cash_closings: ['day', false], staff_schedule: ['day', true] };
   function supabaseApi() {
     const ok = ({ data, error }) => { if (error) throw error; return data; };
     const rpc = async (fn, args) => ok(await sb.rpc(fn, args));
@@ -204,6 +206,12 @@ nav.side .badge{background:var(--rose);color:#fff;border-radius:999px;font-size:
       linkStaff: (email, name, role) => rpc('admin_link_staff', { p_email: email, p_display_name: name, p_role: role }),
       updateMyProfile: a => rpc('update_my_profile', a),
       setSalonStatus: a => rpc('admin_set_salon_status', a),
+      // File réelle (migration 009) : PIN de la tablette, caisse du jour
+      pinStatus: () => rpc('admin_pin_status'),
+      setPin: (id, pin) => rpc('admin_set_pin', { p_staff: id, p_pin: pin }),
+      clearPin: id => rpc('admin_clear_pin', { p_staff: id }),
+      cashTotals: day => rpc('cash_day_totals', { p_day: day }),
+      closeCash: a => rpc('admin_close_cash', a),
       async invite(body) {
         const { data, error } = await sb.functions.invoke('invite-staff', { body });
         if (!error) return { ok: true, data };
@@ -451,7 +459,7 @@ nav.side .badge{background:var(--rose);color:#fff;border-radius:999px;font-size:
         editor.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
       box.append(canEdit ? inviteCard() : readOnlyNote(), editor, h('div', { class: 'card tbl' }, h('table', { class: 'stack' }, h('thead', {}, h('tr', {}, ['Name', 'Role', 'Specialty', 'Instagram', 'Status'].map(t => h('th', { text: t })), canEdit ? h('th', { text: '' }) : null)), tb)));
-      box.appendChild(h('p', { class: 'hint', text: 'Stylist tablet: the 4-digit PIN screen stays in demo for now. At opening, each PIN will be linked to one of these accounts (checked by the server, never stored in the page).' }));
+      box.appendChild(await pinCard(rows));
       return page('Team', canEdit ? 'Invite people, change roles, deactivate an account when someone leaves (their history is kept).' : 'The team list. Only the owner can change it.', box);
     },
 
@@ -485,11 +493,110 @@ nav.side .badge{background:var(--rose);color:#fff;border-radius:999px;font-size:
           if (pw1.value !== pw2.value) return msg(pwOut, 'err', 'The two passwords are different.');
           try { await api.changePassword(pw1.value); pw1.value = pw2.value = ''; msg(pwOut, 'ok', 'Password changed.'); } catch (err) { msg(pwOut, 'err', 'Not changed: ' + O.dbError(err)); }
         } }, h('h2', { text: 'Change my password' }), h('div', { class: 'row' }, field('New password', pw1), field('Repeat it', pw2)), h('div', { class: 'actions' }, h('button', { type: 'submit', text: 'Change password' })), pwOut),
-        h('p', { class: 'hint', text: 'At the lounge, the stylist tablet uses your 4-digit PIN (demo for now).' }));
+        h('p', { class: 'hint', text: 'At the lounge, the stylist tablet uses your 4-digit PIN, set by the manager (Team page). / في الصالون، يستخدم جهاز المحطة رمزكِ المكوّن من ٤ أرقام، تحدده المديرة (صفحة الفريق).' }));
     }
   };
 
-  const ACTIONS = { 'update:services': 'Look changed', 'insert:services': 'Look added', 'update:addons': 'Extra changed', 'insert:addons': 'Extra added', 'insert:promo_codes': 'Promo code added', 'update:promo_codes': 'Promo code changed', 'delete:promo_codes': 'Promo code deleted',
+  // ---- File réelle (migration 009) : PIN de la tablette, caisse du jour, planning ----
+  const dubaiDay = (d = new Date()) => new Date(d.getTime() + 4 * 3600000).toISOString().slice(0, 10);
+  const aed = v => Math.round(Number(v || 0)).toLocaleString('en-US') + ' AED';
+  async function pinCard(rows) {
+    const card = h('div', { class: 'card' }, h('h2', { text: 'Station PINs / رموز المحطة' }),
+      h('p', { class: 'hint', text: 'Each stylist unlocks the salon tablet (station.html) with her own 4-digit PIN. It is checked by the server and stored only as a bcrypt hash: nobody can read it back, not even the owner. 5 wrong tries lock that stylist for 5 minutes. / تفتح كل مصففة جهاز المحطة برمزها الخاص من ٤ أرقام، ويتحقق منه الخادم ولا يمكن لأحد قراءته.' }));
+    if (!O.canSee(me.role, 'team') || !['owner', 'manager'].includes(me.role)) return card;
+    let status = [];
+    try { status = await api.pinStatus(); } catch (err) { const e = h('div'); msg(e, 'info', 'PINs are not available yet: ' + O.dbError(err) + (/function|does not exist|schema cache/i.test(String(err && err.message)) ? ' (Is migration 009 applied in Supabase?)' : '')); card.appendChild(e); return card; }
+    const tb = h('tbody');
+    rows.filter(r => r.active && O.ROLES.includes(r.role)).forEach(r => {
+      const st = status.find(x => x.staff_id === r.id) || {};
+      const pin = input('', { type: 'password', inputmode: 'numeric', maxlength: 4, autocomplete: 'new-password', 'aria-label': 'New PIN for ' + r.display_name, style: 'max-width:110px' });
+      const out = h('div', { role: 'alert' });
+      const save = h('button', { class: 'small primary', type: 'button', text: st.has_pin ? 'Change PIN' : 'Set PIN', onclick: async () => {
+        clear(out); const errs = O.validatePin(pin.value); if (errs.length) return msg(out, 'err', errs[0]);
+        save.disabled = true;
+        try { await api.setPin(r.id, pin.value.trim()); pin.value = ''; flash = ['ok', 'PIN saved for ' + r.display_name + '. Tell her in person; it is never shown again.']; go('team'); }
+        catch (err) { msg(out, 'err', 'Not saved: ' + O.dbError(err)); save.disabled = false; }
+      } });
+      const del = st.has_pin ? h('button', { class: 'small', type: 'button', text: 'Remove', onclick: e => { if (!e.target.dataset.armed) { e.target.dataset.armed = '1'; e.target.textContent = 'Click again to remove'; return; }
+        api.clearPin(r.id).then(() => { flash = ['ok', 'PIN removed: ' + r.display_name + ' no longer appears on the tablet.']; go('team'); }).catch(err => msg(out, 'err', O.dbError(err))); } }) : null;
+      tb.appendChild(h('tr', {}, h('td', { class: 'wide' }, h('b', { text: r.display_name })), h('td', { 'data-label': 'PIN' }, h('span', { class: 'pill ' + (st.has_pin ? 'on' : 'off'), text: st.has_pin ? 'Set ' + (st.updated_at ? fmtDate(st.updated_at) : '') : 'No PIN' })),
+        h('td', { 'data-label': 'New PIN' }, pin), h('td', {}, save, ' ', del, out)));
+    });
+    card.append(h('div', { class: 'tbl' }, h('table', { class: 'stack' }, h('thead', {}, h('tr', {}, ['Name', 'PIN', 'New PIN', ''].map(t => h('th', { text: t })))), tb)),
+      h('p', { class: 'hint', text: 'Only people with a PIN appear on the tablet and in the "choose your stylist" list. The tablet itself signs in with a separate station account (see supabase/README.md).' }));
+    return card;
+  }
+  VIEWS.cash = async function (canEdit) {
+    const day = input(dubaiDay(), { type: 'date', max: dubaiDay() });
+    const totalsBox = h('div'), out = h('div', { role: 'alert' });
+    const f = { cash_aed: input('', { type: 'number', min: 0, step: 1, inputmode: 'decimal' }), card_aed: input('', { type: 'number', min: 0, step: 1, inputmode: 'decimal' }), other_aed: input('', { type: 'number', min: 0, step: 1, inputmode: 'decimal' }), note: input('', { maxlength: 500 }) };
+    Object.values(f).forEach(x => { x.disabled = !canEdit; });
+    let rows = [];
+    try { rows = await api.list('cash_closings'); } catch (err) { if (/relation|does not exist|schema cache/i.test(String(err && err.message))) throw new Error('cash_closings missing (Is migration 009 applied in Supabase?)'); throw err; }
+    const hist = h('tbody');
+    const paintHist = () => { hist.textContent = ''; rows.slice(0, 31).forEach(r => { const e = r.expected || {}, sys = ['cash', 'card', 'applepay'].reduce((n, m) => n + Number((e[m] && e[m].total) || 0) + (m === 'cash' ? 0 : Number((e[m] && e[m].tips) || 0)), 0), counted = Number(r.cash_aed) + Number(r.card_aed) + Number(r.other_aed);
+      hist.appendChild(h('tr', {}, h('td', { 'data-label': 'Day', text: fmtDate(r.day) }), h('td', { class: 'n', 'data-label': 'Cash', text: aed(r.cash_aed) }), h('td', { class: 'n', 'data-label': 'Card', text: aed(r.card_aed) }), h('td', { class: 'n', 'data-label': 'Other', text: aed(r.other_aed) }),
+        h('td', { class: 'n', 'data-label': 'System', text: aed(sys) }), h('td', { class: 'n', 'data-label': 'Difference', text: (counted - sys >= 0 ? '+' : '') + aed(counted - sys) }), h('td', { class: 'wide', 'data-label': 'Note', text: r.note || '' }))); });
+      if (!rows.length) hist.appendChild(h('tr', {}, h('td', { colspan: 7, text: 'No closing yet.' }))); };
+    async function load() {
+      clear(out); totalsBox.textContent = '';
+      const cur = rows.find(r => r.day === day.value);
+      f.cash_aed.value = cur ? Math.round(cur.cash_aed) : ''; f.card_aed.value = cur ? Math.round(cur.card_aed) : ''; f.other_aed.value = cur ? Math.round(cur.other_aed) : ''; f.note.value = cur && cur.note ? cur.note : '';
+      let t = {};
+      try { t = await api.cashTotals(day.value) || {}; } catch (err) { msg(totalsBox, 'err', 'System totals not available: ' + O.dbError(err)); return; }
+      const line = (label, m) => { const x = t[m] || { count: 0, total: 0, tips: 0 }; return h('tr', {}, h('td', { text: label }), h('td', { class: 'n', text: String(x.count) }), h('td', { class: 'n', text: aed(x.total) }), h('td', { class: 'n', text: aed(x.tips) })); };
+      totalsBox.appendChild(h('table', {}, h('thead', {}, h('tr', {}, ['Recorded in the queue / المسجّل', 'Visits', 'Amount', 'Tips'].map(x => h('th', { text: x })))), h('tbody', {}, line('Cash / نقداً', 'cash'), line('Card (terminal) / بطاقة', 'card'), line('Apple Pay (terminal)', 'applepay'))));
+      totalsBox.appendChild(h('p', { class: 'hint', text: 'Card and Apple Pay tips are on the terminal slip, so the expected card total is amount + tips. Cash tips go to the stylist by hand and are not counted here.' }));
+    }
+    day.addEventListener('change', load);
+    const save = h('button', { class: 'primary', type: 'submit', text: 'Save the closing' });
+    const form = h('form', { class: 'card', novalidate: true, onsubmit: async e => {
+      e.preventDefault(); clear(out);
+      const v = { day: day.value, cash_aed: f.cash_aed.value, card_aed: f.card_aed.value, other_aed: f.other_aed.value, note: f.note.value };
+      const errs = O.validateCash(v); if (errs.length) return msg(out, 'err', 'Not saved. Please fix:', errs);
+      save.disabled = true;
+      try { const r = await api.closeCash({ p_day: v.day, p_cash: Number(v.cash_aed || 0), p_card: Number(v.card_aed || 0), p_other: Number(v.other_aed || 0), p_note: v.note });
+        rows = [r].concat(rows.filter(x => x.day !== r.day)).sort((a, b) => (a.day < b.day ? 1 : -1)); paintHist(); msg(out, 'ok', 'Saved. / تم الحفظ.'); }
+      catch (err) { msg(out, 'err', 'Not saved: ' + O.dbError(err)); }
+      save.disabled = false;
+    } }, h('div', { class: 'row' }, field('Day (Dubai) / اليوم', day)), totalsBox,
+      h('h2', { text: 'Counted at closing / المبلغ المعدود' }),
+      h('div', { class: 'row' }, field('Cash in the drawer (AED) / نقداً', f.cash_aed), field('Card terminal total (AED) / جهاز البطاقة', f.card_aed, 'From the terminal end-of-day report, tips included.'), field('Other (AED) / أخرى', f.other_aed, 'e.g. a bank transfer.')),
+      field('Note / ملاحظة', f.note), canEdit ? h('div', { class: 'actions' }, save) : null, out);
+    paintHist(); await load();
+    return page('Cash closing / إغلاق الصندوق', 'At the end of the day: count the drawer, read the card terminal report, enter both. The system totals from the live queue are shown next to it, so any difference is visible. Saving again the same day updates it; every change is in the Activity log.',
+      canEdit ? null : readOnlyNote(), form,
+      h('div', { class: 'card tbl' }, h('h2', { text: 'Last closings' }), h('table', { class: 'stack' }, h('thead', {}, h('tr', {}, ['Day', 'Cash', 'Card', 'Other', 'System', 'Difference', 'Note'].map(x => h('th', { text: x })))), hist)));
+  };
+  VIEWS.schedule = async function (canEdit) {
+    let rows = [], team = [];
+    try { [rows, team] = await Promise.all([api.list('staff_schedule'), api.list('staff')]); } catch (err) { if (/relation|does not exist|schema cache/i.test(String(err && err.message))) throw new Error('staff_schedule missing (Is migration 009 applied in Supabase?)'); throw err; }
+    const people = team.filter(r => r.active && O.ROLES.includes(r.role));
+    const nameOf = id => (team.find(x => x.id === id) || {}).display_name || 'Former team member';
+    const today = dubaiDay();
+    const upcoming = rows.filter(r => r.day >= today).sort((a, b) => (a.day + a.start_time < b.day + b.start_time ? -1 : 1));
+    const list = h('div');
+    const byDay = {}; upcoming.forEach(r => { (byDay[r.day] = byDay[r.day] || []).push(r); });
+    Object.keys(byDay).slice(0, 21).forEach(d => list.appendChild(h('div', { class: 'card' }, h('h2', { text: new Date(d + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) }),
+      h('ul', {}, byDay[d].map(r => h('li', {}, h('b', { text: nameOf(r.staff_id) }), ' ' + String(r.start_time).slice(0, 5) + ' to ' + String(r.end_time).slice(0, 5) + (r.note ? ' · ' + r.note : '') + ' ',
+        canEdit ? h('button', { class: 'small', type: 'button', text: 'Delete', 'aria-label': 'Delete ' + nameOf(r.staff_id) + ' on ' + d, onclick: async () => { try { await api.remove('staff_schedule', r.id); flash = ['ok', 'Deleted.']; go('schedule'); } catch (err) { alert(O.dbError(err)); } } }) : null))))));
+    if (!upcoming.length) list.appendChild(h('p', { class: 'hint', text: 'Nothing planned yet. / لا يوجد جدول بعد.' }));
+    let form = null;
+    if (canEdit) {
+      const f = { staff_id: select(Object.fromEntries([['', 'Choose…']].concat(people.map(p => [p.id, p.display_name]))), ''), day: input(today, { type: 'date', min: today }), start_time: input('10:00', { type: 'time' }), end_time: input('18:00', { type: 'time' }), note: input('', { maxlength: 120 }) };
+      const out = h('div', { role: 'alert' });
+      form = h('form', { class: 'card', novalidate: true, onsubmit: async e => {
+        e.preventDefault(); clear(out);
+        const v = { staff_id: f.staff_id.value, day: f.day.value, start_time: f.start_time.value, end_time: f.end_time.value, note: f.note.value.trim() || null };
+        const errs = O.validateShiftPlan(v); if (errs.length) return msg(out, 'err', 'Not saved. Please fix:', errs);
+        try { await api.save('staff_schedule', v, true); flash = ['ok', 'Added: ' + nameOf(v.staff_id) + ', ' + fmtDate(v.day) + '.']; go('schedule'); } catch (err) { msg(out, 'err', 'Not saved: ' + O.dbError(err)); }
+      } }, h('h2', { text: 'Add a shift / إضافة دوام' }), h('div', { class: 'row' }, field('Team member', f.staff_id), field('Day', f.day), field('From', f.start_time), field('To', f.end_time)), field('Note (optional)', f.note), h('div', { class: 'actions' }, h('button', { class: 'primary', type: 'submit', text: 'Add' })), out);
+    }
+    return page('Team schedule / جدول الفريق', 'Planned shifts for the coming weeks (Dubai time). The real clock-in and clock-out happen on the salon tablet with the PIN; this page is the plan.', canEdit ? null : readOnlyNote(), form, list);
+  };
+
+  const ACTIONS = { 'set_pin:staff': 'Station PIN changed', 'clear_pin:staff': 'Station PIN removed', 'insert:cash_closings': 'Cash closing saved', 'update:cash_closings': 'Cash closing changed', 'insert:staff_schedule': 'Shift planned', 'update:staff_schedule': 'Planned shift changed', 'delete:staff_schedule': 'Planned shift deleted', clock_in: 'Clocked in', clock_out: 'Clocked out', 'payment:card': 'Card payment recorded', 'payment:applepay': 'Apple Pay recorded', 'payment:cash': 'Cash payment recorded',
+    'update:services': 'Look changed', 'insert:services': 'Look added', 'update:addons': 'Extra changed', 'insert:addons': 'Extra added', 'insert:promo_codes': 'Promo code added', 'update:promo_codes': 'Promo code changed', 'delete:promo_codes': 'Promo code deleted',
     'update:staff': 'Team member changed', 'insert:staff': 'Team member added', 'invite:staff': 'Invitation sent', 'update:salon_status': 'Salon status changed', 'insert:event_requests': 'Event request received', 'update:event_requests': 'Event request updated', 'insert:club_members': 'Club request received', 'update:club_members': 'Club request updated' };
   const describe = a => ACTIONS[a] || a;
 

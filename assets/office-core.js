@@ -10,6 +10,7 @@
   const MENU = [
     { id: 'overview', label: 'Overview', group: 'Today', roles: ['owner', 'manager'] },
     { id: 'status', label: 'Salon status', group: 'Today', roles: ['owner', 'manager'], edit: ['owner', 'manager'] },
+    { id: 'cash', label: 'Cash closing', group: 'Today', roles: ['owner', 'manager'], edit: ['owner', 'manager'] },
     { id: 'events', label: 'Event requests', group: 'Clients', roles: ['owner', 'manager'], edit: ['owner', 'manager'] },
     { id: 'club', label: 'Club members', group: 'Clients', roles: ['owner', 'manager'], edit: ['owner', 'manager'] },
     { id: 'services', label: 'Services and prices', group: 'Menu', roles: ['owner', 'manager'], edit: ['owner', 'manager'] },
@@ -17,6 +18,7 @@
     { id: 'promos', label: 'Promo codes', group: 'Menu', roles: ['owner', 'manager'], edit: ['owner', 'manager'] },
     { id: 'team', label: 'Team', group: 'Team', roles: ['owner', 'manager'], edit: ['owner'] },
     { id: 'activity', label: 'Activity log', group: 'Team', roles: ['owner', 'manager'] },
+    { id: 'schedule', label: 'Team schedule', group: 'Team', roles: ['owner', 'manager', 'stylist'], edit: ['owner', 'manager'] },
     { id: 'profile', label: 'My profile', group: 'Me', roles: ['owner', 'manager', 'stylist'], edit: ['owner', 'manager', 'stylist'] },
     { id: 'journal', label: 'Journal (blog)', group: 'Website', roles: ['owner'], href: 'blog-admin.html' },
     { id: 'floor', label: 'Floor (demo)', group: 'Website', roles: ['owner', 'manager'], href: 'admin.html' },
@@ -138,12 +140,44 @@
     return errs;
   }
 
+  // Tablette du salon : PIN à 4 chiffres, ni répété ni suivi (mêmes règles que admin_set_pin, migration 009)
+  function validatePin(pin) {
+    const p = str(pin), errs = [];
+    if (!/^[0-9]{4}$/.test(p)) errs.push('PIN: exactly 4 digits.');
+    else if (/^(.)\1{3}$/.test(p) || '0123456789'.includes(p) || '9876543210'.includes(p)) errs.push('PIN: too easy to guess (1111, 1234, 4321...). Choose another one.');
+    return errs;
+  }
+  // Caisse du jour : montants comptés par la gérante, en AED, 0 ou plus
+  function validateCash(c) {
+    const errs = [];
+    for (const [k, label] of [['cash_aed', 'Cash'], ['card_aed', 'Card'], ['other_aed', 'Other']]) {
+      const v = c[k] === '' || c[k] == null ? 0 : Number(c[k]);
+      if (!Number.isFinite(v) || v < 0 || v > 1000000) errs.push(label + ': an amount in AED, 0 or more.');
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(str(c.day))) errs.push('Day: choose a date.');
+    if (str(c.note).length > 500) errs.push('Note: 500 characters maximum.');
+    return errs;
+  }
+  // Planning : une plage horaire d'une personne de l'équipe
+  function validateShiftPlan(r) {
+    const errs = [], t = /^([01]\d|2[0-3]):[0-5]\d$/;
+    if (!str(r.staff_id)) errs.push('Team member: choose one.');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(str(r.day))) errs.push('Day: choose a date.');
+    if (!t.test(str(r.start_time)) || !t.test(str(r.end_time))) errs.push('Times: from and to, e.g. 10:00 and 18:00.');
+    else if (str(r.end_time) <= str(r.start_time)) errs.push('Times: the end must be after the start.');
+    if (str(r.note).length > 120) errs.push('Note: 120 characters maximum.');
+    return errs;
+  }
+
   // Lien WhatsApp vers une cliente (numéro +971…) ; aucun lien si le numéro n'est pas valide
   const waHref = phone => { const p = str(phone).replace(/[\s()-]/g, ''); return PHONE_RE.test(p) ? 'https://wa.me/' + p.slice(1) : ''; };
   // Message d'erreur de la base → phrase lisible
   function dbError(e) {
     const m = String((e && (e.message || e.error_description || e.error)) || e || '');
     if (/row-level security|permission denied|forbidden|42501/i.test(m)) return 'Not allowed for your role.';
+    if (/weak_pin/.test(m)) return 'This PIN is too easy to guess. Choose another one.';
+    if (/invalid_pin/.test(m)) return 'The PIN must be exactly 4 digits.';
+    if (/invalid_day/.test(m)) return 'Choose today or a day in the last 60 days.';
     if (/last_owner/.test(m)) return 'There must always be at least one active owner.';
     if (/already_staff/.test(m)) return 'This person is already in the team.';
     if (/duplicate key|already/i.test(m)) return 'This code already exists.';
@@ -192,5 +226,5 @@
   }
 
   root.QAMAR_OFFICE = { auditItem, auditChange, ROLES, ROLE_LABELS, MENU, menuFor, canSee, canEdit, home, STATUSES, STATUS_LABELS, EVENT_TYPES, TIERS, SOURCES, ADDON_KINDS, SALON_MODES,
-    validateService, validateAddon, validatePromoCode, validateRequest, validateStaff, validateInvite, validateSalonStatus, waHref, dbError };
+    validateService, validateAddon, validatePromoCode, validateRequest, validateStaff, validateInvite, validateSalonStatus, validatePin, validateCash, validateShiftPlan, waHref, dbError };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -38,6 +38,9 @@
         { id: 'c3', created_at: iso(3, 10), updated_at: iso(3, 10), name: 'Demo guest', phone: '+971500000013', email: null, tier: 'undecided', founding: false, lang: 'en', source: 'walk-in', status: 'new', staff_notes: null, handled_by: null }
       ],
       salon_status: [{ id: 1, lounge_waiting: 0, chairs_free: null, mode: 'preopening', message_en: 'Opening March 2027 off Sheikh Zayed Road.', message_ar: 'الافتتاح مارس ٢٠٢٧ قرب شارع الشيخ زايد.', wait_minutes: null, updated_at: iso(1), updated_by: 'u-owner' }],
+      cash_closings: [{ id: 'c1', day: iso(1).slice(0, 10), cash_aed: 380, card_aed: 1240, other_aed: 0, expected: { cash: { count: 3, total: 380, tips: 0 }, card: { count: 7, total: 1150, tips: 90 } }, note: null, closed_by: 'u-manager', created_at: iso(1, 23), updated_at: iso(1, 23) }],
+      staff_schedule: [{ id: 'p1', staff_id: 'u-stylist', day: iso(-1).slice(0, 10), start_time: '10:00:00', end_time: '18:00:00', note: null, created_at: iso(1) }],
+      pins: { 'u-stylist': iso(3) },
       audit_logs: [
         { id: 5, actor: 'u-manager', action: 'update:event_requests', target: 'e2', details: { before: { status: 'new' }, after: { status: 'contacted' } }, at: iso(1, 16) },
         { id: 4, actor: 'u-owner', action: 'update:services', target: 'glow', details: { before: { price_aed: 169 }, after: { price_aed: 179 } }, at: iso(2, 11) },
@@ -56,7 +59,7 @@
     return {
       me: () => later(me),
       list(t) {
-        if (t !== 'staff' && t !== 'salon_status' && !isMgr) return Promise.reject(new Error('permission denied'));
+        if (t !== 'staff' && t !== 'salon_status' && t !== 'staff_schedule' && !isMgr) return Promise.reject(new Error('permission denied'));
         if (t === 'staff' && !isMgr) return later([me]);
         const rows = [...db[t]];
         if (t === 'services' || t === 'addons') rows.sort((a, b) => a.sort_order - b.sort_order);
@@ -86,6 +89,18 @@
         const s = db.salon_status[0], before = clone(s);
         Object.assign(s, { mode: a.p_mode, message_en: a.p_message_en || null, message_ar: a.p_message_ar || null, wait_minutes: a.p_wait_minutes, lounge_waiting: a.p_lounge_waiting ?? s.lounge_waiting, chairs_free: a.p_chairs_free, updated_at: new Date().toISOString(), updated_by: me.id });
         log('update:salon_status', '1', before, clone(s)); return later(s);
+      },
+      // File réelle (009) : PIN (jamais stocké ici, seulement « a un PIN »), caisse du jour
+      pinStatus: () => (isMgr ? later(db.staff.map(x => ({ staff_id: x.id, has_pin: !!db.pins[x.id], updated_at: db.pins[x.id] || null }))) : Promise.reject(new Error('forbidden'))),
+      setPin(id, pin) { if (!isMgr) deny(); if (!/^[0-9]{4}$/.test(pin)) return Promise.reject(new Error('invalid_pin')); db.pins[id] = new Date().toISOString(); log('set_pin:staff', id, null, { pin: 'changed' }); return later('ok'); },
+      clearPin(id) { if (!isMgr) deny(); delete db.pins[id]; log('clear_pin:staff', id, null, { pin: 'removed' }); return later('ok'); },
+      cashTotals: () => (isMgr ? later({ cash: { count: 2, total: 260, tips: 0 }, card: { count: 5, total: 890, tips: 75 }, applepay: { count: 1, total: 139, tips: 14 } }) : Promise.reject(new Error('forbidden'))),
+      closeCash(a) {
+        if (!isMgr) deny();
+        let r = db.cash_closings.find(x => x.day === a.p_day); const before = r ? clone(r) : null;
+        if (!r) { r = { id: 'n' + (++seq), day: a.p_day, created_at: new Date().toISOString() }; db.cash_closings.unshift(r); }
+        Object.assign(r, { cash_aed: a.p_cash, card_aed: a.p_card, other_aed: a.p_other, note: a.p_note || null, expected: { cash: { count: 2, total: 260, tips: 0 }, card: { count: 5, total: 890, tips: 75 } }, closed_by: me.id, updated_at: new Date().toISOString() });
+        log((before ? 'update' : 'insert') + ':cash_closings', r.id, before, clone(r)); return later(r);
       },
       // Démo : la fonction Edge n'existe pas ici, on montre la méthode manuelle (comme avant son déploiement)
       invite: () => later({ ok: false, notDeployed: true }),
