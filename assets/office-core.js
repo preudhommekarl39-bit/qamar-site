@@ -145,6 +145,7 @@
     const m = String((e && (e.message || e.error_description || e.error)) || e || '');
     if (/row-level security|permission denied|forbidden|42501/i.test(m)) return 'Not allowed for your role.';
     if (/last_owner/.test(m)) return 'There must always be at least one active owner.';
+    if (/already_staff/.test(m)) return 'This person is already in the team.';
     if (/duplicate key|already/i.test(m)) return 'This code already exists.';
     if (/check constraint/i.test(m)) return 'A value is out of the allowed range. Please check the form.';
     if (/failed to fetch|network|load failed/i.test(m)) return 'The server could not be reached. Check your connection and try again.';

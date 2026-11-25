@@ -236,7 +236,7 @@ nav.side .badge{background:var(--rose);color:#fff;border-radius:999px;font-size:
     if (session && linkType) { $('who').textContent = session.user.email || ''; show('vPassword'); return; }
     session ? enter(location.hash.replace(/^#/, '')) : show('vLogin');
   }
-  addEventListener('hashchange', () => { if (local && /^#local-demo/.test(location.hash) && demo) { const m = location.hash.match(/^#local-demo(?:-(owner|manager|stylist))?(?:\/([a-z]+))?$/); if (m && (m[1] || 'owner') !== me.role) location.reload(); } });
+  addEventListener('hashchange', () => { if (local && /^#local-demo/.test(location.hash) && demo) { const m = location.hash.match(/^#local-demo(?:-(owner|manager|stylist))?(?:\/([a-z]+))?$/); if (m && me && (m[1] || 'owner') !== me.role) location.reload(); } });
 
   $('pwForm').addEventListener('submit', async e => {
     e.preventDefault();

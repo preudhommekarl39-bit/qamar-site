@@ -153,6 +153,13 @@ console.log('Back-office');
   test('migration 007: catalogue, team and requests are audited (before / after)', () => ['services', 'addons', 'promo_codes', 'staff', 'event_requests', 'club_members'].every(t => new RegExp(`after insert or update or delete on ${t} for each row execute function audit_row`).test(code)) && /'before', b, 'after', a/.test(code));
   test('migration 007: public price view exposes only safe columns', () => { const v = (code.match(/create or replace view public_prices[\s\S]*?;/) || [''])[0]; return !!v && !/\*/.test(v) && !/name_|look_|created_by|updated_by/.test(v) && /grant select on public_prices to anon, authenticated/.test(code); });
   test('migration 007: no secret in SQL', () => !/service_role|eyJhbGciOi/.test(sql));
+  test('migration 007: the add-ons it inserts fit its own name limit (else the whole migration is rolled back)', () => {
+    const lim = Number((code.match(/addons_names_valid check \(\s*char_length\(trim\(name_en\)\) between 1 and (\d+)/) || [])[1]);
+    const ins = (code.match(/insert into addons \(id, name_en, name_ar[^;]*;/) || [''])[0];
+    const names = [...ins.matchAll(/\('[a-z-]+', '([^']*)', '([^']*)'/g)].flatMap(m => [m[1], m[2]]);
+    const bad = names.filter(n => [...n].length > lim);
+    return lim > 0 && names.length >= 18 && (bad.length ? bad : true);
+  });
 
   const fn = readFileSync('supabase/functions/invite-staff/index.ts', 'utf8');
   test('invite-staff function: checks an owner JWT, invites by e-mail, secret key from the environment only', () => /auth\.getUser\(\)/.test(fn) && /role !== 'owner'/.test(fn) && /inviteUserByEmail\(email, \{ redirectTo: OFFICE_URL/.test(fn) && /Deno\.env\.get\('SUPABASE_SERVICE_ROLE_KEY'\)/.test(fn) && !/eyJhbGciOi/.test(fn));
