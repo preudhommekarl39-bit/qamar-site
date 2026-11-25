@@ -2,7 +2,6 @@
 # 1. e2e        : parcours réels dans Chromium (5 largeurs, EN/AR, menu mobile, langue, file complète, noindex)
 #                 + contrôles HTTP des domaines (https, www, .ae, ancienne adresse, 404, sitemap, robots, hreflang)
 # 2. lighthouse : mesures de laboratoire (performance, accessibilité, bonnes pratiques, SEO) mobile et ordinateur
-# Pas lancé après les reconstructions planifiées du journal (toutes les heures), seulement après un push ou à la demande.
 # Les rapports Lighthouse complets sont téléchargeables dans l'onglet Actions (artefact « lighthouse »).
 name: Quality
 
@@ -17,7 +16,7 @@ permissions:
 
 jobs:
   e2e:
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event != 'schedule') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,7 +35,7 @@ jobs:
         run: echo '```' >> $GITHUB_STEP_SUMMARY && cat e2e.txt >> $GITHUB_STEP_SUMMARY && echo '```' >> $GITHUB_STEP_SUMMARY
 
   lighthouse:
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event != 'schedule') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-node@v4
