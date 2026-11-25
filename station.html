@@ -134,7 +134,7 @@
   document.title = `QAMAR — Seat ${seat}`;
 
   let sid = (() => { try { return localStorage.getItem(KEY); } catch (e) { return null; } })();
-  let pick = null, pin = '';
+  let pick = null, pin = '', pinBusy = false; // pinBusy : un PIN en cours de vérification (file réelle), les touches attendent
   let ui = { step: 'summary', tip: null, method: null, stars: 0, thanks: null, lastTicket: null };
   const view = document.getElementById('view');
 
@@ -153,13 +153,16 @@
         <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0, '⌫'].map(k => k === '' ? '<span></span>' : `<button data-k="${k}">${k}</button>`).join('')}</div>
         <p class="muted" style="margin-top:18px;font-size:.9rem">Entering your PIN clocks you in automatically.${Q.isDemo ? ` <b>Demo only</b>: test PIN ${s.pin}. Real staff accounts use secure sign-in (see SECURITY.md).` : ''}</p></div>` : '<p class="muted" style="margin-top:24px">Tap your name, then your PIN — your shift starts the moment you log in.</p>'}
     </div>`;
-    view.querySelectorAll('.who button').forEach(b => b.onclick = () => { pick = b.dataset.id; pin = ''; renderLogin(); });
+    view.querySelectorAll('.who button').forEach(b => b.onclick = () => { if (pinBusy) return; pick = b.dataset.id; pin = ''; renderLogin(); });
     view.querySelectorAll('.pad button').forEach(b => b.onclick = () => {
+      if (pinBusy) return; // sinon chaque appui pendant la vérification renvoie le même PIN (et compte un échec de plus)
       const k = b.dataset.k;
       if (k === '⌫') pin = pin.slice(0, -1); else if (pin.length < 4) pin += k;
       if (pin.length === 4) {
         const tried = pick, code = pin;
+        pinBusy = true;
         Promise.resolve(Q.clockIn(tried, code)).then(res => {
+        pinBusy = false;
         if (res.ok) {
           sid = tried; pin = ''; pick = null;
           try { localStorage.setItem(KEY, sid); } catch (e) { /* ignore */ }

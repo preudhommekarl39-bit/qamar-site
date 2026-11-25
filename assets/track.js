@@ -14,7 +14,9 @@
     const s = document.createElement('script'); s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(cfg.ga4Id);
     document.head.appendChild(s);
     window.dataLayer = window.dataLayer || []; window.gtag = function () { window.dataLayer.push(arguments); };
-    window.gtag('js', new Date()); window.gtag('config', cfg.ga4Id, { anonymize_ip: true });
+    window.gtag('js', new Date()); // adresse envoyée sans le paramètre ?t= (lien de ticket : identifiant + jeton d'accès, jamais transmis à Google)
+    const u = new URL(location.href); u.searchParams.delete('t');
+    window.gtag('config', cfg.ga4Id, { anonymize_ip: true, page_location: u.href });
   }
   // Un seul envoi par action : les éléments portent data-track="nom_evenement" (et data-track-loc facultatif)
   window.QamarTrack = (event, params) => {
