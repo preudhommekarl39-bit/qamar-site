@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-staff>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -117,12 +117,15 @@
 <script src="assets/config.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/store.js"></script>
+<script src="assets/store-supabase.js"></script>
 <script>
 (function () {
   const D = Q.D;
   const params = new URLSearchParams(location.search);
   const seat = Math.min(5, Math.max(1, +params.get('seat') || +(location.hash.match(/seat(\d)/) || [])[1] || 1));
   window.addEventListener('hashchange', () => location.reload());
+  Q.stationSeat = seat; // file réelle : le PIN pointe la coiffeuse à ce poste (station_unlock)
+  const live = !Q.isDemo; // file réelle (Supabase) : actions par le serveur, réponses en promesse
   const KEY = 'qamar:station:' + seat;
   const tones = ['#D9A08C', '#8E6A6A', '#B87A62', '#C49A5A', '#A97964'];
   const tone = sid => tones[Q.state.stylists.findIndex(s => s.id === sid) % 5];
@@ -155,15 +158,19 @@
       const k = b.dataset.k;
       if (k === '⌫') pin = pin.slice(0, -1); else if (pin.length < 4) pin += k;
       if (pin.length === 4) {
-        const res = Q.clockIn(pick, pin);
+        const tried = pick, code = pin;
+        Promise.resolve(Q.clockIn(tried, code)).then(res => {
         if (res.ok) {
-          sid = pick; pin = ''; pick = null;
+          sid = tried; pin = ''; pick = null;
           try { localStorage.setItem(KEY, sid); } catch (e) { /* ignore */ }
           Q.toast(`Clocked in at ${Q.clock(Date.now())} ✦`);
           return render();
         }
-        pin = ''; renderLogin(); document.getElementById('pinBox').classList.add('shake');
-        Q.toast(res.error === 'demo_pin_disabled' ? 'Demo PINs are disabled in production. Sign in with your staff account.' : res.error === 'locked' ? 'Too many attempts. Try again in 5 minutes or ask the manager.' : 'Wrong PIN. Please try again.'); return;
+        pin = ''; renderLogin(); const pb = document.getElementById('pinBox'); if (pb) pb.classList.add('shake');
+        if (live && !['pin', 'locked'].includes(res.error)) return; // erreur réseau ou serveur : déjà signalée par le connecteur
+        Q.toast(res.error === 'demo_pin_disabled' ? 'Demo PINs are disabled in production. Sign in with your staff account.' : res.error === 'locked' ? 'Too many attempts. Try again in 5 minutes or ask the manager.' : 'Wrong PIN. Please try again.');
+        });
+        return;
       }
       renderLogin();
     });
@@ -271,7 +278,7 @@
       ${p.guarantee ? `<div><span>Over 35 min — on us ✦</span><span>−${p.base - p.discount} AED</span></div>` : ''}
       ${p.addons.map(a => `<div><span>${Q.esc(a.name.en)}</span><span>${a.price ? a.price + ' AED' : 'free'}</span></div>`).join('')}
     </div>`;
-    if (ui.step === 'processing') return `<div class="panel pay"><div class="lbl">Payment</div><div class="spinner"></div><h2>Hold your phone near the reader</h2><p class="muted">${ui.method === 'applepay' ? 'Apple Pay' : 'Card'} · ${p.total + (ui.tipAmt || 0)} AED</p></div>`;
+    if (ui.step === 'processing') return `<div class="panel pay"><div class="lbl">Payment</div><div class="spinner"></div><h2>Hold your phone near the reader</h2><p class="muted">${ui.method === 'applepay' ? 'Apple Pay' : 'Card'} · ${p.total + (ui.tipAmt || 0)} AED</p>${live ? `<p class="muted">Enter this amount on the salon card terminal, then confirm here once it is approved. <span lang="ar" dir="rtl">أدخلي هذا المبلغ في جهاز الدفع بالصالون، ثم أكّدي هنا بعد الموافقة.</span></p><div class="row-btns"><button class="btn btn-ghost" id="backPay">Back <span lang="ar" dir="rtl">رجوع</span></button><button class="btn btn-primary" id="termOk">Approved on the terminal <span lang="ar" dir="rtl">تمت الموافقة على الجهاز</span></button></div>` : ''}</div>`;
     if (ui.step === 'tip') {
       const amt = pc => Math.round(p.total * pc / 100);
       return `<div class="panel pay"><div class="lbl">Thank you for choosing ${Q.esc(name)}</div><h2>Would you like to add a tip?</h2><p class="muted">100% goes directly to ${Q.esc(name)}.</p>
@@ -285,7 +292,7 @@
       <div class="methods">
         <button class="m-apple" data-m="applepay"><span style="font-size:1.4rem"> Pay</span><small>Tap your phone or watch</small></button>
         <button class="m-card" data-m="card"><span>💳 Card</span><small>Tap or insert</small></button>
-        <button class="m-qr" data-m="qr"><span>📱 Pay on my phone</span><small>Scan a QR code</small></button>
+        ${live && !Q.onlinePayments ? '' : `<button class="m-qr" data-m="qr"><span>📱 Pay on my phone</span><small>Scan a QR code</small></button>`}
         <button class="m-cash" data-m="cash"><span>💵 Cash</span><small>With your stylist</small></button>
       </div></div>`;
   }
@@ -299,7 +306,7 @@
   }
 
   function render() {
-    if (!sid || !Q.openShift(sid)) { sid = null; return renderLogin(); }
+    if (!sid || !Q.openShift(sid) || (live && !Q.hasStationSession(sid))) { sid = null; return renderLogin(); }
     const typing = document.activeElement && ['customTip', 'comment'].includes(document.activeElement.id);
     if (typing) return;
     const cur = Q.currentOf(sid);
@@ -324,9 +331,9 @@
 
   function bind(t) {
     const $ = id => document.getElementById(id);
-    view.querySelectorAll('[data-call]').forEach(b => b.onclick = () => { if (Q.currentOf(sid)) return Q.toast('Finish your current client first'); const tk = Q.call(sid, b.dataset.call); Q.toast(tk ? `🔔 ${tk.name} notified — seat ${seat}` : 'This client is no longer available (already called or left).'); });
+    view.querySelectorAll('[data-call]').forEach(b => b.onclick = () => { if (Q.currentOf(sid)) return Q.toast('Finish your current client first'); Promise.resolve(Q.call(sid, b.dataset.call)).then(tk => Q.toast(tk ? `🔔 ${tk.name} notified — seat ${seat}` : 'This client is no longer available (already called or left).')); });
     Q.bindLounge(view, sid);
-    if ($('callBtn')) $('callBtn').onclick = () => { const b = $('callBtn'); b.disabled = true; const tk = Q.call(sid); Q.toast(tk ? `🔔 ${tk.name} notified — seat ${seat}` : 'Nobody to call right now.'); };
+    if ($('callBtn')) $('callBtn').onclick = () => { const b = $('callBtn'); b.disabled = true; Promise.resolve(Q.call(sid)).then(tk => { b.disabled = false; Q.toast(tk ? `🔔 ${tk.name} notified — seat ${seat}` : 'Nobody to call right now.'); }); };
     if (!t) return;
     if ($('startBtn')) $('startBtn').onclick = () => Q.start(t.id);
     if ($('requeue')) $('requeue').onclick = () => Q.twoTap($('requeue'), () => { Q.requeue(t.id); Q.toast('Client put back in the queue at her original place'); }, 'Tap again to confirm');
@@ -346,7 +353,9 @@
     if ($('backPay')) $('backPay').onclick = () => { ui.step = 'summary'; render(); };
     if ($('cashOk')) $('cashOk').onclick = () => Q.pay(t.id, { method: 'cash', tip: 0 });
     view.querySelectorAll('[data-tip]').forEach(b => b.onclick = () => { ui.tip = b.dataset.tip === 'custom' ? 'custom' : +b.dataset.tip; render(); if (ui.tip === 'custom') setTimeout(() => $('customTip')?.focus(), 30); });
-    const process = tipAmt => { ui.tipAmt = tipAmt; ui.step = 'processing'; render(); setTimeout(() => Q.pay(t.id, { method: ui.method, tip: tipAmt }), 1600); };
+    // démo : paiement simulé ; file réelle : la coiffeuse confirme après la validation du terminal de paiement du salon
+    const process = tipAmt => { ui.tipAmt = tipAmt; ui.step = 'processing'; render(); if (!live) setTimeout(() => Q.pay(t.id, { method: ui.method, tip: tipAmt }), 1600); };
+    if ($('termOk')) $('termOk').onclick = () => { $('termOk').disabled = true; Q.pay(t.id, { method: ui.method, tip: ui.tipAmt || 0 }); };
     if ($('noTip')) $('noTip').onclick = () => process(0);
     if ($('tipPay')) $('tipPay').onclick = () => { const p = Q.pricing(t); process(ui.tip === 'custom' ? Math.max(0, +($('customTip')?.value || 0)) : Math.round(p.total * ui.tip / 100)); };
     view.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { ui.stars = +b.dataset.s; view.querySelectorAll('[data-s]').forEach(x => x.classList.toggle('on', +x.dataset.s <= ui.stars)); $('sendRate').disabled = false; });

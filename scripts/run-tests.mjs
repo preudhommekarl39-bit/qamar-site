@@ -151,7 +151,7 @@ console.log('Native app & stores');
   test('native.js: external links leave the app (system browser / WhatsApp), new texts EN + AR without em dash or emoji', () => /u\.origin !== location\.origin/.test(nat) && /location\.href = ext/.test(nat) && /ar: \{ home: 'الرئيسية'/.test(nat) && noDash((nat.match(/const T = \{[\s\S]*?\n  \};/) || [''])[0]));
   test('track.js: analytics never run inside the native app', () => /!native && cfg\.enabled/.test(readFileSync('assets/track.js', 'utf8')));
   const qh2 = readFileSync('queue.html', 'utf8'), qd2 = extractDict(qh2);
-  test('queue.html in the app: no tip or payment buttons (pay at the counter), no staff dashboard link, home = app home', () => /if \(inApp\) return; \/\/ app : pas de pourboire/.test(qh2) && /\$\{inApp \? '' : `/.test(qh2) && /showDemoStrip && !inApp/.test(qh2) && /homeHref = \(\) => inApp \? 'index\.html'/.test(qh2) && qd2.pay_counter && /[؀-ۿ]/.test(qd2.pay_counter.ar) && noDash(qd2.pay_counter.en + qd2.pay_counter.ar + qd2.demo_counter.en + qd2.demo_counter.ar));
+  test('queue.html in the app: no tip or payment buttons (pay at the counter), no staff dashboard link, home = app home', () => /const counterPay = inApp \|\| \(!Q\.isDemo && !Q\.onlinePayments\)/.test(qh2) && /if \(counterPay\) return; \/\/ app, ou file réelle/.test(qh2) && /\$\{counterPay \? '' : `/.test(qh2) && /showDemoStrip && !inApp/.test(qh2) && /homeHref = \(\) => inApp \? 'index\.html'/.test(qh2) && qd2.pay_counter && /[؀-ۿ]/.test(qd2.pay_counter.ar) && noDash(qd2.pay_counter.en + qd2.pay_counter.ar + qd2.demo_counter.en + qd2.demo_counter.ar));
   // Capacitor : versions exactes, même version majeure, aucune navigation interne vers un site externe
   const pkg = JSON.parse(readFileSync('package.json', 'utf8')), cap = JSON.parse(readFileSync('capacitor.config.json', 'utf8'));
   const deps = { ...pkg.dependencies, ...pkg.devDependencies }, capDeps = Object.entries(deps).filter(([n]) => n.startsWith('@capacitor/') && n !== '@capacitor/assets');
@@ -374,6 +374,54 @@ try {
   test('full build: go.html, go/index.html and qr-card.html are published, out of the sitemap; sw.js keeps go.html', () => ['go.html', 'go/index.html', 'qr-card.html'].every(f => existsSync('_site/' + f)) && !/go\.html|qr-card/.test(sm) && /'go\.html'/.test(readFileSync('_site/sw.js', 'utf8')));
   test('full build: office.html is published with noindex and out of the sitemap', () => /noindex/.test(readFileSync('_site/office.html', 'utf8')) && !/office\.html/.test(sm));
 } catch (e) { test('full build runs', () => 'build failed: ' + (e.stderr || e.message)); }
+
+// ---- 7. File réelle (phase 2) : migration 009, connecteur Supabase, tests SQL sur PGlite ----
+console.log('Live queue (phase 2, Supabase)');
+{
+  const sql9 = readFileSync('supabase/migrations/009_live_queue.sql', 'utf8'), code9 = sql9.replace(/--[^\n]*/g, '');
+  test('migration 009: re-runnable (if not exists, or replace, drop policy/trigger before create)', () => {
+    const bad = [];
+    if (/create table (?!if not exists)/i.test(code9)) bad.push('create table');
+    if (/create (?:unique )?index (?!if not exists)/i.test(code9)) bad.push('create index');
+    if (/create function/i.test(code9) || /create view/i.test(code9)) bad.push('create without or replace');
+    if (/add column (?!if not exists)/i.test(code9)) bad.push('add column');
+    if (/add value (?!if not exists)/i.test(code9)) bad.push('enum value');
+    for (const m of code9.matchAll(/create policy (\w+) on (\w+)/gi)) if (!new RegExp(`drop policy if exists ${m[1]} on ${m[2]}`, 'i').test(code9)) bad.push('policy ' + m[1]);
+    for (const m of code9.matchAll(/create trigger (\w+)/gi)) if (!new RegExp(`drop trigger if exists ${m[1]} on`, 'i').test(code9)) bad.push('trigger ' + m[1]);
+    return bad.length ? bad : true;
+  });
+  test('migration 009: never drops a table, column or data', () => !/(?<!publication supabase_realtime )drop table|drop column|truncate|drop type/i.test(code9) && !/delete from (?!queue_public|staff_public|staff_pins|ticket_addons)/i.test(code9));
+  test('migration 009: every security definer function sets search_path = public', () => { const bad = code9.split(/create or replace function/i).slice(1).filter(f => /security definer/i.test(f.split('$$')[0]) && !/set search_path = public/i.test(f.split('$$')[0])).map(f => f.slice(0, 40)); return bad.length ? bad : true; });
+  test('migration 009: RLS on every new table; PINs, attempts and sessions have no policy at all', () => ['staff_pins', 'station_pin_attempts', 'station_sessions', 'queue_public', 'staff_public', 'cash_closings', 'staff_schedule'].every(t => new RegExp(`alter table ${t} enable row level security`).test(code9)) && !/create policy \w+ on (staff_pins|station_pin_attempts|station_sessions)/.test(code9));
+  test('migration 009: PIN hashed with bcrypt (crypt + gen_salt bf), sessions stored as sha256 only', () => /crypt\(p_pin, gen_salt\('bf', 8\)\)/.test(code9) && /encode\(digest\(tok::text, 'sha256'\), 'hex'\)/.test(code9) && !/insert into station_sessions \([^)]*\btoken\b[^_]/.test(code9));
+  test('migration 009: realtime publishes only the anonymous mirrors', () => /drop table tickets/.test(code9) && /add table queue_public/.test(code9) && /add table staff_public/.test(code9) && !/add table (tickets|shifts|payments)/.test(code9));
+  test('migration 009: no secret in SQL', () => !/service_role_key|eyJhbGciOi/i.test(sql9));
+  const cfg = { window: {} }; vm.runInNewContext(readFileSync('assets/config.js', 'utf8'), cfg);
+  test('config.js: backend stays "demo" and push stays off until the owner switches', () => cfg.window.QAMAR_CONFIG.backend === 'demo' && cfg.window.QAMAR_CONFIG.push.enabled === false);
+  const queuePages = ['index.html', 'queue.html', 'app-home.html', 'entrance.html', 'station.html', 'admin.html'];
+  test('queue pages load assets/store-supabase.js right after store.js', () => { const bad = queuePages.filter(f => !/<script src="assets\/store\.js"><\/script>\s*<script src="assets\/store-supabase\.js"><\/script>/.test(readFileSync(f, 'utf8'))); return bad.length ? bad : true; });
+  test('staff screens are marked data-staff (signed-in board), client pages are not', () => ['station.html', 'admin.html'].every(f => /<html[^>]* data-staff/.test(readFileSync(f, 'utf8'))) && ['index.html', 'queue.html', 'app-home.html', 'entrance.html'].every(f => !/<html[^>]* data-staff/.test(readFileSync(f, 'utf8'))));
+  const ssb = readFileSync('assets/store-supabase.js', 'utf8');
+  test('store-supabase.js: inactive unless backend is "supabase"; pinned supabase-js; clients never keep a session', () => /if \(C\.backend !== 'supabase' \|\| !Q/.test(ssb) && /supabase-js@2\.45\.4\//.test(ssb) && /persistSession: false/.test(ssb) && /storageKey: 'qamar-blog-admin'/.test(ssb) && !/service_role|sb_secret_/i.test(ssb));
+  test('store-supabase.js: new texts in English and Arabic, no em dash or emoji', () => { const m = [...ssb.matchAll(/\{ en: '([^']*)', ar: '([^']*)' \}/g)]; return m.length >= 15 && m.every(x => x[1] && /[؀-ۿ]/.test(x[2]) && !/[—\u{1F300}-\u{1FAFF}]/u.test(x[1] + x[2])); });
+  const qd9 = extractDict(readFileSync('queue.html', 'utf8'));
+  test('queue.html: "pay at your station" text in EN + AR, no em dash', () => qd9.pay_station && /[؀-ۿ]/.test(qd9.pay_station.ar) && !/—/.test(qd9.pay_station.en + qd9.pay_station.ar));
+  // Démo inchangée : config demo + connecteur chargé = moteur synchrone, rien ne part
+  const st2 = new Map();
+  const c2 = { console, setTimeout, clearTimeout, setInterval: () => 0, clearInterval() {}, localStorage: { getItem: k => (st2.has(k) ? st2.get(k) : null), setItem: (k, v) => st2.set(k, String(v)), removeItem: k => st2.delete(k) },
+    navigator: {}, addEventListener() {}, location: { search: '' }, URLSearchParams,
+    document: { documentElement: { dataset: {}, hasAttribute: () => false }, addEventListener() {}, getElementById: () => null, querySelector: () => null, querySelectorAll: () => [], createElement: () => ({ style: {}, setAttribute() {}, appendChild() {} }), body: { appendChild() {} }, head: { appendChild: () => { throw new Error('script added'); } } }, QAMAR_TEST: true };
+  c2.window = c2; vm.createContext(c2);
+  for (const f of ['assets/config.js', 'assets/data.js', 'assets/store.js', 'assets/store-supabase.js']) vm.runInContext(readFileSync(f, 'utf8'), c2, { filename: f });
+  test('demo backend: the connector does nothing (mode demo, synchronous joinQueue, no script loaded, demo link format)', () => { const t = c2.Q.joinQueue({ name: 'A', phone: '+971501234567', serviceId: 'express' }); return c2.Q.mode === 'demo' && c2.Q.isDemo && t && typeof t.then !== 'function' && t.status === 'waiting' && c2.Q.ticketLink(t) === t.id && c2.Q.parseTicketParam(t.id).id === t.id && !c2.Q.client; });
+}
+{
+  const { runSqlTests } = await import('../tests/sql/live-queue.test.mjs');
+  const r1 = await runSqlTests(); pass += r1.pass; fail += r1.fail;
+  const { runStoreTests } = await import('../tests/sql/store-supabase.test.mjs');
+  const r2 = await runStoreTests(); pass += r2.pass; fail += r2.fail;
+  if (r1.skipped || r2.skipped) console.log('  (SQL and connector tests need PGlite: PGLITE_DIR=/path/to/node_modules)');
+}
 
 console.log(`\n${pass} passed · ${fail} failed`);
 process.exit(fail ? 1 : 0);

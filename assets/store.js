@@ -29,14 +29,18 @@
   }
   let state = load();
   let memoryOnly = false;
+  // Mode connecté : assets/store-supabase.js remplace l'état local par un miroir du serveur (rien n'est écrit dans localStorage,
+  // la démo de cet appareil reste intacte). Les pages attendent le premier chargement avant d'afficher.
+  let remote = false, remoteReady = false;
 
-  function emit() { listeners.forEach(fn => { try { fn(state); } catch (e) { console.error(e); } }); }
+  function emit() { if (remote && !remoteReady) return; listeners.forEach(fn => { try { fn(state); } catch (e) { console.error(e); } }); }
   function commit() {
+    if (remote) { emit(); return; }
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { memoryOnly = true; }
     if (chan) chan.postMessage('sync');
     emit();
   }
-  function refresh() { state = load(); emit(); }
+  function refresh() { if (remote) return; state = load(); emit(); }
   if (chan) chan.onmessage = refresh;
   window.addEventListener('storage', e => { if (e.key === KEY) refresh(); });
   setInterval(emit, 20000); // les temps d'attente avancent même sans événement
@@ -119,6 +123,7 @@
   const CLOSED = ['cancelled', 'noshow'];
   // places « −70 % » réellement consommées : les tickets annulés ou absents libèrent leur place
   function launchUsed() {
+    if (state.remote && Number.isFinite(state.remote.launchUsed)) return state.remote.launchUsed; // compteur du serveur (vue public_offer)
     const since = state.launchResetAt || 0;
     // une place par PERSONNE : un groupe de 4 à −70 % consomme 4 places
     return state.tickets.filter(t => !CLOSED.includes(t.status) && t.createdAt >= since)
@@ -215,7 +220,7 @@
     D, get state() { return state; }, get memoryOnly() { return memoryOnly; },
     // Ce moteur stocke tout dans le navigateur : il reste en mode démo tant que le connecteur Supabase n'a pas
     // réellement pris le relais (window.QAMAR_BACKEND_READY). Une config « supabase » incomplète n'efface jamais le mot « démo ».
-    mode: (window.QAMAR_CONFIG && window.QAMAR_CONFIG.backend === 'supabase' && window.QAMAR_BACKEND_READY === true) ? 'supabase' : 'demo',
+    get mode() { return (window.QAMAR_CONFIG && window.QAMAR_CONFIG.backend === 'supabase' && window.QAMAR_BACKEND_READY === true) ? 'supabase' : 'demo'; },
     get isDemo() { return this.mode !== 'supabase'; },
     get configError() {
       const c = window.QAMAR_CONFIG || {};
@@ -224,7 +229,12 @@
       if (c.environment === 'production' && this.mode !== 'supabase') return 'Configuration error: production environment is running in demo mode. Nothing is saved for the salon.';
       return '';
     },
-    on(fn) { listeners.push(fn); fn(state); },
+    on(fn) { listeners.push(fn); if (!remote || remoteReady) fn(state); },
+    // Réservé au connecteur Supabase (assets/store-supabase.js) : branche le miroir du serveur à la place de l'état local
+    _attachRemote(initial) {
+      remote = true; remoteReady = false; state = initial;
+      return { get: () => state, set: (s, ready = true) => { state = s; if (ready) remoteReady = true; emit(); }, emit };
+    },
     service, addon, stylist, ticket, openShift, online, duration, currentOf, schedule, estimate, ticketEta, position, pricing, fmt, ticketCode, minsUntil, startOfDay,
     quote, groupQuote, bestPromo, checkPromoCode, launchUsed, available, dubai, partyOf, sizeOf,
 
@@ -443,6 +453,9 @@
     const c = {}; p.forEach(x => { c[x.serviceId] = (c[x.serviceId] || 0) + 1; });
     return `×${p.length} · ` + Object.entries(c).map(([id, n]) => look(id) + (n > 1 ? ` ×${n}` : '')).join(', ');
   };
+  // Lien de ticket (?t=…) : en démo l'identifiant seul ; en mode connecté « <id>.<jeton> » (store-supabase.js), ouvrable sur tout appareil
+  Q.parseTicketParam = v => { const [id, key] = String(v || '').split('.'); return { id: id || null, key: key || null }; };
+  Q.ticketLink = t => (t ? t.id : '');
   Q.esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   Q.logo = (cls = 'logo-mark') => `<svg class="${cls}" viewBox="0 0 120 160" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M82 14C50 18 30 46 34 76c4 24 24 38 46 36"/><path d="M82 14C62 26 54 48 58 70"/><path d="M58 70c4 16 30 20 26 42-2 12-12 20-14 36"/><path d="M64 60c2 20 32 26 28 50-2 14-12 24-14 40"/><path d="M104 74c-4 18-14 30-24 38"/></svg>`;
   Q.toast = msg => {

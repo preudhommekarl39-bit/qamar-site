@@ -240,6 +240,7 @@
 <script src="assets/config.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/store.js"></script>
+<script src="assets/store-supabase.js"></script>
 <script src="assets/sakura.js"></script>
 <script src="assets/looks-fx.js"></script>
 <script src="assets/cursor-fx.js"></script>
@@ -314,6 +315,7 @@
     app_sheet: { en: "Your place in line on your home screen. We'll tell you when it's your turn.", ar: 'مكانكِ في الطابور على شاشتك الرئيسية. سنخبركِ عندما يحين دوركِ.' },
     app_ios: { en: 'On iPhone, the app opens separately from Safari. For today, keep this page open: your ticket is {c}. Your next visits start from the app.', ar: 'على الآيفون، يفتح التطبيق بشكل منفصل عن سفاري. لزيارة اليوم، أبقي هذه الصفحة مفتوحة: تذكرتكِ {c}. زياراتكِ القادمة تبدأ من التطبيق.' },
     tk_missing: { en: 'This ticket is not on this device. In this preview, a ticket stays in the browser where it was created: open it there, or join again here.', ar: 'هذه التذكرة غير موجودة على هذا الجهاز. في هذه المعاينة تبقى التذكرة في المتصفح الذي أُنشئت فيه: افتحيها هناك أو انضمي مجدداً من هنا.' },
+    pay_station: { en: 'You pay at your station, by card, Apple Pay or cash. There is nothing to pay on this page.', ar: 'تدفعين عند محطتك بالبطاقة أو Apple Pay أو نقداً. لا يوجد ما تدفعينه في هذه الصفحة.' },
     pay_counter: { en: 'You pay at the counter, by card or cash. There is no payment in the app.', ar: 'تدفعين عند الكاونتر بالبطاقة أو نقداً. لا يوجد دفع داخل التطبيق.' },
     demo_counter: { en: 'Demo: mark as paid at the counter', ar: 'تجربة: تسجيل الدفع عند الكاونتر' },
     paid_cash: { en: 'Cash with your stylist', ar: 'نقداً مع مصففتك' }, back_site: { en: 'Back to the website', ar: 'العودة إلى الموقع' }, back: { en: 'Back', ar: 'رجوع' }, opening: { en: 'The team is getting ready — your place is saved.', ar: 'الفريق يستعد — مكانك محفوظ.' }
@@ -346,7 +348,7 @@
   const forTxt = n => n === 2 ? t('grp_for2') : t('grp_for', { n: qNum(n) });
   const partyLine = tk => { const p = Q.partyOf(tk); if (p.length < 2) return Q.esc(lookName(tk.serviceId)); const c = {}; p.forEach(x => { c[x.serviceId] = (c[x.serviceId] || 0) + 1; }); return `<bdi dir="ltr">×${qNum(p.length)}</bdi> · ` + Object.entries(c).map(([id, n]) => Q.esc(lookName(id)) + (n > 1 ? ` <bdi dir="ltr">×${qNum(n)}</bdi>` : '')).join(Q.lang === 'ar' ? '، ' : ', '); };
   let step = 1;
-  let myId = params.get('t') || (() => { try { return localStorage.getItem('qamar:myTicket'); } catch (e) { return null; } })();
+  let myId = Q.parseTicketParam(params.get('t')).id || (() => { try { return localStorage.getItem('qamar:myTicket'); } catch (e) { return null; } })();
   let lastStatus = null, lastPings = 0, tipChoice = null, payMode = 'card', stars = 0;
 
   const nightOk = s => Q.available(s);
@@ -356,6 +358,8 @@
   const showDemoStrip = (window.QAMAR_CONFIG || {}).environment !== 'production' || params.get('demo') === '1';
   // Application native (App Store / Google Play) : aucun paiement dans l'app, notifications par assets/native.js
   const inApp = !!(window.QamarApp && window.QamarApp.native);
+  // File réelle (Supabase) sans prestataire de paiement en ligne : la cliente paie à son poste (espèces ou terminal du salon)
+  const counterPay = inApp || (!Q.isDemo && !Q.onlinePayments);
   const notifAsk = () => window.QamarNative ? ['prompt', 'prompt-with-rationale'].includes(window.QamarNative.permission()) : ('Notification' in window && Notification.permission === 'default');
   const notifRequest = () => window.QamarNative ? window.QamarNative.askNotifications() : Notification.requestPermission();
   document.addEventListener('qamar:native', () => render());
@@ -545,14 +549,16 @@
     field.classList.remove('err');
     submitting = true; updateBar();                       // empêche les doubles envois
     try { localStorage.setItem('qamar:cc', fd.get('cc')); } catch (e) { /* ignore */ }
-    const tk = Q.joinQueue({ name: fd.get('name'), phone, serviceId: lead().serviceId, pref: sel.pref, extraLong: lead().extraLong, channel: 'qr', party: partyArg(), promoCode: codeFor(size()) });
+    // mode démo : réponse immédiate ; mode connecté (Supabase) : promesse
+    Promise.resolve(Q.joinQueue({ name: fd.get('name'), phone, serviceId: lead().serviceId, pref: sel.pref, extraLong: lead().extraLong, channel: 'qr', party: partyArg(), promoCode: codeFor(size()) })).then(tk => {
     if (tk && window.QamarTrack) QamarTrack('join_queue', { service: lead().serviceId, party_size: size(), stylist_choice: sel.pref === 'any' ? 'first_free' : 'chosen', demo: Q.isDemo }); // aucune donnée personnelle
     submitting = false;
     if (!tk) { updateBar(); Q.toast(t('join_err')); return; }
     myId = tk.id;
     try { localStorage.setItem('qamar:myTicket', myId); } catch (e) { /* ignore */ }
-    history.replaceState(null, '', '?t=' + myId);
+    history.replaceState(null, '', '?t=' + Q.ticketLink(tk));
     render();
+    });
   };
 
   // Entrée dans un champ du formulaire = « Rejoindre la file »
@@ -677,7 +683,7 @@
       el.innerHTML = `<div class="ticket-card" style="padding-top:56px">
           <div class="code">${code}</div>
           <h1 style="margin-top:10px">${t('pay_t')}</h1>
-          <p class="sub">${t(inApp ? 'pay_counter' : 'pay_s')}</p>
+          <p class="sub">${t(inApp ? 'pay_counter' : counterPay ? 'pay_station' : 'pay_s')}</p>
           <div class="summary" style="background:var(--pearl);text-align:start">
             ${pr.people ? pr.people.map((l, i) => `<div><span>${t('person', { n: qNum(i + 1) })} · ${Q.esc(lookName(l.serviceId))}${l.extraLong ? ' + XL' : ''}${l.pct ? ` <bdi dir="ltr">−${qNum(l.pct)}%</bdi>` : ''}</span><span><bdi dir="ltr">${l.discount ? `<s class="muted">${qNum(l.base)}</s> ` : ''}${qAed(l.total)}</bdi></span></div>`).join('') : `<div><span>${Q.esc(Q.L(s.look))}${tk.extraLong ? ' + XL' : ''}</span><span>${qAed(pr.base)}</span></div>`}
             ${pr.discount && !pr.people ? `<div><span>${pr.promo && pr.promo.label ? promoName(pr.promo) : t('launch_disc')} <bdi dir="ltr">−${qNum(tk.discountPct)}%</bdi></span><span><bdi dir="ltr">−${qAed(pr.discount)}</bdi></span></div>` : ''}
@@ -685,7 +691,7 @@
             ${pr.addons.map(a => `<div><span>${Q.esc(Q.L(a.name))}</span><span>${a.price ? qAed(a.price) : t('free')}</span></div>`).join('')}
             <div class="total"><span>${t('total')}</span><span>${qAed(pr.total)}</span></div>
           </div>
-          ${inApp ? '' : `          <p style="margin:18px 0 0;color:var(--cocoa)"><b style="font-weight:500">${t('tip_t', { n: sty?.name })}</b><br><small class="muted">${t('tip_s')}</small></p>
+          ${counterPay ? '' : `          <p style="margin:18px 0 0;color:var(--cocoa)"><b style="font-weight:500">${t('tip_t', { n: sty?.name })}</b><br><small class="muted">${t('tip_s')}</small></p>
           <div class="tip-grid">${[10, 25, 75].map(p => `<button data-tip="${p}" class="${tipChoice === p ? 'sel' : ''}">${qNum(p)}%<small>${qAed(Math.round(tipBase * p / 100))}</small></button>`).join('')}<button data-tip="custom" class="${tipChoice === 'custom' ? 'sel' : ''}">${t('custom')}<small>AED</small></button></div>
           ${tipChoice === 'custom' ? `<input class="input" id="customTip" type="number" min="0" inputmode="numeric" placeholder="${Q.lang === 'ar' ? 'درهم' : 'AED'}" style="margin-bottom:10px">` : ''}
           <button class="btn btn-ghost btn-block" data-tip="0" style="margin-bottom:14px;${tipChoice === 0 ? 'background:var(--blush)' : ''}">${t('no_tip')}</button>
@@ -694,7 +700,7 @@
           <button class="btn btn-ghost btn-block" id="payCard" style="margin-top:10px">${t('pay_card')}</button>
           ${Q.isDemo ? `<p class="muted" style="font-size:.8rem;margin:12px 0 0">${t('demo_pay')}</p>` : ''}`}
         </div>${inApp ? demoBtn() : ''}`;
-      if (inApp) return; // app : pas de pourboire ni de paiement dans l'app, on paie au comptoir
+      if (counterPay) return; // app, ou file réelle sans paiement en ligne : pas de pourboire ni de paiement ici, on paie au poste
       el.querySelectorAll('[data-tip]').forEach(b => b.onclick = () => { tipChoice = b.dataset.tip === 'custom' ? 'custom' : +b.dataset.tip; renderTicket(Q.ticket(myId)); if (tipChoice === 'custom') setTimeout(() => document.getElementById('customTip')?.focus(), 30); });
       const ct = document.getElementById('customTip');
       if (ct) ct.oninput = () => { const v = Math.max(0, Math.round(+ct.value || 0)); document.getElementById('tipVal').textContent = qAed(v); document.getElementById('payVal').textContent = qAed(pr.total + v); document.getElementById('appleAmt').textContent = qAed(pr.total + v); };

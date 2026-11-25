@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-staff>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -170,6 +170,7 @@
 <script src="assets/config.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/store.js"></script>
+<script src="assets/store-supabase.js"></script>
 <script>
 (function () {
   const D = Q.D;
@@ -266,11 +267,13 @@
     const msg = f.get('msg');
     bubble(msg, 'in');
     const sid = matchService(msg);
-    const t = Q.joinQueue({ name: f.get('name'), phone: Q.normalizePhone(f.get('phone')) || f.get('phone'), serviceId: sid, pref: 'any', channel: 'whatsapp' });
+    Promise.resolve(Q.joinQueue({ name: f.get('name'), phone: Q.normalizePhone(f.get('phone')) || f.get('phone'), serviceId: sid, pref: 'any', channel: 'whatsapp' })).then(t => {
+    if (!t) return;
     const eta = Q.ticketEta(t.id);
-    const link = Q.baseUrl() + 'queue.html?t=' + t.id;
+    const link = Q.baseUrl() + 'queue.html?t=' + Q.ticketLink(t);
     setTimeout(() => bubble(`Hi ${t.name} ✦ You're in! Ticket ${Q.ticketCode(t)} for “${Q.service(sid).look.en}”.\nYou are #${Q.position(t.id)} in line — about ${eta && eta.minutes != null ? eta.minutes + ' min' : 'a few min'}.\n${t.discountPct ? 'Opening offer: −' + t.discountPct + '% ✦\n' : ''}Follow your place live: ${link}\nWe'll text you when it's almost your turn ☾`, 'out'), 600);
     e.target.reset(); e.target.msg.value = 'I want a blow-dry';
+    });
   };
 
   // Historique filtrable (période / coiffeuse / statut)
