@@ -65,6 +65,9 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
+      # GitHub met parfois quelques secondes à rendre l'archive visible : sans cette pause, deploy-pages échoue (« No artifacts named github-pages »).
+      - if: steps.changed.outputs.deploy == 'true'
+        run: sleep 20
       - id: deployment
         if: steps.changed.outputs.deploy == 'true'
         uses: actions/deploy-pages@v4
