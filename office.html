@@ -545,7 +545,7 @@ nav.side .badge{background:var(--rose);color:#fff;border-radius:999px;font-size:
       let t = {};
       try { t = await api.cashTotals(day.value) || {}; } catch (err) { msg(totalsBox, 'err', 'System totals not available: ' + O.dbError(err)); return; }
       const line = (label, m) => { const x = t[m] || { count: 0, total: 0, tips: 0 }; return h('tr', {}, h('td', { text: label }), h('td', { class: 'n', text: String(x.count) }), h('td', { class: 'n', text: aed(x.total) }), h('td', { class: 'n', text: aed(x.tips) })); };
-      totalsBox.appendChild(h('table', {}, h('thead', {}, h('tr', {}, ['Recorded in the queue / المسجّل', 'Visits', 'Amount', 'Tips'].map(x => h('th', { text: x })))), h('tbody', {}, line('Cash / نقداً', 'cash'), line('Card (terminal) / بطاقة', 'card'), line('Apple Pay (terminal)', 'applepay'))));
+      totalsBox.appendChild(h('div', { class: 'tbl' }, h('table', {}, h('thead', {}, h('tr', {}, ['Recorded in the queue / المسجّل', 'Visits', 'Amount', 'Tips'].map(x => h('th', { text: x })))), h('tbody', {}, line('Cash / نقداً', 'cash'), line('Card (terminal) / بطاقة', 'card'), line('Apple Pay (terminal)', 'applepay')))));
       totalsBox.appendChild(h('p', { class: 'hint', text: 'Card and Apple Pay tips are on the terminal slip, so the expected card total is amount + tips. Cash tips go to the stylist by hand and are not counted here.' }));
     }
     day.addEventListener('change', load);
