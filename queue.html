@@ -312,7 +312,7 @@
     app_t: { en: 'Get the QAMAR app', ar: 'حمّلي تطبيق قمر' }, app_s: { en: "We'll tell you when it's your turn.", ar: 'سنخبركِ عندما يحين دوركِ.' },
     app_btn: { en: 'Install the app', ar: 'تثبيت التطبيق' }, app_later: { en: 'Not now', ar: 'ليس الآن' },
     app_sheet: { en: "Your place in line on your home screen. We'll tell you when it's your turn.", ar: 'مكانكِ في الطابور على شاشتك الرئيسية. سنخبركِ عندما يحين دوركِ.' },
-    app_ios: { en: 'On iPhone, the app opens separately from Safari. For today, keep this page open: your ticket is {c}. Your next visits start from the app.', ar: 'على الآيفون، يفتح التطبيق بشكل منفصل عن سفاري. لليوم، أبقي هذه الصفحة مفتوحة: تذكرتكِ {c}. زياراتكِ القادمة تبدأ من التطبيق.' },
+    app_ios: { en: 'On iPhone, the app opens separately from Safari. For today, keep this page open: your ticket is {c}. Your next visits start from the app.', ar: 'على الآيفون، يفتح التطبيق بشكل منفصل عن سفاري. لزيارة اليوم، أبقي هذه الصفحة مفتوحة: تذكرتكِ {c}. زياراتكِ القادمة تبدأ من التطبيق.' },
     tk_missing: { en: 'This ticket is not on this device. In this preview, a ticket stays in the browser where it was created: open it there, or join again here.', ar: 'هذه التذكرة غير موجودة على هذا الجهاز. في هذه المعاينة تبقى التذكرة في المتصفح الذي أُنشئت فيه: افتحيها هناك أو انضمي مجدداً من هنا.' },
     paid_cash: { en: 'Cash with your stylist', ar: 'نقداً مع مصففتك' }, back_site: { en: 'Back to the website', ar: 'العودة إلى الموقع' }, back: { en: 'Back', ar: 'رجوع' }, opening: { en: 'The team is getting ready — your place is saved.', ar: 'الفريق يستعد — مكانك محفوظ.' }
   };
@@ -640,7 +640,7 @@
         <button class="btn btn-ghost btn-block" style="margin-top:12px" id="cancelBtn">${t('cancel')}</button>`;
       const cb = document.getElementById('cancelBtn'); cb.onclick = () => Q.twoTap(cb, () => Q.cancel(tk.id), t('cancel_q'));
       const nb = document.getElementById('notifBtn'); if (nb) nb.onclick = () => Notification.requestPermission().then(render);
-      const ab = document.getElementById('appBtn'); if (ab) ab.onclick = () => window.QamarApp.install({ sub: t('app_sheet') });
+      const ab = document.getElementById('appBtn'); if (ab) ab.onclick = () => window.QamarApp.install(window.QamarApp.isIOS ? {} : { sub: t('app_sheet') });
       const ax = document.getElementById('appX'); if (ax) ax.onclick = () => { try { localStorage.setItem(APP_OFF, String(Date.now())); } catch (e) { /* ignore */ } document.getElementById('appCard').remove(); };
     } else if (tk.status === 'called') {
       el.innerHTML = `<div class="ticket-card called pulse-bg">

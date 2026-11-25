@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="assets/qamar.css">
 <!-- Carte du comptoir à imprimer (A6 par défaut, A5 au choix). Le QR pointe vers go.html, la même cible stable que l'écran d'entrée :
      la file d'attente aujourd'hui, l'app native (ou son store) demain, sans réimprimer. -->
-<style id="pageSize">@page { size: A6 portrait; margin: 0; }</style>
+<style id="pageSize">@page { size: 105mm 148mm; margin: 0; }</style><!-- A6 / A5 en mm : Chrome ignore le mot-clé « A6 » (pas dans la norme CSS) et imprimerait sur A4/Letter -->
 <style>
   body { background: #EFE3DF; margin: 0; font-family: var(--sans); color: var(--cocoa); }
   .tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; padding: 16px; }
@@ -77,7 +77,7 @@
   document.querySelectorAll('[data-size]').forEach(b => b.onclick = () => {
     const a5 = b.dataset.size === 'A5';
     sheet.classList.toggle('a5', a5);
-    ps.textContent = `@page { size: ${a5 ? 'A5' : 'A6'} portrait; margin: 0; }`;
+    ps.textContent = `@page { size: ${a5 ? '148mm 210mm' : '105mm 148mm'}; margin: 0; }`;
     document.querySelectorAll('[data-size]').forEach(x => x.classList.toggle('on', x === b));
   });
   document.getElementById('printBtn').onclick = () => print();
