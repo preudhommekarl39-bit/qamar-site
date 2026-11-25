@@ -12,6 +12,9 @@ window.QAMAR_CONFIG = {
   siteUrl: 'https://qamarlounge.com/',            // URL définitive (ex. https://qamar.ae) — sert aux balises canoniques et au QR d'entrée
   timeZone: 'Asia/Dubai', // UTC+4, pas d'heure d'été
   payments: { provider: null },  // ex. 'network-international' | 'checkout' | 'stripe' — aucun n'est branché
+  // Applications natives (Capacitor) : liens App Store / Google Play, vides tant que les apps ne sont pas publiées.
+  // Dès qu'un lien est rempli, le QR du salon (go.html) propose « Ouvrir dans l'app QAMAR » sur ce téléphone, sans réimprimer le QR.
+  appStore: { ios: '', android: '' },
   whatsapp: { connected: false }, // passe à true seulement quand l'API WhatsApp Business est réellement connectée
   // Mesure d'audience : désactivée tant que la propriété GA4 et le bandeau de consentement ne sont pas validés.
   // Les événements sont documentés dans docs/ANALYTICS.md ; assets/track.js ne charge rien si enabled = false.

@@ -53,7 +53,8 @@
 
   let sheet = null;
   const shareIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A84FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
-  function open() {
+  function open(opts) {
+    opts = opts || {};
     close(true);
     sheet = document.createElement('div'); sheet.className = 'qa-sheet'; sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-label', t('title'));
     let body = '';
@@ -61,7 +62,7 @@
     else if (isIOS) body = `<div class="qa-ios">${t('ios1')} ${shareIcon}<b>${t('ios1b')}</b> ${t('ios2')} <b>${t('ios2b')}</b> ＋</div>`;
     else if (!deferred && !isMobile) body = `<p class="qa-ios">${t('desk')}</p>`;
     else if (!deferred) body = `<div class="qa-ios">${t('and1')} <b>⋮</b> ${t('ios2')} <b>${t('and2')}</b></div>`;
-    sheet.innerHTML = `<img src="assets/app/icon-192.png" alt="" width="56" height="56"><b>${t('title')}</b><p>${t('sub')}</p>${body}
+    sheet.innerHTML = `<img src="assets/app/icon-192.png" alt="" width="56" height="56"><b>${t('title')}</b><p>${opts.sub || t('sub')}</p>${body}
       <div class="qa-act">${deferred && !standalone ? `<button class="qa-go" type="button">${t('install')}</button>` : ''}<button class="qa-no" type="button">${t('later')}</button></div>`;
     document.body.appendChild(sheet);
     requestAnimationFrame(() => requestAnimationFrame(() => sheet && sheet.classList.add('show')));
@@ -76,5 +77,11 @@
   document.addEventListener('click', e => { const a = e.target.closest('[data-install-app]'); if (a) { e.preventDefault(); open(); } });
   // rappel discret, une seule fois toutes les 2 semaines, sur mobile uniquement
   if (isMobile && !standalone && !seen() && !/queue.html/.test(location.pathname)) setTimeout(() => { if (!sheet) { remember(); open(); } }, 9000);
-  window.QamarApp = { open };
+  // Android avec invite native disponible : on la lance directement ; sinon la fiche (étapes iPhone, menu du navigateur)
+  async function install(opts) {
+    if (!deferred || standalone) return open(opts);
+    const d = deferred; deferred = null; d.prompt(); try { await d.userChoice; } catch (e) {}
+  }
+  // utilisé par queue.html (carte « Téléchargez l'app » après l'inscription) : une seule logique d'installation, ici
+  window.QamarApp = { open, install, isIOS, isMobile, standalone, native, canPrompt: () => !!deferred };
 })();

@@ -76,7 +76,8 @@
         <div class="qr" id="qr"></div>
         <div class="qr-text">
           <b>Scan to join<br>the queue</b>
-          <span>امسحي الرمز للانضمام للطابور</span><br>
+          <span>Then get the QAMAR app: we'll tell you when it's your turn.</span><br>
+          <span>امسحي الرمز للانضمام للطابور، ثم حمّلي تطبيق قمر</span><br>
           <span class="wa">WhatsApp: “I want a blow-dry”</span>
         </div>
       </div>
@@ -111,7 +112,8 @@
 (function () {
   document.getElementById('logo').innerHTML = Q.logo('');
   const siteUrl = (window.QAMAR_CONFIG && window.QAMAR_CONFIG.siteUrl) ? window.QAMAR_CONFIG.siteUrl.replace(/\/?$/, '/') : Q.baseUrl();
-  Q.qr(document.getElementById('qr'), siteUrl + 'queue.html', Math.round(Math.min(innerWidth, innerHeight) * .26));
+  // QR stable : go.html (file d'attente aujourd'hui ; l'app native ou son store demain, sans réimprimer)
+  Q.qr(document.getElementById('qr'), siteUrl + 'go.html', Math.round(Math.min(innerWidth, innerHeight) * .26));
   const tick = () => document.getElementById('clock').textContent = Q.clock(Date.now());
   tick(); setInterval(tick, 10000);
   let seenCalls = new Set();

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, follow">
+<meta name="theme-color" content="#F8E1DC">
+<title>QAMAR · Join the queue</title>
+<link rel="icon" href="assets/app/favicon-32.png" type="image/png">
+<noscript><meta http-equiv="refresh" content="0; url=queue.html?source=qr"></noscript>
+<!--
+  QAMAR — cible STABLE du QR imprimé (écran d'entrée, carte du comptoir). Ne jamais changer cette URL : on change ce qu'elle fait.
+  Aujourd'hui : redirection immédiate vers queue.html?source=qr (paramètres conservés). Rien de lourd ici : pas de police, pas d'image.
+  Demain (apps natives publiées) : remplir appStore.ios / appStore.android dans assets/config.js → sur iPhone / Android, écran
+  « Ouvrir dans l'app QAMAR » avec le bouton du store + « Continuer dans le navigateur » (la file reste à un tap, jamais de redirection forcée).
+  Dans l'app installée (écran d'accueil ou app Capacitor) : directement la file.
+
+  Plus tard, pour que le même QR ouvre directement l'app native quand elle est installée :
+  - iOS (Universal Links) : publier /.well-known/apple-app-site-association avec le vrai Team ID + bundle id (com.qamarlounge.app,
+    voir capacitor.config.json) et la route "/go.html", puis ajouter l'entitlement « Associated Domains » (applinks:qamarlounge.com).
+  - Android (App Links) : publier /.well-known/assetlinks.json avec le package et l'empreinte SHA-256 du certificat de signature Play,
+    puis un intent-filter autoVerify sur https://qamarlounge.com/go.html.
+  Ces fichiers ne sont PAS créés tant que les vrais identifiants n'existent pas (un faux identifiant casse la vérification).
+  Sur GitHub Pages, le dossier .well-known doit être publié tel quel (ajouter "include: [.well-known]" si Jekyll est actif ; ici .nojekyll).
+-->
+<style>
+  html, body { margin: 0; min-height: 100%; }
+  body { background: #F8E1DC; color: #4B2D25; font: 16px/1.45 "Helvetica Neue", Helvetica, Arial, "Tajawal", system-ui, sans-serif; display: grid; place-items: center; min-height: 100svh; padding: 24px 16px; box-sizing: border-box; }
+  .go { width: min(420px, 100%); text-align: center; }
+  .go[hidden] { display: none; }
+  .go img { width: 72px; height: 72px; border-radius: 18px; box-shadow: 0 10px 26px -12px rgba(75, 45, 37, .5); }
+  .go h1 { font-weight: 500; font-size: 1.6rem; line-height: 1.15; margin: 16px 0 6px; }
+  .go p { margin: 0 0 22px; color: #8A6A60; }
+  .go a { display: block; border-radius: 999px; padding: 15px 20px; text-decoration: none; font-weight: 500; }
+  .go .store { background: rgba(75, 45, 37, .88); color: #fff; }
+  .go .web { margin-top: 10px; color: #4B2D25; box-shadow: inset 0 0 0 1px rgba(75, 45, 37, .2); }
+  .wait { color: #8A6A60; font-size: .95rem; }
+  .wait a { color: #4B2D25; }
+</style>
+</head>
+<body>
+<p class="wait" id="wait"><a href="queue.html?source=qr" id="waitLink">Join the queue</a></p>
+<div class="go" id="app" hidden>
+  <img src="assets/app/icon-192.png" alt="" width="72" height="72">
+  <h1 id="tTitle">Open in the QAMAR app</h1>
+  <p id="tSub">Join the queue and we'll tell you when it's your turn.</p>
+  <a class="store" id="store" href="queue.html?source=qr" rel="noopener">Get the app</a>
+  <a class="web" id="web" href="queue.html?source=qr">Continue in the browser</a>
+</div>
+<script src="assets/config.js"></script>
+<script>
+(function () {
+  var C = window.QAMAR_CONFIG || {};
+  // Paramètres du QR conservés (ex. ?look=glow), source=qr ajouté s'il n'y en a pas
+  var q = new URLSearchParams(location.search);
+  if (!q.has('source')) q.set('source', 'qr');
+  var target = 'queue.html?' + q.toString() + location.hash;
+  document.getElementById('waitLink').href = target;
+
+  var native = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  var standalone = native || (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  var ua = navigator.userAgent;
+  var platform = (/iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) ? 'ios' : /Android/.test(ua) ? 'android' : '';
+  var store = platform && C.appStore && C.appStore[platform];
+
+  // Aujourd'hui (aucun lien de store) ou déjà dans l'app : directement la file
+  if (standalone || !store) { location.replace(target); return; }
+
+  var lang = 'en';
+  try { lang = localStorage.getItem('qamar:lang') || ''; } catch (e) { lang = ''; }
+  if (!lang) lang = /^ar\b/i.test(navigator.language || '') ? 'ar' : 'en';
+  var T = {
+    en: { title: 'Open in the QAMAR app', sub: "Join the queue and we'll tell you when it's your turn.", ios: 'Get it on the App Store', android: 'Get it on Google Play', web: 'Continue in the browser' },
+    ar: { title: 'افتحي تطبيق قمر', sub: 'انضمي للطابور وسنخبرك عندما يحين دورك.', ios: 'حمّليه من App Store', android: 'حمّليه من Google Play', web: 'المتابعة في المتصفح' }
+  }[lang === 'ar' ? 'ar' : 'en'];
+  if (lang === 'ar') { document.documentElement.lang = 'ar'; document.documentElement.dir = 'rtl'; }
+  document.getElementById('tTitle').textContent = T.title;
+  document.getElementById('tSub').textContent = T.sub;
+  var s = document.getElementById('store'); s.textContent = T[platform]; s.href = store;
+  var w = document.getElementById('web'); w.textContent = T.web; w.href = target;
+  document.getElementById('wait').hidden = true;
+  document.getElementById('app').hidden = false;
+})();
+</script>
+</body>
+</html>

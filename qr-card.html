@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>QAMAR · Counter QR card</title>
+<link rel="icon" href="assets/app/favicon-32.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/qamar.css">
+<!-- Carte du comptoir à imprimer (A6 par défaut, A5 au choix). Le QR pointe vers go.html, la même cible stable que l'écran d'entrée :
+     la file d'attente aujourd'hui, l'app native (ou son store) demain, sans réimprimer. -->
+<style id="pageSize">@page { size: A6 portrait; margin: 0; }</style>
+<style>
+  body { background: #EFE3DF; margin: 0; font-family: var(--sans); color: var(--cocoa); }
+  .tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; padding: 16px; }
+  .tools .seg { display: inline-flex; background: #fff; border-radius: 999px; padding: 4px; border: 1px solid var(--line); }
+  .tools .seg button { border: 0; background: none; border-radius: 999px; padding: 8px 16px; min-height: 40px; color: var(--cocoa); font: inherit; cursor: pointer; }
+  .tools .seg button.on { background: var(--cocoa); color: #fff; }
+  .tools small { width: 100%; text-align: center; color: var(--muted); }
+  .sheet { --w: 105mm; --h: 148mm; width: var(--w); height: var(--h); margin: 0 auto 32px; box-sizing: border-box; background: radial-gradient(120% 80% at 50% 0%, #FCEAE5, var(--blush) 55%, var(--blush-2)); box-shadow: var(--shadow);
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; padding: calc(var(--w) * .09) calc(var(--w) * .08); position: relative; overflow: hidden; font-size: calc(var(--w) / 26); }
+  .sheet.a5 { --w: 148mm; --h: 210mm; }
+  .sheet::before { content: ''; position: absolute; inset: 4mm; border: 1px solid rgba(196, 154, 90, .55); border-radius: 999px 999px 6mm 6mm; pointer-events: none; }
+  .brand { display: flex; flex-direction: column; align-items: center; gap: .3em; }
+  .brand svg { width: 2.6em; color: var(--rose); }
+  .brand .logo-word { font-size: 1.5em; }
+  .brand small { letter-spacing: .3em; text-transform: uppercase; font-size: .55em; color: var(--gold); }
+  .qr { background: #fff; padding: .7em; border-radius: 1em; width: 58%; aspect-ratio: 1; box-sizing: border-box; box-shadow: 0 10px 30px -18px rgba(75, 45, 37, .45); }
+  .qr img, .qr canvas { width: 100% !important; height: auto !important; display: block; }
+  .txt b { display: block; font-family: var(--serif); font-weight: 500; font-size: 1.55em; line-height: 1.1; }
+  .txt .app { display: block; font-family: var(--serif); font-size: 1.3em; color: var(--rose); margin-top: .1em; }
+  .txt .ar { font-family: 'Amiri', serif; direction: rtl; font-size: 1.35em; color: var(--rose); margin-top: .25em; line-height: 1.3; }
+  .txt .url { display: block; margin-top: .6em; font-size: .6em; color: var(--muted); letter-spacing: .04em; direction: ltr; }
+  @media print {
+    body { background: none; }
+    .tools { display: none; }
+    .sheet { margin: 0; box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+  @media screen and (max-width: 440px) { .sheet { --w: calc(100vw - 32px); --h: calc((100vw - 32px) * 1.41); } .sheet.a5 { --w: calc(100vw - 32px); --h: calc((100vw - 32px) * 1.419); } }
+</style>
+</head>
+<body>
+  <div class="tools">
+    <a href="admin.html" class="chip" style="text-decoration:none">← Dashboard</a>
+    <div class="seg" role="group" aria-label="Paper size"><button type="button" data-size="A6" class="on">A6</button><button type="button" data-size="A5">A5</button></div>
+    <button type="button" class="btn btn-primary" id="printBtn">Print</button>
+    <small>Print at 100% scale (no "fit to page"). Scan it with a phone before laminating.</small>
+  </div>
+
+  <div class="sheet" id="sheet">
+    <div class="brand"><span id="logo"></span><span class="logo-word">QAMAR</span><small>Blowdry Lounge</small></div>
+    <div class="qr" id="qr"></div>
+    <div class="txt">
+      <b>Scan to join the queue</b>
+      <em class="app">Get the app</em>
+      <div class="ar">امسحي الرمز للانضمام للطابور · حمّلي التطبيق</div>
+      <span class="url" id="url"></span>
+    </div>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/store.js"></script>
+<script>
+(function () {
+  document.getElementById('logo').innerHTML = Q.logo('');
+  // Même URL que l'écran d'entrée : siteUrl de config.js + go.html
+  const siteUrl = (window.QAMAR_CONFIG && window.QAMAR_CONFIG.siteUrl) ? window.QAMAR_CONFIG.siteUrl.replace(/\/?$/, '/') : Q.baseUrl();
+  const target = siteUrl + 'go.html';
+  Q.qr(document.getElementById('qr'), target, 640);
+  document.getElementById('url').textContent = target.replace(/^https?:\/\//, '');
+  const sheet = document.getElementById('sheet'), ps = document.getElementById('pageSize');
+  document.querySelectorAll('[data-size]').forEach(b => b.onclick = () => {
+    const a5 = b.dataset.size === 'A5';
+    sheet.classList.toggle('a5', a5);
+    ps.textContent = `@page { size: ${a5 ? 'A5' : 'A6'} portrait; margin: 0; }`;
+    document.querySelectorAll('[data-size]').forEach(x => x.classList.toggle('on', x === b));
+  });
+  document.getElementById('printBtn').onclick = () => print();
+})();
+</script>
+</body>
+</html>

@@ -163,6 +163,15 @@
   .lc .lvl-quiet b { color: var(--ok); } .lc .lvl-busy b { color: var(--bad); }
   .lc .hint { margin: 10px 2px 0; font-size: .92rem; color: var(--cocoa); }
   .lc .walk { display: block; margin: 4px 2px 0; color: var(--muted); font-size: .78rem; }
+  /* Carte « Téléchargez l'app » après l'inscription (mobile, pas encore installée) */
+  .app-card { position: relative; margin-top: 16px; padding: 18px; border-radius: 24px; background: linear-gradient(160deg, #fff 0%, var(--pearl) 45%, var(--blush) 100%); border: 1px solid rgba(196, 154, 90, .45); box-shadow: var(--shadow); display: grid; grid-template-columns: 56px 1fr; gap: 4px 14px; align-items: center; text-align: start; }
+  .app-card img { width: 56px; height: 56px; border-radius: 14px; grid-row: span 2; box-shadow: 0 6px 16px -8px rgba(120, 50, 70, .5); }
+  .app-card b { font-family: var(--serif); font-weight: 500; font-size: 1.35rem; line-height: 1.15; color: var(--cocoa); padding-inline-end: 36px; }
+  .app-card .s { color: var(--muted); font-size: .92rem; }
+  .app-card .btn { grid-column: 1 / -1; margin-top: 12px; }
+  .app-card .ios { grid-column: 1 / -1; margin: 10px 0 0; padding: 10px 12px; border-radius: 14px; background: rgba(255, 255, 255, .7); color: var(--cocoa); font-size: .84rem; line-height: 1.45; }
+  .app-card .x { position: absolute; top: 8px; inset-inline-end: 8px; width: 44px; height: 44px; border: 0; background: none; color: var(--muted); font-size: 1.4rem; line-height: 1; border-radius: 50%; }
+  html.is-app .app-card { display: none !important; }
 </style>
 </head>
 <body>
@@ -300,6 +309,11 @@
     promo_ok: { en: 'Code applied: −{p}%', ar: 'تم تطبيق الكود: خصم {p}٪' }, promo_better: { en: 'Code accepted, but a better offer already applies. You always get the best one.', ar: 'الكود صحيح، لكن لديكِ عرض أفضل. نطبّق لكِ الأفضل دائماً.' },
     promo_invalid: { en: 'This code doesn’t work. Check the spelling and try again.', ar: 'هذا الكود غير صحيح. تأكّدي من كتابته وحاولي مجدداً.' }, promo_expired: { en: 'This code has expired.', ar: 'انتهت صلاحية هذا الكود.' },
     promo_min_people: { en: 'This code is for groups of {n} or more.', ar: 'هذا الكود للمجموعات من {n} أشخاص أو أكثر.' }, promo_empty: { en: 'Type your code first.', ar: 'اكتبي الكود أولاً.' },
+    app_t: { en: 'Get the QAMAR app', ar: 'حمّلي تطبيق قمر' }, app_s: { en: "We'll tell you when it's your turn.", ar: 'سنخبركِ عندما يحين دوركِ.' },
+    app_btn: { en: 'Install the app', ar: 'تثبيت التطبيق' }, app_later: { en: 'Not now', ar: 'ليس الآن' },
+    app_sheet: { en: "Your place in line on your home screen. We'll tell you when it's your turn.", ar: 'مكانكِ في الطابور على شاشتك الرئيسية. سنخبركِ عندما يحين دوركِ.' },
+    app_ios: { en: 'On iPhone, the app opens separately from Safari. For today, keep this page open: your ticket is {c}. Your next visits start from the app.', ar: 'على الآيفون، يفتح التطبيق بشكل منفصل عن سفاري. لليوم، أبقي هذه الصفحة مفتوحة: تذكرتكِ {c}. زياراتكِ القادمة تبدأ من التطبيق.' },
+    tk_missing: { en: 'This ticket is not on this device. In this preview, a ticket stays in the browser where it was created: open it there, or join again here.', ar: 'هذه التذكرة غير موجودة على هذا الجهاز. في هذه المعاينة تبقى التذكرة في المتصفح الذي أُنشئت فيه: افتحيها هناك أو انضمي مجدداً من هنا.' },
     paid_cash: { en: 'Cash with your stylist', ar: 'نقداً مع مصففتك' }, back_site: { en: 'Back to the website', ar: 'العودة إلى الموقع' }, back: { en: 'Back', ar: 'رجوع' }, opening: { en: 'The team is getting ready — your place is saved.', ar: 'الفريق يستعد — مكانك محفوظ.' }
   };
   const t = (k, v = {}) => Q.t(k).replace(/\{(\w)\}/g, (_, x) => v[x] ?? '');
@@ -539,6 +553,27 @@
   document.getElementById('joinForm').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); document.getElementById('nextBtn').click(); } });
 
   /* ---------- Ticket vivant ---------- */
+  // Carte « Téléchargez l'app » : sur mobile, hors app installée, tant qu'elle n'a pas été fermée. L'installation passe par assets/app.js
+  // (invite native Android si disponible, sinon la fiche « Partager → Sur l'écran d'accueil » sur iPhone) : aucune logique dupliquée ici.
+  // iPhone : une app d'écran d'accueil a un stockage séparé de Safari, donc le ticket de démo (localStorage) n'y apparaît pas.
+  // On le dit honnêtement (garder cette page ouverte aujourd'hui, numéro de ticket affiché). La page du ticket reste joignable par
+  // son URL (?t=…) dans le navigateur où il a été créé. La reprise du ticket sur un autre appareil ou dans l'app arrive avec la file
+  // Supabase (phase 2) : le ticket vivra côté serveur et ?t=… l'ouvrira partout.
+  const APP_OFF = 'qamar:app-card-off';
+  const appOff = () => { try { return !!localStorage.getItem(APP_OFF); } catch (e) { return false; } };
+  function appCard(code) {
+    const A = window.QamarApp;
+    if (!A || A.standalone || !A.isMobile || appOff()) return '';
+    return `<div class="app-card" id="appCard" role="region" aria-label="${Q.esc(t('app_t'))}">
+        <img src="assets/app/icon-192.png" alt="" width="56" height="56">
+        <b>${t('app_t')}</b><span class="s">${t('app_s')}</span>
+        <button type="button" class="x" id="appX" aria-label="${Q.esc(t('app_later'))}">×</button>
+        <button type="button" class="btn btn-primary btn-block" id="appBtn">${t('app_btn')}</button>
+        ${A.isIOS ? `<p class="ios">${t('app_ios', { c: code })}</p>` : ''}
+      </div>`;
+  }
+  addEventListener('appinstalled', () => { const c = document.getElementById('appCard'); if (c) c.remove(); });
+
   function ring(frac) {
     const r = 100, c = 2 * Math.PI * r;
     return `<svg viewBox="0 0 220 220"><circle cx="110" cy="110" r="${r}" fill="none" stroke="#F3E1DB" stroke-width="6"/><circle cx="110" cy="110" r="${r}" fill="none" stroke="url(#g)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - frac)}" style="transition:stroke-dashoffset 1s"/><defs><linearGradient id="g"><stop offset="0" stop-color="#C49A5A"/><stop offset="1" stop-color="#B87A62"/></linearGradient></defs></svg>`;
@@ -592,6 +627,7 @@
           <div class="meta"><div><b id="wkPos">${qPos(pos)}</b><small>${t('pos')}</small></div><div><b id="wkWho">${Q.esc(who || '—')}</b><small>${t('with')}</small></div><div><b id="wkReady">${readyAt}</b><small>${t('ready_at')}</small></div></div>
           ${idle ? `<p class="muted" style="font-size:.9rem;margin:10px 0 0">${t('idle_s')}</p>` : ''}
         </div>
+        ${appCard(code)}
         <ol class="steps-done">
           <li class="done"><span class="ck">✓</span><span>${t('st_in')}<small id="wkStIn">${t('st_in_s', { c: code, p: qNum(pos) })}</small></span></li>
           <li class="now"><span class="ck">${qNum(2)}</span><span>${waOn ? t('st_wa') : t('st_wa_off')}<small>${waOn ? t('st_wa_s', { n: Q.esc(tk.phone || '—') }) : t('st_wa_off_s')}</small></span></li>
@@ -604,6 +640,8 @@
         <button class="btn btn-ghost btn-block" style="margin-top:12px" id="cancelBtn">${t('cancel')}</button>`;
       const cb = document.getElementById('cancelBtn'); cb.onclick = () => Q.twoTap(cb, () => Q.cancel(tk.id), t('cancel_q'));
       const nb = document.getElementById('notifBtn'); if (nb) nb.onclick = () => Notification.requestPermission().then(render);
+      const ab = document.getElementById('appBtn'); if (ab) ab.onclick = () => window.QamarApp.install({ sub: t('app_sheet') });
+      const ax = document.getElementById('appX'); if (ax) ax.onclick = () => { try { localStorage.setItem(APP_OFF, String(Date.now())); } catch (e) { /* ignore */ } document.getElementById('appCard').remove(); };
     } else if (tk.status === 'called') {
       el.innerHTML = `<div class="ticket-card called pulse-bg">
           <div class="code">${code}</div>
@@ -708,6 +746,7 @@
     document.getElementById('flow').classList.toggle('hidden', !!tk);
     document.getElementById('ticket').classList.toggle('hidden', !tk);
     if (tk) {
+      const miss = document.getElementById('tkMissing'); if (miss) miss.remove();
       if (tk.status === 'called' && lastStatus && (lastStatus !== 'called' || (tk.pings || 0) !== lastPings)) notifyCalled(tk);
       lastPings = tk.pings || 0;
       if (tk.status === 'checkout' && lastStatus !== 'checkout') tipChoice = null;
@@ -727,6 +766,8 @@
   document.addEventListener('qamar:lang', render);
   if (!(window.QAMAR_CONFIG && QAMAR_CONFIG.whatsapp && QAMAR_CONFIG.whatsapp.connected)) document.querySelector('[data-i18n="s3_sub"]').dataset.i18n = 's3_sub_off'; // pas de promesse WhatsApp tant que l'API n'est pas branchée
   // Aperçu avant ouverture : dit clairement que le salon ne reçoit pas ces tickets
+  // Lien de ticket (?t=…) ouvert sur un autre appareil ou dans l'app installée : en démo, le ticket n'existe que là où il a été créé
+  if (Q.isDemo && params.get('t') && !Q.ticket(params.get('t'))) { const n = document.createElement('p'); n.className = 'note'; n.setAttribute('role', 'status'); n.id = 'tkMissing'; n.dataset.i18n = 'tk_missing'; n.style.margin = '0 0 18px'; document.getElementById('flow').prepend(n); }
   if (Q.isDemo) { const n = document.createElement('p'); n.className = 'demo-note'; n.setAttribute('role', 'note'); n.dataset.i18n = 'demo_note'; document.querySelector('.top').after(n); }
   Q.i18n(dict);
   if (lead().serviceId && Q.service(lead().serviceId)) showStep(1);

@@ -18,8 +18,8 @@ import { createHash } from 'node:crypto';
 
 const SITE = (process.env.SITE_URL || 'https://qamarlounge.com/').replace(/\/?$/, '/');
 const OUT = process.env.SITE_OUT || '_site'; // SITE_OUT : dossier de sortie (tests)
-const PUBLIC = ['index.html', 'queue.html', 'privacy.html', 'legal.html', 'entrance.html', 'station.html', 'admin.html', 'blog-admin.html', 'office.html', 'tests.html', 'manifest.webmanifest', 'sw.js', '.nojekyll', 'llms.txt', 'googlee7662b1241ccf348.html', 'googlec84b0f1aa4069954.html', 'de2cfe638b66c13233e988a305c0c8d8.txt'];
-const PUBLIC_DIRS = ['assets', 'tests', 'guides', 'services', 'areas'];
+const PUBLIC = ['index.html', 'queue.html', 'privacy.html', 'legal.html', 'entrance.html', 'go.html', 'qr-card.html', 'station.html', 'admin.html', 'blog-admin.html', 'office.html', 'tests.html', 'manifest.webmanifest', 'sw.js', '.nojekyll', 'llms.txt', 'googlee7662b1241ccf348.html', 'googlec84b0f1aa4069954.html', 'de2cfe638b66c13233e988a305c0c8d8.txt'];
+const PUBLIC_DIRS = ['assets', 'tests', 'guides', 'services', 'areas', 'go']; // go/ : /go et /go/ → go.html (cible du QR)
 
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT);

@@ -63,6 +63,47 @@ test('staff pages are noindex', () => ['admin.html', 'blog-admin.html', 'office.
 test('every indexable page has a unique title and a description', () => { const pages = ['index.html', 'privacy.html', 'legal.html']; const titles = pages.map(f => (readFileSync(f, 'utf8').match(/<title>([^<]+)<\/title>/) || [])[1]); return new Set(titles).size === pages.length && pages.every(f => /<meta name="description" content="[^"]{50,}"/.test(readFileSync(f, 'utf8'))); });
 test('structured data contains no unconfirmed hours, address, rating or price', () => { const ld = (readFileSync('index.html', 'utf8').match(/application\/ld\+json"[^>]*>([^<]+)</) || [])[1]; const o = JSON.parse(ld); return !o.openingHours && !o.openingHoursSpecification && !o.address && !o.aggregateRating && !o.priceRange; });
 
+// ---- 4b. QR intelligent (go.html) et application ----
+console.log('Smart QR & app');
+{
+  const go = readFileSync('go.html', 'utf8');
+  const goScript = [...go.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).join('\n');
+  // Exécute le script de go.html dans un faux navigateur : renvoie l'URL de redirection (ou null) et l'état de l'écran « app »
+  const runGo = ({ search = '', ua = 'Mozilla/5.0 (Macintosh)', store = { ios: '', android: '' }, standalone = false, native = false }) => {
+    const els = {}; const el = id => (els[id] = els[id] || { id, hidden: id === 'app', textContent: '', href: '' });
+    let replaced = null;
+    const w = { QAMAR_CONFIG: { appStore: store }, URLSearchParams, location: { search, hash: '', replace: u => { replaced = u; } },
+      navigator: { userAgent: ua, platform: /iPhone/.test(ua) ? 'iPhone' : 'MacIntel', maxTouchPoints: 0, standalone, language: 'en' },
+      matchMedia: () => ({ matches: standalone }), localStorage: { getItem: () => null }, document: { getElementById: el, documentElement: {} } };
+    if (native) w.Capacitor = { isNativePlatform: () => true };
+    w.window = w; vm.runInNewContext(goScript, w);
+    return { replaced, app: !!els.app && !els.app.hidden, store: els.store && els.store.href, web: els.web && els.web.href };
+  };
+  const IOS = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)', AND = 'Mozilla/5.0 (Linux; Android 14; Pixel 8)';
+  test('go.html: noindex, tiny, no external font/script, noscript fallback to the queue', () => /<meta name="robots" content="noindex/.test(go) && go.length < 8000 && !/<(script|link)[^>]+(src|href)="https?:/.test(go) && /<noscript><meta http-equiv="refresh" content="0; url=queue\.html\?source=qr">/.test(go));
+  test('go.html today (no store links): instant location.replace to queue.html?source=qr, query params kept', () => runGo({}).replaced === 'queue.html?source=qr' && runGo({ search: '?look=glow' }).replaced === 'queue.html?look=glow&source=qr' && runGo({ search: '?source=card' }).replaced === 'queue.html?source=card' && runGo({ ua: IOS }).replaced === 'queue.html?source=qr');
+  test('go.html with store links: iPhone/Android see "Open in the QAMAR app" + their store + browser link, no redirect', () => { const st = { ios: 'https://apps.apple.com/app/id1', android: 'https://play.google.com/store/apps/details?id=x' }; const i = runGo({ ua: IOS, store: st }), a = runGo({ ua: AND, store: st }), d = runGo({ store: st });
+    return i.replaced === null && i.app && i.store === st.ios && i.web === 'queue.html?source=qr' && a.replaced === null && a.store === st.android && d.replaced === 'queue.html?source=qr'; });
+  test('go.html inside the installed app (standalone or Capacitor): straight to the queue', () => { const st = { ios: 'https://apps.apple.com/app/id1', android: 'x' }; return runGo({ ua: IOS, store: st, standalone: true }).replaced === 'queue.html?source=qr' && runGo({ ua: AND, store: st, native: true }).replaced === 'queue.html?source=qr'; });
+  test('go.html: Universal Links / App Links documented, no fake .well-known file', () => /apple-app-site-association/.test(go) && /assetlinks\.json/.test(go) && !existsSync('.well-known/apple-app-site-association') && !existsSync('.well-known/assetlinks.json'));
+  test('go/index.html forwards /go and /go/ to go.html with the query string', () => { const g = readFileSync('go/index.html', 'utf8'); return /location\.replace\('\.\.\/go\.html' \+ location\.search \+ location\.hash\)/.test(g) && /noindex/.test(g); });
+  const cfgCtx = { window: {} }; vm.runInNewContext(readFileSync('assets/config.js', 'utf8'), cfgCtx);
+  test('config.js: appStore.ios and appStore.android keys exist (empty until the apps are published)', () => { const a = cfgCtx.window.QAMAR_CONFIG.appStore; return !!a && 'ios' in a && 'android' in a && a.ios === '' && a.android === ''; });
+  const ent = readFileSync('entrance.html', 'utf8');
+  test('entrance.html: QR points to go.html (not queue.html), text says join + get the app in EN and AR', () => /Q\.qr\(document\.getElementById\('qr'\), siteUrl \+ 'go\.html'/.test(ent) && !/siteUrl \+ 'queue\.html'/.test(ent) && /get the QAMAR app/.test(ent) && /حمّلي تطبيق قمر/.test(ent));
+  const qc = readFileSync('qr-card.html', 'utf8');
+  test('qr-card.html: printable A6/A5 card, qrcodejs from cdnjs, QR to siteUrl + go.html, EN + AR, noindex', () => /<meta name="robots" content="noindex/.test(qc) && /cdnjs\.cloudflare\.com\/ajax\/libs\/qrcodejs\/1\.0\.0\/qrcode\.min\.js/.test(qc) && /siteUrl \+ 'go\.html'/.test(qc) && /@page \{ size: A6/.test(qc) && /A5/.test(qc) && /@media print/.test(qc) && /<b>Scan to join the queue<\/b>\s*<em class="app">Get the app<\/em>/.test(qc) && /امسحي الرمز للانضمام للطابور/.test(qc));
+  test('admin.html links the counter QR card next to the entrance screen', () => { const a = readFileSync('admin.html', 'utf8'); return /href="entrance\.html" >Entrance screen ↗<\/a>\s*<a href="qr-card\.html"/.test(a) && /href="qr-card\.html" ><b>Counter card<\/b>/.test(a); });
+  const visible = h => h.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\/[^\n]*/g, '');
+  test('go.html and qr-card.html: no em dash and no emoji in the page', () => [go, qc].every(h => !/[—\u{1F300}-\u{1FAFF}]/u.test(visible(h))));
+  const qh = readFileSync('queue.html', 'utf8'), qd = extractDict(qh), app = readFileSync('assets/app.js', 'utf8');
+  test('queue.html: install card after joining (EN + AR), reuses app.js install, dismiss remembered with try/catch', () => ['app_t', 'app_s', 'app_btn', 'app_later', 'app_sheet', 'app_ios', 'tk_missing'].every(k => qd[k] && qd[k].en && /[؀-ۿ]/.test(qd[k].ar))
+    && /\$\{appCard\(code\)\}/.test(qh) && /QamarApp\.install\(/.test(qh) && !/beforeinstallprompt|\.prompt\(\)/.test(qh) && /try \{ return !!localStorage\.getItem\(APP_OFF\)/.test(qh) && /A\.standalone \|\| !A\.isMobile \|\| appOff\(\)/.test(qh) && /html\.is-app \.app-card/.test(qh));
+  test('queue.html: iPhone users are told the ticket stays in Safari (ticket code shown); phase 2 noted', () => /A\.isIOS \? `<p class="ios">\$\{t\('app_ios', \{ c: code \}\)\}/.test(qh) && /\{c\}/.test(qd.app_ios.en) && /\{c\}/.test(qd.app_ios.ar) && /Supabase \(phase 2\)/.test(qh));
+  test('queue.html: new app texts have no em dash and no emoji', () => ['app_t', 'app_s', 'app_btn', 'app_later', 'app_sheet', 'app_ios', 'tk_missing'].every(k => !/[—\u{1F300}-\u{1FAFF}]/u.test(qd[k].en + qd[k].ar)));
+  test('app.js exposes install() (native Android prompt, else the sheet) and the platform flags', () => /window\.QamarApp = \{ open, install, isIOS, isMobile, standalone/.test(app) && /async function install\(opts\)/.test(app));
+  test('sw.js precaches go.html; build-site and build-www publish the new pages', () => /CORE = \[[^\]]*'go\.html'/.test(readFileSync('sw.js', 'utf8')) && /'go\.html', 'qr-card\.html'/.test(readFileSync('scripts/build-site.mjs', 'utf8')) && /PUBLIC_DIRS = \[[^\]]*'go'/.test(readFileSync('scripts/build-site.mjs', 'utf8')) && /'go\.html'/.test(readFileSync('scripts/build-www.mjs', 'utf8')));
+}
 // ---- 5. Journal (blog) ----
 console.log('Journal (blog)');
 {
@@ -231,6 +272,7 @@ try {
   test('full build: home pages show data.js prices in the visible text (no token left)', () => { const night = runData(readFileSync('assets/data.js', 'utf8')).services.find(x => x.id === 'night').price; const vis = f => readFileSync(f, 'utf8').replace(/<script[\s\S]*?<\/script>/g, ''); return !/\{\{/.test(vis('_site/index.html')) && !/\{\{/.test(vis('_site/ar.html')) && vis('_site/index.html').includes(`data-i18n="n1price">${night} AED<`) && vis('_site/ar.html').includes(`data-i18n="n1price">${Number(night).toLocaleString('ar-EG')} درهماً<`); });
   test('full build offline: data.js prices kept, price data valid, content hash written', () => readFileSync('_site/assets/data.js', 'utf8') === readFileSync('assets/data.js', 'utf8') && /^[0-9a-f]{16}\n$/.test(readFileSync('_site/content-hash.txt', 'utf8')) && /^[0-9a-f]{16}\n$/.test(readFileSync('_site/assets/prices-hash.txt', 'utf8'))
     && runData(readFileSync('_site/assets/data.js', 'utf8')).services.every(x => Number.isInteger(x.price) && x.price > 0 && x.duration <= 45));
+  test('full build: go.html, go/index.html and qr-card.html are published, out of the sitemap; sw.js keeps go.html', () => ['go.html', 'go/index.html', 'qr-card.html'].every(f => existsSync('_site/' + f)) && !/go\.html|qr-card/.test(sm) && /'go\.html'/.test(readFileSync('_site/sw.js', 'utf8')));
   test('full build: office.html is published with noindex and out of the sitemap', () => /noindex/.test(readFileSync('_site/office.html', 'utf8')) && !/office\.html/.test(sm));
 } catch (e) { test('full build runs', () => 'build failed: ' + (e.stderr || e.message)); }
 
