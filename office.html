@@ -442,10 +442,11 @@ nav.side .badge{background:var(--rose);color:#fff;border-radius:999px;font-size:
     },
 
     async activity() {
-      const [rows, staff] = await Promise.all([api.list('audit_logs'), api.list('staff')]);
+      const [rows, staff, services, addons, event_requests, club_members] = await Promise.all(['audit_logs', 'staff', 'services', 'addons', 'event_requests', 'club_members'].map(t => api.list(t)));
+      const lk = { staff, services, addons, event_requests, club_members };
       const name = id => (staff.find(s => s.id === id) || {}).display_name || (id ? 'System' : 'Automatic');
       const tb = h('tbody');
-      rows.forEach(r => tb.appendChild(h('tr', {}, h('td', { class: 'n', 'data-label': 'When', text: fmtTime(r.at) }), h('td', { 'data-label': 'Who', text: name(r.actor) }), h('td', { 'data-label': 'What', text: describe(r.action) }), h('td', { 'data-label': 'Item', text: r.target || '' }), h('td', { class: 'diff wide', 'data-label': 'Change', text: diff(r.details) }))));
+      rows.forEach(r => tb.appendChild(h('tr', {}, h('td', { class: 'n', 'data-label': 'When', text: fmtTime(r.at) }), h('td', { 'data-label': 'Who', text: name(r.actor) }), h('td', { 'data-label': 'What', text: describe(r.action) }), h('td', { 'data-label': 'Item', text: O.auditItem(r, lk) }), h('td', { class: 'diff wide', 'data-label': 'Change', text: O.auditChange(r.details) }))));
       if (!rows.length) tb.appendChild(h('tr', {}, h('td', { colspan: 5, text: 'Nothing yet.' })));
       return page('Activity log', 'Every change to the menu, prices, codes, team, salon status and request statuses: who, when, before and after. The last 150 entries.',
         h('div', { class: 'card tbl' }, h('table', { class: 'stack' }, h('thead', {}, h('tr', {}, ['When', 'Who', 'What', 'Item', 'Change'].map(t => h('th', { text: t })))), tb)));
@@ -477,14 +478,6 @@ nav.side .badge{background:var(--rose);color:#fff;border-radius:999px;font-size:
   const ACTIONS = { 'update:services': 'Look changed', 'insert:services': 'Look added', 'update:addons': 'Extra changed', 'insert:addons': 'Extra added', 'insert:promo_codes': 'Promo code added', 'update:promo_codes': 'Promo code changed', 'delete:promo_codes': 'Promo code deleted',
     'update:staff': 'Team member changed', 'insert:staff': 'Team member added', 'invite:staff': 'Invitation sent', 'update:salon_status': 'Salon status changed', 'insert:event_requests': 'Event request received', 'update:event_requests': 'Event request updated', 'insert:club_members': 'Club request received', 'update:club_members': 'Club request updated' };
   const describe = a => ACTIONS[a] || a;
-  function diff(d) {
-    if (!d) return '';
-    const b = d.before || {}, a = d.after || {};
-    if (!d.before && !d.after) return Object.entries(d).map(([k, v]) => k + ': ' + v).join(', ');
-    const skip = ['updated_at', 'created_at', 'updated_by'];
-    const keys = [...new Set([...Object.keys(b), ...Object.keys(a)])].filter(k => !skip.includes(k) && JSON.stringify(b[k]) !== JSON.stringify(a[k]));
-    return keys.map(k => k + ': ' + (b[k] == null ? 'empty' : b[k]) + ' to ' + (a[k] == null ? 'empty' : a[k])).join(' · ');
-  }
 
   // ---- Catalogue générique (looks, extras, codes) : liste + formulaire, validation avant envoi ----
   async function catalogue(cfg) {
@@ -523,7 +516,7 @@ nav.side .badge{background:var(--rose);color:#fff;border-radius:999px;font-size:
   async function requests(kind, canEdit) {
     const table = kind === 'event' ? 'event_requests' : 'club_members';
     const rows = await api.list(table);
-    const list = h('div'), addBox = h('div');
+    const list = h('div'), addBox = h('div'), saved = h('div', { role: 'status' });
     const chips = h('div', { class: 'chips', role: 'group', 'aria-label': 'Filter by status' });
     const filters = { all: 'All', ...O.STATUS_LABELS };
     function paint() {
@@ -549,7 +542,9 @@ nav.side .badge{background:var(--rose);color:#fff;border-radius:999px;font-size:
           e.preventDefault(); clear(out);
           const v = { ...r, status: st.value, staff_notes: notes.value.trim() };
           const errs = O.validateRequest(v, kind); if (errs.length) return msg(out, 'err', 'Not saved:', errs);
-          try { const saved = await api.save(table, { id: r.id, status: v.status, staff_notes: v.staff_notes || null, handled_by: me.id }, false); Object.assign(r, saved || v); paint(); }
+          try { const row = await api.save(table, { id: r.id, status: v.status, staff_notes: v.staff_notes || null, handled_by: me.id }, false); Object.assign(r, row || v); paint();
+            const hiddenNow = reqFilter !== 'all' && r.status !== reqFilter;
+            msg(saved, 'ok', 'Saved: ' + r.name + ' is now ' + O.STATUS_LABELS[r.status] + '.' + (hiddenNow ? ' It moved to the "' + O.STATUS_LABELS[r.status] + '" list.' : '')); }
           catch (err) { msg(out, 'err', 'Not saved: ' + O.dbError(err)); }
         } }, field('Status', st), field('Notes', notes), canEdit ? h('button', { class: 'primary', type: 'submit', text: 'Save' }) : h('span')), out);
     }
@@ -578,7 +573,7 @@ nav.side .badge{background:var(--rose);color:#fff;border-radius:999px;font-size:
     const intro = kind === 'event'
       ? 'Weddings, henna nights, birthdays, shoots and group visits. The website form still prepares a WhatsApp message (nothing is stored from the site yet): log each request here and follow it up.'
       : 'People who want to join the QAMAR Club. Plans and prices are still a proposal: no payment is taken here.';
-    return page(kind === 'event' ? 'Event requests' : 'Club members', intro, canEdit ? h('div', { class: 'actions' }, h('button', { class: 'primary', type: 'button', text: 'Log a request', onclick: addForm })) : null, addBox, chips, list);
+    return page(kind === 'event' ? 'Event requests' : 'Club members', intro, canEdit ? h('div', { class: 'actions' }, h('button', { class: 'primary', type: 'button', text: 'Log a request', onclick: addForm })) : null, addBox, chips, saved, list);
   }
 
   // ---- Invitation (propriétaire) : fonction Edge invite-staff, sinon méthode manuelle ----

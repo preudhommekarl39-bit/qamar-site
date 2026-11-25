@@ -52,6 +52,7 @@ window.QAMAR_DATA = {
      code insensible à la casse ; validUntil inclus (date de Dubaï, facultatif) ; minPeople = taille de groupe minimale (facultatif).
      Le code concourt avec lancement / happy hours / Squad : chaque personne garde la meilleure remise, jamais cumulée. */
   promoCodes: [],
+  referralCredit: 50, // crédit (AED) par amie parrainée, affiché sur l'accueil (« Refer a friend ») ; appliqué en caisse à la main tant que les règles ne sont pas validées
   guarantee: { serviceIds: ['express'], minutes: 35 }, // mesuré entre « début de prestation » et « fin de prestation », hors attente
   limits: { nameMax: 40, commentMax: 500, tipMaxPct: 100, tipMaxAed: 500 },
 

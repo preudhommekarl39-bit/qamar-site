@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { applyPrices, mergePrices, patchDataSource, runData, fetchSupabasePrices } from './prices.mjs';
 import { loadCore, loadJsonArticles, fetchSupabaseArticles, mergeArticles, siteContext, buildBlog, sitemapEntry } from './blog.mjs';
 import vm from 'node:vm';
-import { extractDict, translateHtml, localRefs } from './lib.mjs';
+import { extractDict, translateHtml, localRefs, fillPriceTokens } from './lib.mjs';
 
 let pass = 0, fail = 0;
 const test = (name, fn) => {
@@ -195,6 +195,19 @@ console.log('Back-office');
   test('prices: data.js patterns used by scripts/seo_pages.py still match after a rewrite', () => { const t = patchDataSource(src, up.prices); return (t.match(/\{ id: '[a-z]+', art:.*?duration: \d+, price: \d+/g) || []).length === D.services.length && /ritual: \{ price: 89/.test(t); });
   const pUnreach = await fetchSupabasePrices({ url: 'http://127.0.0.1:9', key: 'anon', timeoutMs: 3000 }), pNone = await fetchSupabasePrices({ url: '', key: '' });
   test('prices: Supabase unreachable or not configured, no crash', () => pUnreach.ok === false && !pUnreach.missing && pNone.ok === false && pUnreach.rows.length === 0);
+  // Accueil : prix cités dans les textes = data.js (ou back-office au build)
+  const idx = readFileSync('index.html', 'utf8'), idict = extractDict(idx);
+  test('home page: price texts are tokens filled from data.js, none hard-typed', () => idict.n1price.en === '{{price:night}} AED' && idict.w2b.en === '{{referral:credit}} AED' && /\{\{club:from\}\}/.test(idict.rd_q6.en) && /\{\{club:from\}\}/.test(idict.rd_q6.ar)
+    && !Object.values(idict).some(v => /\d+\s*AED|[٠-٩]+\s*درهم/.test(v.en + v.ar) && !/\{\{/.test(v.en + v.ar)) ? true : Object.entries(idict).filter(([k, v]) => /\d+\s*AED|[٠-٩]+\s*درهم/.test(v.en + v.ar)).map(([k]) => k));
+  test('home page: tokens follow a back-office price (EN and Arabic digits); unknown token stops the build', () => { const D2 = JSON.parse(JSON.stringify(D)); D2.services.find(x => x.id === 'night').price = 199; const d = fillPriceTokens({ n: { en: '{{price:night}} AED', ar: '{{price:night}} درهماً' }, c: { en: '{{club:from}}', ar: 'x' } }, D2); let threw = false; try { fillPriceTokens({ x: { en: '{{price:nope}}', ar: '' } }, D); } catch { threw = true; } return d.n.en === '199 AED' && d.n.ar === '١٩٩ درهماً' && d.c.en === '329' && threw; });
+  test('README: the alignment SQL before 007 matches data.js prices', () => { const rd = readFileSync('supabase/README.md', 'utf8'); const blk = (rd.match(/-- data\.js prices \(generated\)([\s\S]*?)-- end/) || [])[1] || ''; return D.services.every(x => blk.includes(`('${x.id}', ${x.price}, ${x.duration})`)) && D.addons.every(a => blk.includes(`('${a.id}', ${a.price})`)); });
+  test('migration 007: extras and ritual are seeded at the data.js prices', () => D.extras.filter(x => x.id !== 'long').every(x => new RegExp(`\\('${x.id}', '[^']*', '[^']*', 'extra', ${x.price},`).test(code)) && new RegExp(`\\('ritual', '[^']*', '[^']*', 'ritual', ${D.ritual.price},`).test(code));
+  test('migration 007: only drinks go on a ticket (free Night Glow matcha unchanged), last-owner check locks owner rows first', () => /from addons where id = p_addon and active and kind in \('matcha', 'drink'\)/.test(code)
+    && code.indexOf("perform 1 from staff where role::text = 'owner' and active order by id for update") > code.indexOf('function admin_update_staff') && code.indexOf("perform 1 from staff where role::text = 'owner' and active order by id for update") < code.indexOf("select * into cur from staff where id = p_id for update"));
+  test('activity log: readable items, whole AED prices, no technical id', () => { const lk = { staff: [{ id: 'u1', display_name: 'Layla' }], services: [{ id: 'glow', look_en: 'Qamar Glow' }], event_requests: [{ id: 'e1', event_type: 'wedding', event_date: '2027-01-05', name: 'Amal' }], club_members: [], addons: [] };
+    return O.auditItem({ action: 'update:staff', target: 'u1' }, lk) === 'Layla' && O.auditItem({ action: 'update:services', target: 'glow' }, lk) === 'Qamar Glow' && O.auditItem({ action: 'update:event_requests', target: 'e1' }, lk) === 'Wedding on 5 Jan 2027 · Amal'
+      && O.auditItem({ action: 'update:club_members', target: 'c9' }, lk) === 'Club request (deleted)' && O.auditChange({ before: { price_aed: 169.0, updated_at: 'a' }, after: { price_aed: 179, updated_at: 'b' } }) === 'Price: 169 → 179 AED'
+      && O.auditChange({ before: { status: 'new' }, after: { status: 'contacted' } }) === 'Status: New → Contacted' && !/—/.test(O.auditChange({ before: { duration_min: 35 }, after: { duration_min: 40 } })); });
   test('workflow: the hourly rebuild redeploys when the journal OR prices change', () => { const y = readFileSync('.github/workflows/site.yml', 'utf8'); return /\$\{SITE_URL\}content-hash\.txt/.test(y) && /_site\/content-hash\.txt/.test(y); });
 }
 // Clé anon renseignée + Supabase muet : le build doit échouer (pas de redéploiement sans les articles de l'admin)
@@ -215,6 +228,7 @@ try {
   test('full build: sitemap is well formed and excludes the admin pages', () => sm.startsWith('<?xml') && sm.trim().endsWith('</urlset>') && (sm.match(/<url>/g) || []).length === (sm.match(/<\/url>/g) || []).length && !/admin\.html|blog-admin/.test(sm));
   test('full build: Journal link in EN and AR footers (home, services, guides)', () => readFileSync('_site/index.html', 'utf8').includes('href="blog/" data-i18n="ft_blog"') && readFileSync('_site/ar.html', 'utf8').includes('href="blog/ar/" data-i18n="ft_blog">المدونة') && readFileSync('_site/services/walk-in-blow-dry-dubai.html', 'utf8').includes('<a href="../blog/">Journal</a>') && readFileSync('_site/guides/ar/steam-abaya-hijab.html', 'utf8').includes('blog/ar/">المدونة'));
   test('full build: blog-admin.html is published with noindex', () => /noindex/.test(readFileSync('_site/blog-admin.html', 'utf8')));
+  test('full build: home pages show data.js prices in the visible text (no token left)', () => { const night = runData(readFileSync('assets/data.js', 'utf8')).services.find(x => x.id === 'night').price; const vis = f => readFileSync(f, 'utf8').replace(/<script[\s\S]*?<\/script>/g, ''); return !/\{\{/.test(vis('_site/index.html')) && !/\{\{/.test(vis('_site/ar.html')) && vis('_site/index.html').includes(`data-i18n="n1price">${night} AED<`) && vis('_site/ar.html').includes(`data-i18n="n1price">${Number(night).toLocaleString('ar-EG')} درهماً<`); });
   test('full build offline: data.js prices kept, price data valid, content hash written', () => readFileSync('_site/assets/data.js', 'utf8') === readFileSync('assets/data.js', 'utf8') && /^[0-9a-f]{16}\n$/.test(readFileSync('_site/content-hash.txt', 'utf8')) && /^[0-9a-f]{16}\n$/.test(readFileSync('_site/assets/prices-hash.txt', 'utf8'))
     && runData(readFileSync('_site/assets/data.js', 'utf8')).services.every(x => Number.isInteger(x.price) && x.price > 0 && x.duration <= 45));
   test('full build: office.html is published with noindex and out of the sitemap', () => /noindex/.test(readFileSync('_site/office.html', 'utf8')) && !/office\.html/.test(sm));

@@ -72,9 +72,11 @@ begin
   if not is_owner() then raise exception 'forbidden'; end if;
   if p_role not in ('owner', 'manager', 'stylist') then raise exception 'invalid_role'; end if;
   if char_length(trim(coalesce(p_display_name, ''))) not between 1 and 40 then raise exception 'invalid_name'; end if;
+  -- jamais sans propriétaire active : les lignes owner actives sont verrouillées (dans un ordre fixe, avant la ligne visée)
+  -- puis comptées ; deux propriétaires qui se rétrogradent en même temps ne peuvent pas passer toutes les deux
+  perform 1 from staff where role::text = 'owner' and active order by id for update;
   select * into cur from staff where id = p_id for update;
   if not found then raise exception 'not_found'; end if;
-  -- jamais sans propriétaire active
   if cur.role::text = 'owner' and cur.active and (p_role <> 'owner' or not coalesce(p_active, false))
      and not exists (select 1 from staff where role::text = 'owner' and active and id <> p_id) then raise exception 'last_owner'; end if;
   update staff set display_name = left(regexp_replace(trim(p_display_name), '[<>[:cntrl:]]', '', 'g'), 40),
@@ -160,6 +162,27 @@ on conflict (id) do nothing;
 -- Ordre initial des looks = ordre de data.js (seulement s'il n'a jamais été réglé)
 update services s set sort_order = o.n from (values ('express', 10), ('glow', 20), ('waves', 30), ('sleek', 40), ('night', 50), ('sos', 60), ('care', 70), ('cut', 80), ('root', 90), ('mini', 100)) as o(id, n)
  where s.id = o.id and s.sort_order = 100 and o.n <> 100;
+
+-- Tickets : seules les boissons (kind 'matcha' / 'drink') s'ajoutent à un ticket, comme dans store.js (D.addons) : les extras et le
+-- rituel ajoutés ci-dessus servent aux prix du site et ne changent ni la caisse ni amount_due (005). Une matcha offerte « Night Glow »
+-- reste une ligne kind = 'matcha' ; l'extra « matcha » (kind 'extra', « Matcha or fresh juice ») ne peut pas être mis sur un ticket.
+-- Corps identique à 002, seul le filtre sur kind est ajouté.
+create or replace function add_addon(p_ticket uuid, p_addon text) returns ticket_addons language plpgsql security definer set search_path = public as $$
+declare t tickets; a addons; r ticket_addons;
+begin
+  if not is_staff() then raise exception 'forbidden'; end if;
+  select * into t from tickets where id = p_ticket and (assigned_staff = auth.uid() or is_manager()) for update;
+  if t is null then raise exception 'not_found'; end if;
+  if t.status not in ('waiting','called','in_service') then raise exception 'invalid_state'; end if;
+  select * into a from addons where id = p_addon and active and kind in ('matcha', 'drink');
+  if a is null then raise exception 'addon_unavailable'; end if;
+  if (select count(*) from ticket_addons where ticket_id = p_ticket) >= 6 then raise exception 'too_many_addons'; end if;
+  insert into ticket_addons (ticket_id, addon_id, price_aed) values (p_ticket, a.id, a.price_aed) returning * into r;
+  insert into ticket_events (ticket_id, event, actor) values (p_ticket, 'addon:' || a.id, auth.uid());
+  return r;
+end $$;
+revoke all on function add_addon(uuid, text) from public, anon;
+grant execute on function add_addon(uuid, text) to authenticated;
 
 -- Écriture : propriétaire et gérante (politiques 001 / 005, is_manager() inclut owner). Pas de suppression de look ni d'option :
 -- on les désactive (les tickets passés y font référence).

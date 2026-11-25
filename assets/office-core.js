@@ -153,6 +153,44 @@
     return m || 'Unknown error.';
   }
 
-  root.QAMAR_OFFICE = { ROLES, ROLE_LABELS, MENU, menuFor, canSee, canEdit, home, STATUSES, STATUS_LABELS, EVENT_TYPES, TIERS, SOURCES, ADDON_KINDS, SALON_MODES,
+  // ---- Journal d'activité : élément lisible et changement formaté (jamais d'identifiant technique à l'écran) ----
+  // lk = { staff, services, addons, event_requests, club_members } (listes déjà lisibles dans le panneau)
+  const fmtDay = d => (d ? new Date(d + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
+  function auditItem(e, lk) {
+    const tbl = String(e.action || '').split(':')[1] || '', id = e.target, f = (l, k = 'id') => ((lk && lk[l]) || []).find(x => String(x[k]) === String(id));
+    if (tbl === 'staff') { const s = f('staff'); return s ? s.display_name : (e.details && e.details.display_name) || 'Former team member'; }
+    if (tbl === 'services') { const s = f('services'); return s ? s.look_en : id; }
+    if (tbl === 'addons') { const a = f('addons'); return a ? a.name_en : id; }
+    if (tbl === 'promo_codes') return id;
+    if (tbl === 'salon_status') return 'Salon';
+    if (tbl === 'event_requests') { const r = f('event_requests'); return r ? (EVENT_TYPES[r.event_type] || 'Event') + (r.event_date ? ' on ' + fmtDay(r.event_date) : '') + ' · ' + r.name : 'Event request (deleted)'; }
+    if (tbl === 'club_members') { const r = f('club_members'); return r ? 'Club · ' + r.name : 'Club request (deleted)'; }
+    return id || '';
+  }
+  const FIELD_LABELS = { price_aed: 'Price', duration_min: 'Duration', status: 'Status', active: 'Active', enabled: 'Active', role: 'Role', display_name: 'Name', look_en: 'Look (EN)', look_ar: 'Look (AR)', name_en: 'Name (EN)', name_ar: 'Name (AR)',
+    sort_order: 'Order', from_hour: 'From hour', free_matcha: 'Free matcha', kind: 'Type', pct: 'Discount', valid_until: 'Valid until', min_people: 'Min. group', label_en: 'Label (EN)', label_ar: 'Label (AR)',
+    specialty_en: 'Specialty (EN)', specialty_ar: 'Specialty (AR)', instagram: 'Instagram', email: 'E-mail', mode: 'Mode', message_en: 'Message (EN)', message_ar: 'Message (AR)', wait_minutes: 'Estimated wait', lounge_waiting: 'Guests waiting', chairs_free: 'Free chairs', code: 'Code' };
+  function auditValue(k, v) {
+    if (v == null || v === '') return 'empty';
+    if (k === 'price_aed') return String(Math.round(Number(v)));
+    if (k === 'status') return STATUS_LABELS[v] || v;
+    if (k === 'role') return ROLE_LABELS[v] || v;
+    if (k === 'mode') return SALON_MODES[v] || v;
+    if (typeof v === 'boolean') return v ? 'yes' : 'no';
+    return typeof v === 'object' ? JSON.stringify(v) : String(v);
+  }
+  const UNIT = { price_aed: ' AED', duration_min: ' min', wait_minutes: ' min', pct: '%' };
+  function auditChange(d) {
+    if (!d) return '';
+    if (!('before' in d) && !('after' in d)) return Object.entries(d).filter(([k]) => k !== 'email').map(([k, v]) => (FIELD_LABELS[k] || k) + ': ' + auditValue(k, v)).join(', ');
+    const b = d.before || {}, a = d.after || {};
+    const skip = ['id', 'updated_at', 'created_at', 'updated_by', 'handled_by', 'staff_notes'];
+    const keys = [...new Set([...Object.keys(b), ...Object.keys(a)])].filter(k => !skip.includes(k) && JSON.stringify(b[k]) !== JSON.stringify(a[k]) && !(k === 'price_aed' && b[k] != null && a[k] != null && Number(b[k]) === Number(a[k])));
+    if (!d.before) return 'Created';
+    if (!d.after) return 'Deleted';
+    return keys.map(k => { const u = UNIT[k] || '', fb = auditValue(k, b[k]), fa = auditValue(k, a[k]); return (FIELD_LABELS[k] || k) + ': ' + fb + (fb !== 'empty' && u ? (u === ' AED' ? '' : u) : '') + ' → ' + fa + (fa !== 'empty' ? u : ''); }).join(' · ') || 'No visible change';
+  }
+
+  root.QAMAR_OFFICE = { auditItem, auditChange, ROLES, ROLE_LABELS, MENU, menuFor, canSee, canEdit, home, STATUSES, STATUS_LABELS, EVENT_TYPES, TIERS, SOURCES, ADDON_KINDS, SALON_MODES,
     validateService, validateAddon, validatePromoCode, validateRequest, validateStaff, validateInvite, validateSalonStatus, waHref, dbError };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -136,10 +136,33 @@ Démo locale avec fausses données (localhost seulement, jamais en ligne) : `pyt
 - `salon_status` : `mode` (preopening / open / closed), `message_en`, `message_ar`, `wait_minutes` ; fonction `admin_set_salon_status` (owner + manager) ;
 - tables `event_requests` et `club_members` (statut new / contacted / confirmed / declined, notes, contact), RLS : lecture et écriture owner + manager,
   suppression owner ; dépôt public possible par `request_event` / `request_club` (validation, limites anti-abus) ;
+- `add_addon` (002) : seules les boissons (`kind` = `matcha` / `drink`) peuvent être ajoutées à un ticket, comme dans `store.js` (`D.addons`) ;
+  les extras et le rituel ajoutés dans `addons` ne servent qu'aux prix du site et ne changent ni la caisse ni `amount_due` (la matcha offerte
+  Night Glow reste une ligne `matcha`) ;
 - `audit_row()` : chaque changement du catalogue, des codes, de l'équipe et des statuts de demandes est écrit dans `audit_logs` (qui, quoi, avant / après ;
   pour les demandes, seulement le statut, pas les données personnelles).
 
 ### À faire une fois (assistant de Karl)
+0. **Aligner d'abord les prix de la base sur `assets/data.js`** (après la 007, c'est la base qui fixe les prix du site : un écart publierait
+   d'anciens prix au premier build). Comparer :
+   ```sql
+   select id, price_aed, duration_min from services order by id;
+   select id, kind, price_aed from addons order by id;
+   ```
+   puis, si un nombre diffère de `data.js` (ou par précaution), exécuter ce bloc, généré depuis `data.js` (vérifié par `node scripts/run-tests.mjs`) :
+   ```sql
+   -- data.js prices (generated)
+   update services s set price_aed = v.price, duration_min = v.duration from (values
+     ('express', 139, 35), ('glow', 179, 40), ('waves', 199, 45), ('sleek', 169, 40), ('night', 189, 45),
+     ('sos', 69, 15), ('care', 149, 30), ('cut', 279, 45), ('root', 379, 45), ('mini', 89, 25)
+   ) as v(id, price, duration) where s.id = v.id;
+   update addons a set price_aed = v.price from (values
+     ('matcha-latte', 25), ('matcha-iced', 25), ('matcha-straw', 25), ('matcha-vanilla', 25)
+   ) as v(id, price) where a.id = v.id;
+   -- end
+   ```
+   Les extras et le rituel n'existent pas encore en base : la 007 les crée aux prix de `data.js`. Ensuite, changer les prix **uniquement**
+   depuis le back-office (modifier `data.js` ne changerait plus le site tant que la base répond).
 1. **Migration** : SQL Editor → coller tout `supabase/migrations/007_backoffice.sql` (copier avec `LANG=en_US.UTF-8 pbcopy < supabase/migrations/007_backoffice.sql`) → Run.
 2. **Karl owner** (requête séparée, APRÈS l'étape 1, remplacer l'e-mail) :
    ```sql
@@ -162,7 +185,9 @@ Démo locale avec fausses données (localhost seulement, jamais en ligne) : `pyt
 ### Prix : du back-office au site
 Au build (`scripts/prices.mjs`, appelé par `build-site.mjs`), la vue `public_prices` est lue avec la clé anon. Les prix et durées des looks, des extras,
 du rituel et des matchas sont réécrits dans `_site/assets/data.js` (seuls les nombres changent ; le dépôt n'est pas modifié), puis
-`scripts/seo_pages.py` régénère `_site/services/` et `_site/areas/` avec ces prix. Le build planifié (toutes les heures) redéploie si
+`scripts/seo_pages.py` régénère `_site/services/` et `_site/areas/` avec ces prix. Les prix cités dans les textes de l'accueil
+(`index.html`, dictionnaire EN/AR : Night Glow `{{price:night}}`, Club « from » `{{club:from}}`, parrainage `{{referral:credit}}`) sont des jetons
+remplis depuis ces mêmes données au build (pages statiques EN et AR) et au chargement de la page ; aucun prix n'y est tapé en dur. Le build planifié (toutes les heures) redéploie si
 `content-hash.txt` (journal + prix) change : **un prix modifié est en ligne dans l'heure**.
 Garde-fous : vue absente (007 pas encore passée), `BLOG_OFFLINE=1` ou `PRICES_OFFLINE=1` → prix de `data.js` ; une seule ligne invalide (prix 0,
 non entier, durée > 45 min…) ou aucun look reconnu → **tous** les prix de `data.js` (jamais de menu vide) ; Supabase en erreur → build arrêté,

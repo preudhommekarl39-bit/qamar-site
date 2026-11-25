@@ -10,7 +10,7 @@
 // Le jour où le domaine définitif est acheté : changer SITE_URL (workflow .github/workflows/site.yml), rien d'autre.
 import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync, existsSync, readdirSync } from 'node:fs';
 import vm from 'node:vm';
-import { extractDict, translateHtml, setHeadTag, setMeta } from './lib.mjs';
+import { extractDict, translateHtml, setHeadTag, setMeta, fillPriceTokens } from './lib.mjs';
 import { loadJsonArticles, fetchSupabaseArticles, mergeArticles, siteContext, buildBlog, sitemapEntry } from './blog.mjs';
 import { fetchSupabasePrices, applyPrices } from './prices.mjs';
 import { execFileSync } from 'node:child_process';
@@ -92,10 +92,31 @@ function seoHead(html, lang, url) {
   return html;
 }
 
+// ---- Prix (back-office → site) : vue public_prices ; en cas de doute, prix de assets/data.js ----
+const offline = process.env.BLOG_OFFLINE || process.env.PRICES_OFFLINE;
+const pdb = offline ? { ok: false, reason: 'offline flag set', rows: [] }
+  : await fetchSupabasePrices({ url: process.env.SUPABASE_URL || CFG.supabaseUrl, key: process.env.SUPABASE_ANON_KEY || CFG.supabaseAnonKey });
+const priceSrc = readFileSync('assets/data.js', 'utf8');
+const priceKey = process.env.SUPABASE_ANON_KEY || CFG.supabaseAnonKey;
+const pr = applyPrices({ src: priceSrc, rows: pdb.ok ? pdb.rows : null });
+console.log(pdb.ok ? `Prices: ${pdb.rows.length} row(s) from Supabase, ${pr.changes.length} change(s) vs assets/data.js, using ${pr.used}.` : `Prices: ${pdb.reason}. Using assets/data.js.`);
+for (const w of pr.warnings) console.log('Prices: ' + w);
+if (pr.errors.length) console.error('Prices: Supabase prices NOT used (' + pr.reason + '):\n  - ' + pr.errors.join('\n  - '));
+for (const c of pr.changes) console.log(`Prices: ${c.kind} ${c.id} ${c.field} ${c.from} -> ${c.to}`);
+if (pr.source !== priceSrc) {
+  writeFileSync(`${OUT}/assets/data.js`, pr.source);
+  // Pages services/ et areas/ régénérées avec les nouveaux prix (sinon : arrêt, le site en ligne reste tel quel)
+  try { execFileSync('python3', ['scripts/seo_pages.py'], { env: { ...process.env, QAMAR_DATA_JS: `${OUT}/assets/data.js`, QAMAR_SEO_OUT: OUT }, stdio: 'pipe' }); }
+  catch (e) { console.error('Prices: could not regenerate the services/areas pages with the new prices (python3 scripts/seo_pages.py):\n' + (e.stderr || e.message)); process.exit(1); }
+}
+mkdirSync(`${OUT}/assets`, { recursive: true });
+writeFileSync(`${OUT}/assets/prices-hash.txt`, pr.hash + '\n');
+
 // ---- Accueil anglais ----
 const indexSrc = readFileSync('index.html', 'utf8');
 const dict = extractDict(indexSrc);
 if (CFG.phase !== 'open') Object.assign(dict, extractDict(indexSrc, 'dictPre')); // même règle que la page : textes de préouverture
+fillPriceTokens(dict, pr.data); // {{price:night}}, {{club:from}} : prix de data.js (ou du back-office), comme la page le fait au chargement
 let en = translateHtml(indexSrc, dict, 'en').html.replace(/<html lang="en" dir="ltr">/, '<html lang="en" dir="ltr" data-page-lang="en" data-lang-href-ar="ar.html">');
 en = seoHead(en, 'en', URLS.en);
 writeFileSync(`${OUT}/index.html`, en);
@@ -132,27 +153,8 @@ const db = process.env.BLOG_OFFLINE ? { ok: false, reason: 'BLOG_OFFLINE set', a
 console.log(db.ok ? `Blog: ${db.articles.length} published article(s) from Supabase` : `Blog: ${db.reason}. Using content/blog only.`);
 // Clé anon renseignée mais Supabase muet : on n'écrase pas le site en ligne par une version sans les articles de l'admin
 if (!db.ok && !process.env.BLOG_OFFLINE && (process.env.SUPABASE_ANON_KEY || CFG.supabaseAnonKey)) { console.error('Blog: Supabase is configured but did not answer. Build stopped so the live journal keeps its Supabase articles. (BLOG_OFFLINE=1 to build without Supabase.)'); process.exit(1); }
-
-// ---- Prix (back-office → site) : vue public_prices ; en cas de doute, prix de assets/data.js ----
-const offline = process.env.BLOG_OFFLINE || process.env.PRICES_OFFLINE;
-const pdb = offline ? { ok: false, reason: 'offline flag set', rows: [] }
-  : await fetchSupabasePrices({ url: process.env.SUPABASE_URL || CFG.supabaseUrl, key: process.env.SUPABASE_ANON_KEY || CFG.supabaseAnonKey });
 // Supabase a répondu pour le journal mais pas pour les prix (hors vue absente) : on ne redéploie pas d'anciens prix
-if (!pdb.ok && !pdb.missing && !offline && (process.env.SUPABASE_ANON_KEY || CFG.supabaseAnonKey)) { console.error(`Prices: ${pdb.reason}. Build stopped so the live site keeps its current prices. (PRICES_OFFLINE=1 to build with assets/data.js prices.)`); process.exit(1); }
-const priceSrc = readFileSync('assets/data.js', 'utf8');
-const pr = applyPrices({ src: priceSrc, rows: pdb.ok ? pdb.rows : null });
-console.log(pdb.ok ? `Prices: ${pdb.rows.length} row(s) from Supabase, ${pr.changes.length} change(s) vs assets/data.js, using ${pr.used}.` : `Prices: ${pdb.reason}. Using assets/data.js.`);
-for (const w of pr.warnings) console.log('Prices: ' + w);
-if (pr.errors.length) console.error('Prices: Supabase prices NOT used (' + pr.reason + '):\n  - ' + pr.errors.join('\n  - '));
-for (const c of pr.changes) console.log(`Prices: ${c.kind} ${c.id} ${c.field} ${c.from} -> ${c.to}`);
-if (pr.source !== priceSrc) {
-  writeFileSync(`${OUT}/assets/data.js`, pr.source);
-  // Pages services/ et areas/ régénérées avec les nouveaux prix (sinon : arrêt, le site en ligne reste tel quel)
-  try { execFileSync('python3', ['scripts/seo_pages.py'], { env: { ...process.env, QAMAR_DATA_JS: `${OUT}/assets/data.js`, QAMAR_SEO_OUT: OUT }, stdio: 'pipe' }); }
-  catch (e) { console.error('Prices: could not regenerate the services/areas pages with the new prices (python3 scripts/seo_pages.py):\n' + (e.stderr || e.message)); process.exit(1); }
-}
-mkdirSync(`${OUT}/assets`, { recursive: true });
-writeFileSync(`${OUT}/assets/prices-hash.txt`, pr.hash + '\n');
+if (!pdb.ok && !pdb.missing && !offline && priceKey) { console.error(`Prices: ${pdb.reason}. Build stopped so the live site keeps its current prices. (PRICES_OFFLINE=1 to build with assets/data.js prices.)`); process.exit(1); }
 
 const blog = buildBlog({ out: OUT, site: SITE, articles: mergeArticles(jsonArticles, db.articles), ctx: siteContext() });
 for (const e of blog.errors) console.error(`Blog: "${e.slug}" (${e.source}) not published:\n  - ` + e.errors.join('\n  - '));

@@ -59,3 +59,20 @@ export function localRefs(html) {
   });
   return out.filter(Boolean);
 }
+
+// Prix cités dans les textes de l'accueil (dictionnaire EN/AR) : jetons remplacés par les nombres de data.js
+// (ou du back-office au build). {{price:<id du look>}} ; {{club:from}} = plus petit prix mensuel du Club ; {{referral:credit}} = crédit parrainage.
+// Même règle que la page au chargement (index.html → fillPriceTokens) ; chiffres arabes en AR (toLocaleString 'ar-EG').
+export const PRICE_TOKEN = /\{\{(price|club|referral):([a-z0-9-]+)\}\}/g;
+export function priceTokenValue(D, kind, id) {
+  if (kind === 'price') { const s = D.services.find(x => x.id === id); if (s) return s.price; }
+  if (kind === 'club' && id === 'from') return Math.min(...D.club.tiers.map(t => t.price));
+  if (kind === 'referral' && id === 'credit' && Number.isFinite(D.referralCredit)) return D.referralCredit;
+  throw new Error(`unknown price token {{${kind}:${id}}}`);
+}
+export function fillPriceTokens(dict, D) {
+  for (const v of Object.values(dict)) for (const lang of ['en', 'ar']) {
+    if (v && typeof v[lang] === 'string') v[lang] = v[lang].replace(PRICE_TOKEN, (m, k, id) => { const n = priceTokenValue(D, k, id); return lang === 'ar' ? Number(n).toLocaleString('ar-EG') : String(n); });
+  }
+  return dict;
+}
