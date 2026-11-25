@@ -5,7 +5,9 @@
 (function () {
   const cfg = (window.QAMAR_CONFIG && window.QAMAR_CONFIG.analytics) || {};
   const consent = () => { try { return localStorage.getItem('qamar:consent') === 'granted'; } catch (e) { return false; } };
-  const active = () => !!(cfg.enabled && /^G-[A-Z0-9]+$/.test(cfg.ga4Id || '') && consent());
+  // Jamais dans l'application native (App Store / Google Play) : les fiches « confidentialité » des stores déclarent « aucune donnée d'usage collectée »
+  const native = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  const active = () => !!(!native && cfg.enabled && /^G-[A-Z0-9]+$/.test(cfg.ga4Id || '') && consent());
   let loaded = false;
   function load() {
     if (loaded || !active()) return; loaded = true;

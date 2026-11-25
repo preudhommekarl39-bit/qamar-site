@@ -3,6 +3,33 @@
   "appName": "QAMAR",
   "webDir": "www",
   "backgroundColor": "#FFF7F9",
-  "android": { "allowMixedContent": false },
-  "ios": { "contentInset": "never", "backgroundColor": "#FFF7F9" }
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#FFF7F9"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2500,
+      "launchAutoHide": true,
+      "backgroundColor": "#FFF7F9",
+      "showSpinner": false
+    },
+    "SystemBars": {
+      "insetsHandling": "css",
+      "style": "LIGHT"
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_qamar",
+      "iconColor": "#B87A62"
+    },
+    "PushNotifications": {
+      "presentationOptions": [
+        "alert",
+        "sound"
+      ]
+    }
+  }
 }

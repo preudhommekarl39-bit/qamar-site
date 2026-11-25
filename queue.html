@@ -314,6 +314,8 @@
     app_sheet: { en: "Your place in line on your home screen. We'll tell you when it's your turn.", ar: 'مكانكِ في الطابور على شاشتك الرئيسية. سنخبركِ عندما يحين دوركِ.' },
     app_ios: { en: 'On iPhone, the app opens separately from Safari. For today, keep this page open: your ticket is {c}. Your next visits start from the app.', ar: 'على الآيفون، يفتح التطبيق بشكل منفصل عن سفاري. لزيارة اليوم، أبقي هذه الصفحة مفتوحة: تذكرتكِ {c}. زياراتكِ القادمة تبدأ من التطبيق.' },
     tk_missing: { en: 'This ticket is not on this device. In this preview, a ticket stays in the browser where it was created: open it there, or join again here.', ar: 'هذه التذكرة غير موجودة على هذا الجهاز. في هذه المعاينة تبقى التذكرة في المتصفح الذي أُنشئت فيه: افتحيها هناك أو انضمي مجدداً من هنا.' },
+    pay_counter: { en: 'You pay at the counter, by card or cash. There is no payment in the app.', ar: 'تدفعين عند الكاونتر بالبطاقة أو نقداً. لا يوجد دفع داخل التطبيق.' },
+    demo_counter: { en: 'Demo: mark as paid at the counter', ar: 'تجربة: تسجيل الدفع عند الكاونتر' },
     paid_cash: { en: 'Cash with your stylist', ar: 'نقداً مع مصففتك' }, back_site: { en: 'Back to the website', ar: 'العودة إلى الموقع' }, back: { en: 'Back', ar: 'رجوع' }, opening: { en: 'The team is getting ready — your place is saved.', ar: 'الفريق يستعد — مكانك محفوظ.' }
   };
   const t = (k, v = {}) => Q.t(k).replace(/\{(\w)\}/g, (_, x) => v[x] ?? '');
@@ -352,6 +354,11 @@
   let submitting = false;
   // Lien vers le tableau de bord du personnel : jamais sur la page cliente en production (sauf ?demo=1)
   const showDemoStrip = (window.QAMAR_CONFIG || {}).environment !== 'production' || params.get('demo') === '1';
+  // Application native (App Store / Google Play) : aucun paiement dans l'app, notifications par assets/native.js
+  const inApp = !!(window.QamarApp && window.QamarApp.native);
+  const notifAsk = () => window.QamarNative ? ['prompt', 'prompt-with-rationale'].includes(window.QamarNative.permission()) : ('Notification' in window && Notification.permission === 'default');
+  const notifRequest = () => window.QamarNative ? window.QamarNative.askNotifications() : Notification.requestPermission();
+  document.addEventListener('qamar:native', () => render());
 
   /* ---------- Étape 1 : looks ---------- */
   function renderLooks() {
@@ -522,7 +529,7 @@
     b.textContent = step === 3 ? (submitting ? t('joining') : t('join')) : t('next');
     b.disabled = submitting || (step === 1 && !sel.people.every(p => p.serviceId)) || (step === 2 && !sel.pref);
   }
-  const homeHref = () => Q.lang === 'ar' ? 'ar.html' : 'index.html';
+  const homeHref = () => inApp ? 'index.html' : Q.lang === 'ar' ? 'ar.html' : 'index.html';
   document.getElementById('backBtn').onclick = () => { if (step === 1) location.href = homeHref(); else showStep(step - 1); };
   const localizeNav = () => { document.getElementById('homeLink').href = homeHref(); document.getElementById('homeLink').setAttribute('aria-label', t('back_site')); document.getElementById('backBtn').setAttribute('aria-label', t('back')); };
   document.addEventListener('qamar:lang', localizeNav);
@@ -593,6 +600,7 @@
       for (const s of D.stylists.filter(s => tk.pref === 'any' || tk.pref === s.id)) { Q.clockIn(s.id, s.pin); if (Q.call(s.id, tk.id)) break; }
     } else if (tk.status === 'called') Q.start(tk.id);
     else if (tk.status === 'in_service') Q.toCheckout(tk.id);
+    else if (tk.status === 'checkout' && inApp) Q.pay(tk.id, { method: 'cash', tip: 0 });
   }
   const demoBtn = () => Q.isDemo ? `<button class="btn btn-light btn-block demo-next" type="button" style="margin-top:12px">▶ ${t('demo_next')}</button><p class="muted" style="font-size:.78rem;margin:6px 4px 0;text-align:center">${t('demo_next_s')}</p>` : '';
   document.addEventListener('click', e => { if (e.target.closest('.demo-next')) demoNext(myId); });
@@ -635,11 +643,11 @@
         </ol>
         <div class="note"><span>☾</span><span>${waOn ? t('waiting_note') : t('waiting_note_off')}</span></div>
         ${demoBtn()}
-        ${showDemoStrip ? `<div class="demo-strip"><span>${t('demo')}</span><a href="admin.html">${t('demo_open')} <span class="arr" aria-hidden="true">→</span></a></div>` : ''}
-        ${'Notification' in window && Notification.permission === 'default' ? `<button class="btn btn-light btn-block" style="margin-top:12px" id="notifBtn">🔔 ${t('notify_on')}</button>` : ''}
+        ${showDemoStrip && !inApp ? `<div class="demo-strip"><span>${t('demo')}</span><a href="admin.html">${t('demo_open')} <span class="arr" aria-hidden="true">→</span></a></div>` : ''}
+        ${notifAsk() ? `<button class="btn btn-light btn-block" style="margin-top:12px" id="notifBtn">🔔 ${t('notify_on')}</button>` : ''}
         <button class="btn btn-ghost btn-block" style="margin-top:12px" id="cancelBtn">${t('cancel')}</button>`;
       const cb = document.getElementById('cancelBtn'); cb.onclick = () => Q.twoTap(cb, () => Q.cancel(tk.id), t('cancel_q'));
-      const nb = document.getElementById('notifBtn'); if (nb) nb.onclick = () => Notification.requestPermission().then(render);
+      const nb = document.getElementById('notifBtn'); if (nb) nb.onclick = () => notifRequest().then(render);
       const ab = document.getElementById('appBtn'); if (ab) ab.onclick = () => window.QamarApp.install(window.QamarApp.isIOS ? {} : { sub: t('app_sheet') });
       const ax = document.getElementById('appX'); if (ax) ax.onclick = () => { try { localStorage.setItem(APP_OFF, String(Date.now())); } catch (e) { /* ignore */ } document.getElementById('appCard').remove(); };
     } else if (tk.status === 'called') {
@@ -669,7 +677,7 @@
       el.innerHTML = `<div class="ticket-card" style="padding-top:56px">
           <div class="code">${code}</div>
           <h1 style="margin-top:10px">${t('pay_t')}</h1>
-          <p class="sub">${t('pay_s')}</p>
+          <p class="sub">${t(inApp ? 'pay_counter' : 'pay_s')}</p>
           <div class="summary" style="background:var(--pearl);text-align:start">
             ${pr.people ? pr.people.map((l, i) => `<div><span>${t('person', { n: qNum(i + 1) })} · ${Q.esc(lookName(l.serviceId))}${l.extraLong ? ' + XL' : ''}${l.pct ? ` <bdi dir="ltr">−${qNum(l.pct)}%</bdi>` : ''}</span><span><bdi dir="ltr">${l.discount ? `<s class="muted">${qNum(l.base)}</s> ` : ''}${qAed(l.total)}</bdi></span></div>`).join('') : `<div><span>${Q.esc(Q.L(s.look))}${tk.extraLong ? ' + XL' : ''}</span><span>${qAed(pr.base)}</span></div>`}
             ${pr.discount && !pr.people ? `<div><span>${pr.promo && pr.promo.label ? promoName(pr.promo) : t('launch_disc')} <bdi dir="ltr">−${qNum(tk.discountPct)}%</bdi></span><span><bdi dir="ltr">−${qAed(pr.discount)}</bdi></span></div>` : ''}
@@ -677,15 +685,16 @@
             ${pr.addons.map(a => `<div><span>${Q.esc(Q.L(a.name))}</span><span>${a.price ? qAed(a.price) : t('free')}</span></div>`).join('')}
             <div class="total"><span>${t('total')}</span><span>${qAed(pr.total)}</span></div>
           </div>
-          <p style="margin:18px 0 0;color:var(--cocoa)"><b style="font-weight:500">${t('tip_t', { n: sty?.name })}</b><br><small class="muted">${t('tip_s')}</small></p>
+          ${inApp ? '' : `          <p style="margin:18px 0 0;color:var(--cocoa)"><b style="font-weight:500">${t('tip_t', { n: sty?.name })}</b><br><small class="muted">${t('tip_s')}</small></p>
           <div class="tip-grid">${[10, 25, 75].map(p => `<button data-tip="${p}" class="${tipChoice === p ? 'sel' : ''}">${qNum(p)}%<small>${qAed(Math.round(tipBase * p / 100))}</small></button>`).join('')}<button data-tip="custom" class="${tipChoice === 'custom' ? 'sel' : ''}">${t('custom')}<small>AED</small></button></div>
           ${tipChoice === 'custom' ? `<input class="input" id="customTip" type="number" min="0" inputmode="numeric" placeholder="${Q.lang === 'ar' ? 'درهم' : 'AED'}" style="margin-bottom:10px">` : ''}
           <button class="btn btn-ghost btn-block" data-tip="0" style="margin-bottom:14px;${tipChoice === 0 ? 'background:var(--blush)' : ''}">${t('no_tip')}</button>
           <div class="summary" style="background:var(--pearl);text-align:start;margin-top:4px"><div><span>${t('tip_line')}</span><span id="tipVal">${qAed(tipAmt)}</span></div><div class="total"><span>${t('to_pay')}</span><span id="payVal">${qAed(pr.total + tipAmt)}</span></div></div>
           <button class="btn apple btn-block" id="payApple"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.7-1-2.7-4.1zM13.9 5c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5z"/></svg>${t('pay_apple')} · <span id="appleAmt">${qAed(pr.total + tipAmt)}</span></button>
           <button class="btn btn-ghost btn-block" id="payCard" style="margin-top:10px">${t('pay_card')}</button>
-          ${Q.isDemo ? `<p class="muted" style="font-size:.8rem;margin:12px 0 0">${t('demo_pay')}</p>` : ''}
-        </div>`;
+          ${Q.isDemo ? `<p class="muted" style="font-size:.8rem;margin:12px 0 0">${t('demo_pay')}</p>` : ''}`}
+        </div>${inApp ? demoBtn() : ''}`;
+      if (inApp) return; // app : pas de pourboire ni de paiement dans l'app, on paie au comptoir
       el.querySelectorAll('[data-tip]').forEach(b => b.onclick = () => { tipChoice = b.dataset.tip === 'custom' ? 'custom' : +b.dataset.tip; renderTicket(Q.ticket(myId)); if (tipChoice === 'custom') setTimeout(() => document.getElementById('customTip')?.focus(), 30); });
       const ct = document.getElementById('customTip');
       if (ct) ct.oninput = () => { const v = Math.max(0, Math.round(+ct.value || 0)); document.getElementById('tipVal').textContent = qAed(v); document.getElementById('payVal').textContent = qAed(pr.total + v); document.getElementById('appleAmt').textContent = qAed(pr.total + v); };
@@ -710,7 +719,7 @@
       document.getElementById('sendRate').onclick = () => Q.rate(tk.id, stars, document.getElementById('comment').value);
       document.getElementById('skipRate').onclick = () => Q.rate(tk.id, 0);
     } else if (tk.status === 'done') {
-      const link = Q.baseUrl() + 'index.html?ref=' + encodeURIComponent(tk.name.toLowerCase());
+      const link = (inApp ? String((window.QAMAR_CONFIG || {}).siteUrl || Q.baseUrl()) : Q.baseUrl() + 'index.html') + '?ref=' + encodeURIComponent(tk.name.toLowerCase());
       el.innerHTML = `<div class="ticket-card">
           <div style="width:60px;margin:0 auto;color:var(--gold)">${Q.logo('')}</div>
           <h1 style="margin-top:14px">${t('done_t', { n: Q.esc(tk.name) })}</h1>

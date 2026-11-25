@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-app-home>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F8E1DC">
+<title>QAMAR</title>
+<link rel="icon" href="assets/app/favicon-32.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/qamar.css">
+<!--
+  QAMAR : écran d'accueil de l'APPLICATION native (App Store / Google Play).
+  scripts/build-www.mjs le copie en www/index.html : c'est la première page de l'app. Il n'est PAS publié sur le site
+  (absent de scripts/build-site.mjs) ; les visiteuses du site gardent la page d'accueil habituelle.
+  Trois vues sur une seule page (#home, #looks, #me) + la file d'attente (queue.html) ; la barre d'onglets est ajoutée
+  par assets/native.js, chargé uniquement dans l'app. Aucun paiement dans l'app : on paie au salon.
+-->
+<style>
+  body { background: radial-gradient(130% 60% at 50% 0%, #FCEAE5, var(--blush) 50%, var(--blush-2)); min-height: 100svh; }
+  .app { width: min(560px, 100%); margin: 0 auto; padding: 14px 16px 40px; }
+  .top { display: flex; align-items: center; justify-content: space-between; padding: 6px 0 14px; }
+  .top .brand { display: flex; align-items: center; gap: 10px; color: var(--cocoa); }
+  .top .brand .logo-mark { width: 30px; height: 30px; color: var(--gold); }
+  [data-view] { display: none; }
+  [data-view].on { display: block; animation: vIn .25s ease; }
+  @keyframes vIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: 2.3rem; line-height: 1.05; margin: 4px 0 6px; color: var(--cocoa); }
+  h2 { font-family: var(--serif); font-weight: 500; font-size: 1.5rem; line-height: 1.1; margin: 26px 0 10px; color: var(--cocoa); }
+  .sub { color: var(--muted); margin: 0 0 18px; }
+  .card { background: #fff; border-radius: 20px; padding: 16px; box-shadow: 0 10px 30px -20px rgba(75, 45, 37, .4); margin-bottom: 14px; }
+  .demo-note { margin: 0 0 16px; padding: 10px 14px; border-radius: 14px; background: rgba(255, 255, 255, .7); border: 1px dashed rgba(75, 45, 37, .28); color: #5C3A40; font-size: .82rem; line-height: 1.45; }
+  /* Affluence en direct : même rendu que la page file d'attente */
+  .lc { background: #fff; border-radius: 20px; padding: 14px 16px; margin-bottom: 14px; box-shadow: 0 10px 30px -20px rgba(75, 45, 37, .4); }
+  .lc .hd { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--rose); }
+  .lc .hd span:first-child { display: flex; align-items: center; gap: 8px; }
+  html[dir="rtl"] .lc .hd { letter-spacing: 0; }
+  .lc .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .lc .row div { background: var(--pearl); border-radius: 14px; padding: 8px 4px; text-align: center; }
+  .lc .row b { display: block; font-family: var(--serif); font-size: 1.45rem; font-weight: 500; color: var(--cocoa); line-height: 1.15; }
+  .lc .row small { color: var(--muted); font-size: .72rem; }
+  .lc .lvl-quiet b { color: var(--ok); } .lc .lvl-busy b { color: var(--bad); }
+  .lc .hint { margin: 10px 2px 0; font-size: .92rem; color: var(--cocoa); }
+  .lc .walk { display: block; margin: 4px 2px 0; color: var(--muted); font-size: .78rem; }
+  /* Mon ticket */
+  .tk { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; text-decoration: none; color: var(--cocoa); border: 1.5px solid var(--rose); }
+  .tk .code { font-family: var(--serif); letter-spacing: .3em; color: var(--gold); font-size: .95rem; }
+  html[dir="rtl"] .tk .code { letter-spacing: .1em; }
+  .tk b { font-family: var(--serif); font-weight: 500; font-size: 1.5rem; line-height: 1.1; }
+  .tk small { color: var(--muted); grid-column: 1; }
+  .tk .go { grid-row: 1 / span 3; grid-column: 2; font-size: 1.4rem; color: var(--rose); }
+  html[dir="rtl"] .tk .go { transform: scaleX(-1); }
+  .tk.called { background: linear-gradient(160deg, var(--rose), var(--rose-deep)); color: #fff; border-color: transparent; }
+  .tk.called .code, .tk.called small, .tk.called .go { color: rgba(255, 255, 255, .85); }
+  /* Rappel */
+  .remind p { margin: 0 0 10px; color: var(--cocoa); }
+  .remind .opts { display: flex; gap: 8px; flex-wrap: wrap; }
+  .remind .opts button { flex: 1 1 30%; min-height: 44px; border-radius: 999px; border: 1.5px solid var(--line); background: #fff; color: var(--cocoa); padding: 8px 10px; font-size: .88rem; }
+  .remind .set { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--cocoa); }
+  .remind .set button { border: 0; background: none; color: var(--rose-deep); font-weight: 500; min-height: 44px; padding: 0 6px; }
+  html:not(.is-native) .native-only { display: none !important; }
+  /* Looks */
+  .strip { display: flex; gap: 10px; overflow-x: auto; margin: 0 -16px; padding: 2px 16px 8px; scrollbar-width: none; }
+  .strip::-webkit-scrollbar { display: none; }
+  .strip a { flex: 0 0 132px; text-decoration: none; color: var(--cocoa); }
+  .strip img { width: 132px; height: 160px; object-fit: cover; object-position: 50% 35%; border-radius: 18px; background: var(--pearl); }
+  .strip span { display: block; font-family: var(--serif); font-size: 1.1rem; margin-top: 6px; line-height: 1.1; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .opt { position: relative; display: block; text-decoration: none; background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px -18px rgba(75, 45, 37, .4); color: var(--cocoa); }
+  .opt:active { transform: scale(.98); }
+  .opt .ph { aspect-ratio: 4 / 3.2; position: relative; overflow: hidden; }
+  .opt .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; }
+  .opt .ph .t { position: absolute; top: 10px; inset-inline-start: 10px; font-size: .72rem; background: rgba(255, 255, 255, .85); border-radius: 999px; padding: 3px 9px; color: var(--cocoa); }
+  .opt .bd { padding: 12px 14px 14px; }
+  .opt b { display: block; font-family: var(--serif); font-size: 1.25rem; font-weight: 500; line-height: 1.1; }
+  .opt small { display: block; color: var(--muted); font-size: .8rem; margin-top: 2px; }
+  .opt .pr { margin-top: 8px; font-size: .9rem; display: flex; gap: 8px; align-items: baseline; }
+  .opt .pr s { color: var(--muted); font-size: .8rem; }
+  .opt .pr em { font-style: normal; font-weight: 500; color: var(--rose-deep); }
+  .opt.off { opacity: .5; }
+  .fine { color: var(--muted); font-size: .82rem; margin: 14px 2px 0; }
+  /* Moi */
+  .rows { background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px -20px rgba(75, 45, 37, .4); margin-bottom: 14px; }
+  .rows > * { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; min-height: 52px; color: var(--cocoa); text-decoration: none; border-bottom: 1px solid rgba(184, 122, 98, .14); }
+  .rows > *:last-child { border-bottom: 0; }
+  .rows small { display: block; color: var(--muted); font-size: .8rem; }
+  .rows .chev { color: var(--muted); }
+  html[dir="rtl"] .rows .chev { transform: scaleX(-1); display: inline-block; }
+  .rows .btn { padding: .7em 1.1em; font-size: .8rem; flex: none; }
+  .tier { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(184, 122, 98, .14); }
+  .tier:last-of-type { border-bottom: 0; }
+  .tier b { font-family: var(--serif); font-weight: 500; font-size: 1.2rem; }
+  .tier small { display: block; color: var(--muted); font-size: .8rem; }
+  .tier span:last-child { white-space: nowrap; color: var(--rose-deep); }
+  .ver { text-align: center; color: var(--muted); font-size: .75rem; margin-top: 18px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <span class="brand"><span id="logo"></span><span class="logo-word" style="font-size:1.05rem">QAMAR</span></span>
+    <div class="lang"><button data-lang="en">EN</button><button data-lang="ar">عربي</button></div>
+  </div>
+  <p class="demo-note" id="demoNote" hidden data-i18n="demo_note">Preview: QAMAR is not open yet. A ticket created in this app stays on this phone. The salon does not receive it and no message is sent.</p>
+
+  <!-- Accueil -->
+  <section data-view="home" aria-labelledby="hTitle">
+    <h1 id="hTitle" data-i18n="h_title">Walk in. Glow out.</h1>
+    <p class="sub" data-i18n="h_sub">Blow-dries in 45 minutes or less, no appointment. See the queue and join it from here.</p>
+    <div id="myTicket"></div>
+    <div class="lc" id="liveCard" aria-live="polite"></div>
+    <a class="btn btn-primary btn-block" href="queue.html" id="joinBtn" data-i18n="join">Join the queue</a>
+    <div class="card remind native-only" id="remind" style="margin-top:14px"></div>
+    <h2 data-i18n="looks_t">Looks</h2>
+    <div class="strip" id="strip"></div>
+  </section>
+
+  <!-- Looks -->
+  <section data-view="looks" aria-labelledby="lTitle">
+    <h1 id="lTitle" data-i18n="looks_t">Looks</h1>
+    <p class="sub" data-i18n="looks_sub">Tap a look to join the queue with it.</p>
+    <div class="grid" id="looksGrid"></div>
+    <p class="fine" data-i18n="pay_note">Prices in AED. You pay at the lounge, after your service.</p>
+  </section>
+
+  <!-- Moi -->
+  <section data-view="me" aria-labelledby="mTitle">
+    <h1 id="mTitle" data-i18n="me_t">My QAMAR</h1>
+    <div id="meTicket"></div>
+    <h2 data-i18n="set_t">Settings</h2>
+    <div class="rows">
+      <div><span><span data-i18n="notif_t">Notifications</span><small id="notifState"></small></span><button type="button" class="btn btn-light native-only" id="notifBtn" hidden data-i18n="notif_on">Turn on</button></div>
+      <div><span data-i18n="lang_t">Language</span><span class="lang"><button data-lang="en">EN</button><button data-lang="ar">عربي</button></span></div>
+    </div>
+    <h2 data-i18n="ref_t">Bring a friend</h2>
+    <div class="rows">
+      <div><span><span id="refText"></span><small data-i18n="ref_s">Credit given at the counter on your next visit.</small></span><button type="button" class="btn btn-light" id="shareBtn" data-i18n="share">Share</button></div>
+    </div>
+    <h2 data-i18n="club_t">QAMAR Club</h2>
+    <div class="card" id="club"></div>
+    <h2 data-i18n="info_t">About</h2>
+    <div class="rows" id="info"></div>
+    <p class="ver" id="ver">QAMAR Blowdry Lounge · Dubai</p>
+  </section>
+</div>
+<script src="assets/config.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/store.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  const D = Q.D, CFG = window.QAMAR_CONFIG || {};
+  const dict = {
+    demo_note: { en: 'Preview: QAMAR is not open yet. A ticket created in this app stays on this phone. The salon does not receive it and no message is sent.', ar: 'معاينة: قمر لم يفتح بعد. التذكرة التي تُنشأ في هذا التطبيق تبقى على هذا الهاتف، لا يستلمها الصالون ولا تُرسل أي رسالة.' },
+    h_title: { en: 'Walk in. Glow out.', ar: 'ادخلي. تألّقي.' },
+    h_sub: { en: 'Blow-dries in 45 minutes or less, no appointment. See the queue and join it from here.', ar: 'سشوار في ٤٥ دقيقة أو أقل، بدون موعد. شاهدي الطابور وانضمي إليه من هنا.' },
+    join: { en: 'Join the queue', ar: 'انضمي للطابور' },
+    looks_t: { en: 'Looks', ar: 'الإطلالات' }, looks_sub: { en: 'Tap a look to join the queue with it.', ar: 'اضغطي على إطلالة لتنضمي للطابور بها.' },
+    pay_note: { en: 'Prices in AED. You pay at the lounge, after your service.', ar: 'الأسعار بالدرهم. تدفعين في الصالون بعد الخدمة.' },
+    me_t: { en: 'My QAMAR', ar: 'قمر الخاص بي' }, set_t: { en: 'Settings', ar: 'الإعدادات' },
+    notif_t: { en: 'Notifications', ar: 'الإشعارات' }, notif_on: { en: 'Turn on', ar: 'تفعيل' },
+    notif_why: { en: 'Only to tell you when it is your turn, and for reminders you set.', ar: 'فقط لإبلاغكِ بدوركِ وللتذكيرات التي تختارينها.' },
+    notif_ok: { en: 'On. We only use them for your turn and your reminders.', ar: 'مفعّلة. نستخدمها فقط لدوركِ وتذكيراتكِ.' },
+    notif_off: { en: 'Off. You can turn them on in your phone settings.', ar: 'غير مفعّلة. يمكنكِ تفعيلها من إعدادات الهاتف.' },
+    lang_t: { en: 'Language', ar: 'اللغة' },
+    ref_t: { en: 'Bring a friend', ar: 'ادعي صديقة' }, ref_p: { en: 'You each get {c} AED credit.', ar: 'تحصل كل واحدة منكما على رصيد {c}.' },
+    ref_s: { en: 'Credit given at the counter on your next visit.', ar: 'يُضاف الرصيد عند الكاونتر في زيارتكِ القادمة.' },
+    share: { en: 'Share', ar: 'مشاركة' }, share_msg: { en: 'Join me at QAMAR Blowdry Lounge in Dubai.', ar: 'تعالي معي إلى صالون قمر للسشوار في دبي.' }, copied: { en: 'Link copied', ar: 'تم نسخ الرابط' },
+    club_t: { en: 'QAMAR Club', ar: 'نادي قمر' }, club_month: { en: '{p} / month', ar: '{p} شهرياً' },
+    club_s: { en: 'Monthly plans with the extras included. Ask at the lounge to join.', ar: 'باقات شهرية تشمل الإضافات. اسألي في الصالون للانضمام.' },
+    info_t: { en: 'About', ar: 'عن قمر' }, privacy: { en: 'Privacy policy', ar: 'سياسة الخصوصية' }, legal: { en: 'Terms and legal notice', ar: 'الشروط والإشعار القانوني' },
+    website: { en: 'Website', ar: 'الموقع الإلكتروني' }, whatsapp: { en: 'WhatsApp', ar: 'واتساب' }, instagram: { en: 'Instagram', ar: 'إنستغرام' },
+    tk_none: { en: 'No ticket right now.', ar: 'لا توجد تذكرة حالياً.' }, tk_none_s: { en: 'Join the queue when you are on your way.', ar: 'انضمي للطابور وأنتِ في الطريق.' },
+    tk_waiting: { en: 'You are #{p} in line', ar: 'دوركِ رقم {p}' }, tk_eta: { en: 'About {m} min', ar: 'حوالي {m} د' }, tk_idle: { en: 'Your place is saved', ar: 'مكانكِ محفوظ' },
+    tk_called: { en: 'Your wait is over', ar: 'انتهى انتظاركِ' }, tk_seat: { en: 'Go to seat {s}', ar: 'توجّهي إلى المقعد {s}' },
+    tk_in: { en: 'In your chair', ar: 'في كرسيكِ' }, tk_checkout: { en: 'Your glow is ready', ar: 'تألّقكِ جاهز' }, tk_open: { en: 'Open my ticket', ar: 'افتحي تذكرتي' },
+    live_t: { en: 'Live at QAMAR', ar: 'قمر الآن' }, live_wait: { en: 'waiting now', ar: 'في الانتظار' }, live_est: { en: 'est. wait', ar: 'انتظار تقديري' }, live_lvl: { en: 'right now', ar: 'حالياً' },
+    lvl_quiet: { en: 'Quiet', ar: 'هادئ' }, lvl_moderate: { en: 'Moderate', ar: 'متوسط' }, lvl_busy: { en: 'Busy', ar: 'مزدحم' },
+    hint_quiet: { en: 'Good time to come.', ar: 'وقت مناسب للحضور.' }, hint_moderate: { en: 'Short wait. Fine to come now.', ar: 'انتظار قصير. يمكنكِ الحضور الآن.' }, hint_busy: { en: 'Busy right now. Come in about {m} min.', ar: 'مزدحم الآن. تعالي بعد حوالي {m} دقيقة.' },
+    live_closed: { en: 'The team has not started yet. The queue opens with the first stylist.', ar: 'لم يبدأ الفريق بعد. يفتح الطابور مع أول مصففة.' },
+    live_walk: { en: 'Walk-in only. No appointment needed.', ar: 'بدون مواعيد. تعالي مباشرة.' },
+    now: { en: 'Now', ar: 'الآن' }, min: { en: 'min', ar: 'د' }, night_only: { en: '8 PM to midnight', ar: '٨ مساءً حتى منتصف الليل' },
+    rm_t: { en: 'Not coming right now? Get a reminder on this phone.', ar: 'لن تأتي الآن؟ احصلي على تذكير على هذا الهاتف.' },
+    rm_1h: { en: 'In 1 hour', ar: 'بعد ساعة' }, rm_2h: { en: 'In 2 hours', ar: 'بعد ساعتين' }, rm_tmr: { en: 'Tomorrow 10 AM', ar: 'غداً ١٠ صباحاً' },
+    rm_set: { en: 'Reminder set for {t}', ar: 'تم ضبط التذكير الساعة {t}' }, rm_cancel: { en: 'Cancel', ar: 'إلغاء' },
+    rm_body: { en: 'Your reminder: the queue is in the app whenever you are ready.', ar: 'تذكيركِ: الطابور في التطبيق متى كنتِ جاهزة.' },
+    rm_need: { en: 'Turn on notifications to get reminders.', ar: 'فعّلي الإشعارات لتصلكِ التذكيرات.' }
+  };
+  const t = (k, v = {}) => Q.t(k).replace(/\{(\w)\}/g, (_, x) => v[x] ?? '');
+  const qNum = n => Q.lang === 'ar' ? Number(n).toLocaleString('ar-EG') : String(n);
+  const qAed = n => Q.lang === 'ar' ? `${qNum(n)} درهماً` : `${n} AED`;
+  const qD = v => Q.lang === 'ar' ? String(v).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]) : String(v);
+  const qIso = v => Q.lang === 'ar' ? '⁦' + qD(v) + '⁩' : String(v);
+  const N = () => window.QamarNative || null; // présent seulement dans l'app native (assets/native.js)
+  document.getElementById('logo').innerHTML = Q.logo('logo-mark');
+
+  /* ---------- Vues (#home, #looks, #me) ---------- */
+  const VIEWS = ['home', 'looks', 'me'];
+  function show() {
+    const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
+    document.querySelectorAll('[data-view]').forEach(s => s.classList.toggle('on', s.dataset.view === v));
+    window.scrollTo(0, 0);
+    document.dispatchEvent(new CustomEvent('qamar:view', { detail: v }));
+  }
+  addEventListener('hashchange', show);
+
+  /* ---------- Mon ticket (même ticket que la page file d'attente) ---------- */
+  const ACTIVE = ['waiting', 'called', 'in_service', 'checkout'];
+  function myTicket() { let id = null; try { id = localStorage.getItem('qamar:myTicket'); } catch (e) { /* ignore */ } const tk = id && Q.ticket(id); return tk && ACTIVE.includes(tk.status) ? tk : null; }
+  function ticketHtml(tk) {
+    if (!tk) return `<div class="card"><b style="font-weight:500;color:var(--cocoa)">${t('tk_none')}</b><br><small class="muted">${t('tk_none_s')}</small></div>`;
+    const code = qIso(Q.ticketCode(tk));
+    let main = '', sub = '';
+    if (tk.status === 'waiting') { const e = Q.ticketEta(tk.id) || {}; main = t('tk_waiting', { p: qIso('#' + Q.position(tk.id)) }); sub = e.minutes == null ? t('tk_idle') : e.minutes <= 1 ? t('now') : t('tk_eta', { m: qNum(e.minutes) }); }
+    else if (tk.status === 'called') { main = t('tk_called'); sub = t('tk_seat', { s: qNum(tk.seat) }); }
+    else if (tk.status === 'in_service') { main = t('tk_in'); sub = t('tk_open'); }
+    else { main = t('tk_checkout'); sub = t('tk_open'); }
+    return `<a class="card tk ${tk.status === 'called' ? 'called' : ''}" href="queue.html?t=${encodeURIComponent(tk.id)}"><span class="code">${code}</span><span class="go" aria-hidden="true">→</span><b>${main}</b><small>${sub}</small></a>`;
+  }
+
+  /* ---------- Affluence en direct ---------- */
+  function liveHtml() {
+    const L = Q.liveStatus();
+    const hd = `<div class="hd"><span><span class="dot live" aria-hidden="true"></span>${t('live_t')}</span></div>`;
+    if (!L.open) return hd + `<p class="hint">${t('live_closed')}</p><small class="walk">${t('live_walk')}</small>`;
+    const est = L.minutes <= 1 ? t('now') : `~${qNum(L.minutes)} ${t('min')}`;
+    const later = Math.max(30, Math.ceil(L.minutes / 5) * 5);
+    return hd + `<div class="row"><div><b>${qNum(L.waiting)}</b><small>${t('live_wait')}</small></div><div><b>${est}</b><small>${t('live_est')}</small></div><div class="lvl-${L.level}"><b>${t('lvl_' + L.level)}</b><small>${t('live_lvl')}</small></div></div>
+      <p class="hint">${t('hint_' + L.level, { m: qNum(later) })}</p><small class="walk">${t('live_walk')}</small>`;
+  }
+
+  /* ---------- Looks ---------- */
+  function looksHtml() {
+    return D.services.map(s => {
+      const ok = Q.available(s), q = Q.quote(s.id, false, Date.now(), 0, 1, null);
+      return `<a class="opt ${ok ? '' : 'off'}" href="${ok ? 'queue.html?look=' + encodeURIComponent(s.id) : '#looks'}" ${ok ? '' : 'aria-disabled="true"'}>
+        <div class="ph" style="background:radial-gradient(120% 90% at 50% 10%, ${s.tone[0]}, ${s.tone[1]})">${s.img ? `<img src="${s.img}" alt="${Q.esc(Q.L(s.look))}" loading="lazy" decoding="async" width="640" height="823">` : ''}<span class="t">${qNum(q.duration)} ${t('min')}</span></div>
+        <div class="bd"><b>${Q.esc(Q.L(s.look))}</b><small>${ok ? Q.esc(Q.L(s.name)) : t('night_only')}</small>
+        <div class="pr">${q.discount ? `<s>${qNum(q.base)}</s><em>${qAed(q.total)}</em>` : `<em>${qAed(q.total)}</em>`}</div></div></a>`;
+    }).join('');
+  }
+  const stripHtml = () => D.services.filter(s => s.img).slice(0, 6).map(s => `<a href="queue.html?look=${encodeURIComponent(s.id)}"><img src="${s.img}" alt="" loading="lazy" decoding="async" width="132" height="160"><span>${Q.esc(Q.L(s.look))}</span></a>`).join('');
+
+  /* ---------- Rappel (notification locale, app native uniquement) ---------- */
+  function remindHtml() {
+    const n = N(); if (!n) return '';
+    const r = n.reminder();
+    if (r) return `<div class="set"><span>${t('rm_set', { t: qD(Q.clock(r)) })}</span><button type="button" data-rm="cancel">${t('rm_cancel')}</button></div>`;
+    return `<p>${t('rm_t')}</p><div class="opts"><button type="button" data-rm="60">${t('rm_1h')}</button><button type="button" data-rm="120">${t('rm_2h')}</button><button type="button" data-rm="tmr">${t('rm_tmr')}</button></div>`
+      + (n.permission() === 'denied' ? `<p class="fine" style="margin:10px 0 0">${t('rm_need')}</p>` : '');
+  }
+  document.getElementById('remind').addEventListener('click', async e => {
+    const b = e.target.closest('[data-rm]'); const n = N(); if (!b || !n) return;
+    if (b.dataset.rm === 'cancel') await n.cancelReminder();
+    else {
+      let at;
+      if (b.dataset.rm === 'tmr') { at = new Date(); at.setDate(at.getDate() + 1); at.setHours(10, 0, 0, 0); } else at = new Date(Date.now() + +b.dataset.rm * 60000);
+      await n.setReminder(at, { title: 'QAMAR', body: t('rm_body') });
+    }
+    render();
+  });
+
+  /* ---------- Moi : notifications, parrainage, club, infos ---------- */
+  function notifRender() {
+    const n = N(), st = document.getElementById('notifState'), b = document.getElementById('notifBtn');
+    const p = n ? n.permission() : 'unknown';
+    st.textContent = p === 'granted' ? t('notif_ok') : p === 'denied' ? t('notif_off') : t('notif_why');
+    b.hidden = !(n && (p === 'prompt' || p === 'prompt-with-rationale'));
+  }
+  document.getElementById('notifBtn').onclick = async () => { const n = N(); if (n) { await n.askNotifications(); render(); } };
+  const shareUrl = () => String(CFG.siteUrl || 'https://qamarlounge.com/');
+  document.getElementById('shareBtn').onclick = async () => {
+    const url = shareUrl();
+    try { if (navigator.share) await navigator.share({ title: 'QAMAR', text: t('share_msg'), url }); else { await navigator.clipboard.writeText(url); Q.toast(t('copied')); } } catch (e) { /* annulé */ }
+  };
+  function clubHtml() {
+    const C = D.club; if (!C || !C.tiers) return '';
+    return C.tiers.map(x => `<div class="tier"><span><b>${Q.esc(Q.L(x.name))}</b><small>${Q.esc(Q.L(x.per))}</small></span><span>${t('club_month', { p: qAed(x.price) })}</span></div>`).join('') + `<p class="fine" style="margin-top:10px">${t('club_s')}</p>`;
+  }
+  function infoHtml() {
+    const chev = '<span class="chev" aria-hidden="true">›</span>';
+    const wa = Q.waLink('');
+    const ig = D.brand.instagramConfirmed && D.brand.instagram ? 'https://www.instagram.com/' + encodeURIComponent(D.brand.instagram) + '/' : '';
+    return `<a href="privacy.html"><span>${t('privacy')}</span>${chev}</a><a href="legal.html"><span>${t('legal')}</span>${chev}</a>`
+      + (wa ? `<a href="${wa}" rel="noopener" data-external><span>${t('whatsapp')}</span>${chev}</a>` : '')
+      + (ig ? `<a href="${ig}" rel="noopener" data-external><span>${t('instagram')}</span>${chev}</a>` : '')
+      + `<a href="${Q.esc(shareUrl())}" rel="noopener" data-external><span>${t('website')}</span>${chev}</a>`;
+  }
+
+  function render() {
+    const tk = myTicket();
+    const set = (id, html) => { const el = document.getElementById(id); if (el && el.innerHTML !== html) el.innerHTML = html; };
+    set('myTicket', tk ? ticketHtml(tk) : '');
+    set('meTicket', ticketHtml(tk));
+    set('liveCard', liveHtml());
+    set('looksGrid', looksHtml());
+    set('strip', stripHtml());
+    set('remind', remindHtml());
+    set('club', clubHtml());
+    set('info', infoHtml());
+    document.getElementById('refText').textContent = t('ref_p', { c: qAed(D.referralCredit || 50) });
+    document.getElementById('joinBtn').hidden = !!tk;
+    notifRender();
+  }
+
+  if (Q.isDemo) document.getElementById('demoNote').hidden = false;
+  Q.i18n(dict);
+  document.addEventListener('qamar:lang', render);
+  document.addEventListener('qamar:native', render); // permissions et rappels connus après le chargement des plugins
+  Q.on(render);
+  show();
+})();
+</script>
+</body>
+</html>

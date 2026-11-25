@@ -2,18 +2,26 @@
   "name": "qamar-app",
   "version": "1.0.0",
   "private": true,
-  "description": "QAMAR Blowdry Lounge — applications Android et iPhone (Capacitor), construites à partir du site.",
+  "description": "QAMAR Blowdry Lounge : applications Android et iPhone (Capacitor 8), construites à partir du site.",
+  "engines": { "node": ">=22" },
   "scripts": {
     "www": "node scripts/build-www.mjs",
-    "assets": "capacitor-assets generate --assetPath resources"
+    "assets": "capacitor-assets generate --assetPath resources",
+    "patch-native": "node scripts/patch-native.mjs"
   },
   "dependencies": {
-    "@capacitor/android": "6.1.2",
-    "@capacitor/core": "6.1.2",
-    "@capacitor/ios": "6.1.2"
+    "@capacitor/android": "8.6.0",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/core": "8.6.0",
+    "@capacitor/haptics": "8.0.2",
+    "@capacitor/ios": "8.6.0",
+    "@capacitor/local-notifications": "8.3.1",
+    "@capacitor/push-notifications": "8.1.3",
+    "@capacitor/splash-screen": "8.0.2",
+    "@capacitor/status-bar": "8.0.4"
   },
   "devDependencies": {
-    "@capacitor/assets": "3.0.5",
-    "@capacitor/cli": "6.1.2"
+    "@capacitor/assets": "4.0.0",
+    "@capacitor/cli": "8.6.0"
   }
 }

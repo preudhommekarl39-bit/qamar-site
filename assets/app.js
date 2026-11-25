@@ -9,6 +9,9 @@
   const standalone = native || matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   if (standalone) document.documentElement.classList.add('is-app');
   if (native) document.documentElement.classList.add('is-native');
+  // Fonctions natives (onglets, notifications locales, retour Android, liens profonds) : fichier chargé UNIQUEMENT dans l'app,
+  // le site web ne le télécharge jamais (voir assets/native.js)
+  if (native) { const s = document.createElement('script'); s.src = 'assets/native.js'; document.head.appendChild(s); }
 
   // Service worker : seulement sur un vrai site https (pas dans un aperçu intégré)
   if ('serviceWorker' in navigator && location.protocol === 'https:' && window.top === window && !native) {

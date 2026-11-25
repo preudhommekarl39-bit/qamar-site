@@ -37,7 +37,7 @@ ctx.QAMAR_ENGINE_TESTS(test, ctx.Q);
 
 // ---- 2. Traductions ----
 console.log('Translations (EN/AR)');
-for (const page of ['index.html', 'queue.html']) {
+for (const page of ['index.html', 'queue.html', 'app-home.html']) {
   const html = readFileSync(page, 'utf8'), dict = extractDict(html);
   test(`${page}: every dictionary entry has English and Arabic`, () => { const bad = Object.entries(dict).filter(([, v]) => !v || !String(v.en || '').trim() || !String(v.ar || '').trim()).map(([k]) => k); return bad.length ? bad : true; });
   test(`${page}: every data-i18n key exists in the dictionary`, () => { const used = [...html.matchAll(/data-i18n(?:-ph)?="([^"]+)"/g)].map(m => m[1]); const bad = [...new Set(used.filter(k => !dict[k]))]; return bad.length ? bad : true; });
@@ -103,6 +103,104 @@ console.log('Smart QR & app');
   test('queue.html: new app texts have no em dash and no emoji', () => ['app_t', 'app_s', 'app_btn', 'app_later', 'app_sheet', 'app_ios', 'tk_missing'].every(k => !/[—\u{1F300}-\u{1FAFF}]/u.test(qd[k].en + qd[k].ar)));
   test('app.js exposes install() (native Android prompt, else the sheet) and the platform flags', () => /window\.QamarApp = \{ open, install, isIOS, isMobile, standalone/.test(app) && /async function install\(opts\)/.test(app));
   test('sw.js precaches go.html; build-site and build-www publish the new pages', () => /CORE = \[[^\]]*'go\.html'/.test(readFileSync('sw.js', 'utf8')) && /'go\.html', 'qr-card\.html'/.test(readFileSync('scripts/build-site.mjs', 'utf8')) && /PUBLIC_DIRS = \[[^\]]*'go'/.test(readFileSync('scripts/build-site.mjs', 'utf8')) && /'go\.html'/.test(readFileSync('scripts/build-www.mjs', 'utf8')));
+}
+// ---- 4c. Application native (App Store / Google Play) ----
+console.log('Native app & stores');
+{
+  const ah = readFileSync('app-home.html', 'utf8'), ad = extractDict(ah);
+  const noDash = v => !/[—\u{1F300}-\u{1FAFF}☀-➿]/u.test(v);
+  test('app-home.html: app entry with Home / Looks / Me views, noindex, no payment link', () => /<html[^>]* data-app-home/.test(ah) && ['home', 'looks', 'me'].every(v => ah.includes(`data-view="${v}"`)) && /<meta name="robots" content="noindex/.test(ah) && /href="queue\.html"/.test(ah) && !/tabby|tamara|payApple|pay_card|applepay/i.test(ah));
+  test('app-home.html: new texts have no em dash and no emoji (EN + AR)', () => Object.values(ad).every(v => noDash(v.en + v.ar)) && noDash(ah.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '')));
+  const bw = readFileSync('scripts/build-www.mjs', 'utf8'), bs = readFileSync('scripts/build-site.mjs', 'utf8');
+  test('build-www: app-home.html becomes www/index.html; video and staff scripts are not embedded', () => /cpSync\('app-home\.html', 'www\/index\.html'\)/.test(bw) && /'video'/.test(bw) && /'office-core\.js'/.test(bw) && !/'index\.html'/.test(bw.replace("'www/index.html'", '')));
+  test('build-site: app-home.html is not published on the website', () => !/app-home/.test(bs));
+  test('no page loads assets/native.js directly (the website never downloads it)', () => readdirSync('.').filter(f => f.endsWith('.html')).every(f => !/<script[^>]+native\.js/.test(readFileSync(f, 'utf8'))));
+  // app.js dans un faux navigateur : native.js ajouté seulement si Capacitor.isNativePlatform()
+  const appSrc = readFileSync('assets/app.js', 'utf8');
+  const runApp = native => {
+    const added = [];
+    const el = () => ({ style: {}, classList: { add() {}, remove() {} }, setAttribute() {}, appendChild() {}, querySelector: () => null });
+    const w = { navigator: { userAgent: 'Mozilla/5.0 (Macintosh)', platform: 'MacIntel', maxTouchPoints: 0 }, location: { protocol: 'http:', pathname: '/index.html' }, matchMedia: () => ({ matches: false }), addEventListener() {}, setTimeout() {}, requestAnimationFrame() {},
+      localStorage: { getItem: () => null, setItem() {} },
+      document: { documentElement: { classList: { add() {} }, lang: 'en' }, head: { appendChild: n => added.push(n) }, body: { appendChild() {} }, createElement: tag => Object.assign(el(), { tag }), addEventListener() {} } };
+    w.window = w; w.top = w;
+    if (native) w.Capacitor = { isNativePlatform: () => true };
+    vm.runInNewContext(appSrc, w);
+    return added.filter(n => n.tag === 'script').map(n => n.src);
+  };
+  test('app.js: native.js is loaded inside the native app only', () => JSON.stringify(runApp(true)) === '["assets/native.js"]' && runApp(false).length === 0);
+  const nat = readFileSync('assets/native.js', 'utf8');
+  const runNative = (native, cfg = { backend: 'demo', push: { enabled: false } }) => {
+    const calls = [];
+    const plugin = name => new Proxy({}, { get: (_, m) => m === 'then' ? undefined : (arg) => { calls.push(name + '.' + String(m)); return Promise.resolve(m === 'checkPermissions' ? { display: 'prompt' } : {}); } });
+    const w = { QAMAR_CONFIG: cfg, location: { pathname: '/index.html', hash: '', href: '' }, addEventListener() {}, setTimeout() {}, URL, URLSearchParams, CustomEvent: function () {}, history: {}, fetch: () => { calls.push('fetch'); return Promise.resolve(); },
+      sessionStorage: { getItem: () => '1', setItem() {} }, localStorage: { getItem: () => null, setItem() {}, removeItem() {} },
+      document: { readyState: 'complete', documentElement: { lang: 'en', hasAttribute: () => true }, head: { appendChild() {} }, body: { appendChild() {} }, createElement: () => ({ style: {}, setAttribute() {} }), addEventListener() {}, dispatchEvent() {}, querySelector: () => null } };
+    w.window = w;
+    if (native) w.Capacitor = { isNativePlatform: () => true, getPlatform: () => 'ios', Plugins: new Proxy({}, { get: (_, n) => plugin(String(n)) }) };
+    vm.runInNewContext(nat, w);
+    return { api: w.QamarNative, calls };
+  };
+  test('native.js: does nothing on the website (no Capacitor)', () => runNative(false).api === undefined);
+  const nv = runNative(true);
+  test('native.js: in the app, exposes notifications, reminders, haptics and deep-link routing', () => !!nv.api && ['notify', 'setReminder', 'cancelReminder', 'haptic', 'route', 'askNotifications', 'registerPush'].every(k => typeof nv.api[k] === 'function') && nv.calls.includes('SplashScreen.hide') && nv.calls.includes('StatusBar.setStyle') && nv.calls.includes('LocalNotifications.checkPermissions'));
+  test('native.js: listens to the Android back button, deep links and app pause/resume', () => ['backButton', 'appUrlOpen', 'pause', 'resume'].every(e => nat.includes(`listen('App', '${e}'`)) && /localNotificationActionPerformed/.test(nat));
+  const cfgCtx2 = { window: {} }; vm.runInNewContext(readFileSync('assets/config.js', 'utf8'), cfgCtx2);
+  test('config.js: push.enabled is false by default', () => cfgCtx2.window.QAMAR_CONFIG.push && cfgCtx2.window.QAMAR_CONFIG.push.enabled === false);
+  test('native.js: pushEnabled() is false with the default config, and with push on but the demo backend', () => nv.api.pushEnabled() === false && runNative(true, { backend: 'demo', push: { enabled: true }, supabaseUrl: 'x', supabaseAnonKey: 'y' }).api.pushEnabled() === false && !nv.calls.some(c => c.startsWith('PushNotifications')) && !nv.calls.includes('fetch'));
+  test('native.js: external links leave the app (system browser / WhatsApp), new texts EN + AR without em dash or emoji', () => /u\.origin !== location\.origin/.test(nat) && /location\.href = ext/.test(nat) && /ar: \{ home: 'الرئيسية'/.test(nat) && noDash((nat.match(/const T = \{[\s\S]*?\n  \};/) || [''])[0]));
+  test('track.js: analytics never run inside the native app', () => /!native && cfg\.enabled/.test(readFileSync('assets/track.js', 'utf8')));
+  const qh2 = readFileSync('queue.html', 'utf8'), qd2 = extractDict(qh2);
+  test('queue.html in the app: no tip or payment buttons (pay at the counter), no staff dashboard link, home = app home', () => /if \(inApp\) return; \/\/ app : pas de pourboire/.test(qh2) && /\$\{inApp \? '' : `/.test(qh2) && /showDemoStrip && !inApp/.test(qh2) && /homeHref = \(\) => inApp \? 'index\.html'/.test(qh2) && qd2.pay_counter && /[؀-ۿ]/.test(qd2.pay_counter.ar) && noDash(qd2.pay_counter.en + qd2.pay_counter.ar + qd2.demo_counter.en + qd2.demo_counter.ar));
+  // Capacitor : versions exactes, même version majeure, aucune navigation interne vers un site externe
+  const pkg = JSON.parse(readFileSync('package.json', 'utf8')), cap = JSON.parse(readFileSync('capacitor.config.json', 'utf8'));
+  const deps = { ...pkg.dependencies, ...pkg.devDependencies }, capDeps = Object.entries(deps).filter(([n]) => n.startsWith('@capacitor/') && n !== '@capacitor/assets');
+  test('package.json: Capacitor and plugins pinned to exact versions of the same major (8)', () => capDeps.length >= 9 && capDeps.every(([, v]) => /^8\.\d+\.\d+$/.test(v)) && ['app', 'haptics', 'local-notifications', 'push-notifications', 'splash-screen', 'status-bar'].every(p => deps['@capacitor/' + p]) && existsSync('package-lock.json'));
+  test('capacitor.config.json: appId com.qamarlounge.app, webDir www, no server.url and no allowNavigation', () => cap.appId === 'com.qamarlounge.app' && cap.webDir === 'www' && !cap.server && !JSON.stringify(cap).includes('allowNavigation'));
+  // patch-native : fonctions pures
+  const PN = await import('./patch-native.mjs');
+  let threw = false; try { PN.patchVariablesGradle('targetSdkVersion = 35'); } catch { threw = true; }
+  test('patch-native: refuses a target SDK below Google Play\'s 36, accepts 36', () => threw && PN.MIN_TARGET_SDK === 36 && PN.patchVariablesGradle('targetSdkVersion = 36') === 'targetSdkVersion = 36');
+  const gr = PN.patchAppGradle('android {\n    defaultConfig {\n        versionCode 1\n        versionName "1.0"\n    }\n}\n', { versionCode: 42, versionName: '1.2.0' });
+  test('patch-native: Android versionCode from the build number, release signing only from environment variables, idempotent', () => /versionCode 42/.test(gr) && /versionName "1\.2\.0"/.test(gr) && /System\.getenv\("QAMAR_KEYSTORE_PASSWORD"\)/.test(gr) && !/storePassword "/.test(gr) && PN.patchAppGradle(gr, { versionCode: 42, versionName: '1.2.0' }) === gr);
+  const mf = PN.patchManifest('<manifest><application android:allowBackup="true"><activity android:name=".MainActivity">\n        </activity></application></manifest>');
+  test('patch-native: Android deep link https://qamarlounge.com/go, no cloud backup, idempotent', () => /android:autoVerify="true"/.test(mf) && /android:host="qamarlounge\.com" android:path="\/go"/.test(mf) && /allowBackup="false"/.test(mf) && PN.patchManifest(mf) === mf);
+  const plist = PN.patchInfoPlist('<plist><dict>\n<key>UIRequiredDeviceCapabilities</key>\n<array><string>armv7</string></array>\n<key>UISupportedInterfaceOrientations</key>\n<array><string>a</string><string>b</string></array>\n<key>UISupportedInterfaceOrientations~ipad</key>\n<array><string>c</string></array>\n</dict></plist>');
+  test('patch-native: iOS export compliance (no non-exempt encryption), EN + AR, iPhone portrait only, arm64', () => /<key>ITSAppUsesNonExemptEncryption<\/key>\s*<false\/>/.test(plist) && /<string>ar<\/string>/.test(plist) && !/~ipad|armv7/.test(plist) && /arm64/.test(plist) && !/UIBackgroundModes/.test(plist) && /UIBackgroundModes[\s\S]*remote-notification/.test(PN.patchInfoPlist(plist, { push: true })));
+  const pbx = '\t\t\t\tCODE_SIGN_STYLE = Automatic;\n\t\t\t\tCURRENT_PROJECT_VERSION = 1;\n\t\t\t\tMARKETING_VERSION = 1.0;\n\t\t\t\tTARGETED_DEVICE_FAMILY = "1,2";\n';
+  let badTeam = false; try { PN.patchPbxproj(pbx, { teamId: 'nope' }); } catch { badTeam = true; }
+  test('patch-native: iOS iPhone only, build number, team id only when given, no entitlements by default', () => { const a = PN.patchPbxproj(pbx, { buildNumber: 9, versionName: '1.2.0', teamId: 'ABCDE12345' }), b = PN.patchPbxproj(a, {}); return /TARGETED_DEVICE_FAMILY = 1;/.test(a) && /CURRENT_PROJECT_VERSION = 9;/.test(a) && /DEVELOPMENT_TEAM = ABCDE12345;/.test(a) && !/DEVELOPMENT_TEAM/.test(b) && badTeam && PN.entitlementsPlist({}) === null && /aps-environment/.test(PN.entitlementsPlist({ push: true })) && PN.patchAppDelegate('class A {\n}\n') === 'class A {\n}\n'; });
+  // Workflows
+  const rel = readFileSync('.github/workflows/release-apps.yml', 'utf8'), apps = readFileSync('.github/workflows/apps.yml', 'utf8');
+  test('release-apps.yml: manual only (workflow_dispatch), never on push', () => /\non:\n  workflow_dispatch:/.test(rel) && !/\n  push:/.test(rel) && !/\n  schedule:/.test(rel));
+  test('release-apps.yml: every build step waits for the secrets check; secrets only via ${{ secrets.* }}', () => { const steps = rel.split(/\n      - /).slice(1).filter(st => !/^name: Secrets (Android|Apple) présents/.test(st)); return steps.every(st => /steps\.check\.outputs\.ready == 'true'/.test(st)) && !/-----BEGIN|AuthKey_[A-Z0-9]{10}\.p8|"private_key"/.test(rel); });
+  // Le contrôle des secrets, exécuté pour de vrai avec bash : sans secret → ready=false, code de sortie 0 (job vert, rien construit)
+  const checkScript = name => { const m = rel.match(new RegExp(`name: ${name}\\n        id: check\\n        run: \\|\\n((?:          .*\\n|\\n)+?)      - `)); return m ? m[1].replace(/^ {10}/gm, '') : null; };
+  const runCheck = (script, env) => { const dir = mkdtempSync(join(tmpdir(), 'qamar-gh-')), out = join(dir, 'out'); try { const log = execFileSync('bash', ['-c', script], { env: { PATH: process.env.PATH, GITHUB_OUTPUT: out, ...env }, encoding: 'utf8' }); return { log, out: readFileSync(out, 'utf8') }; } finally { rmSync(dir, { recursive: true, force: true }); } };
+  test('release-apps.yml: without secrets, Android and iOS skip cleanly with a clear message', () => { const a = runCheck(checkScript('Secrets Android présents \\?'), {}), i = runCheck(checkScript('Secrets Apple présents \\?'), {});
+    return /ready=false/.test(a.out) && /Secrets manquants : ANDROID_KEYSTORE_BASE64/.test(a.log) && /upload=false/.test(a.out) && /ready=false/.test(i.out) && /ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8_BASE64 APPLE_TEAM_ID/.test(i.log); });
+  test('release-apps.yml: with all secrets, the build goes ahead', () => /ready=true/.test(runCheck(checkScript('Secrets Android présents \\?'), { ANDROID_KEYSTORE_BASE64: 'x', ANDROID_KEYSTORE_PASSWORD: 'x', ANDROID_KEY_ALIAS: 'x', ANDROID_KEY_PASSWORD: 'x' }).out) && /ready=true/.test(runCheck(checkScript('Secrets Apple présents \\?'), { ASC_KEY_ID: 'x', ASC_ISSUER_ID: 'x', ASC_KEY_P8_BASE64: 'x', APPLE_TEAM_ID: 'x' }).out));
+  test('release-apps.yml: signed AAB to the Play internal track, archive + TestFlight upload with the API key', () => /bundleRelease/.test(rel) && /r0adkll\/upload-google-play@v1/.test(rel) && /track: internal/.test(rel) && /-allowProvisioningUpdates/.test(rel) && /-authenticationKeyIssuerID/.test(rel) && /<string>app-store-connect<\/string>/.test(rel) && /<string>upload<\/string>/.test(rel) && /versionCode|BUILD_NUMBER: \$\{\{ github\.run_number \}\}/.test(rel));
+  test('apps.yml: Capacitor 8 toolchain (Node 22, Java 21, macos-26), native patch applied, SPM project', () => /node-version: 22/.test(apps) && /java-version: 21/.test(apps) && /runs-on: macos-26/.test(apps) && !/runs-on: macos-14/.test(apps) && (apps.match(/node scripts\/patch-native\.mjs/g) || []).length === 2 && /-project ios\/App\/App\.xcodeproj/.test(apps));
+  // Supabase : jetons push
+  const s8 = readFileSync('supabase/migrations/008_push_tokens.sql', 'utf8'), c8 = s8.replace(/--[^\n]*/g, '');
+  test('migration 008: push_tokens with RLS on, no policy, no direct access for anon/authenticated', () => /alter table push_tokens enable row level security/.test(c8) && !/create policy/i.test(c8) && /revoke all on push_tokens from public, anon, authenticated/.test(c8) && /create table if not exists push_tokens/.test(c8));
+  test('migration 008: tokens registered only through an RPC that checks the ticket access token; security definer with search_path', () => /where id = p_ticket and access_token = p_access_token/.test(c8) && c8.split(/create or replace function/i).slice(1).every(f => /security definer set search_path = public/.test(f.split('$$')[0])) && /grant execute on function register_push_token\(text, text, uuid, uuid, text\), unregister_push_token\(text, uuid, uuid\) to anon, authenticated;/.test(c8) && !/grant execute on function[^;]*purge_push_tokens[^;]*to anon/.test(c8) && !/service_role|eyJhbGciOi/.test(s8));
+  const sp = readFileSync('supabase/functions/send-push/index.ts', 'utf8');
+  test('send-push function: APNs + FCM HTTP v1, secrets from the environment only, not_configured without keys', () => /api\.push\.apple\.com/.test(sp) && /fcm\.googleapis\.com\/v1\/projects/.test(sp) && /return 'not_configured'/.test(sp) && /Deno\.env\.get/.test(sp) && !/eyJhbGciOi|-----BEGIN/.test(sp));
+  // Fiches des stores
+  const fields = md => [...md.matchAll(/## ([^\n]+?)\(([^)]*?)max (\d+)[^)]*\)\n\n```text\n([\s\S]*?)\n```/g)].map(m => ({ name: m[1].trim(), max: +m[3], text: m[4] }));
+  for (const f of ['listing-en.md', 'listing-ar.md']) {
+    const md = readFileSync('docs/stores/' + f, 'utf8'), fl = fields(md);
+    test(`docs/stores/${f}: name, subtitle, promo, short description, keywords and description within the store limits`, () => fl.length === 6 && fl.every(x => x.text.trim() && [...x.text].length <= x.max) ? true : fl.filter(x => [...x.text].length > x.max).map(x => `${x.name}: ${[...x.text].length}/${x.max}`));
+    test(`docs/stores/${f}: no em dash, no emoji, no rating, no urgency words`, () => noDash(md) && !/★|\b\d(\.\d)? stars?\b|\bbest\b|\bhurry\b|\blimited time\b|\bonly today\b|#1/i.test(md));
+  }
+  test('docs/stores/listing-ar.md: Arabic texts', () => fields(readFileSync('docs/stores/listing-ar.md', 'utf8')).filter(x => !/Keywords/.test(x.name)).every(x => /[؀-ۿ]/.test(x.text)));
+  test('docs/stores: owner guide, review/privacy answers and push notes, no em dash or emoji', () => ['GUIDE-COMPTES.md', 'REVIEW-AND-PRIVACY.md', 'PUSH.md'].every(f => existsSync('docs/stores/' + f) && noDash(readFileSync('docs/stores/' + f, 'utf8'))) && /go\.html/.test(readFileSync('docs/stores/GUIDE-COMPTES.md', 'utf8')));
+  const png = p => { const b = readFileSync(p); return [b.readUInt32BE(16), b.readUInt32BE(20)]; };
+  test('store screenshots: 5 per language, iPhone 6.9" 1320x2868 and Android 1080x1920, EN and AR', () => [['ios-6.9', 1320, 2868], ['android-phone', 1080, 1920]].every(([d, w, h]) => ['en', 'ar'].every(l => { const dir = `docs/stores/screenshots/${d}/${l}`; const f = existsSync(dir) ? readdirSync(dir).filter(x => x.endsWith('.png')) : []; return f.length === 5 && f.every(x => { const [a, b] = png(join(dir, x)); return a === w && b === h; }); })));
+  const pv = readFileSync('privacy.html', 'utf8');
+  test('privacy.html covers the app, notifications and push tokens, in English and Arabic', () => /The QAMAR app \(iPhone and Android\)/.test(pv) && /Push notifications/.test(pv) && /deleted with the ticket/.test(pv) && /تطبيق قمر/.test(pv) && /الإشعارات الفورية/.test(pv));
 }
 // ---- 5. Journal (blog) ----
 console.log('Journal (blog)');

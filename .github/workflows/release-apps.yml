@@ -1,0 +1,174 @@
+# QAMAR : versions SIGNÉES pour Google Play (piste de test interne) et l'App Store (TestFlight).
+# Lancement manuel uniquement (onglet Actions → « Release apps » → Run workflow). Rien ne part sur les stores tout seul.
+# Chaque plateforme vérifie d'abord ses secrets : s'il en manque un, elle s'arrête proprement (message clair, job vert),
+# sans rien construire ni envoyer. Les clés ne sont JAMAIS dans le dépôt : uniquement dans Settings → Secrets → Actions.
+#   Android : ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD, PLAY_SERVICE_ACCOUNT_JSON
+#             (facultatif, push : GOOGLE_SERVICES_JSON_BASE64)
+#   iOS     : ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8_BASE64, APPLE_TEAM_ID
+# Guide pas à pas : docs/stores/GUIDE-COMPTES.md
+name: Release apps
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Plateforme
+        type: choice
+        options: [both, android, ios]
+        default: both
+      play_status:
+        description: "Statut Google Play (draft tant que l'app n'a jamais été publiée)"
+        type: choice
+        options: [draft, completed]
+        default: draft
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-apps
+  cancel-in-progress: false
+
+jobs:
+  android:
+    if: inputs.platform != 'ios'
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+      GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+    steps:
+      - name: Secrets Android présents ?
+        id: check
+        run: |
+          missing=""
+          for v in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            [ -n "${!v}" ] || missing="$missing $v"
+          done
+          if [ -n "$missing" ]; then
+            echo "::notice title=Android ignoré::Secrets manquants :$missing. Rien n'a été construit ni envoyé (voir docs/stores/GUIDE-COMPTES.md)."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+          if [ -n "$PLAY_SERVICE_ACCOUNT_JSON" ]; then echo "upload=true" >> "$GITHUB_OUTPUT"; else echo "upload=false" >> "$GITHUB_OUTPUT"; fi
+      - if: steps.check.outputs.ready == 'true'
+        uses: actions/checkout@v5
+      - if: steps.check.outputs.ready == 'true'
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - if: steps.check.outputs.ready == 'true'
+        name: Tests et garde-fous
+        run: node scripts/run-tests.mjs
+      - if: steps.check.outputs.ready == 'true'
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+      - if: steps.check.outputs.ready == 'true'
+        name: Projet Android
+        run: |
+          npm ci --no-audit --no-fund
+          npm run www
+          npx cap add android
+          npx capacitor-assets generate --assetPath resources --android --iconBackgroundColor '#F7D3DD' --iconBackgroundColorDark '#F7D3DD' --splashBackgroundColor '#FFF7F9' --splashBackgroundColorDark '#FFF7F9'
+          node scripts/patch-native.mjs
+          if [ -n "$GOOGLE_SERVICES_JSON_BASE64" ]; then echo "$GOOGLE_SERVICES_JSON_BASE64" | base64 --decode > android/app/google-services.json; fi
+          npx cap sync android
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+      - if: steps.check.outputs.ready == 'true'
+        name: AAB signé (clé d'envoi)
+        working-directory: android
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload.jks"
+          QAMAR_KEYSTORE_FILE="$RUNNER_TEMP/upload.jks" QAMAR_KEYSTORE_PASSWORD="$ANDROID_KEYSTORE_PASSWORD" QAMAR_KEY_ALIAS="$ANDROID_KEY_ALIAS" QAMAR_KEY_PASSWORD="$ANDROID_KEY_PASSWORD" \
+            ./gradlew bundleRelease --no-daemon
+          rm -f "$RUNNER_TEMP/upload.jks"
+      - if: steps.check.outputs.ready == 'true'
+        uses: actions/upload-artifact@v5
+        with:
+          name: qamar-android-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 30
+      # La toute première version doit être envoyée à la main dans la Play Console (l'API refuse une app jamais publiée) :
+      # télécharger l'artefact ci-dessus, puis Play Console → Tester → Test interne → Créer une release.
+      - if: steps.check.outputs.ready == 'true' && steps.check.outputs.upload == 'true'
+        name: Envoi Google Play (test interne)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.qamarlounge.app
+          releaseFiles: android/app/build/outputs/bundle/release/app-release.aab
+          track: internal
+          status: ${{ inputs.play_status }}
+      - if: steps.check.outputs.ready == 'true' && steps.check.outputs.upload != 'true'
+        run: echo "::notice title=Google Play::PLAY_SERVICE_ACCOUNT_JSON absent. L'AAB signé est dans l'artefact qamar-android-release-aab (envoi manuel possible)."
+
+  ios:
+    if: inputs.platform != 'android'
+    runs-on: macos-26
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - name: Secrets Apple présents ?
+        id: check
+        run: |
+          missing=""
+          for v in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8_BASE64 APPLE_TEAM_ID; do
+            [ -n "${!v}" ] || missing="$missing $v"
+          done
+          if [ -n "$missing" ]; then
+            echo "::notice title=iOS ignoré::Secrets manquants :$missing. Rien n'a été construit ni envoyé (voir docs/stores/GUIDE-COMPTES.md)."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.check.outputs.ready == 'true'
+        uses: actions/checkout@v5
+      - if: steps.check.outputs.ready == 'true'
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - if: steps.check.outputs.ready == 'true'
+        name: Projet iOS
+        run: |
+          npm ci --no-audit --no-fund
+          npm run www
+          npx cap add ios
+          npx capacitor-assets generate --assetPath resources --ios --splashBackgroundColor '#FFF7F9' --splashBackgroundColorDark '#FFF7F9'
+          node scripts/patch-native.mjs
+          npx cap sync ios
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+      - if: steps.check.outputs.ready == 'true'
+        name: Archive signée (signature automatique par la clé API App Store Connect)
+        run: |
+          set -o pipefail
+          KEY="$RUNNER_TEMP/AuthKey_$ASC_KEY_ID.p8"
+          echo "$ASC_KEY_P8_BASE64" | base64 --decode > "$KEY"
+          AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/QAMAR.xcarchive" DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic "${AUTH[@]}" archive | tail -n 60
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+          </dict></plist>
+          PLIST
+          # destination = upload : l'export envoie directement la build à App Store Connect (elle apparaît dans TestFlight après traitement)
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/QAMAR.xcarchive" -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" "${AUTH[@]}" | tail -n 40
+          rm -f "$KEY"

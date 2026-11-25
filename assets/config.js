@@ -15,6 +15,10 @@ window.QAMAR_CONFIG = {
   // Applications natives (Capacitor) : liens App Store / Google Play, vides tant que les apps ne sont pas publiées.
   // Dès qu'un lien est rempli, le QR du salon (go.html) propose « Ouvrir dans l'app QAMAR » sur ce téléphone, sans réimprimer le QR.
   appStore: { ios: '', android: '' },
+  // Notifications push distantes de l'app (« c'est votre tour » même app fermée). DÉSACTIVÉES : à activer seulement quand
+  // backend = 'supabase', la migration 008 est appliquée et les clés Apple / Firebase sont en place (docs/stores/PUSH.md).
+  // Tant que c'est false, l'app n'utilise que des notifications locales et n'envoie aucun jeton d'appareil.
+  push: { enabled: false },
   whatsapp: { connected: false }, // passe à true seulement quand l'API WhatsApp Business est réellement connectée
   // Mesure d'audience : désactivée tant que la propriété GA4 et le bandeau de consentement ne sont pas validés.
   // Les événements sont documentés dans docs/ANALYTICS.md ; assets/track.js ne charge rien si enabled = false.
