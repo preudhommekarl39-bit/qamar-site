@@ -109,8 +109,36 @@ jobs:
       - if: steps.check.outputs.ready == 'true' && steps.check.outputs.upload != 'true'
         run: echo "::notice title=Google Play::PLAY_SERVICE_ACCOUNT_JSON absent. L'AAB signé est dans l'artefact qamar-android-release-aab (envoi manuel possible)."
 
-  ios:
+  # Vérifie les secrets Apple sur une machine Linux (toujours disponible) : sans secrets, on ne réserve pas de Mac
+  # (les Mac GitHub peuvent attendre longtemps puis être annulés).
+  ios-secrets:
     if: inputs.platform != 'android'
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - name: Secrets Apple présents ?
+        id: check
+        run: |
+          missing=""
+          for v in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8_BASE64 APPLE_TEAM_ID; do
+            [ -n "${!v}" ] || missing="$missing $v"
+          done
+          if [ -n "$missing" ]; then
+            echo "::notice title=iOS ignoré::Secrets manquants :$missing. Rien n'a été construit ni envoyé (voir docs/stores/GUIDE-COMPTES.md)."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  ios:
+    needs: ios-secrets
+    if: inputs.platform != 'android' && needs.ios-secrets.outputs.ready == 'true'
     runs-on: macos-26
     env:
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
