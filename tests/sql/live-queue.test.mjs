@@ -66,6 +66,8 @@ export async function runSqlTests(log = console.log) {
   await expectErr('a session only works from the station account that opened it', U.M, `select q_board('${S1}')`, /session_expired/);
   await expectErr('a made-up session is refused', U.T, `select q_call(null, gen_random_uuid())`, /session_expired/);
   await expectErr('the station account cannot act without a stylist session', U.T, `select q_call(null, null)`, /forbidden/);
+  await expectErr('a stylist account cannot try PINs from her phone (station account only)', U.S1, `select station_unlock('${U.S2}', '7391', 2::smallint)`, /forbidden/);
+  await expectOk('pgcrypto is used from the "extensions" schema, as on Supabase', 'su', `select n.nspname from pg_extension e join pg_namespace n on n.oid = e.extnamespace where e.extname = 'pgcrypto'`, r => r[0].nspname === 'extensions');
   await expectErr('legacy call_next is no longer callable', U.S1, `select call_next(null)`, /permission denied/);
   await expectErr('legacy advance_ticket is no longer callable', U.M, `select advance_ticket(gen_random_uuid(), 'start')`, /permission denied/);
 
@@ -144,6 +146,8 @@ export async function runSqlTests(log = console.log) {
   await expectErr('anon cannot read the schedule', 'anon', `select * from staff_schedule`, /permission denied/);
   await expectOk('a ticket left waiting yesterday', 'su', `update tickets set day = day - 1 where client_name = 'Bulk' and num = 160 returning id`, r => r.length === 1);
   await db.exec(`update tickets set status = 'waiting' where client_name = 'Bulk' and num = 160`);
+  await expectOk('a ticket left from yesterday is never called', U.T, `select q_call(null, '${S2}') t`, r => r[0].t === null);
+  await expectErr('a stylist cannot run q_close_stale', U.S1, `select q_close_stale()`, /forbidden/);
   await expectOk('q_close_stale cancels it', U.M, `select q_close_stale() n`, r => r[0].n === 1);
 
   await db.close();

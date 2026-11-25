@@ -71,7 +71,7 @@ alter table station_sessions enable row level security;
 revoke all on station_sessions from public, anon, authenticated;
 
 -- Qui agit : la coiffeuse de la session de poste (si p_session), sinon le compte connecté (jamais le compte « poste » lui-même)
-create or replace function acting_staff(p_session uuid) returns uuid language plpgsql stable security definer set search_path = public as $$
+create or replace function acting_staff(p_session uuid) returns uuid language plpgsql stable security definer set search_path = public, extensions as $$
 declare v uuid;
 begin
   if p_session is not null then
@@ -86,7 +86,7 @@ begin
 end $$;
 
 -- PIN : 4 chiffres, ni répétés (1111) ni suivis (1234, 4321). Gérante et propriétaire seulement. Journal sans le PIN ni son hash.
-create or replace function admin_set_pin(p_staff uuid, p_pin text) returns text language plpgsql security definer set search_path = public as $$
+create or replace function admin_set_pin(p_staff uuid, p_pin text) returns text language plpgsql security definer set search_path = public, extensions as $$
 declare s staff;
 begin
   if not is_manager() then raise exception 'forbidden'; end if;
@@ -119,12 +119,16 @@ $$;
 -- Déverrouillage du poste. Ne lève JAMAIS d'exception sur un mauvais PIN (sinon l'échec ne serait pas compté : rollback).
 -- Limites : 5 échecs pour une coiffeuse en 5 min, ou 20 échecs sur une même tablette en 15 min -> bloqué.
 -- Succès : pointage (si pas déjà pointée) et session de poste de 14 h, liée à ce compte « poste ».
+-- Réservé au compte « poste » (et à la gérante) : un compte de coiffeuse ne peut pas essayer le PIN d'une collègue depuis son téléphone.
+-- Verrous (coiffeuse, puis tablette) pris AVANT de compter les échecs : des requêtes envoyées en parallèle ne contournent pas les limites.
 create or replace function station_unlock(p_staff uuid, p_pin text, p_seat smallint default null) returns jsonb
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 declare h text; st staff; last_ok timestamptz; fails integer; sfails integer; tok uuid; sh shifts; exp timestamptz;
 begin
-  if not is_staff() then raise exception 'forbidden'; end if;
+  if not (is_station() or is_manager()) then raise exception 'forbidden'; end if;
   if p_seat is not null and not exists (select 1 from stations where seat = p_seat) then raise exception 'invalid_seat'; end if;
+  perform pg_advisory_xact_lock(hashtext('qamar-pin-staff-' || coalesce(p_staff::text, '')));
+  perform pg_advisory_xact_lock(hashtext('qamar-pin-station-' || auth.uid()::text));
   select max(at) into last_ok from station_pin_attempts where staff_id = p_staff and ok;
   select count(*) into fails from station_pin_attempts where staff_id = p_staff and not ok and at > greatest(now() - interval '5 minutes', coalesce(last_ok, '-infinity'));
   select count(*) into sfails from station_pin_attempts where station_uid = auth.uid() and not ok and at > now() - interval '15 minutes';
@@ -151,7 +155,7 @@ begin
 end $$;
 
 -- Verrouiller la tablette sans dépointer (fin de la session seulement)
-create or replace function station_lock(p_session uuid) returns void language sql security definer set search_path = public as $$
+create or replace function station_lock(p_session uuid) returns void language sql security definer set search_path = public, extensions as $$
   update station_sessions set ended_at = now()
    where token_hash = encode(digest(p_session::text, 'sha256'), 'hex') and station_uid = auth.uid() and ended_at is null
 $$;
@@ -309,7 +313,7 @@ end $$;
 -- File pleine (60 tickets en attente) ou rafale (20 inscriptions en 2 minutes) : refus. Coiffeuse demandée inconnue : « la première libre ».
 create or replace function tickets_join_guard() returns trigger language plpgsql security definer set search_path = public as $$
 begin
-  if (select count(*) from tickets where status = 'waiting') >= 60 then raise exception 'queue_full'; end if;
+  if (select count(*) from tickets where status = 'waiting' and day = dubai_today()) >= 60 then raise exception 'queue_full'; end if;
   if (select count(*) from tickets where created_at > now() - interval '2 minutes') >= 20 then raise exception 'try_later'; end if;
   if new.pref_staff is not null and not exists (select 1 from staff_public where id = new.pref_staff) then new.pref_staff := null; end if;
   return new;
@@ -437,14 +441,16 @@ begin
 end $$;
 
 -- Appel : coiffeuse pointée, sans cliente en cours ; cliente en attente qui ne demande personne ou elle (SKIP LOCKED : jamais deux postes)
+-- Tickets du jour seulement : un ticket oublié d'hier (q_close_stale non lancée) n'est jamais appelé.
 create or replace function q_call(p_ticket uuid default null, p_session uuid default null) returns jsonb language plpgsql security definer set search_path = public as $$
 declare me uuid := acting_staff(p_session); t tickets; sh shifts;
 begin
+  perform pg_advisory_xact_lock(hashtext('qamar-call-' || me::text));   -- double appui : jamais deux clientes pour la même coiffeuse
   select * into sh from shifts where staff_id = me and clock_out is null;
   if sh.id is null then raise exception 'not_clocked_in'; end if;
   if exists (select 1 from tickets where assigned_staff = me and status in ('called', 'in_service', 'checkout', 'paid')) then raise exception 'busy'; end if;
   select * into t from tickets
-   where status = 'waiting' and (pref_staff is null or pref_staff = me) and (p_ticket is null or id = p_ticket)
+   where status = 'waiting' and day = dubai_today() and (pref_staff is null or pref_staff = me) and (p_ticket is null or id = p_ticket)
    order by created_at for update skip locked limit 1;
   if t.id is null then return null; end if;
   update tickets set status = 'called', assigned_staff = me, seat = sh.seat, called_at = now() where id = t.id returning * into t;
@@ -578,7 +584,10 @@ end $$;
 create or replace function q_close_stale() returns integer language plpgsql security definer set search_path = public as $$
 declare n integer;
 begin
-  if not (is_manager() or (select auth.role()) = 'service_role' or current_user = 'postgres') then raise exception 'forbidden'; end if;
+  -- Connexion directe à la base (SQL Editor, pg_cron) : session_user postgres et aucun jeton JWT. Jamais current_user, qui vaut
+  -- toujours le propriétaire dans une fonction security definer (la condition laissait passer tout compte connecté).
+  if not (is_manager() or (select auth.role()) = 'service_role'
+          or (session_user = 'postgres' and coalesce(nullif(current_setting('request.jwt.claims', true), ''), nullif(current_setting('request.jwt.claim.role', true), '')) is null)) then raise exception 'forbidden'; end if;
   with c as (update tickets set status = 'cancelled', closed_at = now() where day < dubai_today() and status in ('waiting', 'called') returning 1) select count(*) into n from c;
   return n;
 end $$;

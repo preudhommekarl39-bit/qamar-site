@@ -9,7 +9,10 @@ import { pathToFileURL } from 'node:url';
 const ROOT = new URL('../../', import.meta.url).pathname;
 const MIG = join(ROOT, 'supabase/migrations/');
 
+// Comme sur Supabase : pgcrypto vit dans le schéma « extensions » (pas dans public) ; une fonction qui appelle crypt / digest
+// sans « extensions » dans son search_path échoue ici comme en production.
 export const SHIM = `
+create schema extensions; create extension pgcrypto schema extensions; grant usage on schema extensions to public;
 create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
 create schema auth;
 grant usage on schema auth to anon, authenticated, service_role;
