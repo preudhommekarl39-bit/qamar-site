@@ -76,6 +76,9 @@ export async function runSqlTests(log = console.log) {
   const A = j && j[0];
   const j2 = await expectOk('second client asks for Noor', 'anon', `select * from join_queue('Fatima', '+971502223344', 'glow', false, '${U.S2}')`, r => r[0].num === 2);
   const B = j2 && j2[0];
+  await expectErr('same phone joins again: refused (already_in_queue), no ticket id, token or name returned', 'anon', `select * from join_queue('Someone', '+971501112233', 'glow', false, null)`,
+    { test: m => /already_in_queue/.test(m) && !/Aisha|[0-9a-f]{8}-[0-9a-f]{4}/i.test(m) });
+  await expectOk('the refused join created no ticket', 'su', `select count(*)::int n from tickets where client_phone = '+971501112233'`, r => r[0].n === 1);
   await expectOk('unknown preferred stylist becomes "first available"', 'anon', `select * from join_queue('Hessa', '+971503334455', 'sleek', false, '${U.M}')`, r => r[0].num === 3);
   await expectOk('pref of the manager (not on the floor) was reset', 'su', `select pref_staff from tickets where num = 3`, r => r[0].pref_staff === null);
   await expectErr('anon cannot list tickets', 'anon', `select * from tickets`, /permission denied/);

@@ -35,6 +35,7 @@
     client_in_progress: { en: 'Finish your current client before clocking out.', ar: 'أنهي عميلتك الحالية قبل تسجيل الانصراف.' },
     queue_full: { en: 'The queue is full right now. Please try again in a few minutes.', ar: 'الطابور ممتلئ الآن. يرجى المحاولة بعد دقائق.' },
     try_later: { en: 'Too many requests. Please try again in a few minutes.', ar: 'طلبات كثيرة. يرجى المحاولة بعد دقائق.' },
+    already_in_queue: { en: 'This number is already in the queue. Open the ticket from the link on the phone used to join, or ask at the counter.', ar: 'هذا الرقم موجود في الطابور. افتحي التذكرة من الرابط على الهاتف الذي استُخدم للانضمام، أو اسألي في الكاونتر.' },
     too_many_requests: { en: 'This number has joined too many times today.', ar: 'انضم هذا الرقم مرات كثيرة اليوم.' },
     invalid_phone: { en: 'Please check the phone number.', ar: 'يرجى التحقق من رقم الهاتف.' },
     service_unavailable: { en: 'This look is not available right now. Please choose another one.', ar: 'هذه الإطلالة غير متاحة الآن. يرجى اختيار أخرى.' },
@@ -236,6 +237,7 @@
   Q.joinQueue = async ({ name, phone, serviceId, pref = 'any', extraLong = false, party = null, promoCode = null } = {}) => {
     const people = Array.isArray(party) && party.length > 1 ? party.slice(0, D.maxParty || 6).map(p => ({ serviceId: p && p.serviceId, extraLong: !!(p && p.extraLong) })) : null;
     const code = promoCode ? String(promoCode).trim().toUpperCase().slice(0, 32) : null;
+    Q.lastJoinError = null;
     try {
       const r = await rpc('join_queue', { p_name: name, p_phone: phone, p_service: people ? people[0].serviceId : serviceId, p_extra_long: people ? people[0].extraLong : !!extraLong,
         p_pref: pref && pref !== 'any' && UUID.test(pref) ? pref : null, p_party: people, p_promo_code: code || null });
@@ -246,7 +248,7 @@
       const t = Q.ticket(row.ticket_id);
       if (t) t.accessToken = row.access_token;   // lien ?t=<id>.<jeton> (message WhatsApp, QR)
       return t || { id: row.ticket_id, num: row.num, accessToken: row.access_token, status: 'waiting', serviceId, name, createdAt: Date.now(), addons: [] };
-    } catch (e) { const c = codeOf(e); console.warn('[QAMAR] join_queue', e); if (c !== 'service_unavailable') Q.toast(say(c)); return null; }
+    } catch (e) { const c = codeOf(e); Q.lastJoinError = c; console.warn('[QAMAR] join_queue', e); if (c !== 'service_unavailable' && !(c === 'already_in_queue' && !staffPage)) Q.toast(say(c)); return null; }
   };
   Q.cancel = id => {
     if (isMine(id)) return act('cancel_my_ticket', { p_ticket: id, p_token: myKey().key }, false).then(() => true);

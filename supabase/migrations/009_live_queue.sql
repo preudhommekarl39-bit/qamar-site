@@ -321,6 +321,70 @@ end $$;
 drop trigger if exists tickets_join_guard on tickets;
 create trigger tickets_join_guard before insert on tickets for each row execute function tickets_join_guard();
 
+-- Inscription (005) : un numéro qui a déjà un ticket actif aujourd'hui est refusé (already_in_queue) au lieu de recevoir l'identifiant
+-- et le jeton de ce ticket. La cliente rouvre son ticket par son lien ?t=<id>.<jeton> ou demande au comptoir. Reste identique à 005.
+create or replace function join_queue(p_name text, p_phone text, p_service text, p_extra_long boolean, p_pref uuid default null,
+                                      p_party jsonb default null, p_promo_code text default null)
+returns table (ticket_id uuid, access_token uuid, num integer) language plpgsql security definer set search_path = public as $$
+declare
+  s services; n integer; t tickets; e jsonb; v_people jsonb := '[]'::jsonb; v_size integer; v_code text;
+  v_pid text; v_pct smallint; i integer;
+  d date := (now() at time zone 'Asia/Dubai')::date;
+  hr integer := extract(hour from now() at time zone 'Asia/Dubai');
+begin
+  if p_party is null or jsonb_typeof(p_party) = 'null' then
+    p_party := jsonb_build_array(jsonb_build_object('serviceId', p_service, 'extraLong', coalesce(p_extra_long, false)));
+  end if;
+  if jsonb_typeof(p_party) <> 'array' then raise exception 'invalid_party'; end if;
+  v_size := jsonb_array_length(p_party);
+  if v_size < 1 or v_size > 6 then raise exception 'invalid_party'; end if;
+  for e in select x.value from jsonb_array_elements(p_party) x loop
+    if jsonb_typeof(e) <> 'object' or jsonb_typeof(e->'serviceId') is distinct from 'string' then raise exception 'invalid_party'; end if;
+    if e ? 'extraLong' and jsonb_typeof(e->'extraLong') not in ('boolean', 'null') then raise exception 'invalid_party'; end if;
+    select * into s from services where id = e->>'serviceId' and active;
+    if not found then raise exception 'service_unavailable'; end if;
+    if s.from_hour is not null and hr < s.from_hour then raise exception 'service_unavailable'; end if;
+  end loop;
+  if p_phone !~ '^\+[0-9]{7,15}$' then raise exception 'invalid_phone'; end if;
+  if char_length(trim(coalesce(p_name, ''))) = 0 then raise exception 'invalid_name'; end if;
+
+  -- verrou du jour AVANT de lire les remises et le ticket actif (002) : les places −70 % ne peuvent pas être dépassées
+  perform pg_advisory_xact_lock(hashtext('qamar-num-' || d::text));
+  -- 009 : plus jamais le jeton d'un ticket existant à qui ne donne que le numéro (sinon : nom, annulation, boissons ajoutées à sa note)
+  if exists (select 1 from tickets where client_phone = p_phone and day = d and status in ('waiting','called','in_service','checkout')) then
+    raise exception 'already_in_queue';
+  end if;
+  if (select count(*) from tickets where client_phone = p_phone and day = d) >= 3 then raise exception 'too_many_requests'; end if;
+
+  v_code := nullif(upper(trim(coalesce(p_promo_code, ''))), '');
+  if v_code is not null and not exists (
+       select 1 from promo_codes c where c.code = v_code and c.enabled and c.pct > 0
+          and (c.valid_until is null or d <= c.valid_until) and v_size >= c.min_people) then
+    v_code := null;
+  end if;
+
+  for i in 0 .. v_size - 1 loop
+    e := p_party -> i;
+    v_pid := null; v_pct := null;
+    select x.promo_id, x.pct into v_pid, v_pct from person_promo(v_size, i, v_code, now()) x;
+    v_people := v_people || jsonb_build_array(jsonb_build_object(
+      'serviceId', e->>'serviceId', 'extraLong', coalesce((e->>'extraLong')::boolean, false),
+      'promoId', v_pid, 'pct', coalesce(v_pct, 0)));
+  end loop;
+
+  select coalesce(max(tickets.num), 0) + 1 into n from tickets where day = d;
+  insert into tickets (num, client_name, client_phone, service_id, extra_long, pref_staff, promo_id, promo_pct, party, promo_code)
+  values (n, left(regexp_replace(trim(p_name), '[<>[:cntrl:]]', '', 'g'), 40), p_phone,
+          v_people->0->>'serviceId', (v_people->0->>'extraLong')::boolean, p_pref,
+          v_people->0->>'promoId', (v_people->0->>'pct')::smallint,
+          case when v_size > 1 then v_people end, v_code)
+  returning * into t;
+  insert into ticket_events (ticket_id, event) values (t.id, case when v_size > 1 then 'joined:party:' || v_size else 'joined' end);
+  return query select t.id, t.access_token, t.num;
+end $$;
+revoke all on function join_queue(text, text, text, boolean, uuid, jsonb, text) from public;
+grant execute on function join_queue(text, text, text, boolean, uuid, jsonb, text) to anon, authenticated;
+
 -- ---------- 6. Montant dû : calcul interne partagé (005), lu par la cliente via son jeton et par le personnel ----------
 create or replace function ticket_amount(p_ticket uuid) returns table (base numeric, discount numeric, addons numeric, total numeric)
 language plpgsql stable security definer set search_path = public as $$

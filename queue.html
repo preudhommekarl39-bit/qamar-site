@@ -315,6 +315,7 @@
     app_sheet: { en: "Your place in line on your home screen. We'll tell you when it's your turn.", ar: 'مكانكِ في الطابور على شاشتك الرئيسية. سنخبركِ عندما يحين دوركِ.' },
     app_ios: { en: 'On iPhone, the app opens separately from Safari. For today, keep this page open: your ticket is {c}. Your next visits start from the app.', ar: 'على الآيفون، يفتح التطبيق بشكل منفصل عن سفاري. لزيارة اليوم، أبقي هذه الصفحة مفتوحة: تذكرتكِ {c}. زياراتكِ القادمة تبدأ من التطبيق.' },
     tk_missing: { en: 'This ticket is not on this device. In this preview, a ticket stays in the browser where it was created: open it there, or join again here.', ar: 'هذه التذكرة غير موجودة على هذا الجهاز. في هذه المعاينة تبقى التذكرة في المتصفح الذي أُنشئت فيه: افتحيها هناك أو انضمي مجدداً من هنا.' },
+    already_in: { en: "You're already in the queue. Open your ticket from the link on the phone you used to join, or ask at the counter.", ar: 'أنتِ في الطابور بالفعل. افتحي تذكرتكِ من الرابط على الهاتف الذي استخدمتِه للانضمام، أو اسألي في الكاونتر.' },
     pay_station: { en: 'You pay at your station, by card, Apple Pay or cash. There is nothing to pay on this page.', ar: 'تدفعين عند محطتك بالبطاقة أو Apple Pay أو نقداً. لا يوجد ما تدفعينه في هذه الصفحة.' },
     pay_counter: { en: 'You pay at the counter, by card or cash. There is no payment in the app.', ar: 'تدفعين عند الكاونتر بالبطاقة أو نقداً. لا يوجد دفع داخل التطبيق.' },
     demo_counter: { en: 'Demo: mark as paid at the counter', ar: 'تجربة: تسجيل الدفع عند الكاونتر' },
@@ -553,7 +554,7 @@
     Promise.resolve(Q.joinQueue({ name: fd.get('name'), phone, serviceId: lead().serviceId, pref: sel.pref, extraLong: lead().extraLong, channel: 'qr', party: partyArg(), promoCode: codeFor(size()) })).then(tk => {
     if (tk && window.QamarTrack) QamarTrack('join_queue', { service: lead().serviceId, party_size: size(), stylist_choice: sel.pref === 'any' ? 'first_free' : 'chosen', demo: Q.isDemo }); // aucune donnée personnelle
     submitting = false;
-    if (!tk) { updateBar(); Q.toast(t('join_err')); return; }
+    if (!tk) { updateBar(); Q.toast(t(Q.lastJoinError === 'already_in_queue' ? 'already_in' : 'join_err')); return; }
     myId = tk.id;
     try { localStorage.setItem('qamar:myTicket', myId); } catch (e) { /* ignore */ }
     history.replaceState(null, '', '?t=' + Q.ticketLink(tk));
