@@ -78,8 +78,20 @@ td a{color:var(--rose-ink)}
   <form id="loginForm" class="card" style="max-width:440px" novalidate>
     <label for="email">E-mail</label><input id="email" type="email" autocomplete="username" required>
     <label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required>
-    <div class="actions"><button class="primary" type="submit" id="loginBtn">Sign in</button></div>
+    <div class="actions"><button class="primary" type="submit" id="loginBtn">Sign in</button><button type="button" class="small" id="forgotBtn">Forgot password?</button></div>
     <div id="loginMsg" role="alert"></div>
+  </form>
+</section>
+
+<!-- Choix du mot de passe (lien d'invitation ou de réinitialisation reçu par e-mail) -->
+<section id="vPassword" hidden>
+  <h1>Choose your password</h1>
+  <p class="hint">You opened the link from your invitation or reset e-mail. Choose a password (at least 10 characters) to finish.</p>
+  <form id="pwForm" class="card" style="max-width:440px" novalidate>
+    <label for="newPw">New password</label><input id="newPw" type="password" autocomplete="new-password" minlength="10" required>
+    <label for="newPw2">Repeat it</label><input id="newPw2" type="password" autocomplete="new-password" minlength="10" required>
+    <div class="actions"><button class="primary" type="submit" id="pwBtn">Save my password</button></div>
+    <div id="pwMsg" role="alert"></div>
   </form>
 </section>
 
@@ -139,7 +151,7 @@ td a{color:var(--rose-ink)}
   'use strict';
   const C = window.QAMAR_CONFIG || {}, BL = window.QAMAR_BLOG;
   const $ = id => document.getElementById(id);
-  const show = v => ['vLogin', 'vList', 'vEdit'].forEach(x => { $(x).hidden = x !== v; });
+  const show = v => ['vLogin', 'vPassword', 'vList', 'vEdit'].forEach(x => { $(x).hidden = x !== v; });
   const msg = (el, kind, text, list) => { el.className = 'msg ' + kind; el.hidden = false; el.textContent = text; if (list && list.length) { const ul = document.createElement('ul'); list.forEach(t => { const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); }); el.appendChild(ul); } };
   const clear = el => { el.className = ''; el.textContent = ''; };
   const LANG = { en: { name: 'English', dir: 'ltr' }, ar: { name: 'العربية', dir: 'rtl' } };
@@ -149,6 +161,10 @@ td a{color:var(--rose-ink)}
   const serviceSlugs = () => targets.services.map(s => s.slug);
 
   // ---- Client Supabase (clé publique anon uniquement) ----
+  // Lien reçu par e-mail (invitation / mot de passe oublié) : à lire AVANT la création du client, qui efface le #hash.
+  const linkHash = new URLSearchParams(location.hash.replace(/^#/, ''));
+  const linkType = /^(invite|recovery)$/.test(linkHash.get('type') || '') ? linkHash.get('type') : null;
+  const linkError = linkHash.get('error_description');
   let sb = null;
   if (!C.supabaseUrl || !C.supabaseAnonKey) msg($('cfgWarn'), 'info', 'Setup not finished: the public Supabase "anon" key is missing in assets/config.js (supabaseAnonKey). Sign-in cannot work until it is added. See supabase/README.md, section Blog.');
   if (window.supabase && C.supabaseUrl) {
@@ -162,8 +178,36 @@ td a{color:var(--rose-ink)}
     if (!sb) { show('vLogin'); return; }
     let session = null;
     try { session = (await sb.auth.getSession()).data.session; } catch (_) {}
+    if (linkError) { show('vLogin'); return msg($('loginMsg'), 'err', 'This e-mail link is no longer valid (' + linkError + '). Use “Forgot password?” to get a new one.'); }
+    if (session && linkType) { $('who').textContent = session.user.email || ''; show('vPassword'); return; }
     session ? afterLogin(session) : show('vLogin');
   }
+
+  // ---- Choix du mot de passe ----
+  $('pwForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const m = $('pwMsg'); clear(m);
+    const a = $('newPw').value, b = $('newPw2').value;
+    if (a.length < 10) return msg(m, 'err', 'Use at least 10 characters.');
+    if (a !== b) return msg(m, 'err', 'The two passwords are different.');
+    $('pwBtn').disabled = true;
+    try {
+      const { error } = await sb.auth.updateUser({ password: a });
+      if (error) msg(m, 'err', 'Could not save the password: ' + error.message);
+      else { $('newPw').value = $('newPw2').value = ''; history.replaceState(null, '', location.pathname); const s2 = (await sb.auth.getSession()).data.session; afterLogin(s2); }
+    } catch (err) { msg(m, 'err', 'Could not save the password: the server could not be reached.'); }
+    $('pwBtn').disabled = false;
+  });
+
+  // ---- Mot de passe oublié ----
+  $('forgotBtn').addEventListener('click', async () => {
+    const m = $('loginMsg'); clear(m);
+    const email = $('email').value.trim();
+    if (!email) return msg(m, 'err', 'Type your e-mail above first, then click “Forgot password?”.');
+    if (!sb) return msg(m, 'err', 'Not available: the Supabase configuration did not load.');
+    try { await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }); } catch (_) {}
+    msg(m, 'info', 'If this address has an editor account, a reset link has been sent. Open it on this device.');
+  });
 
   // ---- Connexion ----
   $('loginForm').addEventListener('submit', async e => {
