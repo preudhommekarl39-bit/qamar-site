@@ -236,6 +236,17 @@ nav.side .badge{background:var(--rose);color:#fff;border-radius:999px;font-size:
     if (session && linkType) { $('who').textContent = session.user.email || ''; show('vPassword'); return; }
     session ? enter(location.hash.replace(/^#/, '')) : show('vLogin');
   }
+  // Adresse changée à la main ou bouton Retour / Suivant : ouvrir l'écran demandé (si le rôle y a droit)
+  function routeFromHash() {
+    if (!me || $('vShell').hidden) return;
+    const m = location.hash.match(/^#(?:local-demo(?:-(?:owner|manager|stylist))?\/)?([a-z]+)$/);
+    const id = m && m[1];
+    if (!id || id === current || !VIEWS[id]) return;
+    if (O.canSee(me.role, id) && !(O.MENU.find(x => x.id === id) || {}).href) go(id, true);
+    else go(O.home(me.role));
+  }
+  addEventListener('popstate', routeFromHash);
+  addEventListener('hashchange', routeFromHash);
   addEventListener('hashchange', () => { if (local && /^#local-demo/.test(location.hash) && demo) { const m = location.hash.match(/^#local-demo(?:-(owner|manager|stylist))?(?:\/([a-z]+))?$/); if (m && me && (m[1] || 'owner') !== me.role) location.reload(); } });
 
   $('pwForm').addEventListener('submit', async e => {
@@ -307,9 +318,12 @@ nav.side .badge{background:var(--rose);color:#fff;border-radius:999px;font-size:
     } catch (_) { counts = {}; }
     renderNav();
   }
-  async function go(id) {
+  async function go(id, fromHistory) {
+    const first = current === null;
     current = id;
-    history.replaceState(null, '', demo ? `#local-demo-${me.role}/${id}` : '#' + id);
+    // Chaque écran a son adresse (#services…) : lien direct, favori, bouton Retour du navigateur
+    const url = demo ? `#local-demo-${me.role}/${id}` : '#' + id;
+    if (!fromHistory && location.hash !== url) history[first ? 'replaceState' : 'pushState'](null, '', url);
     renderNav();
     const v = $('view'); v.textContent = ''; v.appendChild(h('p', { class: 'hint', text: 'Loading…' }));
     try { const node = await VIEWS[id](O.canEdit(me.role, id)); v.textContent = ''; v.appendChild(node); }
