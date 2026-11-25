@@ -8,7 +8,7 @@ window.QAMAR_CONFIG = {
   phase: 'preopening',    // 'preopening' (salon pas encore ouvert : textes « aperçu », horaires « prévus ») | 'open' (salon ouvert, infos confirmées)
   backend: 'demo',
   supabaseUrl: 'https://seexwsitmwqfzuejskej.supabase.co', // projet « qamar » (sert au journal dès maintenant ; la file d'attente reste en démo tant que backend = 'demo')
-  supabaseAnonKey: '',    // clé publique « anon » (Supabase → Project Settings → API) : à coller ici, elle est faite pour être publique. JAMAIS la clé service_role.
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlZXh3c2l0bXdxZnp1ZWpza2VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ1Njk1NzQsImV4cCI6MjExMDE0NTU3NH0.XQxsYqosgFhcpOL5C2uXxkY2SJX_kdQM133I7bwu1eY',    // clé publique « anon » (Supabase → Project Settings → API) : à coller ici, elle est faite pour être publique. JAMAIS la clé service_role.
   siteUrl: 'https://qamarlounge.com/',            // URL définitive (ex. https://qamar.ae) — sert aux balises canoniques et au QR d'entrée
   timeZone: 'Asia/Dubai', // UTC+4, pas d'heure d'été
   payments: { provider: null },  // ex. 'network-international' | 'checkout' | 'stripe' — aucun n'est branché
