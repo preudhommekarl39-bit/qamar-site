@@ -41,7 +41,11 @@ async function sendApns(token: string, title: string, body: string, ticketId: st
     headers: { authorization: `bearer ${auth}`, 'apns-topic': env('APNS_TOPIC') || 'com.qamarlounge.app', 'apns-push-type': 'alert', 'apns-priority': '10' },
     body: JSON.stringify({ aps: { alert: { title, body }, sound: 'default' }, ticket: ticketId })
   });
-  return res.ok ? 'sent' : res.status === 410 || res.status === 400 ? 'invalid' : 'failed';
+  if (res.ok) return 'sent';
+  if (res.status === 410) return 'invalid';
+  // 400 : jeton effacé seulement s'il est réellement mauvais (pas pour une autre erreur de requête)
+  const reason = res.status === 400 ? ((await res.json().catch(() => ({}))) as { reason?: string }).reason : '';
+  return reason === 'BadDeviceToken' || reason === 'DeviceTokenNotForTopic' ? 'invalid' : 'failed';
 }
 
 // --- FCM HTTP v1 (Android) ---
@@ -68,7 +72,7 @@ async function sendFcm(token: string, title: string, body: string, ticketId: str
 
 Deno.serve(async (req) => {
   // Appel réservé au webhook de la base (clé serveur dans l'en-tête Authorization)
-  if (req.headers.get('authorization') !== `Bearer ${env('SUPABASE_SERVICE_ROLE_KEY')}`) return Response.json({ status: 'forbidden' }, { status: 401 });
+  if (!env('SUPABASE_SERVICE_ROLE_KEY') || req.headers.get('authorization') !== `Bearer ${env('SUPABASE_SERVICE_ROLE_KEY')}`) return Response.json({ status: 'forbidden' }, { status: 401 });
   const { record, old_record } = await req.json().catch(() => ({}));
   if (!record?.id || record.status !== 'called' || old_record?.status === 'called') return Response.json({ status: 'ignored' });
 

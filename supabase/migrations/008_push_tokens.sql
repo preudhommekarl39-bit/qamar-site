@@ -62,5 +62,8 @@ create or replace function purge_push_tokens() returns integer language sql secu
   with d as (delete from push_tokens where expires_at < now() returning 1) select count(*)::integer from d
 $$;
 
-revoke all on function register_push_token(text, text, uuid, uuid, text), unregister_push_token(text, uuid, uuid), purge_push_tokens() from public;
+revoke all on function register_push_token(text, text, uuid, uuid, text), unregister_push_token(text, uuid, uuid) from public;
+-- purge : réservée au serveur (pg_cron / clé serveur). Supabase accorde EXECUTE directement à anon et authenticated sur les
+-- nouvelles fonctions (privilèges par défaut) : le « from public » ne suffit pas.
+revoke all on function purge_push_tokens() from public, anon, authenticated;
 grant execute on function register_push_token(text, text, uuid, uuid, text), unregister_push_token(text, uuid, uuid) to anon, authenticated;

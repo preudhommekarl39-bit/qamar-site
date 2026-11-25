@@ -46,7 +46,7 @@ JOIN FROM YOUR PHONE
 Pick your look, say how many of you are coming, choose a stylist or the first one available, and add your first name and WhatsApp number. Your ticket shows your place in line, the estimated wait and the time your chair should be ready.
 
 KNOW WHEN IT IS YOUR TURN
-When a stylist calls you, the app turns pink and shows your seat number and your stylist. With notifications on, your phone also alerts you. Not coming right away? Set a reminder for later.
+When a stylist calls you, the app turns pink and shows your seat number and your stylist. With notifications on, the app can also remind you shortly before your estimated turn. Not coming right away? Set a reminder for later.
 
 LOOKS AND PRICES
 Browse every look with its duration and price: express blow-dry, glow, waves and curls, sleek straight, quick styles, care ritual, cut and colour finishes, and mini looks for girls. You pay at the lounge after your service. There are no payments in the app.
