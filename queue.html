@@ -692,7 +692,7 @@
             ${pr.addons.map(a => `<div><span>${Q.esc(Q.L(a.name))}</span><span>${a.price ? qAed(a.price) : t('free')}</span></div>`).join('')}
             <div class="total"><span>${t('total')}</span><span>${qAed(pr.total)}</span></div>
           </div>
-          ${counterPay ? '' : `          <p style="margin:18px 0 0;color:var(--cocoa)"><b style="font-weight:500">${t('tip_t', { n: sty?.name })}</b><br><small class="muted">${t('tip_s')}</small></p>
+          ${counterPay ? '' : `          <p style="margin:18px 0 0;color:var(--cocoa)"><b style="font-weight:500">${t('tip_t', { n: Q.esc(sty?.name) })}</b><br><small class="muted">${t('tip_s')}</small></p>
           <div class="tip-grid">${[10, 25, 75].map(p => `<button data-tip="${p}" class="${tipChoice === p ? 'sel' : ''}">${qNum(p)}%<small>${qAed(Math.round(tipBase * p / 100))}</small></button>`).join('')}<button data-tip="custom" class="${tipChoice === 'custom' ? 'sel' : ''}">${t('custom')}<small>AED</small></button></div>
           ${tipChoice === 'custom' ? `<input class="input" id="customTip" type="number" min="0" inputmode="numeric" placeholder="${Q.lang === 'ar' ? 'درهم' : 'AED'}" style="margin-bottom:10px">` : ''}
           <button class="btn btn-ghost btn-block" data-tip="0" style="margin-bottom:14px;${tipChoice === 0 ? 'background:var(--blush)' : ''}">${t('no_tip')}</button>

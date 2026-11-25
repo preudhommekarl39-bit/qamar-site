@@ -220,7 +220,7 @@
       const m = o.querySelector('#qlMsg'); m.textContent = '';
       const { error } = await sb.auth.signInWithPassword({ email: o.querySelector('#qlEmail').value.trim(), password: o.querySelector('#qlPw').value });
       if (error) { m.innerHTML = L2('Wrong e-mail or password.', 'البريد الإلكتروني أو كلمة المرور غير صحيحة.'); return; }
-      o.remove(); const s = box.get(); box.set({ ...s, remote: { ...s.remote, needLogin: false } }, false); refresh('all');
+      o.remove(); const s = box.get(); box.set({ ...s, remote: { ...s.remote, needLogin: false } }, false); refresh('all'); timers();
     };
   }
 
@@ -317,7 +317,13 @@
     }
     await refresh('all');
     subscribe();
-    setInterval(() => refresh(staffPage ? 'all' : 'all'), staffPage ? 20000 : 15000);   // filet de sécurité si le temps réel décroche
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh('all'); });
+    timers();
   })();
+  // Filet de sécurité si le temps réel décroche (lancé aussi après la connexion du personnel, sinon la page ne se relisait plus)
+  let timersOn = false;
+  function timers() {
+    if (timersOn) return; timersOn = true;
+    setInterval(() => refresh('all'), staffPage ? 20000 : 15000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh('all'); });
+  }
 })();

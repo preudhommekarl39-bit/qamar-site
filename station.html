@@ -148,7 +148,7 @@
     view.innerHTML = `<div class="login">
       <div class="eyebrow">Good to see you</div>
       <h1>Who's at seat ${seat}?</h1>
-      <div class="who">${Q.state.stylists.map(st => `<button data-id="${st.id}" class="${pick === st.id ? 'sel' : ''}"><span class="av" style="background:${tone(st.id)}">${st.name[0]}</span>${Q.esc(st.name)}</button>`).join('')}</div>
+      <div class="who">${Q.state.stylists.map(st => `<button data-id="${st.id}" class="${pick === st.id ? 'sel' : ''}"><span class="av" style="background:${tone(st.id)}">${Q.esc(st.name[0])}</span>${Q.esc(st.name)}</button>`).join('')}</div>
       ${s ? `<div id="pinBox"><div class="pin-dots">${[0, 1, 2, 3].map(i => `<i class="${i < pin.length ? 'on' : ''}"></i>`).join('')}</div>
         <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0, '⌫'].map(k => k === '' ? '<span></span>' : `<button data-k="${k}">${k}</button>`).join('')}</div>
         <p class="muted" style="margin-top:18px;font-size:.9rem">Entering your PIN clocks you in automatically.${Q.isDemo ? ` <b>Demo only</b>: test PIN ${s.pin}. Real staff accounts use secure sign-in (see SECURITY.md).` : ''}</p></div>` : '<p class="muted" style="margin-top:24px">Tap your name, then your PIN — your shift starts the moment you log in.</p>'}
@@ -200,7 +200,7 @@
     const s = Q.stylist(sid), sh = Q.openShift(sid), st = Q.stylistStats(sid);
     const me = document.getElementById('me');
     me.classList.remove('hidden');
-    me.innerHTML = `<span class="av" style="background:${tone(sid)}">${s.name[0]}</span><span><b style="font-weight:500">${Q.esc(s.name)}</b><br><small class="muted">On shift since ${sh ? Q.clock(sh.in) : '—'}</small></span><button class="btn btn-ghost" id="outBtn" style="padding:.6em 1.1em;font-size:.75rem">Clock out</button>`;
+    me.innerHTML = `<span class="av" style="background:${tone(sid)}">${Q.esc(s.name[0])}</span><span><b style="font-weight:500">${Q.esc(s.name)}</b><br><small class="muted">On shift since ${sh ? Q.clock(sh.in) : '—'}</small></span><button class="btn btn-ghost" id="outBtn" style="padding:.6em 1.1em;font-size:.75rem">Clock out</button>`;
     document.getElementById('outBtn').onclick = logout;
     return `<div class="kpis">
       <div class="kpi"><small>Shift</small><b>${Q.hm(st.workedMin)}</b></div>
