@@ -110,6 +110,7 @@
 <script src="assets/store.js"></script>
 <script src="assets/store-supabase.js"></script>
 <script>
+// File réelle (Supabase) : cet écran lit la file anonyme (numéros de ticket, pas de prénom)
 (function () {
   document.getElementById('logo').innerHTML = Q.logo('');
   const siteUrl = (window.QAMAR_CONFIG && window.QAMAR_CONFIG.siteUrl) ? window.QAMAR_CONFIG.siteUrl.replace(/\/?$/, '/') : Q.baseUrl();
@@ -133,7 +134,7 @@
     const calls = Q.state.tickets.filter(t => t.status === 'called').sort((a, b) => b.calledAt - a.calledAt);
     if (calls.some(c => !seenCalls.has(c.id))) Q.beep();
     seenCalls = new Set(calls.map(c => c.id));
-    document.getElementById('calling').innerHTML = calls.length ? calls.map(t => `<div class="call"><span class="c">${Q.ticketCode(t)}</span><span class="who">${Q.esc(Q.publicName(t.name))} → ${Q.esc(Q.stylist(t.assignedTo)?.name)}</span><span class="seat"><small>SEAT</small>${t.seat}</span></div>`).join('') : '<div class="empty">—</div>';
+    document.getElementById('calling').innerHTML = calls.length ? calls.map(t => `<div class="call"><span class="c">${Q.ticketCode(t)}</span><span class="who">${t.anonymous ? '' : Q.esc(Q.publicName(t.name)) + ' → '}${Q.esc(Q.stylist(t.assignedTo)?.name)}</span><span class="seat"><small>SEAT</small>${t.seat}</span></div>`).join('') : '<div class="empty">—</div>';
 
     const plan = Q.schedule();
     document.getElementById('seats').innerHTML = Q.state.stylists.map(s => {
@@ -147,7 +148,7 @@
     }).join('');
 
     const waiting = Q.state.tickets.filter(t => t.status === 'waiting').sort((a, b) => a.createdAt - b.createdAt);
-    document.getElementById('line').innerHTML = waiting.length ? waiting.map(t => `<span>${Q.ticketCode(t)} · ${Q.esc(Q.publicName(t.name))}</span>`).join('') : '<div class="empty">No one waiting — walk right in ✦</div>';
+    document.getElementById('line').innerHTML = waiting.length ? waiting.map(t => `<span>${Q.ticketCode(t)}${t.anonymous ? '' : ' · ' + Q.esc(Q.publicName(t.name))}</span>`).join('') : '<div class="empty">No one waiting — walk right in ✦</div>';
   }
   Q.on(render);
   Q.showDemoBanner("DEMO — not connected to the live lounge");

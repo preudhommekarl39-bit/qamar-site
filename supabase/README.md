@@ -27,8 +27,8 @@ supplément cheveux longs, une matcha offerte par personne Night Glow, et la gar
    - `party` à 7 personnes ou avec un look inconnu (attendu : `invalid_party` / `service_unavailable`) ;
    - `amount_due` doit donner le même total que la caisse en mode démo pour les mêmes tickets ;
    - un appel à `rpc('person_promo')` en anonyme doit être refusé.
-7. Déployer `functions/payment-webhook` et ses secrets, puis passer `config.js` en `backend: 'supabase'` avec
-   l'URL et la clé anon, et charger `assets/backend-supabase.js` avant `store.js`.
+7. Paiement en ligne (plus tard, facultatif) : déployer `functions/payment-webhook` et ses secrets. Sans lui, la file réelle
+   encaisse au poste (espèces ou terminal de carte confirmé par la coiffeuse, migration 009). Bascule de la file : voir « File réelle » plus bas.
 
 Le supplément cheveux longs (40 AED) et la garantie (35 min) sont écrits en dur dans le SQL : s'ils changent dans
 `data.js`, il faut les changer aussi dans `amount_due` (005) et `advance_ticket` (001).
@@ -201,7 +201,78 @@ rien de ce qui est tapé n'est envoyé à QAMAR). Il n'est donc pas branché sur
 `sb.rpc('request_event', { p_type, p_date, p_guests, p_name, p_phone, p_email, p_note, p_lang, p_consent_version })`
 (idem `request_club(p_name, p_phone, p_email, p_tier, p_lang, p_consent_version)`) ; réponse `ok`, erreurs `invalid_*`, `contact_required`, `try_later`.
 
-### Phase 2 (pas encore fait) : PIN de la tablette
-La tablette partagée (`station.html`) garde ses PIN de démo. Prévu : une colonne `staff.pin_hash` (bcrypt via `crypt()`), une fonction
-`station_unlock(p_staff, p_pin)` appelée par la tablette connectée avec un compte « poste » dédié, limitée en tentatives, qui renvoie l'identité
-de la coiffeuse pour `clock_in` / `call_next`. Le PIN n'est jamais stocké ni comparé dans la page.
+### Phase 2 : PIN de la tablette
+Fait dans la migration 009 (section suivante) : PIN par coiffeuse saisi dans office.html → Team → « Station PINs », hash bcrypt dans
+`staff_pins` (table illisible par tous, y compris la propriétaire), `station_unlock` limitée en tentatives, session de poste liée au compte « poste ».
+
+## File réelle (phase 2) : migration 009
+
+**État : NON appliquée, NON activée.** Le site reste en `backend: 'demo'`. Tout a été testé en local sur PGlite (vrai PostgreSQL) :
+`node scripts/run-tests.mjs` (tests SQL 001 → 009 et connecteur `assets/store-supabase.js` contre cette base). Rien n'a été essayé contre le
+projet `qamar` (PostgREST, Realtime et Auth de Supabase ne sont pas simulés à l'identique).
+
+### Ce que fait la 009 (rejouable, n'efface aucune donnée)
+- **Cliente** (clé anon) : `join_queue` (005, inchangée) rend `ticket_id` + `access_token` ; la page garde le jeton sur l'appareil et l'adresse
+  devient `queue.html?t=<id>.<jeton>` : ce lien rouvre le ticket sur n'importe quel appareil (Safari, app d'écran d'accueil, app native, autre téléphone).
+  Lecture et actions de SON ticket uniquement par fonctions avec jeton : `my_ticket_live` (téléphone masqué `+...2233`), `my_add_addon` (boissons),
+  `my_set_perfume`, `cancel_my_ticket` (001), `my_rate` (note après paiement, 0 = passer). Aucune lecture des tables par anon (droits retirés).
+- **File publique anonyme** : `queue_public` (numéro, look, statut, heures, coiffeuse : ni nom, ni téléphone, ni jeton, ni id du ticket) et
+  `staff_public` (coiffeuses actives qui ont un PIN, en poste ou non) sont tenues à jour par déclencheurs. Ce sont, avec `salon_status`,
+  **les seules tables publiées en temps réel** (`tickets` et `shifts` sont retirées de la publication). Les pages recalculent rang et attente
+  avec le même planning que la démo. Vues : `public_queue_status` (compteurs + attente grossière), `public_offer` (places à −70 % restantes).
+  La vue 001 `public_queue` (prénoms) n'est plus lisible par anon. Garde-fous : 60 tickets en attente max, 20 inscriptions en 2 min max,
+  coiffeuse demandée inconnue → « la première libre ».
+- **Personnel** : toutes les actions passent par des fonctions `q_*` qui vérifient qui agit (`acting_staff`) : `q_call`, `q_advance`
+  (start, finish, noshow, requeue, renotify, toggle_long ; `remove` = retirer de la file : gérante seulement), `q_add_addon`, `q_remove_addon`,
+  `q_set_details`, `q_record_payment` (espèces ou carte / Apple Pay validés sur le terminal du salon ; montant recalculé, pourboire plafonné),
+  `q_rate`, `q_clock_in`, `q_clock_out`, `q_board` (journée du salon ; montants de tous pour la gérante, sinon seulement ceux de la coiffeuse).
+  Les anciennes fonctions 001/002/007 (`clock_in`, `call_next`, `advance_ticket`, `confirm_cash`, `add_addon`, `remove_addon`) ne sont plus appelables.
+- **Tablette partagée** : rôle `station` (compte « poste »), `admin_set_pin` / `admin_clear_pin` (gérante, propriétaire), `station_unlock`
+  (5 échecs pour une coiffeuse en 5 min ou 20 échecs sur la tablette en 15 min → bloqué ; succès = pointage + session de 14 h, stockée en sha256,
+  valable seulement depuis ce compte « poste »), `station_lock`.
+- **Caisse du jour** : `cash_closings` + `cash_day_totals` + `admin_close_cash` (gérante) ; **planning** : `staff_schedule` (lecture équipe, écriture gérante).
+  Les deux sont dans le journal d'activité (`audit_row`, comme la 007), comme les PIN (sans le PIN), les pointages et les encaissements.
+- `ticket_amount` : calcul du montant (corps de `amount_due` 005, inchangé) partagé par la cliente (via son jeton) et le personnel.
+
+### Mise en ligne (assistant de Karl, avec son accord)
+1. **Migration** : SQL Editor → coller tout `supabase/migrations/009_live_queue.sql`
+   (`LANG=en_US.UTF-8 pbcopy < supabase/migrations/009_live_queue.sql`) → Run. Vérifier :
+   ```sql
+   select tablename from pg_publication_tables where pubname = 'supabase_realtime' order by 1;  -- queue_public, salon_status, staff_public
+   select count(*) from queue_public;  select count(*) from staff_public;                        -- 0 et 0 au départ
+   ```
+2. **Realtime** : Database → Publications → `supabase_realtime` : les trois tables ci-dessus cochées (la migration le fait ; vérifier).
+3. **Compte « poste »** (la tablette) : Authentication → Users → Add user → `poste@qamarlounge.com` (ou autre) + mot de passe long, Auto Confirm.
+   Puis, requête séparée :
+   ```sql
+   insert into staff (id, display_name, role, email, active)
+   select id, 'Station tablet', 'station', email, true from auth.users where email = 'poste@qamarlounge.com'
+   on conflict (id) do update set role = 'station', active = true;
+   ```
+   Ce compte n'a pas de back-office (office.html le refuse) ; il lit la file du jour et ouvre des sessions de poste avec les PIN.
+4. **Coiffeuses** : chacune a un compte (Team → Invite) puis un **PIN** : office.html → Team → Station PINs → 4 chiffres (ni 1111 ni 1234),
+   à lui dire en personne. Seules les personnes avec un PIN apparaissent sur la tablette et dans « choisissez votre coiffeuse ».
+5. **Remises** : vérifier `promotions` (section « Avant l'ouverture », étape 3) ; `launch-first.starts_at` = départ du compteur des 30 places.
+6. **Bascule** : `assets/config.js` → `backend: 'supabase'` (URL et clé anon déjà remplies), `environment: 'production'` à l'ouverture.
+   Augmenter `VERSION` dans `sw.js` (force le rafraîchissement des téléphones), committer, pousser sur `main` (accord de Karl).
+7. **Tablette** : ouvrir `https://qamarlounge.com/station.html#seat1` (seat2, …) → se connecter avec le compte « poste » une fois (session gardée)
+   → chaque coiffeuse touche son nom + son PIN. **Gérante** : `admin.html` (même connexion que office.html).
+8. **Nuit** (facultatif, recommandé) : Database → Cron (pg_cron) → `select q_close_stale();` chaque jour à 03:00 Dubaï (annule les tickets oubliés
+   de la veille) et `select purge_push_tokens();` toutes les heures si la 008 est appliquée.
+9. **Notifications push** (plus tard) : la 008 + `functions/send-push` restent prêtes mais coupées (`push.enabled: false`). Le webhook de base de
+   données prévu sur `tickets` (UPDATE) fonctionne avec la 009 (le statut `called` et `pings` changent sur `tickets`).
+
+### Check-list de test (préproduction ou première heure, avec 2 téléphones + la tablette)
+- [ ] Téléphone A (navigation privée) : rejoindre la file → l'adresse contient `?t=<id>.<jeton>` ; rang 1.
+- [ ] Ouvrir ce lien sur le téléphone B → le même ticket s'affiche (reprise sur un autre appareil). Le même lien avec un jeton modifié → rien.
+- [ ] Depuis un navigateur sans session : `fetch(URL + '/rest/v1/tickets?select=*', { headers: { apikey: ANON } })` → refusé (401/403).
+      `…/rest/v1/queue_public?select=*` → lignes sans nom ni téléphone.
+- [ ] Tablette : mauvais PIN 5 fois → « Too many attempts » ; bon PIN 5 min plus tard → pointée, visible « en poste » sur la file.
+- [ ] Appeler la cliente → le téléphone A passe à « Your wait is over » **sans recharger** (temps réel) ; « Notify again » → nouvelle alerte.
+- [ ] Start, matcha, Finish → le téléphone A affiche le total et « You pay at your station » ; carte → « Approved on the terminal » → noter.
+- [ ] admin.html (gérante) : la visite et le pourboire apparaissent ; retirer un ticket en attente ; office.html → Cash closing : totaux du jour.
+- [ ] Une coiffeuse connectée avec SON compte ne peut pas retirer un ticket ni agir sur la cliente d'une autre (« Not allowed »).
+- [ ] Couper le Wi-Fi 1 min : bandeau « Connection problem », puis retour automatique.
+
+### Revenir en arrière
+`config.js` → `backend: 'demo'` et pousser : les pages repassent en démo (rien n'est effacé côté serveur). La 009 peut rester appliquée.

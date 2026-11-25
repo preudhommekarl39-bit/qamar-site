@@ -278,7 +278,9 @@
 
   // Historique filtrable (période / coiffeuse / statut)
   const methodLabel = { applepay: 'Apple Pay', card: 'Card', cash: 'Cash' };
-  document.getElementById('fStylist').innerHTML += Q.state.stylists.map(s => `<option value="${s.id}">${Q.esc(s.name)}</option>`).join('');
+  // File réelle : la liste des coiffeuses arrive du serveur après l'ouverture de la page
+  const fillStylists = () => { const f = document.getElementById('fStylist'); if (f.options.length > 1 || !Q.state.stylists.length) return; f.innerHTML += Q.state.stylists.map(s => `<option value="${s.id}">${Q.esc(s.name)}</option>`).join(''); };
+  fillStylists(); Q.on(fillStylists);
   function histRows() {
     const p = document.getElementById('fPeriod').value, sid = document.getElementById('fStylist').value, stt = document.getElementById('fStatus').value;
     const from = p === 'today' ? Q.startOfDay() : p === '7' ? Q.startOfDay() - 6 * 86400000 : 0;

@@ -24,9 +24,9 @@ Aucun backend nécessaire. Les données restent dans le navigateur de chaque app
 3. Créer les comptes du personnel dans Auth, puis insérer une ligne par personne dans `staff` (rôle `stylist` ou `manager`).
 4. Activer les promotions voulues dans la table `promotions` (elles sont créées désactivées).
 5. Dans `qamar/assets/config.js` : `backend: 'supabase'`, `supabaseUrl`, `supabaseAnonKey` (clé **anon** uniquement), `siteUrl`.
-6. Ajouter dans chaque page, avant `store.js` :
-   `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>` et `<script src="assets/backend-supabase.js"></script>`.
-7. Brancher les pages sur `window.QAMAR_BACKEND`. L'interface est décrite en tête de `backend-supabase.js` : mêmes actions que la démo. **Ce branchement reste à faire et à tester** : la démo n'utilise pas encore le connecteur.
+6. Rien à ajouter dans les pages : elles chargent déjà `assets/store-supabase.js` juste après `store.js`. Ce connecteur ne fait rien en
+   mode `demo` ; en mode `supabase`, il charge supabase-js (version figée) et remplace l'état local par celui du serveur (migration 009).
+7. Suivre la check-list « File réelle (migration 009) » de `supabase/README.md` (comptes, PIN, compte « poste », tests).
 
 ## 3. Paiements
 1. Choisir un prestataire disponible aux Émirats et ouvrir le compte marchand (Apple Pay nécessite la validation du domaine).

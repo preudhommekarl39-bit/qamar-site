@@ -571,7 +571,8 @@
   // iPhone : une app d'écran d'accueil a un stockage séparé de Safari, donc le ticket de démo (localStorage) n'y apparaît pas.
   // On le dit honnêtement (garder cette page ouverte aujourd'hui, numéro de ticket affiché). La page du ticket reste joignable par
   // son URL (?t=…) dans le navigateur où il a été créé. La reprise du ticket sur un autre appareil ou dans l'app arrive avec la file
-  // Supabase (phase 2) : le ticket vivra côté serveur et ?t=… l'ouvrira partout.
+  // Supabase (phase 2) : fait dans assets/store-supabase.js. Dès que config.js passe en backend 'supabase', le ticket vit côté serveur
+  // et le lien ?t=<id>.<jeton> l'ouvre partout (Safari, app d'écran d'accueil, app native, autre téléphone).
   const APP_OFF = 'qamar:app-card-off';
   const appOff = () => { try { return !!localStorage.getItem(APP_OFF); } catch (e) { return false; } };
   function appCard(code) {

@@ -22,7 +22,7 @@ Chaque étape indique **qui** doit agir. Ne pas passer `environment: 'production
 - [ ] Comptes du personnel via Supabase Auth (e-mail + mot de passe ou lien magique), rôles `stylist` / `manager` ; **supprimer les PIN de démonstration**
 - [ ] Protection anti-robot sur l'inscription à la file (ex. Cloudflare Turnstile) — la limite actuelle est de 3 tickets par numéro et par jour
 - [ ] Sauvegardes automatiques (plan payant Supabase : point-in-time recovery) et test de restauration
-- [ ] Brancher `assets/backend-supabase.js` (non testé à ce jour) et mettre `window.QAMAR_BACKEND_READY = true` seulement quand tout fonctionne
+- [ ] File réelle : appliquer `009_live_queue.sql`, créer le compte « poste » et les PIN, puis `config.js` → `backend: 'supabase'` (check-list dans `supabase/README.md`, section « File réelle ») ; `assets/store-supabase.js` est déjà chargé par les pages et testé contre PGlite, pas encore contre le vrai projet
 - [ ] Clé publique `anon` uniquement dans `config.js` ; `service_role`, clés de paiement et jeton WhatsApp uniquement dans `supabase secrets`
 
 ## 3. Paiements
