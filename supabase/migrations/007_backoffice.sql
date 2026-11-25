@@ -136,7 +136,7 @@ alter table addons drop constraint if exists addons_price_valid;
 alter table addons add constraint addons_price_valid check (price_aed > 0 and price_aed <= 5000 and price_aed = round(price_aed)) not valid;
 alter table addons drop constraint if exists addons_names_valid;
 alter table addons add constraint addons_names_valid check (
-  char_length(trim(name_en)) between 1 and 80 and char_length(trim(name_ar)) between 1 and 80 and (name_en || name_ar) !~ '[<>]') not valid;
+  char_length(trim(name_en)) between 1 and 120 and char_length(trim(name_ar)) between 1 and 120 and (name_en || name_ar) !~ '[<>]') not valid;
 alter table addons drop constraint if exists addons_kind_valid;
 alter table addons add constraint addons_kind_valid check (kind in ('matcha', 'drink', 'extra', 'ritual', 'other')) not valid;
 alter table addons drop constraint if exists addons_id_format;

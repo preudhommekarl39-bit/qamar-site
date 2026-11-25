@@ -72,7 +72,7 @@
     const errs = [];
     if (!ID_RE.test(str(a.id))) errs.push('Code: lowercase letters, digits and hyphens, 2 to 31 characters (e.g. shower).');
     if (opts.existingIds && opts.isNew && opts.existingIds.includes(str(a.id))) errs.push('Code: already used.');
-    names(a, [['name', 'Name', 80]], errs);
+    names(a, [['name', 'Name', 120]], errs);
     if (!ADDON_KINDS[a.kind]) errs.push('Type: choose one in the list.');
     if (!wholePrice(Number(a.price_aed))) errs.push('Price: a whole number of AED greater than 0 (5000 maximum).');
     if (!Number.isInteger(Number(a.sort_order))) errs.push('Order: a whole number.');
