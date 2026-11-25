@@ -122,7 +122,7 @@
     const st = Q.state.settings;
     document.getElementById('launch').innerHTML = st.launchMode
       ? (Q.state.launchServed < st.launchFirst ? `☾ Grand opening · <b>${st.launchFirst - Q.state.launchServed}</b> spots left at <b>−${st.launchFirstPct}%</b>` : `☾ Grand opening · <b>−${st.launchRestPct}%</b> all day`)
-      : (new Date().getHours() >= 20 ? '☾ Night Glow · any blow-dry + free matcha · 179 AED' : '☾ Open until midnight · 35 min or it\'s on us');
+      : (new Date().getHours() >= 20 ? `☾ Night Glow · any blow-dry + free matcha · ${((window.QAMAR_DATA.services || []).find(s => s.id === 'night') || { price: 189 }).price} AED` : '☾ Open until midnight · 35 min or it\'s on us');
 
     const on = Q.online();
     const e = Q.estimate('express', 'any');
